@@ -1,136 +1,219 @@
-# RepairShop - Repair Shop Management System
+# RepairFlow
 
-A complete management system for phone repair shops built with Next.js 15, TypeScript, Prisma, and SQLite.
+A comprehensive, open-source repair shop management system built with Next.js, designed to streamline operations for phone and device repair businesses.
 
-## Features
+![RepairFlow](https://img.shields.io/badge/RepairFlow-Open%20Source-blue)
+![Next.js](https://img.shields.io/badge/Next.js-15.0-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-- **Authentication & Authorization**: Role-based access control (Admin/Staff)
-- **Dashboard**: Overview with key metrics and quick actions
-- **Ticket Management**: Create, track, and manage repair tickets with status history
-- **Customer Management**: Manage customer information and view ticket history
-- **Inventory Management**: Track spare parts, stock levels, and transactions
-- **Public Tracking**: Customers can track their repairs using a tracking code
-- **Settings**: Admin-only settings and user management
+## 🌟 Features
 
-## Tech Stack
+### Core Functionality
+- **Ticket Management**: Complete lifecycle management from receipt to completion
+- **Customer Management**: Track customer information, history, and contact details
+- **Inventory Management**: Manage parts, track stock levels, and monitor reorder points
+- **Multi-language Support**: English, French, and Arabic
+- **Print System**: Generate labels (40x20mm) and invoices (80x80mm) with QR codes
+- **SMS Notifications**: Customizable SMS templates in multiple languages
+- **Dashboard Analytics**: Real-time KPIs, sales charts, and business insights
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Database**: SQLite with Prisma ORM
-- **Styling**: Tailwind CSS
-- **Authentication**: NextAuth.js (Credentials provider)
-- **Forms**: React Hook Form + Zod
-- **Icons**: Heroicons
+### Advanced Features
+- **User Management**: Role-based access control (Admin, Staff)
+- **Status Tracking**: Complete status history with notes
+- **Price Adjustments**: Track price changes with audit trail
+- **Parts Integration**: Link parts to tickets and track usage
+- **Returns Management**: Handle customer returns and refunds
+- **Payment Tracking**: Mark tickets as paid/unpaid
+- **Device Tracking**: Track device brands, models, and common issues
+- **Image Upload**: Capture device condition photos
+- **Search & Filters**: Quick search and filter tickets by status
 
-## Getting Started
+### Platform Support
+- **Web Application**: Full-featured web interface
+- **Android App**: Native Android support via Capacitor
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn/pnpm
+- Node.js 18+ and npm
+- SQLite (included) or PostgreSQL
+- For Android: Android Studio and Java JDK
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd CursorRepairApp
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/repairflow.git
+   cd repairflow
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` and add:
+   ```env
+   DATABASE_URL="file:./prisma/dev.db"
+   NEXTAUTH_SECRET="your-secret-key-here"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. **Set up the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npm run db:seed
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Default Login Credentials
+
+After seeding:
+- **Admin**: `admin` / `admin123`
+- **Staff**: `staff` / `staff123`
+
+⚠️ **Change these passwords immediately in production!**
+
+## 📱 Android Setup
+
+1. **Build the web app**
+   ```bash
+   npm run build:android
+   ```
+
+2. **Open Android Studio**
+   ```bash
+   npm run cap:open:android
+   ```
+
+3. **Configure server URL** in `capacitor.config.ts`:
+   - Development: `http://YOUR_IP:3000`
+   - Production: `https://your-domain.com`
+
+4. **Build and run** from Android Studio
+
+See [ANDROID_BUILD.md](./ANDROID_BUILD.md) for detailed instructions.
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15.0
+- **Language**: TypeScript
+- **Database**: Prisma ORM with SQLite/PostgreSQL
+- **Authentication**: NextAuth.js
+- **UI Components**: Radix UI + Tailwind CSS
+- **Mobile**: Capacitor
+- **Icons**: Heroicons
+- **Forms**: React Hook Form + Zod
+- **Charts**: Recharts
+- **Printing**: Custom print system
+
+## 📁 Project Structure
+
+```
+repairflow/
+├── prisma/              # Database schema and migrations
+├── src/
+│   ├── app/            # Next.js app router pages
+│   ├── components/     # React components
+│   ├── lib/           # Utilities and helpers
+│   └── contexts/      # React contexts
+├── public/            # Static assets
+├── scripts/          # Utility scripts
+└── capacitor.config.ts # Capacitor configuration
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+## 🔧 Configuration
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
+### Database
+The app uses Prisma ORM. To modify the schema:
+1. Edit `prisma/schema.prisma`
+2. Run `npx prisma db push` (development) or `npx prisma migrate dev` (production)
 
-Edit `.env` and set:
-- `DATABASE_URL="file:./dev.db"`
-- `NEXTAUTH_SECRET` (generate a random string)
-- `NEXTAUTH_URL="http://localhost:3000"`
-- SMTP settings (optional, for email features)
+### Settings
+Access settings via the Settings page (Admin only):
+- Company information
+- Branding (logo, background)
+- SMS templates
+- User management
+- Language preferences
 
-4. Set up the database:
-```bash
-npx prisma generate
-npx prisma db push
-npx prisma db seed
-```
+### SMS Templates
+Create custom SMS templates in multiple languages:
+- Navigate to Settings → SMS Templates
+- Create templates for different ticket statuses
+- Use variables: `{customerName}`, `{ticketNumber}`, `{trackingCode}`, `{finalPrice}`
 
-5. Run the development server:
-```bash
-npm run dev
-```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Default Credentials
-
-After seeding the database:
-
-- **Admin**: username: `admin`, password: `admin123`
-- **Staff**: username: `staff`, password: `staff123`
-
-## Project Structure
-
-```
-src/
-├── app/              # Next.js App Router pages and API routes
-├── components/       # React components
-│   ├── layout/      # Layout components (sidebar, main layout)
-│   ├── tickets/     # Ticket-related components
-│   ├── settings/    # Settings components
-│   └── ui/          # Reusable UI components
-├── lib/             # Utility functions and configurations
-└── types/           # TypeScript type definitions
-
-prisma/
-├── schema.prisma    # Database schema
-└── seed.ts          # Database seed script
-```
-
-## Available Scripts
+## 📝 Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
-- `npm run db:push` - Push schema changes to database
-- `npm run db:migrate` - Create a migration
-- `npm run db:seed` - Seed the database
+- `npm run db:seed` - Seed database with sample data
 - `npm run db:studio` - Open Prisma Studio
+- `npm run reset-admin-password` - Reset admin password
+- `npm run cap:sync` - Sync Capacitor
+- `npm run android:build` - Build for Android
 
-## Features in Detail
+## 🤝 Contributing
 
-### Ticket Management
-- Create tickets with device details and photos
-- Track status through workflow (Received → In Progress → Waiting for Parts → Repaired → Completed)
-- Price adjustments with audit trail
-- Parts usage tracking
-- Print tickets with QR codes
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Customer Management
-- Add and manage customer profiles
-- View customer ticket history
-- Search and filter customers
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Inventory Management
-- Track spare parts stock
-- Low stock alerts
-- Inventory transactions (IN/OUT)
-- Supplier information
+### Development Guidelines
 
-### Public Tracking
-- Customers can track repairs using tracking code at `/track`
-- View status history and ticket information
+- Follow TypeScript best practices
+- Use meaningful commit messages
+- Add comments for complex logic
+- Test your changes thoroughly
+- Update documentation as needed
 
-### Settings (Admin Only)
-- Company information settings
-- User management (create/edit users)
-- Role-based access control
+## 📄 License
 
-## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-MIT
+## 🙏 Acknowledgments
 
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [Radix UI](https://www.radix-ui.com/)
+- Icons from [Heroicons](https://heroicons.com/)
+- Database management with [Prisma](https://www.prisma.io/)
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/yourusername/repairflow/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/repairflow/discussions)
+
+## 🗺️ Roadmap
+
+- [ ] Email notifications
+- [ ] Advanced reporting and analytics
+- [ ] Barcode scanning for inventory
+- [ ] Multi-store support
+- [ ] API for third-party integrations
+- [ ] Mobile app improvements
+- [ ] More language support
+
+---
+
+Made with ❤️ by the RepairFlow community

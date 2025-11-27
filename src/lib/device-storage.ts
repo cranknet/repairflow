@@ -1,5 +1,5 @@
-const STORAGE_KEY_BRANDS = 'repairshop_custom_brands';
-const STORAGE_KEY_MODELS = 'repairshop_custom_models';
+const STORAGE_KEY_BRANDS = 'repairflow_custom_brands';
+const STORAGE_KEY_MODELS = 'repairflow_custom_models';
 
 export interface CustomDeviceData {
   brands: string[];

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendEmail({
         to: user.email || user.username,
-        subject: 'Password Reset Request - RepairShop',
+        subject: 'Password Reset Request - RepairFlow',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Password Reset Request</h2>
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
             <p>This link will expire in 1 hour.</p>
             <p>If you didn't request this, please ignore this email.</p>
             <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-            <p style="color: #666; font-size: 12px;">RepairShop - Repair Shop Management System</p>
+            <p style="color: #666; font-size: 12px;">RepairFlow - Repair Shop Management System</p>
           </div>
         `,
       });

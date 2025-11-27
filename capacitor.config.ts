@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.repairshop.app',
-  appName: 'RepairShop',
+  appId: 'com.repairflow.app',
+  appName: 'RepairFlow',
   webDir: 'public', // Use public folder as webDir (will be empty, server URL handles content)
   server: {
     androidScheme: 'https',

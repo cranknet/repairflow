@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [companyLogo, setCompanyLogo] = useState<string>('');
-  const [companyName, setCompanyName] = useState<string>('RepairShop');
+  const [companyName, setCompanyName] = useState<string>('RepairFlow');
   const [formData, setFormData] = useState({
     username: '',
     password: '',

@@ -41,7 +41,7 @@ export function TopNavigation() {
           <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-medium">
             <TicketIcon className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900">RepairShop</span>
+          <span className="text-xl font-bold text-gray-900">RepairFlow</span>
         </Link>
 
         {/* Navigation Menu */}

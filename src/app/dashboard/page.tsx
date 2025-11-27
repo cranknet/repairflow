@@ -394,7 +394,7 @@ export default async function DashboardPage() {
             <SalesTarget
               current={currentMonthSales}
               target={monthlyTarget}
-              storeName={settingsMap.company_name || 'RepairShop'}
+              storeName={settingsMap.company_name || 'RepairFlow'}
               date={format(new Date(), 'dd MMMM yyyy')}
             />
           </div>
