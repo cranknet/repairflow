@@ -48,8 +48,8 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
         }}>
           {companyName.substring(0, 20)}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', height: '100%', marginTop: '3mm' }}>
-          <div style={{ flex: '1', display: 'flex', flexDirection: 'column', paddingRight: '2mm' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2mm', height: '100%', marginTop: '3mm' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }}>
             <div>
               <div style={{ fontSize: '6px', lineHeight: '1.2', marginBottom: '0.5mm' }}>
                 <strong>Customer:</strong> {ticket.customer?.name ? ticket.customer.name.substring(0, 20) : 'N/A'}
@@ -62,14 +62,14 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
             <QRCodeSVG
               value={ticket.trackingCode || 'N/A'}
               size={45}
               level="M"
               includeMargin={false}
             />
-            <div style={{ fontSize: '5px', marginTop: '1mm', textAlign: 'center' }}>
+            <div style={{ fontSize: '5px', marginTop: '1mm', textAlign: 'left' }}>
               {ticket.trackingCode || 'N/A'}
             </div>
           </div>

@@ -9,6 +9,7 @@ import { PriceAdjustment } from './price-adjustment';
 import { TicketAssignment } from './ticket-assignment';
 import { SMSSender } from '@/components/sms/sms-sender';
 import { useLanguage } from '@/contexts/language-context';
+import { useToast } from '@/components/ui/use-toast';
 
 interface TicketTabsProps {
   ticket: any;
@@ -17,7 +18,9 @@ interface TicketTabsProps {
 
 export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+  const [copied, setCopied] = useState(false);
 
   const TABS = [
     { id: 'overview', label: t('overview') },
@@ -41,6 +44,26 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+    }
+  };
+
+  const handleCopyTrackingCode = async () => {
+    if (!ticket.trackingCode) return;
+    
+    try {
+      await navigator.clipboard.writeText(ticket.trackingCode);
+      setCopied(true);
+      toast({
+        title: t('success'),
+        description: 'Tracking code copied to clipboard',
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast({
+        title: t('error'),
+        description: 'Failed to copy tracking code',
+      });
     }
   };
 
@@ -98,7 +121,16 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('trackingCode')}</p>
-                  <p className="font-mono text-sm font-medium">{ticket.trackingCode}</p>
+                  <button
+                    onClick={handleCopyTrackingCode}
+                    className="font-mono text-sm font-medium cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors select-all"
+                    title="Click to copy"
+                  >
+                    {ticket.trackingCode}
+                  </button>
+                  {copied && (
+                    <span className="ml-2 text-xs text-green-600 dark:text-green-400">Copied!</span>
+                  )}
                 </CardContent>
               </Card>
               <Card>

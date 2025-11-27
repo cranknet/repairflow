@@ -75,7 +75,7 @@ export function DeviceIssueAutocomplete({
               className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium flex items-center gap-2"
             >
               <PlusIcon className="h-4 w-4" />
-              Use &quot;{value.trim()}&quot; as device issue
+              Add &quot;{value.trim()}&quot; as Device Issue
             </button>
           </div>
         )}
