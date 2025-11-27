@@ -3,11 +3,15 @@ import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { TicketSearch } from '@/components/tickets/ticket-search';
+import { TicketFilters } from '@/components/tickets/ticket-filters';
+import { NoTicketsFound } from '@/components/tickets/no-tickets-found';
+import { PageHeader } from '@/components/layout/page-header';
+import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
 
 const TICKETS_PER_PAGE = 10;
 
@@ -80,60 +84,27 @@ export default async function TicketsPage({
   return (
     <MainLayout>
       <div className="space-y-6 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Tickets</h1>
-            <p className="text-gray-600 dark:text-gray-400">Manage repair tickets</p>
-          </div>
-          <Link href="/tickets/new" className="mr-4">
-            <Button>Create New Ticket</Button>
-          </Link>
-        </div>
+        <PageHeader
+          titleKey="tickets"
+          descriptionKey="manageTickets"
+          actionButton={{
+            labelKey: 'createNewTicket',
+            href: '/tickets/new',
+          }}
+        />
 
         {/* Search and Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Search & Filters</CardTitle>
+            <TranslatedCardTitle translationKey="searchAndFilters" />
           </CardHeader>
           <CardContent className="space-y-4">
             <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
               <TicketSearch />
             </Suspense>
-            <div className="flex gap-2 flex-wrap">
-              <Link href="/tickets">
-                <Button variant={!params.status ? 'default' : 'outline'}>All</Button>
-              </Link>
-              <Link href="/tickets?status=active">
-                <Button variant={params.status === 'active' ? 'default' : 'outline'}>
-                  Active
-                </Button>
-              </Link>
-              <Link href="/tickets?status=IN_PROGRESS">
-                <Button variant={params.status === 'IN_PROGRESS' ? 'default' : 'outline'}>
-                  In Progress
-                </Button>
-              </Link>
-              <Link href="/tickets?status=WAITING_FOR_PARTS">
-                <Button variant={params.status === 'WAITING_FOR_PARTS' ? 'default' : 'outline'}>
-                  Waiting for Parts
-                </Button>
-              </Link>
-              <Link href="/tickets?status=REPAIRED">
-                <Button variant={params.status === 'REPAIRED' ? 'default' : 'outline'}>
-                  Repaired
-                </Button>
-              </Link>
-              <Link href="/tickets?status=COMPLETED">
-                <Button variant={params.status === 'COMPLETED' ? 'default' : 'outline'}>
-                  Completed
-                </Button>
-              </Link>
-              <Link href="/tickets?status=CANCELLED">
-                <Button variant={params.status === 'CANCELLED' ? 'default' : 'outline'}>
-                  Cancelled
-                </Button>
-              </Link>
-            </div>
+            <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
+              <TicketFilters currentStatus={params.status} />
+            </Suspense>
           </CardContent>
         </Card>
 
@@ -151,7 +122,7 @@ export default async function TicketsPage({
           </CardHeader>
           <CardContent>
             {tickets.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No tickets found</p>
+              <NoTicketsFound />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">

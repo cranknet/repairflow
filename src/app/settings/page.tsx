@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SettingsClient } from '@/components/settings/settings-client';
+import { PageHeader } from '@/components/layout/page-header';
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -38,10 +39,10 @@ export default async function SettingsPage() {
   return (
     <MainLayout>
       <div className="space-y-6 pt-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage system settings and users</p>
-        </div>
+        <PageHeader
+          titleKey="settings"
+          descriptionKey="manageSystemSettings"
+        />
 
         <SettingsClient initialSettings={settingsMap} initialUsers={users} />
       </div>

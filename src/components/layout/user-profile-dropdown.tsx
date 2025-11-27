@@ -8,9 +8,11 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { ProfileSettingsModal } from './profile-settings-modal';
+import { useLanguage } from '@/contexts/language-context';
 
 export function UserProfileDropdown() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -99,14 +101,14 @@ export function UserProfileDropdown() {
               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <Cog6ToothIcon className="h-5 w-5" />
-              Profile Settings
+              {t('profileSettings')}
             </button>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <ArrowRightOnRectangleIcon className="h-5 w-5" />
-              Logout
+              {t('logout')}
             </button>
           </div>
         </div>

@@ -3,9 +3,10 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { KPICard } from '@/components/dashboard/kpi-card';
+import { DashboardKPIs } from '@/components/dashboard/dashboard-kpis';
 import { SalesChart } from '@/components/dashboard/sales-chart';
 import { SalesTarget } from '@/components/dashboard/sales-target';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -249,42 +250,19 @@ export default async function DashboardPage() {
     <MainLayout>
       <div className="space-y-8 p-6 pt-6">
         {/* Welcome Message */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">
-              Welcome back, {session.user?.name || session.user?.username}!
-            </h1>
-            <p className="text-gray-600">Here&apos;s what&apos;s happening with your repair shop today.</p>
-          </div>
-        </div>
+        <DashboardHeader userName={session.user?.name || session.user?.username || ''} />
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          <KPICard
-            title="Weekly Revenue"
-            value={`$${weeklyRevenue.toFixed(2)}`}
-            change={revenueChange}
-            color="blue"
-          />
-          <KPICard
-            title="Active Tickets"
-            value={activeTickets.toString()}
-            change={activeTicketsChange}
-            color="green"
-          />
-          <KPICard
-            title="Low Stock Items"
-            value={lowStockItems.toString()}
-            change={lowStockChange}
-            color="yellow"
-          />
-          <KPICard
-            title="Total Customers"
-            value={totalCustomers.toString()}
-            change={customersChange}
-            color="purple"
-          />
-        </div>
+        <DashboardKPIs
+          activeTickets={activeTickets}
+          activeTicketsChange={activeTicketsChange}
+          totalCustomers={totalCustomers}
+          customersChange={customersChange}
+          lowStockItems={lowStockItems}
+          lowStockChange={lowStockChange}
+          weeklyRevenue={weeklyRevenue}
+          revenueChange={revenueChange}
+        />
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 gap-6">

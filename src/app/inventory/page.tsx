@@ -2,9 +2,12 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { PageHeader } from '@/components/layout/page-header';
+import { InventoryFilters } from '@/components/inventory/inventory-filters';
+import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
 
 export default async function InventoryPage({
   searchParams,
@@ -39,43 +42,33 @@ export default async function InventoryPage({
   return (
     <MainLayout>
       <div className="space-y-6 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Inventory</h1>
-            <p className="text-gray-600 dark:text-gray-400">Manage spare parts and stock</p>
-          </div>
-          <Link href="/inventory/new" className="mr-4">
-            <Button>Add Part</Button>
-          </Link>
-        </div>
+        <PageHeader
+          titleKey="inventory"
+          descriptionKey="manageInventory"
+          actionButton={{
+            labelKey: 'addPart',
+            href: '/inventory/new',
+          }}
+        />
 
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Filters</CardTitle>
+            <TranslatedCardTitle translationKey="filters" />
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
-              <Link href="/inventory">
-                <Button variant={!params.filter ? 'default' : 'outline'}>All</Button>
-              </Link>
-              <Link href="/inventory?filter=low_stock">
-                <Button variant={params.filter === 'low_stock' ? 'default' : 'outline'}>
-                  Low Stock
-                </Button>
-              </Link>
-            </div>
+            <InventoryFilters currentFilter={params.filter} />
           </CardContent>
         </Card>
 
         {/* Parts List */}
         <Card>
           <CardHeader>
-            <CardTitle>Parts ({parts.length})</CardTitle>
+            <InventoryListHeader count={parts.length} />
           </CardHeader>
           <CardContent>
             {parts.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No parts found</p>
+              <NoPartsFound />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">

@@ -28,10 +28,7 @@ export function LanguageSwitcher() {
   const handleLanguageChange = (langCode: Language) => {
     setIsOpen(false);
     setLanguage(langCode);
-    // Small delay before reload to ensure localStorage is saved
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
+    // Language change will update via context, no reload needed
   };
 
   return (

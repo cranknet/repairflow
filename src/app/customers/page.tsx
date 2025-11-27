@@ -3,11 +3,13 @@ import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { CustomerSearch } from '@/components/customers/customer-search';
+import { PageHeader } from '@/components/layout/page-header';
+import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
 
 export default async function CustomersPage({
   searchParams,
@@ -42,20 +44,19 @@ export default async function CustomersPage({
   return (
     <MainLayout>
       <div className="space-y-6 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Customers</h1>
-            <p className="text-gray-600 dark:text-gray-400">Manage customer information</p>
-          </div>
-          <Link href="/customers/new" className="mr-4">
-            <Button>Add Customer</Button>
-          </Link>
-        </div>
+        <PageHeader
+          titleKey="customers"
+          descriptionKey="manageCustomers"
+          actionButton={{
+            labelKey: 'addCustomer',
+            href: '/customers/new',
+          }}
+        />
 
         {/* Search Filter */}
         <Card>
           <CardHeader>
-            <CardTitle>Search Customers</CardTitle>
+            <TranslatedCardTitle translationKey="searchCustomers" />
           </CardHeader>
           <CardContent>
             <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
@@ -66,18 +67,11 @@ export default async function CustomersPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>
-              All Customers ({customers.length})
-              {params.search && (
-                <span className="text-sm font-normal text-gray-500 ml-2">
-                  - Filtered by &quot;{params.search}&quot;
-                </span>
-              )}
-            </CardTitle>
+            <CustomersListHeader count={customers.length} searchQuery={params.search} />
           </CardHeader>
           <CardContent>
             {customers.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No customers found</p>
+              <NoCustomersFound />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">

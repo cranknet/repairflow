@@ -15,18 +15,20 @@ import {
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { AppVersion } from './app-version';
+import { useLanguage } from '@/contexts/language-context';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Tickets', href: '/tickets', icon: TicketIcon },
-  { name: 'Inventory', href: '/inventory', icon: CubeIcon },
-  { name: 'Customers', href: '/customers', icon: UserGroupIcon },
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon, adminOnly: true },
+const navigationKeys = [
+  { key: 'dashboard', href: '/dashboard', icon: HomeIcon },
+  { key: 'tickets', href: '/tickets', icon: TicketIcon },
+  { key: 'inventory', href: '/inventory', icon: CubeIcon },
+  { key: 'customers', href: '/customers', icon: UserGroupIcon },
+  { key: 'settings', href: '/settings', icon: Cog6ToothIcon, adminOnly: true },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Load collapse state from localStorage
@@ -44,7 +46,7 @@ export function Sidebar() {
     localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
   };
 
-  const filteredNavigation = navigation.filter(
+  const filteredNavigation = navigationKeys.filter(
     (item) => !item.adminOnly || session?.user?.role === 'ADMIN'
   );
 
@@ -90,9 +92,10 @@ export function Sidebar() {
       <nav className="flex-1 flex flex-col gap-1 p-3">
         {filteredNavigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const translatedName = t(item.key);
           return (
             <Link
-              key={item.name}
+              key={item.key}
               href={item.href}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
@@ -101,10 +104,10 @@ export function Sidebar() {
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
                 isCollapsed && 'justify-center'
               )}
-              title={isCollapsed ? item.name : undefined}
+              title={isCollapsed ? translatedName : undefined}
             >
               <item.icon className="h-5 w-5 flex-shrink-0" />
-              {!isCollapsed && <span>{item.name}</span>}
+              {!isCollapsed && <span>{translatedName}</span>}
             </Link>
           );
         })}
