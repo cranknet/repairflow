@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { format } from 'date-fns';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AppVersion } from '@/components/layout/app-version';
@@ -21,6 +22,9 @@ import {
 } from '@/components/ui/dialog';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/contexts/language-context';
+import { useSettings } from '@/contexts/settings-context';
+import { CURRENCIES } from '@/lib/currencies';
+import { COUNTRIES } from '@/lib/countries';
 
 export function SettingsClient({
   initialSettings,
@@ -32,6 +36,7 @@ export function SettingsClient({
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { refreshSettings } = useSettings();
 
   const TABS = [
     { id: 'general', label: t('generalSettings') },
@@ -66,6 +71,10 @@ export function SettingsClient({
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [deleteUserConfirmOpen, setDeleteUserConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [showLoginLogs, setShowLoginLogs] = useState(false);
+  const [selectedUserForLogs, setSelectedUserForLogs] = useState<any>(null);
+  const [loginLogs, setLoginLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const { data: session } = useSession();
 
   const handleSaveSettings = async () => {
@@ -83,6 +92,10 @@ export function SettingsClient({
         title: 'Success',
         description: 'Settings saved successfully',
       });
+      // Refresh settings context if company name or logo changed
+      if (settings.company_name || settings.company_logo) {
+        await refreshSettings();
+      }
       // Refresh in background to sync
       router.refresh();
     } catch (error) {
@@ -128,6 +141,8 @@ export function SettingsClient({
         title: 'Success',
         description: 'Logo uploaded successfully',
       });
+      // Refresh settings context to update sidebar immediately
+      await refreshSettings();
       // Refresh in background to sync
       router.refresh();
     } catch (error) {
@@ -334,6 +349,26 @@ export function SettingsClient({
     }
   };
 
+  const handleViewLoginLogs = async (user: any) => {
+    setSelectedUserForLogs(user);
+    setShowLoginLogs(true);
+    setIsLoadingLogs(true);
+    
+    try {
+      const response = await fetch(`/api/users/${user.id}/login-logs`);
+      if (!response.ok) throw new Error('Failed to fetch login logs');
+      const logs = await response.json();
+      setLoginLogs(logs);
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: 'Failed to fetch login logs',
+      });
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
+
   const handleDeleteUser = (userId: string) => {
     setUserToDelete(userId);
     setDeleteUserConfirmOpen(true);
@@ -344,7 +379,7 @@ export function SettingsClient({
 
     setIsDeleting(userToDelete);
     try {
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(`/api/users/${userToDelete}`, {
         method: 'DELETE',
       });
 
@@ -459,18 +494,11 @@ export function SettingsClient({
                     }
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
-                    <option value="USD">USD - US Dollar ($)</option>
-                    <option value="EUR">EUR - Euro (€)</option>
-                    <option value="GBP">GBP - British Pound (£)</option>
-                    <option value="JPY">JPY - Japanese Yen (¥)</option>
-                    <option value="AUD">AUD - Australian Dollar (A$)</option>
-                    <option value="CAD">CAD - Canadian Dollar (C$)</option>
-                    <option value="CHF">CHF - Swiss Franc (Fr)</option>
-                    <option value="CNY">CNY - Chinese Yuan (¥)</option>
-                    <option value="INR">INR - Indian Rupee (₹)</option>
-                    <option value="SAR">SAR - Saudi Riyal (ر.س)</option>
-                    <option value="AED">AED - UAE Dirham (د.إ)</option>
-                    <option value="EGP">EGP - Egyptian Pound (E£)</option>
+                    {CURRENCIES.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.flag} {currency.code} - {currency.name} ({currency.symbol})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -483,32 +511,11 @@ export function SettingsClient({
                     }
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                    <option value="GB">United Kingdom</option>
-                    <option value="AU">Australia</option>
-                    <option value="DE">Germany</option>
-                    <option value="FR">France</option>
-                    <option value="IT">Italy</option>
-                    <option value="ES">Spain</option>
-                    <option value="NL">Netherlands</option>
-                    <option value="BE">Belgium</option>
-                    <option value="CH">Switzerland</option>
-                    <option value="AT">Austria</option>
-                    <option value="SE">Sweden</option>
-                    <option value="NO">Norway</option>
-                    <option value="DK">Denmark</option>
-                    <option value="FI">Finland</option>
-                    <option value="PL">Poland</option>
-                    <option value="PT">Portugal</option>
-                    <option value="GR">Greece</option>
-                    <option value="IE">Ireland</option>
-                    <option value="NZ">New Zealand</option>
-                    <option value="JP">Japan</option>
-                    <option value="CN">China</option>
-                    <option value="IN">India</option>
-                    <option value="SA">Saudi Arabia</option>
-                    <option value="AE">United Arab Emirates</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.flag} {country.name}
+                      </option>
+                    ))}
                     <option value="EG">Egypt</option>
                     <option value="ZA">South Africa</option>
                     <option value="BR">Brazil</option>
@@ -705,6 +712,15 @@ export function SettingsClient({
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleViewLoginLogs(user)}
+                        className="flex items-center gap-1.5"
+                      >
+                        <ClockIcon className="h-4 w-4" />
+                        {t('loginLogs')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleEditUser(user)}
                         className="flex items-center gap-1.5"
                       >
@@ -891,6 +907,76 @@ export function SettingsClient({
           variant="destructive"
           onConfirm={confirmDeleteUser}
         />
+
+        {/* Login Logs Dialog */}
+        <Dialog open={showLoginLogs} onOpenChange={(open) => !open && setShowLoginLogs(false)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {t('loginLogs')} - {selectedUserForLogs?.name || selectedUserForLogs?.username}
+              </DialogTitle>
+              <DialogDescription>
+                View login history for this user
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              {isLoadingLogs ? (
+                <div className="text-center py-8 text-gray-500">{t('loading')}</div>
+              ) : loginLogs.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">No login logs found</div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-5 gap-4 pb-2 border-b font-semibold text-sm text-gray-700 dark:text-gray-300">
+                    <div>Date & Time</div>
+                    <div>Status</div>
+                    <div>IP Address</div>
+                    <div>User Agent</div>
+                    <div>Success</div>
+                  </div>
+                  {loginLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="grid grid-cols-5 gap-4 py-2 border-b text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <div className="text-gray-700 dark:text-gray-300">
+                        {format(new Date(log.createdAt), 'MMM dd, yyyy HH:mm:ss')}
+                      </div>
+                      <div>
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            log.success
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          }`}
+                        >
+                          {log.success ? 'Success' : 'Failed'}
+                        </span>
+                      </div>
+                      <div className="text-gray-600 dark:text-gray-400 font-mono text-xs">
+                        {log.ipAddress || 'N/A'}
+                      </div>
+                      <div className="text-gray-600 dark:text-gray-400 text-xs truncate" title={log.userAgent || 'N/A'}>
+                        {log.userAgent || 'N/A'}
+                      </div>
+                      <div>
+                        {log.success ? (
+                          <span className="text-green-600 dark:text-green-400">✓</span>
+                        ) : (
+                          <span className="text-red-600 dark:text-red-400">✗</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowLoginLogs(false)} variant="outline">
+                {t('close')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
