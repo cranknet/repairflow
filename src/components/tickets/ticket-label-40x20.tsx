@@ -20,10 +20,11 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', height: '100%' }}>
-          <div style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingRight: '2mm' }}>
+          <div style={{ flex: '1', display: 'flex', flexDirection: 'column', paddingRight: '2mm' }}>
             <div>
               <div style={{ fontSize: '6px', lineHeight: '1.2', marginBottom: '0.5mm' }}>
                 <strong>Customer:</strong> {ticket.customer?.name ? ticket.customer.name.substring(0, 20) : 'N/A'}
@@ -34,9 +35,6 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
               <div style={{ fontSize: '6px', lineHeight: '1.2', marginBottom: '0.5mm' }}>
                 <strong>Phone:</strong> {ticket.customer?.phone ? ticket.customer.phone.substring(0, 15) : 'N/A'}
               </div>
-            </div>
-            <div style={{ fontSize: '5px', color: '#666' }}>
-              {ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM dd, yyyy') : 'N/A'}
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -50,6 +48,15 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
               {ticket.trackingCode || 'N/A'}
             </div>
           </div>
+        </div>
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '2mm', 
+          left: '2mm', 
+          fontSize: '5px', 
+          color: '#666' 
+        }}>
+          {ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM dd, yyyy') : 'N/A'}
         </div>
     </div>
   );
