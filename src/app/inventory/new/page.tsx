@@ -173,7 +173,7 @@ export default function NewPartPage() {
               {isLoading ? t('creating') : t('createPart')}
             </Button>
             <Link href="/inventory">
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outlined">
                 {t('cancel')}
               </Button>
             </Link>

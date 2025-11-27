@@ -3,14 +3,7 @@ import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CustomerSearch } from '@/components/customers/customer-search';
-import { CustomersListHeader } from '@/components/customers/customers-list-header';
-import { NoCustomersFound } from '@/components/customers/no-customers-found';
-import { PageHeader } from '@/components/layout/page-header';
-import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
-import { CustomersTable } from '@/components/customers/customers-table';
+import { CustomersPageClient } from '@/components/customers/customers-page-client';
 
 export default async function CustomersPage({
   searchParams,
@@ -44,41 +37,9 @@ export default async function CustomersPage({
 
   return (
     <MainLayout>
-      <div className="space-y-6 pt-6">
-        <PageHeader
-          titleKey="customers"
-          descriptionKey="manageCustomers"
-          actionButton={{
-            labelKey: 'addCustomer',
-            href: '/customers/new',
-          }}
-        />
-
-        {/* Search Filter */}
-        <Card>
-          <CardHeader>
-            <TranslatedCardTitle translationKey="searchCustomers" />
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-              <CustomerSearch />
-            </Suspense>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CustomersListHeader count={customers.length} searchQuery={params.search} />
-          </CardHeader>
-          <CardContent>
-            {customers.length === 0 ? (
-              <NoCustomersFound />
-            ) : (
-              <CustomersTable customers={customers} />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
+        <CustomersPageClient customers={customers} search={params.search} />
+      </Suspense>
     </MainLayout>
   );
 }

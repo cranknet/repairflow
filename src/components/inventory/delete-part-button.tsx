@@ -58,7 +58,7 @@ export function DeletePartButton({ partId, partName }: DeletePartButtonProps) {
   return (
     <>
       <Button
-        variant="outline"
+        variant="outlined"
         onClick={() => setIsOpen(true)}
         className="text-red-600 hover:text-red-700 hover:bg-red-50"
       >
@@ -75,7 +75,7 @@ export function DeletePartButton({ partId, partName }: DeletePartButtonProps) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isDeleting}>
+            <Button variant="outlined" onClick={() => setIsOpen(false)} disabled={isDeleting}>
               Cancel
             </Button>
             <Button

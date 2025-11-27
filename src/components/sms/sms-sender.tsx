@@ -179,7 +179,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
           {showCOMPortFeatures && (
             <Button
               onClick={fetchPorts}
-              variant="outline"
+              variant="outlined"
               size="sm"
               disabled={isRefreshing}
             >

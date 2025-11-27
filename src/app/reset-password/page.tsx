@@ -134,7 +134,7 @@ function ResetPasswordForm() {
                 <Button onClick={() => router.push('/forgot-password')} className="w-full">
                   Request New Reset Link
                 </Button>
-                <Button variant="outline" onClick={() => router.push('/login')} className="w-full">
+                <Button variant="outlined" onClick={() => router.push('/login')} className="w-full">
                   Back to Login
                 </Button>
               </div>

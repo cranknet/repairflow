@@ -23,15 +23,15 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
   const [selectedFormat, setSelectedFormat] = useState<'40x20' | '80x80' | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Check if invoice can be printed (only for COMPLETED or REPAIRED status, or if ticket has returns)
+  // Check if invoice can be printed (only for REPAIRED status, or if ticket has returns)
   const hasReturns = ticket.returns && ticket.returns.length > 0;
-  const canPrintInvoice = ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED' || hasReturns;
+  const canPrintInvoice = ticket.status === 'REPAIRED' || hasReturns;
 
   const handleSelectFormat = (format: '40x20' | '80x80') => {
     if (format === '80x80' && !canPrintInvoice) {
       toast({
         title: t('error'),
-        description: 'Invoice can only be printed when ticket status is Completed or Repaired',
+        description: 'Invoice can only be printed when ticket status is Repaired',
         variant: 'destructive',
       });
       return;
@@ -104,7 +104,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
 
   return (
     <>
-      <Button onClick={() => setIsDialogOpen(true)} variant="outline" size="sm">
+      <Button onClick={() => setIsDialogOpen(true)} variant="outlined" size="sm">
         <PrinterIcon className="h-4 w-4 mr-2" />
         {t('print')}
       </Button>
@@ -129,7 +129,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
               <div className="space-y-3 py-4">
                 <Button
                   onClick={() => handleSelectFormat('40x20')}
-                  variant="outline"
+                  variant="outlined"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex flex-col items-start">
@@ -141,7 +141,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </Button>
                 <Button
                   onClick={() => handleSelectFormat('80x80')}
-                  variant="outline"
+                  variant="outlined"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                   disabled={!canPrintInvoice}
                   title={!canPrintInvoice ? 'Invoice can only be printed when ticket status is Completed or Repaired' : undefined}
@@ -157,7 +157,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </Button>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button variant="outlined" onClick={() => setIsDialogOpen(false)}>
                   {t('cancel')}
                 </Button>
               </DialogFooter>
@@ -205,7 +205,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setSelectedFormat(null)}>
+                <Button variant="outlined" onClick={() => setSelectedFormat(null)}>
                   {t('back')}
                 </Button>
                 <Button onClick={handlePrint}>

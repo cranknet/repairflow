@@ -136,7 +136,7 @@ export default function NewCustomerPage() {
               {isLoading ? t('creating') : t('createCustomer')}
             </Button>
             <Link href="/customers">
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outlined">
                 {t('cancel')}
               </Button>
             </Link>

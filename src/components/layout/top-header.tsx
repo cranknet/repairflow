@@ -20,7 +20,7 @@ export function TopHeader() {
       className="bg-surface border-b border-outline-variant shadow-md-level0 sticky top-0 z-40 transition-all duration-short2 ease-standard"
       role="banner"
     >
-      <div className="flex items-center gap-4 h-16 px-6">
+      <div className="flex items-center gap-4 h-16 px-4">
         {/* Search Bar - Left aligned */}
         <div className="flex-1 max-w-2xl">
           <SearchBars />

@@ -588,7 +588,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="outlined"
                       onClick={() => logoInputRef.current?.click()}
                       disabled={isUploadingLogo}
                     >
@@ -637,7 +637,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="outlined"
                       onClick={() => backgroundInputRef.current?.click()}
                       disabled={isUploadingBackground}
                     >
@@ -659,7 +659,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="outlined"
                       onClick={handleBackgroundUrlChange}
                       disabled={isSaving || !backgroundImageUrl.trim()}
                     >
@@ -738,7 +738,7 @@ export function SettingsClient({
                   <CardTitle>{t('userManagement')}</CardTitle>
                   <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
                 </div>
-                <Button onClick={() => setShowNewUser(true)} variant="outline">
+                <Button onClick={() => setShowNewUser(true)} variant="outlined">
                   {t('addUser')}
                 </Button>
               </div>
@@ -768,7 +768,7 @@ export function SettingsClient({
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="outline"
+                        variant="outlined"
                         size="sm"
                         onClick={() => handleViewLoginLogs(user)}
                         className="flex items-center gap-1.5"
@@ -777,7 +777,7 @@ export function SettingsClient({
                         {t('loginLogs')}
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="outlined"
                         size="sm"
                         onClick={() => handleEditUser(user)}
                         className="flex items-center gap-1.5"
@@ -786,7 +786,7 @@ export function SettingsClient({
                         {t('edit')}
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="outlined"
                         size="sm"
                         onClick={() => handleDeleteUser(user.id)}
                         disabled={isDeleting === user.id || user.id === session?.user?.id}
@@ -864,7 +864,7 @@ export function SettingsClient({
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowNewUser(false)}>
+                    <Button variant="outlined" onClick={() => setShowNewUser(false)}>
                       Cancel
                     </Button>
                     <Button
@@ -938,7 +938,7 @@ export function SettingsClient({
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setEditingUser(null)}>
+                    <Button variant="outlined" onClick={() => setEditingUser(null)}>
                       Cancel
                     </Button>
                     <Button
@@ -1029,7 +1029,7 @@ export function SettingsClient({
               )}
             </div>
             <DialogFooter>
-              <Button onClick={() => setShowLoginLogs(false)} variant="outline">
+              <Button onClick={() => setShowLoginLogs(false)} variant="outlined">
                 {t('close')}
               </Button>
             </DialogFooter>

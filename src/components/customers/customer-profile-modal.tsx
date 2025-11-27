@@ -257,7 +257,7 @@ export function CustomerProfileModal({ isOpen, onClose, customer, tickets = [] }
         {/* Footer */}
         <div className="flex gap-2 p-6 border-t border-gray-200 dark:border-gray-700">
           <Link href={`/customers/${customer.id}`} className="flex-1">
-            <Button variant="outline" className="w-full">
+            <Button variant="outlined" className="w-full">
               View Full Profile
             </Button>
           </Link>

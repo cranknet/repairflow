@@ -7,14 +7,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CompletionSMSPrompt } from './completion-sms-prompt';
+import { RepairedStatusModal } from './repaired-status-modal';
 
 const STATUS_OPTIONS = [
   { value: 'RECEIVED', label: 'Received' },
   { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'WAITING_FOR_PARTS', label: 'Waiting for Parts' },
   { value: 'REPAIRED', label: 'Repaired' },
-  { value: 'COMPLETED', label: 'Completed' },
   { value: 'CANCELLED', label: 'Cancelled' },
+  { value: 'RETURNED', label: 'Returned' },
 ];
 
 export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRole: string }) {
@@ -24,6 +24,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
   const [statusNotes, setStatusNotes] = useState('');
   const [paid, setPaid] = useState(ticket.paid || false);
   const [showSMSPrompt, setShowSMSPrompt] = useState(false);
+  const [showRepairedModal, setShowRepairedModal] = useState(false);
 
   const updateStatus = async (newStatus: string, notes?: string) => {
     setIsUpdating(true);
@@ -45,8 +46,8 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
       });
       setStatusNotes('');
       
-      // Show SMS prompt if status changed to COMPLETED
-      if (newStatus === 'COMPLETED' && ticket.status !== 'COMPLETED') {
+      // Show SMS prompt if status changed to REPAIRED
+      if (newStatus === 'REPAIRED' && ticket.status !== 'REPAIRED') {
         setShowSMSPrompt(true);
       }
       
@@ -91,7 +92,55 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
     if (newStatus !== ticket.status) {
-      updateStatus(newStatus, statusNotes);
+      // If changing to REPAIRED, show modal instead of directly updating
+      if (newStatus === 'REPAIRED') {
+        setShowRepairedModal(true);
+      } else {
+        updateStatus(newStatus, statusNotes);
+      }
+    }
+  };
+
+  const handleRepairedConfirm = async (data: {
+    parts: Array<{ partId: string; quantity: number }>;
+    returnItems: Array<{ partId: string; quantity: number; reason?: string }>;
+    returnReason?: string;
+  }) => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'REPAIRED',
+          statusNotes: statusNotes || undefined,
+          parts: data.parts,
+          returnItems: data.returnItems.length > 0 ? data.returnItems : undefined,
+          returnReason: data.returnReason,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update status');
+
+      toast({
+        title: 'Success',
+        description: 'Ticket marked as repaired',
+      });
+      setStatusNotes('');
+      setShowRepairedModal(false);
+      
+      // Show SMS prompt
+      setShowSMSPrompt(true);
+      
+      router.refresh();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update ticket status',
+      });
+      throw error;
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -118,7 +167,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
         
         {/* Quick Action Buttons */}
         <div className="flex gap-2">
-          {ticket.status !== 'COMPLETED' && ticket.status !== 'CANCELLED' && (
+          {ticket.status !== 'CANCELLED' && ticket.status !== 'RETURNED' && (
             <>
               {ticket.status === 'RECEIVED' && (
                 <Button
@@ -131,36 +180,26 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
               )}
               {ticket.status === 'IN_PROGRESS' && (
                 <Button
-                  onClick={() => updateStatus('WAITING_FOR_PARTS')}
-                  disabled={isUpdating}
-                  variant="outline"
-                  size="sm"
-                >
-                  Waiting for Parts
-                </Button>
-              )}
-              {(ticket.status === 'IN_PROGRESS' || ticket.status === 'WAITING_FOR_PARTS') && (
-                <Button
-                  onClick={() => updateStatus('REPAIRED')}
+                  onClick={() => setShowRepairedModal(true)}
                   disabled={isUpdating}
                   size="sm"
                 >
                   Mark Repaired
                 </Button>
               )}
-              {ticket.status === 'REPAIRED' && (
-                <Button
-                  onClick={() => updateStatus('COMPLETED')}
-                  disabled={isUpdating}
-                  size="sm"
-                >
-                  Complete
-                </Button>
-              )}
             </>
           )}
         </div>
       </div>
+
+      {/* Repaired Status Modal */}
+      <RepairedStatusModal
+        isOpen={showRepairedModal}
+        onClose={() => setShowRepairedModal(false)}
+        onConfirm={handleRepairedConfirm}
+        ticketId={ticket.id}
+        existingParts={ticket.parts}
+      />
 
       {/* SMS Prompt Modal */}
       <CompletionSMSPrompt

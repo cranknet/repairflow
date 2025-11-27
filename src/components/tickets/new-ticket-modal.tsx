@@ -1,24 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLanguage } from '@/contexts/language-context';
 import { ImageUpload } from '@/components/tickets/image-upload';
 import { DeviceAutocomplete } from '@/components/tickets/device-autocomplete';
 import { DeviceIssueAutocomplete } from '@/components/tickets/device-issue-autocomplete';
 import { NewCustomerModal } from '@/components/customers/new-customer-modal';
 import { CustomerSelect } from '@/components/customers/customer-select';
-import { useLanguage } from '@/contexts/language-context';
 import { getCurrencySymbol } from '@/lib/currency';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const createTicketSchema = (t: (key: string) => string) => z.object({
   customerId: z.string().min(1, t('customerRequired')),
@@ -37,8 +41,13 @@ const createTicketSchema = (t: (key: string) => string) => z.object({
   notes: z.string().optional(),
 });
 
-export default function NewTicketPage() {
-  const router = useRouter();
+interface NewTicketModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [customers, setCustomers] = useState<any[]>([]);
@@ -58,10 +67,11 @@ export default function NewTicketPage() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { errors },
     setValue,
     watch,
     trigger,
+    reset,
   } = useForm<TicketFormData>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
@@ -86,7 +96,7 @@ export default function NewTicketPage() {
           const currentCustomerId = watch('customerId');
           if (!currentCustomerId) {
             setValue('customerId', walkingCustomer.id);
-            trigger('customerId'); // Trigger validation
+            trigger('customerId');
           }
         }
       })
@@ -94,10 +104,12 @@ export default function NewTicketPage() {
   };
 
   useEffect(() => {
-    fetchCustomers();
-    fetchStaffUsers();
-    fetchCurrency();
-  }, []);
+    if (isOpen) {
+      fetchCustomers();
+      fetchStaffUsers();
+      fetchCurrency();
+    }
+  }, [isOpen]);
 
   const fetchCurrency = () => {
     fetch('/api/settings/public')
@@ -108,7 +120,7 @@ export default function NewTicketPage() {
       })
       .catch((err) => {
         console.error('Error fetching currency:', err);
-        setCurrencySymbol('$'); // Default to USD
+        setCurrencySymbol('$');
       });
   };
 
@@ -120,13 +132,10 @@ export default function NewTicketPage() {
   };
 
   const handleCustomerCreated = (customerId: string) => {
-    // Refresh customers list
     fetchCustomers();
-    // Select the newly created customer
     setValue('customerId', customerId);
   };
 
-  // Sync device brand and model with form
   useEffect(() => {
     setValue('deviceBrand', deviceBrand);
   }, [deviceBrand, setValue]);
@@ -170,7 +179,13 @@ export default function NewTicketPage() {
         title: t('success'),
         description: t('ticketCreated'),
       });
-      router.push(`/tickets/${ticket.id}`);
+      reset();
+      setFrontImage('');
+      setBackImage('');
+      setDeviceBrand('');
+      setDeviceModel('');
+      onSuccess();
+      onClose();
     } catch (error: any) {
       console.error('Error creating ticket:', error);
       toast({
@@ -182,49 +197,41 @@ export default function NewTicketPage() {
     }
   };
 
-
   return (
-    <MainLayout>
-      <div className="space-y-6 pt-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Ticket</h1>
-          <p className="text-gray-600 dark:text-gray-400">Create a new repair ticket</p>
-        </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Ticket</DialogTitle>
+            <DialogDescription>Create a new repair ticket</DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Ticket Information</CardTitle>
-              <CardDescription>Enter the details for the repair ticket</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customerId">Customer *</Label>
-                <div className="flex gap-2 items-start">
-                  <div className="flex-1">
-                    <Controller
-                      name="customerId"
-                      control={control}
-                      rules={{ required: 'Customer is required' }}
-                      render={({ field, fieldState }) => (
-                        <CustomerSelect
-                          customers={customers}
-                          value={field.value || ''}
-                          onChange={field.onChange}
-                          error={fieldState.error?.message}
-                        />
-                      )}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    onClick={() => setShowNewCustomerModal(true)}
-                    className="mt-0"
-                  >
-                    New Customer
-                  </Button>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6 py-4">
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <Controller
+                    name="customerId"
+                    control={control}
+                    rules={{ required: 'Customer is required' }}
+                    render={({ field, fieldState }) => (
+                      <CustomerSelect
+                        customers={customers}
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        error={fieldState.error?.message}
+                      />
+                    )}
+                  />
                 </div>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  onClick={() => setShowNewCustomerModal(true)}
+                  className="mt-0"
+                >
+                  New Customer
+                </Button>
               </div>
 
               <DeviceAutocomplete
@@ -265,108 +272,117 @@ export default function NewTicketPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Priority *</Label>
-                  <select
-                    id="priority"
-                    {...register('priority')}
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="estimatedPrice">Estimated Price ({currencySymbol}) *</Label>
-                  <Input
-                    id="estimatedPrice"
-                    type="number"
-                    step="0.01"
-                    {...register('estimatedPrice')}
-                    placeholder="0.00"
-                  />
-                  {errors.estimatedPrice && (
-                    <p className="text-sm text-red-600">{errors.estimatedPrice.message}</p>
+                <Controller
+                  name="priority"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Select value={field.value || 'MEDIUM'} onValueChange={field.onChange}>
+                      <SelectTrigger 
+                        label="Priority" 
+                        error={!!fieldState.error}
+                        id="modal-ticket-priority"
+                      >
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOW">Low</SelectItem>
+                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                        <SelectItem value="HIGH">High</SelectItem>
+                        <SelectItem value="URGENT">Urgent</SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
-                </div>
-              </div>
+                />
 
-              <div className="space-y-2">
-                <Label htmlFor="assignedToId">Assign To (Optional)</Label>
-                <select
-                  id="assignedToId"
-                  {...register('assignedToId')}
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <option value="">Unassigned</option>
-                  {staffUsers.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name || user.username} ({user.role})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="warrantyDays">{t('warrantyDays')} ({t('optional')})</Label>
-                  <Input
-                    id="warrantyDays"
-                    type="number"
-                    min="0"
-                    {...register('warrantyDays')}
-                    placeholder="e.g., 30, 90, 180"
-                  />
-                  {errors.warrantyDays && (
-                    <p className="text-sm text-red-600">{errors.warrantyDays.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="warrantyText">{t('warrantyText')} ({t('optional')})</Label>
-                  <Input
-                    id="warrantyText"
-                    {...register('warrantyText')}
-                    placeholder="e.g., 30 days warranty on parts and labor"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <textarea
-                  id="notes"
-                  {...register('notes')}
-                  rows={3}
-                  className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                  placeholder="Additional notes..."
+                <Input
+                  id="modal-ticket-estimatedPrice"
+                  label={`Estimated Price (${currencySymbol})`}
+                  errorText={errors.estimatedPrice?.message}
+                  type="number"
+                  step="0.01"
+                  required
+                  {...register('estimatedPrice')}
+                  placeholder="0.00"
                 />
               </div>
-            </CardContent>
-          </Card>
 
-          <div className="flex gap-2 mt-6">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Ticket'}
-            </Button>
-            <Link href="/tickets">
-              <Button type="button" variant="outlined">
+              <Controller
+                name="assignedToId"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Select 
+                    value={field.value || undefined} 
+                    onValueChange={(value) => {
+                      field.onChange(value === 'unassigned' ? undefined : value);
+                    }}
+                  >
+                    <SelectTrigger 
+                      label="Assign To (Optional)" 
+                      error={!!fieldState.error}
+                      id="modal-ticket-assignedToId"
+                    >
+                      <SelectValue placeholder="Unassigned" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {staffUsers.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name || user.username} ({user.role})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  id="modal-ticket-warrantyDays"
+                  label={`${t('warrantyDays')} (${t('optional')})`}
+                  errorText={errors.warrantyDays?.message}
+                  type="number"
+                  min="0"
+                  {...register('warrantyDays')}
+                  placeholder="e.g., 30, 90, 180"
+                />
+
+                <Input
+                  id="modal-ticket-warrantyText"
+                  label={`${t('warrantyText')} (${t('optional')})`}
+                  errorText={errors.warrantyText?.message}
+                  {...register('warrantyText')}
+                  placeholder="e.g., 30 days warranty on parts and labor"
+                />
+              </div>
+
+              <Textarea
+                id="modal-ticket-notes"
+                label="Notes"
+                errorText={errors.notes?.message}
+                rows={3}
+                {...register('notes')}
+                placeholder="Additional notes..."
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outlined" onClick={onClose}>
                 Cancel
               </Button>
-            </Link>
-          </div>
-        </form>
-      </div>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Creating...' : 'Create Ticket'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <NewCustomerModal
         isOpen={showNewCustomerModal}
         onClose={() => setShowNewCustomerModal(false)}
         onSuccess={handleCustomerCreated}
       />
-    </MainLayout>
+    </>
   );
 }
 

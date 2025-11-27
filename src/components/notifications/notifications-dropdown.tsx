@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
-import { BellIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { BellIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 interface Notification {
@@ -22,6 +22,179 @@ interface Notification {
 interface NotificationsDropdownProps {
   onClose: () => void;
   onNotificationRead: () => void;
+}
+
+interface SwipeableNotificationItemProps {
+  notification: Notification;
+  onMarkAsRead: (id: string) => void;
+  onDelete: (id: string) => void;
+  onClick: (notification: Notification) => void;
+}
+
+function SwipeableNotificationItem({
+  notification,
+  onMarkAsRead,
+  onDelete,
+  onClick,
+}: SwipeableNotificationItemProps) {
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const isDragging = useRef(false);
+  const SWIPE_THRESHOLD = 80; // Minimum distance to trigger delete
+  const DELETE_THRESHOLD = 120; // Distance to auto-delete
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isDragging.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const deltaX = touchStartX.current - currentX;
+    const deltaY = Math.abs(touchStartY.current - currentY);
+
+    // Only allow horizontal swipe (prevent vertical scrolling interference)
+    if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 10) {
+      isDragging.current = true;
+      e.preventDefault();
+      // Only allow swiping left (negative deltaX)
+      if (deltaX > 0) {
+        setSwipeOffset(-deltaX);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null) return;
+
+    if (Math.abs(swipeOffset) >= DELETE_THRESHOLD) {
+      // Auto-delete if swiped far enough
+      handleDelete();
+    } else if (Math.abs(swipeOffset) >= SWIPE_THRESHOLD) {
+      // Show delete button if swiped enough
+      setSwipeOffset(-SWIPE_THRESHOLD);
+    } else {
+      // Reset if not swiped enough
+      setSwipeOffset(0);
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+    isDragging.current = false;
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    touchStartX.current = e.clientX;
+    touchStartY.current = e.clientY;
+    isDragging.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    
+    const deltaX = touchStartX.current - e.clientX;
+    const deltaY = Math.abs(touchStartY.current - e.clientY);
+
+    // Only allow horizontal swipe (prevent vertical scrolling interference)
+    if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 10) {
+      isDragging.current = true;
+      // Only allow swiping left (negative deltaX)
+      if (deltaX > 0) {
+        setSwipeOffset(-deltaX);
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (touchStartX.current === null) return;
+
+    if (Math.abs(swipeOffset) >= DELETE_THRESHOLD) {
+      handleDelete();
+    } else if (Math.abs(swipeOffset) >= SWIPE_THRESHOLD) {
+      setSwipeOffset(-SWIPE_THRESHOLD);
+    } else {
+      setSwipeOffset(0);
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+    isDragging.current = false;
+  };
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    onDelete(notification.id);
+  };
+
+  const handleItemClick = (e: React.MouseEvent) => {
+    // Don't trigger click if we were dragging
+    if (isDragging.current) {
+      e.preventDefault();
+      return;
+    }
+    onClick(notification);
+  };
+
+  return (
+    <div className="relative overflow-hidden">
+      {/* Delete button background */}
+      <div
+        className="absolute right-0 top-0 bottom-0 flex items-center justify-center bg-red-500 text-white px-4"
+        style={{
+          width: `${SWIPE_THRESHOLD}px`,
+          transform: `translateX(${swipeOffset < -SWIPE_THRESHOLD ? 0 : 100}%)`,
+          transition: swipeOffset === 0 ? 'transform 0.2s ease-out' : 'none',
+        }}
+      >
+        <TrashIcon className="h-5 w-5" />
+      </div>
+
+      {/* Notification item */}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onClick={handleItemClick}
+        style={{
+          transform: `translateX(${swipeOffset}px)`,
+          transition: swipeOffset === 0 ? 'transform 0.2s ease-out' : 'none',
+        }}
+        className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
+          !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+        } ${isDeleting ? 'opacity-50' : ''}`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-1">
+            <p className={`text-sm ${!notification.read ? 'font-semibold' : 'font-medium'}`}>
+              {notification.message}
+            </p>
+            {notification.ticket && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Ticket: {notification.ticket.ticketNumber}
+              </p>
+            )}
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              {format(new Date(notification.createdAt), 'MMM dd, yyyy HH:mm')}
+            </p>
+          </div>
+          {!notification.read && (
+            <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function NotificationsDropdown({ onClose, onNotificationRead }: NotificationsDropdownProps) {
@@ -69,6 +242,36 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+        onNotificationRead();
+        toast({
+          title: 'Success',
+          description: 'Notification deleted',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete notification',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete notification',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -139,32 +342,13 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {notifications.map((notification) => (
-              <div
+              <SwipeableNotificationItem
                 key={notification.id}
-                onClick={() => handleNotificationClick(notification)}
-                className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${
-                  !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-1">
-                    <p className={`text-sm ${!notification.read ? 'font-semibold' : 'font-medium'}`}>
-                      {notification.message}
-                    </p>
-                    {notification.ticket && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Ticket: {notification.ticket.ticketNumber}
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {format(new Date(notification.createdAt), 'MMM dd, yyyy HH:mm')}
-                    </p>
-                  </div>
-                  {!notification.read && (
-                    <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-1" />
-                  )}
-                </div>
-              </div>
+                notification={notification}
+                onMarkAsRead={markAsRead}
+                onDelete={deleteNotification}
+                onClick={handleNotificationClick}
+              />
             ))}
           </div>
         )}

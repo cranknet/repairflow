@@ -122,7 +122,7 @@ export default function ImageCrop({ imageSrc, onCropComplete, onCancel }: ImageC
             </ReactCrop>
           </div>
           <div className="flex gap-2 justify-end">
-            <Button type="button" onClick={onCancel} variant="outline">
+            <Button type="button" onClick={onCancel} variant="outlined">
               {t('cancel')}
             </Button>
             <Button type="button" onClick={handleCrop} disabled={!completedCrop}>

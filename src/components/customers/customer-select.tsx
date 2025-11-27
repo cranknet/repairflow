@@ -93,7 +93,7 @@ export function CustomerSelect({
                 setShowDropdown(true);
               }
             }}
-            placeholder="Search customer by name, phone, or email..."
+            placeholder="Search by name, phone, or email..."
             disabled={disabled}
             autoComplete="off"
             className="pl-10 pr-10"

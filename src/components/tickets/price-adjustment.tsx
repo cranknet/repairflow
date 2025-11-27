@@ -25,9 +25,9 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Only show price adjustment if repair is finished (REPAIRED or COMPLETED)
+  // Only show price adjustment if repair is finished (REPAIRED)
   const canAdjustPrice =
-    (ticket.status === 'REPAIRED' || ticket.status === 'COMPLETED') &&
+    ticket.status === 'REPAIRED' &&
     (userRole === 'ADMIN' || userRole === 'STAFF');
 
   if (!canAdjustPrice) {
@@ -92,7 +92,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
       {!showForm ? (
         <Button
           onClick={() => setShowForm(true)}
-          variant="outline"
+          variant="outlined"
           size="sm"
         >
           Adjust Price
@@ -147,7 +147,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
                   setReason('');
                   setNewPrice(ticket.finalPrice || ticket.estimatedPrice);
                 }}
-                variant="outline"
+                variant="outlined"
                 type="button"
               >
                 Cancel

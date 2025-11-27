@@ -26,19 +26,14 @@ export function TicketFilters({ currentStatus }: TicketFiltersProps) {
           {t('inProgress')}
         </Button>
       </Link>
-      <Link href="/tickets?status=WAITING_FOR_PARTS">
-        <Button variant={currentStatus === 'WAITING_FOR_PARTS' ? 'default' : 'outline'}>
-          {t('waitingForParts')}
-        </Button>
-      </Link>
       <Link href="/tickets?status=REPAIRED">
         <Button variant={currentStatus === 'REPAIRED' ? 'default' : 'outline'}>
           {t('repaired')}
         </Button>
       </Link>
-      <Link href="/tickets?status=COMPLETED">
-        <Button variant={currentStatus === 'COMPLETED' ? 'default' : 'outline'}>
-          {t('completed')}
+      <Link href="/tickets?status=RETURNED">
+        <Button variant={currentStatus === 'RETURNED' ? 'default' : 'outline'}>
+          {t('returned') || 'Returned'}
         </Button>
       </Link>
       <Link href="/tickets?status=CANCELLED">

@@ -215,7 +215,7 @@ export function SMSTemplatesManager() {
                 <option value="ar">العربية</option>
                 <option value="fr">Français</option>
               </select>
-              <Button onClick={handleCreate} variant="outline">
+              <Button onClick={handleCreate} variant="outlined">
                 <PlusIcon className="h-4 w-4 mr-2" />
                 {t('newTemplate')}
               </Button>
@@ -260,7 +260,7 @@ export function SMSTemplatesManager() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
-                      variant="outline"
+                      variant="outlined"
                       size="sm"
                       onClick={() => handleEdit(template)}
                       className="flex items-center gap-1.5"
@@ -269,7 +269,7 @@ export function SMSTemplatesManager() {
                       {t('edit')}
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="outlined"
                       size="sm"
                       onClick={() => handleDelete(template.id)}
                       disabled={isDeleting === template.id}
@@ -401,7 +401,7 @@ export function SMSTemplatesManager() {
           </div>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="outlined"
               onClick={() => {
                 setIsDialogOpen(false);
                 setEditingTemplate(null);

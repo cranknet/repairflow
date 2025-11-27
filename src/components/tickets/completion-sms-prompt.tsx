@@ -171,7 +171,7 @@ export function CompletionSMSPrompt({
               </select>
               <Button
                 onClick={fetchPorts}
-                variant="outline"
+                variant="outlined"
                 size="icon"
                 disabled={isLoadingPorts || isSending}
               >
@@ -202,7 +202,7 @@ export function CompletionSMSPrompt({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleSkip} disabled={isSending}>
+          <Button variant="outlined" onClick={handleSkip} disabled={isSending}>
             Skip
           </Button>
           <Button onClick={handleSendSMS} disabled={isSending || !selectedPort || !message.trim()}>

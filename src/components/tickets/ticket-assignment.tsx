@@ -92,7 +92,7 @@ export function TicketAssignment({ ticket, userRole }: TicketAssignmentProps) {
         {!showAssignForm && (
           <Button
             onClick={() => setShowAssignForm(true)}
-            variant="outline"
+            variant="outlined"
             size="sm"
             disabled={isUpdating}
           >
@@ -146,7 +146,7 @@ export function TicketAssignment({ ticket, userRole }: TicketAssignmentProps) {
             </Button>
             <Button
               onClick={() => setShowAssignForm(false)}
-              variant="outline"
+              variant="outlined"
               size="sm"
               disabled={isUpdating}
             >

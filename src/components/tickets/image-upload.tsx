@@ -161,21 +161,22 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
         />
         <Button
           type="button"
-          variant="outline"
+          variant="outlined"
           size="sm"
           onClick={handleMainClick}
         >
           <CameraIcon className="h-4 w-4 mr-2" />
           {t('takePhoto')}
         </Button>
-        <label htmlFor={`file-${label.toLowerCase().replace(/\s+/g, '-')}`}>
-          <Button type="button" variant="outline" size="sm" asChild>
-            <span>
-              <PhotoIcon className="h-4 w-4 mr-2" />
-              {t('uploadFile')}
-            </span>
-          </Button>
-        </label>
+        <Button
+          type="button"
+          variant="outlined"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <PhotoIcon className="h-4 w-4 mr-2" />
+          {t('uploadFile')}
+        </Button>
       </div>
 
       {value && (
@@ -240,7 +241,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="outlined"
                   onClick={stopCamera}
                   size="lg"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"

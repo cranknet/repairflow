@@ -176,13 +176,13 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
-            <Button onClick={markAllAsRead} variant="outline" size="sm">
+            <Button onClick={markAllAsRead} variant="outlined" size="sm">
               <CheckIcon className="h-4 w-4 mr-1" />
               Mark all as read
             </Button>
           )}
           {notifications.filter((n) => n.read).length > 0 && (
-            <Button onClick={deleteAllRead} variant="outline" size="sm">
+            <Button onClick={deleteAllRead} variant="outlined" size="sm">
               <TrashIcon className="h-4 w-4 mr-1" />
               Delete read
             </Button>

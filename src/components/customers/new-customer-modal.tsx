@@ -5,20 +5,25 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '@/contexts/language-context';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
-const customerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  phone: z.string().min(1, 'Phone is required'),
+const createCustomerSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(1, t('nameRequired')),
+  phone: z.string().min(1, t('phoneRequired')),
   email: z.string().email().optional().or(z.literal('')),
   address: z.string().optional(),
   notes: z.string().optional(),
 });
-
-type CustomerFormData = z.infer<typeof customerSchema>;
 
 interface NewCustomerModalProps {
   isOpen: boolean;
@@ -28,7 +33,11 @@ interface NewCustomerModalProps {
 
 export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModalProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
+
+  const customerSchema = createCustomerSchema(t);
+  type CustomerFormData = z.infer<typeof customerSchema>;
 
   const {
     register,
@@ -57,121 +66,91 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
 
       const customer = await response.json();
       toast({
-        title: 'Success',
-        description: 'Customer created successfully',
+        title: t('success'),
+        description: t('customerCreated'),
       });
       reset();
       onSuccess(customer.id);
       onClose();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create customer',
+        title: t('error'),
+        description: t('customerCreateFailed'),
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative z-50 w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Add New Customer
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t('addNewCustomer')}</DialogTitle>
+          <DialogDescription>{t('createNewCustomerProfile')}</DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="p-6 space-y-4">
+          <div className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="modal-name">Name *</Label>
-                <Input
-                  id="modal-name"
-                  {...register('name')}
-                  placeholder="John Doe"
-                  autoFocus
-                />
-                {errors.name && (
-                  <p className="text-sm text-red-600">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="modal-phone">Phone *</Label>
-                <Input
-                  id="modal-phone"
-                  {...register('phone')}
-                  placeholder="+1 (555) 123-4567"
-                />
-                {errors.phone && (
-                  <p className="text-sm text-red-600">{errors.phone.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="modal-email">Email</Label>
               <Input
-                id="modal-email"
-                type="email"
-                {...register('email')}
-                placeholder="john@example.com"
+                id="modal-name"
+                label={t('customerName')}
+                errorText={errors.name?.message}
+                required
+                {...register('name')}
+                placeholder="John Doe"
+                autoFocus
               />
-              {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="modal-address">Address</Label>
               <Input
-                id="modal-address"
-                {...register('address')}
-                placeholder="123 Main St"
+                id="modal-phone"
+                label={t('customerPhone')}
+                errorText={errors.phone?.message}
+                required
+                {...register('phone')}
+                placeholder="+1 (555) 123-4567"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="modal-notes">Notes</Label>
-              <textarea
-                id="modal-notes"
-                {...register('notes')}
-                rows={2}
-                className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                placeholder="Additional notes..."
-              />
-            </div>
+            <Input
+              id="modal-email"
+              label={t('customerEmail')}
+              errorText={errors.email?.message}
+              type="email"
+              {...register('email')}
+              placeholder="john@example.com"
+            />
+
+            <Input
+              id="modal-address"
+              label={t('customerAddress')}
+              errorText={errors.address?.message}
+              {...register('address')}
+              placeholder="123 Main St"
+            />
+
+            <Textarea
+              id="modal-notes"
+              label={t('notes')}
+              errorText={errors.notes?.message}
+              rows={2}
+              {...register('notes')}
+              placeholder="Additional notes..."
+            />
           </div>
 
-          <div className="flex gap-2 p-6 border-t border-gray-200 dark:border-gray-700">
-            <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? 'Creating...' : 'Create Customer'}
+          <DialogFooter>
+            <Button type="button" variant="outlined" onClick={onClose}>
+              {t('cancel')}
             </Button>
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              Cancel
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? t('creating') : t('createCustomer')}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
