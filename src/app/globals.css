@@ -35,3 +35,53 @@ body {
   }
 }
 
+/* Custom Scrollbar Styles - Ultra thin overlay scrollbar */
+* {
+  /* Firefox - auto scrollbar that overlays */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(203, 213, 225, 0.5);
+  border-radius: 2px;
+  border: none;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.8);
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: rgba(51, 65, 85, 0.5) transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(51, 65, 85, 0.5);
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(71, 85, 105, 0.8);
+  }
+}
+
+/* Main content area - ensure scrollbar doesn't push content */
+main {
+  /* Reserve space for scrollbar to prevent layout shift */
+  scrollbar-gutter: stable;
+  /* Ensure scrollbar overlays on the right edge */
+  padding-right: 0;
+  margin-right: 0;
+}
+

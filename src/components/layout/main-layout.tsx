@@ -16,7 +16,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         {/* Top Header */}
         {session && <TopHeader />}
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-gray-50" style={{ scrollbarGutter: 'stable' }}>
           {children}
         </main>
       </div>
