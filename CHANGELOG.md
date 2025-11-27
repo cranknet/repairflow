@@ -16,6 +16,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.3.0] - 2024-12-XX
+
+### Added
+- Settings context provider to cache company logo and name, preventing flickering on navigation
+- Remember me functionality in login page with localStorage persistence
+- Comprehensive currencies list (100+ currencies) with symbols and flag emojis
+- Comprehensive countries list (150+ countries) with flag emojis
+- Notification system for ticket status changes, price adjustments, and user management
+- Edit customer functionality with modal dialog
+- Delete customer functionality with confirmation dialog
+- Login logs viewing feature for admins
+- Click-to-copy functionality for tracking codes
+- Free-text input for device issues with suggestion to add new issues
+
+### Changed
+- Currency and country dropdowns now display flags alongside names
+- Settings page now uses comprehensive currency and country lists
+- Sidebar and dashboard use settings context instead of direct API calls
+- Session duration extended to 30 days for remember me feature
+- Device issue autocomplete now allows free-text input
+
+### Fixed
+- Logo and company name flickering when navigating between pages
+- Currency helper now uses new comprehensive currencies data
+- Prevent deletion of customers with existing tickets
+
 ## [1.2.0] - 2024-12-XX
 
 ### Added
