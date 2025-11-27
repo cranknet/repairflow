@@ -11,6 +11,7 @@ const createReturnSchema = z.object({
       partId: z.string(),
       quantity: z.number().int().min(1),
       reason: z.string().optional(),
+      condition: z.enum(['GOOD', 'DAMAGED']).optional().default('GOOD'),
     })
   ),
 });
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
             partId: item.partId,
             quantity: item.quantity,
             reason: item.reason,
+            condition: item.condition || 'GOOD',
           })),
         },
       },
