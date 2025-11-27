@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/yourusername/repairflow/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Documentation
+    url: https://github.com/yourusername/repairflow#readme
+    about: Check the README for setup and usage instructions
+

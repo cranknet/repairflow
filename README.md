@@ -1,6 +1,19 @@
 # RepairFlow
 
+<div align="center">
+
+![RepairFlow Logo](https://img.shields.io/badge/RepairFlow-Open%20Source-blue?style=for-the-badge)
+
 A comprehensive, open-source repair shop management system built with Next.js, designed to streamline operations for phone and device repair businesses.
+
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing) • [License](#-license)
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.0-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.7-2D3748?logo=prisma)](https://www.prisma.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
 
 ![RepairFlow](https://img.shields.io/badge/RepairFlow-Open%20Source-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-15.0-black)
@@ -199,10 +212,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Icons from [Heroicons](https://heroicons.com/)
 - Database management with [Prisma](https://www.prisma.io/)
 
-## 📞 Support
+## 📞 Support & Community
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/repairflow/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/repairflow/discussions)
+- **Security**: See [SECURITY.md](SECURITY.md) for reporting security vulnerabilities
+
+## ⭐ Star History
+
+If you find RepairFlow useful, please consider giving it a star on GitHub!
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/)
+- UI components from [Radix UI](https://www.radix-ui.com/)
+- Icons from [Heroicons](https://heroicons.com/)
+- Database management with [Prisma](https://www.prisma.io/)
+- Mobile support via [Capacitor](https://capacitorjs.com/)
 
 ## 🗺️ Roadmap
 

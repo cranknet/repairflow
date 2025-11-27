@@ -1,6 +1,25 @@
 {
   "name": "repairflow",
   "version": "1.0.0",
+  "description": "A comprehensive, open-source repair shop management system",
+  "author": "RepairFlow Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/repairflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/repairflow/issues"
+  },
+  "homepage": "https://github.com/yourusername/repairflow#readme",
+  "keywords": [
+    "repair-shop",
+    "management-system",
+    "nextjs",
+    "typescript",
+    "prisma",
+    "open-source"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",
