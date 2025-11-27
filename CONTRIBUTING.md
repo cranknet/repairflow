@@ -13,7 +13,7 @@ Thank you for your interest in contributing to RepairFlow! This document provide
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/yourusername/repairflow/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/cranknet/repairflow/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -91,6 +91,37 @@ Use clear, descriptive commit messages:
 - `Update: What was updated`
 - `Refactor: What was refactored`
 - `Docs: Documentation changes`
+
+## Version Management
+
+When making significant changes, update the version:
+
+1. **Patch version** (1.0.0 → 1.0.1): Bug fixes
+   ```bash
+   npm run version:patch
+   ```
+
+2. **Minor version** (1.0.0 → 1.1.0): New features (backward compatible)
+   ```bash
+   npm run version:minor
+   ```
+
+3. **Major version** (1.0.0 → 2.0.0): Breaking changes
+   ```bash
+   npm run version:major
+   ```
+
+4. **Set specific version**:
+   ```bash
+   npm run version:set 1.2.3
+   ```
+
+The script will automatically:
+- Update `package.json` version
+- Update `src/lib/version.ts`
+- Add a new entry to `CHANGELOG.md`
+
+**Important**: After running the version script, review and update the CHANGELOG.md with actual changes before committing.
 
 ## Testing
 

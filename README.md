@@ -174,14 +174,30 @@ Create custom SMS templates in multiple languages:
 
 ## 📝 Scripts
 
+### Development
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+### Database
+- `npm run db:push` - Push schema changes to database
+- `npm run db:migrate` - Create a migration
 - `npm run db:seed` - Seed database with sample data
 - `npm run db:studio` - Open Prisma Studio
+
+### Version Management
+- `npm run version:patch` - Bump patch version (1.0.0 → 1.0.1)
+- `npm run version:minor` - Bump minor version (1.0.0 → 1.1.0)
+- `npm run version:major` - Bump major version (1.0.0 → 2.0.0)
+- `npm run version:set <version>` - Set specific version
+
+### Utilities
 - `npm run reset-admin-password` - Reset admin password
 - `npm run cap:sync` - Sync Capacitor
 - `npm run android:build` - Build for Android
+
+See [VERSIONING.md](./VERSIONING.md) for detailed version management guide.
 
 ## 🤝 Contributing
 

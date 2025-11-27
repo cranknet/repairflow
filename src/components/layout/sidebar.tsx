@@ -14,6 +14,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
+import { AppVersion } from './app-version';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -108,6 +109,13 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Version Info */}
+      {!isCollapsed && (
+        <div className="px-4 py-3 border-t border-gray-200">
+          <AppVersion />
+        </div>
+      )}
     </div>
   );
 }

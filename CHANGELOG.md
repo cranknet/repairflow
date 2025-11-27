@@ -8,7 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial open source release
+- 
+
+### Changed
+- 
+
+### Fixed
+- 
+
+## [1.0.0] - 2024-12-XX
+
+### Added
+- Initial stable release of RepairFlow
+- Complete ticket management system with status tracking
+- Customer management with history
+- Inventory management with stock tracking
+- Multi-language support (English, French, Arabic)
+- Custom SMS templates with multi-language support
+- Print system with label (40x20mm) and invoice (80x80mm) formats
+- Price adjustment tracking with audit trail
+- User management with role-based access control (Admin, Staff)
+- Dashboard with real-time KPIs and analytics
+- Public ticket tracking page
+- Android app support via Capacitor
+- Responsive design for all screen sizes
+- Image upload for device condition
+- Parts integration with tickets
+- Returns management
+- Payment tracking
+- Device tracking (brands, models, issues)
+- Search and filter functionality
+- Status history with notes
+- QR code generation for tickets
+- Email notifications (password reset)
+- Settings management (company info, branding, users)
+- Theme support (light/dark mode)
+- Language switcher
+- Currency and country settings
 - Multi-language support (English, French, Arabic)
 - Custom SMS templates with multi-language support
 - Print system with label (40x20mm) and invoice (80x80mm) formats

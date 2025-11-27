@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AppVersion } from '@/components/layout/app-version';
 import {
   Dialog,
   DialogContent,
@@ -536,6 +537,9 @@ export function SettingsClient({
                     <option value="fr">Français (French)</option>
                   </select>
                 </div>
+              </div>
+              <div className="pt-4 border-t border-gray-200">
+                <AppVersion />
               </div>
               <Button onClick={handleSaveSettings} disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save Settings'}
