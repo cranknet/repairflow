@@ -52,7 +52,7 @@ export function ReturnsClient({ returns, eligibleTickets }: ReturnsClientProps) 
                   <Button
                     onClick={() => handleCreateReturn(ticket)}
                     size="sm"
-                    variant="outline"
+                    variant="outlined"
                   >
                     <PlusIcon className="h-4 w-4 mr-1" />
                     Create Return
