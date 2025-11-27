@@ -55,6 +55,8 @@ model Ticket {
   status               String                  @default("RECEIVED") // RECEIVED, IN_PROGRESS, WAITING_FOR_PARTS, REPAIRED, COMPLETED, CANCELLED
   paid                 Boolean                 @default(false)
   trackingCode         String                  @unique
+  warrantyDays         Int?                    // Warranty period in days
+  warrantyText         String?                 // Custom warranty text
   notes                String?
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt

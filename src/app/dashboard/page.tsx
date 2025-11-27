@@ -7,6 +7,8 @@ import { DashboardKPIs } from '@/components/dashboard/dashboard-kpis';
 import { SalesChart } from '@/components/dashboard/sales-chart';
 import { SalesTarget } from '@/components/dashboard/sales-target';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { DashboardTicketTable } from '@/components/dashboard/dashboard-ticket-table';
+import { DashboardTicketHeader } from '@/components/dashboard/dashboard-ticket-header';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -268,10 +270,10 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 gap-6">
           {/* Sales vs COGS Chart */}
           <SalesChart
-            data={salesData}
-            invoices={completedTickets}
-            totalSales={totalSales}
-            totalCogs={totalCogs}
+            initialData={salesData}
+            initialInvoices={completedTickets}
+            initialTotalSales={totalSales}
+            initialTotalCogs={totalCogs}
           />
         </div>
 
@@ -281,87 +283,10 @@ export default async function DashboardPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
-                    <button className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-lg shadow-soft">
-                      TICKET
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-lg shadow-soft">
-                      TODAY
-                    </button>
-                    <button className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-                      THIS MONTH
-                    </button>
-                    <button className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-                      LAST MONTH
-                    </button>
-                  </div>
-                </div>
+                <DashboardTicketHeader />
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Ticket #</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Task</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Pick up time</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Assign To</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Customer</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentTickets.length === 0 ? (
-                        <tr>
-                          <td colSpan={6} className="text-center py-12 text-gray-500">
-                            No active tickets
-                          </td>
-                        </tr>
-                      ) : (
-                        recentTickets.map((ticket) => (
-                          <tr key={ticket.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                            <td className="py-4 px-4">
-                              <Link
-                                href={`/tickets/${ticket.id}`}
-                                className="font-semibold text-blue-600 hover:text-purple-600 transition-colors"
-                              >
-                                {ticket.ticketNumber}
-                              </Link>
-                            </td>
-                            <td className="py-4 px-4 text-gray-700">{ticket.deviceIssue}</td>
-                            <td className="py-4 px-4 text-gray-600">
-                              {ticket.completedAt
-                                ? format(new Date(ticket.completedAt), 'dd MMM yyyy (h:mma)')
-                                : 'N/A'}
-                            </td>
-                            <td className="py-4 px-4 text-gray-600">
-                              {ticket.assignedTo?.name || ticket.assignedTo?.username || 'Unassigned'}
-                            </td>
-                            <td className="py-4 px-4 font-medium text-gray-700">{ticket.customer.name}</td>
-                            <td className="py-4 px-4">
-                              <span
-                                className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                                  ticket.status === 'IN_PROGRESS'
-                                    ? 'bg-orange-100 text-orange-700'
-                                    : ticket.status === 'WAITING_FOR_PARTS'
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : ticket.status === 'REPAIRED'
-                                    ? 'bg-purple-100 text-purple-700'
-                                    : 'bg-blue-100 text-blue-700'
-                                }`}
-                              >
-                                {ticket.status.replace('_', ' ')}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <DashboardTicketTable tickets={recentTickets} />
               </CardContent>
             </Card>
           </div>

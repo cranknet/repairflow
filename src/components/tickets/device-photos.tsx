@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ImageModal } from './image-modal';
+import { useLanguage } from '@/contexts/language-context';
 
 interface DevicePhotosProps {
   frontImage?: string | null;
@@ -9,6 +10,7 @@ interface DevicePhotosProps {
 }
 
 export function DevicePhotos({ frontImage, backImage }: DevicePhotosProps) {
+  const { t } = useLanguage();
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [modalTitle, setModalTitle] = useState('');
 
@@ -29,19 +31,19 @@ export function DevicePhotos({ frontImage, backImage }: DevicePhotosProps) {
   return (
     <>
       <div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Device Photos</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('devicePhotos')}</p>
         <div className="grid grid-cols-2 gap-4">
           {frontImage && (
             <div>
-              <p className="text-xs text-gray-500 mb-1">Front</p>
+              <p className="text-xs text-gray-500 mb-1">{t('front')}</p>
               <button
                 type="button"
-                onClick={() => openModal(frontImage, 'Device Front')}
+                onClick={() => openModal(frontImage, t('deviceFront'))}
                 className="w-full cursor-pointer hover:opacity-90 transition-opacity"
               >
                 <img
                   src={frontImage}
-                  alt="Device Front"
+                  alt={t('deviceFront')}
                   className="w-full h-48 object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
                 />
               </button>
@@ -49,15 +51,15 @@ export function DevicePhotos({ frontImage, backImage }: DevicePhotosProps) {
           )}
           {backImage && (
             <div>
-              <p className="text-xs text-gray-500 mb-1">Back</p>
+              <p className="text-xs text-gray-500 mb-1">{t('back')}</p>
               <button
                 type="button"
-                onClick={() => openModal(backImage, 'Device Back')}
+                onClick={() => openModal(backImage, t('deviceBack'))}
                 className="w-full cursor-pointer hover:opacity-90 transition-opacity"
               >
                 <img
                   src={backImage}
-                  alt="Device Back"
+                  alt={t('deviceBack')}
                   className="w-full h-48 object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
                 />
               </button>

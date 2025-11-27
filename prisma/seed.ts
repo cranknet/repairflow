@@ -140,6 +140,18 @@ async function main() {
       },
     }),
     prisma.customer.upsert({
+      where: { id: 'walking-customer' },
+      update: {},
+      create: {
+        id: 'walking-customer',
+        name: 'walking-customer',
+        phone: '0000000000',
+        email: null,
+        address: null,
+        notes: 'Default customer for walk-in repairs',
+      },
+    }),
+    prisma.customer.upsert({
       where: { id: 'customer-5' },
       update: {},
       create: {

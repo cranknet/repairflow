@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/language-context';
 
 interface SalesTargetProps {
   current: number;
@@ -12,12 +13,13 @@ interface SalesTargetProps {
 }
 
 export function SalesTarget({ current, target, storeName, date }: SalesTargetProps) {
+  const { t } = useLanguage();
   const [period, setPeriod] = useState<'today' | 'month' | 'lastMonth'>('today');
 
   const periods = [
-    { id: 'today', label: 'TODAY' },
-    { id: 'month', label: 'THIS MONTH' },
-    { id: 'lastMonth', label: 'LAST MONTH' },
+    { id: 'today', label: t('today').toUpperCase() },
+    { id: 'month', label: t('thisMonth').toUpperCase() },
+    { id: 'lastMonth', label: t('lastMonth').toUpperCase() },
   ];
 
   const percentage = Math.min((current / target) * 100, 100);
@@ -34,7 +36,7 @@ export function SalesTarget({ current, target, storeName, date }: SalesTargetPro
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold text-gray-900">Sales Target</CardTitle>
+          <CardTitle className="text-base font-semibold text-gray-900">{t('salesTarget')}</CardTitle>
         </div>
         <div className="flex gap-2 mt-4">
           {periods.map((p) => (

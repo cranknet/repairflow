@@ -8,22 +8,24 @@ import { ReturnHandler } from './return-handler';
 import { PriceAdjustment } from './price-adjustment';
 import { TicketAssignment } from './ticket-assignment';
 import { SMSSender } from '@/components/sms/sms-sender';
+import { useLanguage } from '@/contexts/language-context';
 
 interface TicketTabsProps {
   ticket: any;
   userRole: string;
 }
 
-const TABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'status', label: 'Status & History' },
-  { id: 'parts', label: 'Parts & Returns' },
-  { id: 'pricing', label: 'Pricing' },
-  { id: 'messaging', label: 'Messaging' },
-];
-
 export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
+
+  const TABS = [
+    { id: 'overview', label: t('overview') },
+    { id: 'status', label: t('statusHistory') },
+    { id: 'parts', label: t('partsReturns') },
+    { id: 'pricing', label: t('pricing') },
+    { id: 'messaging', label: t('messaging') },
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -75,7 +77,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('status')}</p>
                   <span
                     className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
                       ticket.status
@@ -87,7 +89,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Priority</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('priority')}</p>
                   <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
                     {ticket.priority}
                   </span>
@@ -95,7 +97,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Tracking Code</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('trackingCode')}</p>
                   <p className="font-mono text-sm font-medium">{ticket.trackingCode}</p>
                 </CardContent>
               </Card>
@@ -109,7 +111,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             {/* Device Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Device Information</CardTitle>
+                <CardTitle>{t('deviceInformation')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -139,7 +141,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             {ticket.notes && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Notes</CardTitle>
+                  <CardTitle>{t('notes')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap">{ticket.notes}</p>
@@ -153,7 +155,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
         {activeTab === 'status' && (
           <Card>
             <CardHeader>
-              <CardTitle>Status History</CardTitle>
+              <CardTitle>{t('statusHistory')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -195,7 +197,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             {ticket.parts && ticket.parts.length > 0 ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Parts Used</CardTitle>
+                  <CardTitle>{t('partsUsed')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -224,7 +226,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             ) : (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500 text-center">No parts used in this repair</p>
+                  <p className="text-sm text-gray-500 text-center">{t('noPartsUsed')}</p>
                 </CardContent>
               </Card>
             )}
@@ -232,7 +234,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
             {/* Returns */}
             <Card>
               <CardHeader>
-                <CardTitle>Returns</CardTitle>
+                <CardTitle>{t('returns')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ReturnHandler ticket={ticket} />
@@ -246,17 +248,17 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Pricing Information</CardTitle>
+                <CardTitle>{t('pricingInformation')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Estimated Price</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('estimatedPrice')}</p>
                     <p className="text-2xl font-bold">${ticket.estimatedPrice.toFixed(2)}</p>
                   </div>
                   {ticket.finalPrice !== null && (
                     <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border-2 border-primary-200 dark:border-primary-800">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Final Price</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('finalPrice')}</p>
                       <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                         ${ticket.finalPrice.toFixed(2)}
                       </p>
@@ -266,9 +268,9 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
 
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-medium">Payment Status</p>
+                    <p className="text-sm font-medium">{t('paymentStatus')}</p>
                     <span className={`px-3 py-1 text-sm font-medium rounded-full ${ticket.paid ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}`}>
-                      {ticket.paid ? 'Paid' : 'Unpaid'}
+                      {ticket.paid ? t('paid') : t('unpaid')}
                     </span>
                   </div>
                 </div>
@@ -277,7 +279,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
 
                 {ticket.priceAdjustments && ticket.priceAdjustments.length > 0 && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium mb-3">Price Adjustment History</p>
+                    <p className="text-sm font-medium mb-3">{t('priceAdjustmentHistory')}</p>
                     <div className="space-y-3">
                       {(ticket.priceAdjustments || []).map((adjustment: any) => (
                         <div

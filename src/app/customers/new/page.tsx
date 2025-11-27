@@ -11,22 +11,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 
-const customerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  phone: z.string().min(1, 'Phone is required'),
+const createCustomerSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(1, t('nameRequired')),
+  phone: z.string().min(1, t('phoneRequired')),
   email: z.string().email().optional().or(z.literal('')),
   address: z.string().optional(),
   notes: z.string().optional(),
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
-
 export default function NewCustomerPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
+
+  const customerSchema = createCustomerSchema(t);
+  type CustomerFormData = z.infer<typeof customerSchema>;
 
   const {
     register,
@@ -54,14 +57,14 @@ export default function NewCustomerPage() {
 
       const customer = await response.json();
       toast({
-        title: 'Success',
-        description: 'Customer created successfully',
+        title: t('success'),
+        description: t('customerCreated'),
       });
       router.push(`/customers/${customer.id}`);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create customer',
+        title: t('error'),
+        description: t('customerCreateFailed'),
       });
     } finally {
       setIsLoading(false);
@@ -72,26 +75,26 @@ export default function NewCustomerPage() {
     <MainLayout>
       <div className="space-y-6 pt-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Add New Customer</h1>
-          <p className="text-gray-600 dark:text-gray-400">Create a new customer profile</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('addNewCustomer')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('createNewCustomerProfile')}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card>
             <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
-              <CardDescription>Enter the customer details</CardDescription>
+              <CardTitle>{t('customerInformation')}</CardTitle>
+              <CardDescription>{t('enterCustomerDetails')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
+                  <Label htmlFor="name">{t('customerName')} *</Label>
                   <Input id="name" {...register('name')} placeholder="John Doe" />
                   {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone *</Label>
+                  <Label htmlFor="phone">{t('customerPhone')} *</Label>
                   <Input id="phone" {...register('phone')} placeholder="+1 (555) 123-4567" />
                   {errors.phone && (
                     <p className="text-sm text-red-600">{errors.phone.message}</p>
@@ -100,7 +103,7 @@ export default function NewCustomerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('customerEmail')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -111,12 +114,12 @@ export default function NewCustomerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{t('customerAddress')}</Label>
                 <Input id="address" {...register('address')} placeholder="123 Main St" />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t('notes')}</Label>
                 <textarea
                   id="notes"
                   {...register('notes')}
@@ -130,11 +133,11 @@ export default function NewCustomerPage() {
 
           <div className="flex gap-2 mt-6">
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Customer'}
+              {isLoading ? t('creating') : t('createCustomer')}
             </Button>
             <Link href="/customers">
               <Button type="button" variant="outline">
-                Cancel
+                {t('cancel')}
               </Button>
             </Link>
           </div>

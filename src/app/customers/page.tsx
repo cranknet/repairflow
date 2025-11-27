@@ -5,11 +5,12 @@ import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { format } from 'date-fns';
 import { CustomerSearch } from '@/components/customers/customer-search';
+import { CustomersListHeader } from '@/components/customers/customers-list-header';
+import { NoCustomersFound } from '@/components/customers/no-customers-found';
 import { PageHeader } from '@/components/layout/page-header';
 import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
+import { CustomersTable } from '@/components/customers/customers-table';
 
 export default async function CustomersPage({
   searchParams,
@@ -73,55 +74,7 @@ export default async function CustomersPage({
             {customers.length === 0 ? (
               <NoCustomersFound />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-800">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Name
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Phone
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Email
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Tickets
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Created
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customers.map((customer) => (
-                      <tr
-                        key={customer.id}
-                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      >
-                        <td className="py-3 px-4 font-medium">{customer.name}</td>
-                        <td className="py-3 px-4">{customer.phone}</td>
-                        <td className="py-3 px-4">{customer.email || '-'}</td>
-                        <td className="py-3 px-4">{customer._count.tickets}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
-                          {format(new Date(customer.createdAt), 'MMM dd, yyyy')}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Link href={`/customers/${customer.id}`}>
-                            <Button variant="ghost" size="sm">
-                              View
-                            </Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <CustomersTable customers={customers} />
             )}
           </CardContent>
         </Card>

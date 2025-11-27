@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { CameraIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import ImageCrop from './image-crop';
+import { ImageModal } from './image-modal';
+import { useLanguage } from '@/contexts/language-context';
 
 interface ImageUploadProps {
   label: string;
@@ -16,9 +18,11 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }: ImageUploadProps) {
+  const { t } = useLanguage();
   const [showCrop, setShowCrop] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,17 +53,20 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
   };
 
   const handleCropComplete = (croppedImage: string) => {
-    onChange(croppedImage);
-    setShowCrop(false);
-    setImageSrc(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (cameraInputRef.current) cameraInputRef.current.value = '';
-    // Call optional callback after crop is complete
-    if (onCropComplete) {
-      // Small delay to ensure state is updated
-      setTimeout(() => {
-        onCropComplete();
-      }, 100);
+    // Ensure the cropped image is properly saved
+    if (croppedImage && croppedImage.length > 0) {
+      onChange(croppedImage);
+      setShowCrop(false);
+      setImageSrc(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+      // Call optional callback after crop is complete
+      if (onCropComplete) {
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          onCropComplete();
+        }, 100);
+      }
     }
   };
 
@@ -159,13 +166,13 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
           onClick={handleMainClick}
         >
           <CameraIcon className="h-4 w-4 mr-2" />
-          Take Photo
+          {t('takePhoto')}
         </Button>
         <label htmlFor={`file-${label.toLowerCase().replace(/\s+/g, '-')}`}>
           <Button type="button" variant="outline" size="sm" asChild>
             <span>
               <PhotoIcon className="h-4 w-4 mr-2" />
-              Upload File
+              {t('uploadFile')}
             </span>
           </Button>
         </label>
@@ -175,11 +182,17 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
         <Card>
           <CardContent className="pt-4">
             <div className="relative">
-              <img
-                src={value}
-                alt={label}
-                className="w-full h-48 object-contain rounded border"
-              />
+              <button
+                type="button"
+                onClick={() => setShowImageModal(true)}
+                className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <img
+                  src={value}
+                  alt={label}
+                  className="w-full h-48 object-contain rounded border"
+                />
+              </button>
               <Button
                 type="button"
                 variant="ghost"
@@ -192,6 +205,15 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {showImageModal && value && (
+        <ImageModal
+          isOpen={showImageModal}
+          onClose={() => setShowImageModal(false)}
+          imageSrc={value}
+          title={label}
+        />
       )}
 
       {showCamera && (
@@ -214,7 +236,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
                   size="lg"
                 >
                   <CameraIcon className="h-5 w-5 mr-2" />
-                  Capture Photo
+                  {t('capturePhoto')}
                 </Button>
                 <Button
                   type="button"
@@ -223,7 +245,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
                   size="lg"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </div>
             </div>

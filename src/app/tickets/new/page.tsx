@@ -17,25 +17,29 @@ import { DeviceAutocomplete } from '@/components/tickets/device-autocomplete';
 import { DeviceIssueAutocomplete } from '@/components/tickets/device-issue-autocomplete';
 import { NewCustomerModal } from '@/components/customers/new-customer-modal';
 import { CustomerSelect } from '@/components/customers/customer-select';
+import { useLanguage } from '@/contexts/language-context';
 
-const ticketSchema = z.object({
-  customerId: z.string().min(1, 'Customer is required'),
-  deviceBrand: z.string().min(1, 'Device brand is required'),
-  deviceModel: z.string().min(1, 'Device model is required'),
-  deviceIssue: z.string().min(1, 'Device issue is required'),
+const createTicketSchema = (t: (key: string) => string) => z.object({
+  customerId: z.string().min(1, t('customerRequired')),
+  deviceBrand: z.string().min(1, t('deviceBrandRequired')),
+  deviceModel: z.string().min(1, t('deviceModelRequired')),
+  deviceIssue: z.string().min(1, t('deviceIssueRequired')),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
   estimatedPrice: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
-    message: 'Valid price is required',
+    message: t('validPriceRequired'),
   }),
   assignedToId: z.string().optional(),
+  warrantyDays: z.string().optional().refine((val) => !val || (!isNaN(parseInt(val)) && parseInt(val) >= 0), {
+    message: t('validWarrantyDaysRequired'),
+  }),
+  warrantyText: z.string().optional(),
   notes: z.string().optional(),
 });
-
-type TicketFormData = z.infer<typeof ticketSchema>;
 
 export default function NewTicketPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [customers, setCustomers] = useState<any[]>([]);
   const [staffUsers, setStaffUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +48,9 @@ export default function NewTicketPage() {
   const [backImage, setBackImage] = useState<string>('');
   const [deviceBrand, setDeviceBrand] = useState('');
   const [deviceModel, setDeviceModel] = useState('');
+
+  const ticketSchema = createTicketSchema(t);
+  type TicketFormData = z.infer<typeof ticketSchema>;
 
   const {
     register,
@@ -65,7 +72,22 @@ export default function NewTicketPage() {
   const fetchCustomers = () => {
     fetch('/api/customers')
       .then((res) => res.json())
-      .then((data) => setCustomers(data))
+      .then((data) => {
+        setCustomers(data);
+        // Set walking-customer as default if it exists
+        const walkingCustomer = data.find((c: any) => 
+          c.id === 'walking-customer' ||
+          c.name.toLowerCase() === 'walking-customer' ||
+          c.name === 'walking-customer'
+        );
+        if (walkingCustomer) {
+          const currentCustomerId = watch('customerId');
+          if (!currentCustomerId) {
+            setValue('customerId', walkingCustomer.id);
+            trigger('customerId'); // Trigger validation
+          }
+        }
+      })
       .catch((err) => console.error('Error fetching customers:', err));
   };
 
@@ -258,6 +280,31 @@ export default function NewTicketPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="warrantyDays">{t('warrantyDays')} ({t('optional')})</Label>
+                  <Input
+                    id="warrantyDays"
+                    type="number"
+                    min="0"
+                    {...register('warrantyDays')}
+                    placeholder="e.g., 30, 90, 180"
+                  />
+                  {errors.warrantyDays && (
+                    <p className="text-sm text-red-600">{errors.warrantyDays.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="warrantyText">{t('warrantyText')} ({t('optional')})</Label>
+                  <Input
+                    id="warrantyText"
+                    {...register('warrantyText')}
+                    placeholder="e.g., 30 days warranty on parts and labor"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

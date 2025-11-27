@@ -3,15 +3,12 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { TicketDetailsClient } from '@/components/tickets/ticket-details-client';
 import { TicketPrintButtons } from '@/components/tickets/ticket-print-buttons';
 import { TicketTabs } from '@/components/tickets/ticket-tabs';
 import { CustomerProfileButton } from '@/components/customers/customer-profile-button';
 import { CustomerContactActions } from '@/components/customers/customer-contact-actions';
+import { TicketDetailHeader } from '@/components/tickets/ticket-detail-header';
 
 export default async function TicketDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -113,32 +110,16 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
     <MainLayout>
       <div className="space-y-6 pt-6">
         {/* Header */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {ticket.ticketNumber}
-                </h1>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Created {format(new Date(ticket.createdAt), 'MMM dd, yyyy HH:mm')}
-              </p>
-            </div>
-          </div>
-          
-          {/* Action Buttons Bar */}
-          <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-            <Link href="/tickets">
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-                <ArrowLeftIcon className="h-4 w-4 mr-1" />
-                Back to List
-              </Button>
-            </Link>
-            <div className="ml-auto flex items-center gap-2">
-              <TicketPrintButtons ticket={ticket} />
-              <TicketDetailsClient ticket={ticket} userRole={session.user.role} />
-            </div>
+        <TicketDetailHeader 
+          ticketNumber={ticket.ticketNumber}
+          createdAt={ticket.createdAt}
+        />
+        
+        {/* Action Buttons Bar */}
+        <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="ml-auto flex items-center gap-2">
+            <TicketPrintButtons ticket={ticket} />
+            <TicketDetailsClient ticket={ticket} userRole={session.user.role} />
           </div>
         </div>
 

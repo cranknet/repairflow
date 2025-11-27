@@ -14,6 +14,8 @@ const createTicketSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   estimatedPrice: z.number().min(0),
   assignedToId: z.string().optional(),
+  warrantyDays: z.number().int().min(0).optional(),
+  warrantyText: z.string().optional(),
   notes: z.string().optional(),
 });
 

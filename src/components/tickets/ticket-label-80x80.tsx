@@ -1,31 +1,56 @@
 'use client';
 
 import { QRCodeSVG } from 'qrcode.react';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/language-context';
 
 interface TicketLabel80x80Props {
   ticket: any;
 }
 
 export function TicketLabel80x80({ ticket }: TicketLabel80x80Props) {
+  const { t } = useLanguage();
+  const [companyName, setCompanyName] = useState<string>('RepairFlow');
+  const [trackUrl, setTrackUrl] = useState<string>('');
+
+  useEffect(() => {
+    // Fetch company name from settings
+    fetch('/api/settings/public')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.company_name) {
+          setCompanyName(data.company_name);
+        }
+      })
+      .catch(console.error);
+    
+    // Generate track URL
+    if (typeof window !== 'undefined' && ticket.trackingCode) {
+      const baseUrl = window.location.origin;
+      setTrackUrl(`${baseUrl}/track?code=${ticket.trackingCode}`);
+    }
+  }, [ticket.trackingCode]);
+
   return (
     <div
       className="bg-white"
       style={{
         width: '80mm',
-        height: '80mm',
+        height: '120mm',
         padding: '4mm',
         fontSize: '10px',
         fontFamily: 'Arial, sans-serif',
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
         {/* Header */}
         <div style={{ textAlign: 'center', borderBottom: '1px solid #000', paddingBottom: '2mm', marginBottom: '2mm' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '1mm' }}>REPAIR INVOICE</div>
-          <div style={{ fontSize: '11px', fontWeight: '600' }}>{ticket.ticketNumber || 'N/A'}</div>
+          <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '1mm' }}>{companyName}</div>
+          <div style={{ fontSize: '11px', fontWeight: '600', color: '#666' }}>{ticket.ticketNumber || 'N/A'}</div>
         </div>
 
         {/* Customer Section */}
@@ -61,30 +86,99 @@ export function TicketLabel80x80({ ticket }: TicketLabel80x80Props) {
                 <strong>Final Price:</strong> ${ticket.finalPrice.toFixed(2)}
               </div>
             )}
-            <div style={{ fontSize: '7px', color: '#666', marginTop: '1mm' }}>
-              Created: {ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM dd, yyyy HH:mm') : 'N/A'}
-            </div>
           </div>
         </div>
 
         {/* QR Code Section */}
         <div style={{ 
           marginTop: 'auto', 
-          paddingTop: '2mm', 
+          paddingTop: '3mm', 
           borderTop: '1px solid #ddd',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          gap: '2mm'
         }}>
-          <div style={{ fontSize: '8px', fontWeight: '600', marginBottom: '1mm' }}>TRACKING CODE</div>
-          <div style={{ fontSize: '7px', fontFamily: 'monospace', marginBottom: '1mm' }}>{ticket.trackingCode || 'N/A'}</div>
+          {/* Tracking Code as Link */}
+          {trackUrl ? (
+            <a
+              href={trackUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: '7px',
+                fontFamily: 'monospace',
+                marginBottom: '1mm',
+                color: '#0066cc',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              {ticket.trackingCode || 'N/A'}
+            </a>
+          ) : (
+            <div style={{ fontSize: '7px', fontFamily: 'monospace', marginBottom: '1mm' }}>
+              {ticket.trackingCode || 'N/A'}
+            </div>
+          )}
           <QRCodeSVG
-            value={ticket.trackingCode || 'N/A'}
-            size={60}
+            value={trackUrl || ticket.trackingCode || 'N/A'}
+            size={80}
             level="M"
             includeMargin={false}
           />
+          
+          {/* Warranty Information */}
+          {(ticket.warrantyDays || ticket.warrantyText) && (
+            <div style={{
+              marginTop: '2mm',
+              paddingTop: '2mm',
+              borderTop: '1px solid #eee',
+              textAlign: 'center',
+              fontSize: '7px',
+              lineHeight: '1.4',
+              color: '#333',
+              width: '100%',
+              maxWidth: '100%',
+            }}>
+              <div style={{ fontWeight: '600', marginBottom: '1.5mm', fontSize: '8px', color: '#000' }}>
+                {t('warrantyInfo')}
+              </div>
+              {ticket.warrantyDays && (
+                <div style={{ marginBottom: '0.8mm', fontWeight: '500' }}>
+                  {ticket.warrantyDays} {ticket.warrantyDays === 1 ? t('day') : t('days')} {t('warranty')}
+                </div>
+              )}
+              {ticket.warrantyText && (
+                <div style={{ 
+                  fontStyle: 'italic', 
+                  marginTop: ticket.warrantyDays ? '0.8mm' : '0',
+                  fontSize: '6.5px',
+                  padding: '0 1mm',
+                  wordWrap: 'break-word',
+                }}>
+                  {ticket.warrantyText}
+                </div>
+              )}
+              {ticket.warrantyDays && ticket.completedAt && (
+                <div style={{ marginTop: '1.2mm', fontSize: '6px', color: '#666', fontWeight: '500' }}>
+                  {t('validUntil')}: {format(addDays(new Date(ticket.completedAt), ticket.warrantyDays), 'MMM dd, yyyy')}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        {/* Created Date - Bottom Left */}
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '4mm', 
+          left: '4mm', 
+          fontSize: '6px', 
+          color: '#666' 
+        }}>
+          {ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM dd, yyyy HH:mm') : 'N/A'}
         </div>
     </div>
   );

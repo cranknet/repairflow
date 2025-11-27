@@ -42,7 +42,7 @@ const AVAILABLE_VARIABLES = ['customerName', 'ticketNumber', 'trackingCode', 'fi
 
 export function SMSTemplatesManager() {
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [templates, setTemplates] = useState<SMSTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingTemplate, setEditingTemplate] = useState<SMSTemplate | null>(null);
@@ -77,8 +77,8 @@ export function SMSTemplatesManager() {
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch SMS templates',
+        title: t('error') || 'Error',
+        description: t('failedToFetchTemplates'),
       });
     } finally {
       setIsLoading(false);
@@ -114,8 +114,8 @@ export function SMSTemplatesManager() {
   const handleSave = async () => {
     if (!formData.name || !formData.message || !formData.templateId) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all required fields',
+        title: t('error') || 'Error',
+        description: t('pleaseFillRequiredFields'),
       });
       return;
     }
@@ -137,8 +137,8 @@ export function SMSTemplatesManager() {
       }
 
       toast({
-        title: 'Success',
-        description: `Template ${editingTemplate ? 'updated' : 'created'} successfully`,
+        title: t('success') || 'Success',
+        description: editingTemplate ? t('templateUpdated') : t('templateCreated'),
       });
 
       setEditingTemplate(null);
@@ -146,8 +146,8 @@ export function SMSTemplatesManager() {
       fetchTemplates();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to save template',
+        title: t('error') || 'Error',
+        description: error.message || t('failedToSaveTemplate'),
       });
     }
   };
@@ -171,15 +171,15 @@ export function SMSTemplatesManager() {
       }
 
       toast({
-        title: 'Success',
-        description: 'Template deleted successfully',
+        title: t('success') || 'Success',
+        description: t('templateDeleted'),
       });
 
       fetchTemplates();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete template',
+        title: t('error') || 'Error',
+        description: error.message || t('failedToDeleteTemplate'),
       });
     } finally {
       setIsDeleting(null);
@@ -202,8 +202,8 @@ export function SMSTemplatesManager() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>SMS Templates</CardTitle>
-              <CardDescription>Manage SMS message templates in multiple languages</CardDescription>
+              <CardTitle>{t('smsTemplates')}</CardTitle>
+              <CardDescription>{t('manageSmsTemplates')}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <select
@@ -217,17 +217,17 @@ export function SMSTemplatesManager() {
               </select>
               <Button onClick={handleCreate} variant="outline">
                 <PlusIcon className="h-4 w-4 mr-2" />
-                New Template
+                {t('newTemplate')}
               </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-gray-500">Loading templates...</div>
+            <div className="text-center py-8 text-gray-500">{t('loadingTemplates')}</div>
           ) : templates.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No templates found for {selectedLanguage}. Create one to get started.
+              {t('noTemplatesFound')} {selectedLanguage}. {t('createOneToGetStarted')}.
             </div>
           ) : (
             <div className="space-y-3">
@@ -247,14 +247,14 @@ export function SMSTemplatesManager() {
                       </span>
                       {!template.isActive && (
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
-                          Inactive
+                          {t('inactive')}
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.message}</p>
                     {template.variables.length > 0 && (
                       <p className="text-xs text-gray-500 mt-1">
-                        Variables: {template.variables.join(', ')}
+                        {t('variables')}: {template.variables.join(', ')}
                       </p>
                     )}
                   </div>
@@ -266,7 +266,7 @@ export function SMSTemplatesManager() {
                       className="flex items-center gap-1.5"
                     >
                       <PencilIcon className="h-4 w-4" />
-                      Edit
+                      {t('edit')}
                     </Button>
                     <Button
                       variant="outline"
@@ -276,7 +276,7 @@ export function SMSTemplatesManager() {
                       className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <TrashIcon className="h-4 w-4" />
-                      {isDeleting === template.id ? 'Deleting...' : 'Delete'}
+                      {isDeleting === template.id ? t('deleting') : t('delete')}
                     </Button>
                   </div>
                 </div>
@@ -303,14 +303,14 @@ export function SMSTemplatesManager() {
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingTemplate ? 'Edit' : 'Create'} SMS Template</DialogTitle>
+            <DialogTitle>{editingTemplate ? t('editSmsTemplate') : t('createSmsTemplate')}</DialogTitle>
             <DialogDescription>
-              {editingTemplate ? 'Update' : 'Create'} a custom SMS template for {selectedLanguage}
+              {editingTemplate ? t('updateSmsTemplate') : t('createCustomSmsTemplate')} {selectedLanguage}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="template-name">Template Name *</Label>
+              <Label htmlFor="template-name">{t('templateName')} *</Label>
               <Input
                 id="template-name"
                 value={formData.name}
@@ -320,7 +320,7 @@ export function SMSTemplatesManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="template-id">Template Type *</Label>
+              <Label htmlFor="template-id">{t('templateType')} *</Label>
               <select
                 id="template-id"
                 value={formData.templateId}
@@ -328,7 +328,7 @@ export function SMSTemplatesManager() {
                 className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                 disabled={!!editingTemplate}
               >
-                <option value="">Select template type</option>
+                <option value="">{t('selectTemplateType')}</option>
                 {TEMPLATE_IDS.map((id) => (
                   <option key={id} value={id}>
                     {TEMPLATE_NAMES[id] || id}
@@ -338,7 +338,7 @@ export function SMSTemplatesManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="template-language">Language *</Label>
+              <Label htmlFor="template-language">{t('language')} *</Label>
               <select
                 id="template-language"
                 value={formData.language}
@@ -352,22 +352,22 @@ export function SMSTemplatesManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="template-message">Message *</Label>
+              <Label htmlFor="template-message">{t('message')} *</Label>
               <textarea
                 id="template-message"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 rows={6}
                 className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                placeholder="Enter your message template. Use {variableName} for variables."
+                placeholder={t('enterMessageTemplate')}
               />
               <p className="text-xs text-gray-500">
-                Use {'{variableName}'} to insert variables. Available variables: {AVAILABLE_VARIABLES.join(', ')}
+                {t('useVariableName')} {AVAILABLE_VARIABLES.join(', ')}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Variables</Label>
+              <Label>{t('variables')}</Label>
               <div className="flex flex-wrap gap-2">
                 {AVAILABLE_VARIABLES.map((variable) => (
                   <button
@@ -395,7 +395,7 @@ export function SMSTemplatesManager() {
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="template-active" className="cursor-pointer">
-                Active (template will be available for use)
+                {t('activeTemplateAvailable')}
               </Label>
             </div>
           </div>
@@ -415,9 +415,9 @@ export function SMSTemplatesManager() {
                 });
               }}
             >
-              Cancel
+              {t('cancel')}
             </Button>
-            <Button onClick={handleSave}>Save Template</Button>
+            <Button onClick={handleSave}>{t('saveTemplate')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

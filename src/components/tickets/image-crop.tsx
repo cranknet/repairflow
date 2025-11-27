@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ReactCrop, { Crop, PixelCrop, makeAspectCrop, centerCrop } from 'react-image-crop';
+import { useLanguage } from '@/contexts/language-context';
 
 interface ImageCropProps {
   imageSrc: string;
@@ -12,6 +13,7 @@ interface ImageCropProps {
 }
 
 export default function ImageCrop({ imageSrc, onCropComplete, onCancel }: ImageCropProps) {
+  const { t } = useLanguage();
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
@@ -99,7 +101,7 @@ export default function ImageCrop({ imageSrc, onCropComplete, onCancel }: ImageC
     <Card className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <CardContent className="max-w-2xl w-full m-4 bg-white dark:bg-gray-900 rounded-lg">
         <CardHeader>
-          <CardTitle>Crop Image</CardTitle>
+          <CardTitle>{t('cropImage')}</CardTitle>
         </CardHeader>
         <div className="space-y-4">
           <div className="flex justify-center">
@@ -120,11 +122,11 @@ export default function ImageCrop({ imageSrc, onCropComplete, onCancel }: ImageC
             </ReactCrop>
           </div>
           <div className="flex gap-2 justify-end">
-            <Button onClick={onCancel} variant="outline">
-              Cancel
+            <Button type="button" onClick={onCancel} variant="outline">
+              {t('cancel')}
             </Button>
-            <Button onClick={handleCrop} disabled={!completedCrop}>
-              Apply Crop
+            <Button type="button" onClick={handleCrop} disabled={!completedCrop}>
+              {t('applyCrop')}
             </Button>
           </div>
         </div>

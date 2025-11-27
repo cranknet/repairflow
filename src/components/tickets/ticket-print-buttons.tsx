@@ -13,8 +13,10 @@ import {
 } from '@/components/ui/dialog';
 import { TicketLabel40x20 } from './ticket-label-40x20';
 import { TicketLabel80x80 } from './ticket-label-80x80';
+import { useLanguage } from '@/contexts/language-context';
 
 export function TicketPrintButtons({ ticket }: { ticket: any }) {
+  const { t } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<'40x20' | '80x80' | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
     if (!printWindow) return;
 
     const content = printRef.current.innerHTML;
-    const pageSize = selectedFormat === '40x20' ? '40mm 20mm' : '80mm 80mm';
+    const pageSize = selectedFormat === '40x20' ? '40mm 20mm' : '80mm 120mm';
     const title = selectedFormat === '40x20' 
       ? `Ticket-${ticket.ticketNumber}-Label` 
       : `Ticket-${ticket.ticketNumber}-Invoice`;
@@ -56,7 +58,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
               padding: 0;
               font-family: Arial, sans-serif;
               width: ${selectedFormat === '40x20' ? '40mm' : '80mm'};
-              height: ${selectedFormat === '40x20' ? '20mm' : '80mm'};
+              height: ${selectedFormat === '40x20' ? '20mm' : '120mm'};
             }
             @media print {
               body {
@@ -90,7 +92,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
     <>
       <Button onClick={() => setIsDialogOpen(true)} variant="outline" size="sm">
         <PrinterIcon className="h-4 w-4 mr-2" />
-        Print
+        {t('print')}
       </Button>
 
       {/* Print Selection Dialog */}
@@ -102,9 +104,9 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Print Ticket</DialogTitle>
+            <DialogTitle>{t('printTicket')}</DialogTitle>
             <DialogDescription>
-              Select format and preview for ticket {ticket.ticketNumber}
+              {t('selectFormat')} {ticket.ticketNumber}
             </DialogDescription>
           </DialogHeader>
           
@@ -117,9 +119,9 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex flex-col items-start">
-                    <div className="font-semibold text-base">Print Label (40x20mm)</div>
+                    <div className="font-semibold text-base">{t('printLabel')}</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      Small label with ticket number, customer, device, and QR code
+                      {t('labelDescription')}
                     </div>
                   </div>
                 </Button>
@@ -129,16 +131,16 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex flex-col items-start">
-                    <div className="font-semibold text-base">Print Invoice (80x80mm)</div>
+                    <div className="font-semibold text-base">{t('printInvoice')}</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      Full invoice with customer details, device info, pricing, and QR code
+                      {t('invoiceDescription')}
                     </div>
                   </div>
                 </Button>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </DialogFooter>
             </>
@@ -148,10 +150,10 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-lg">
-                      {selectedFormat === '40x20' ? 'Label Preview (40x20mm)' : 'Invoice Preview (80x80mm)'}
+                      {selectedFormat === '40x20' ? t('labelPreview') : t('invoicePreview')}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      Review the preview before printing
+                      {t('reviewPreview')}
                     </p>
                   </div>
                   <Button
@@ -159,7 +161,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                     size="sm"
                     onClick={() => setSelectedFormat(null)}
                   >
-                    ← Back
+                    ← {t('back')}
                   </Button>
                 </div>
                 
@@ -170,10 +172,10 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                     className="bg-white shadow-lg border border-gray-300"
                     style={{
                       width: selectedFormat === '40x20' ? '151px' : '302px', // 40mm = 151px, 80mm = 302px (at 96 DPI)
-                      height: selectedFormat === '40x20' ? '76px' : '302px', // 20mm = 76px, 80mm = 302px
+                      height: selectedFormat === '40x20' ? '76px' : '453px', // 20mm = 76px, 120mm = 453px (at 96 DPI)
                       flexShrink: 0,
                       minWidth: selectedFormat === '40x20' ? '151px' : '302px',
-                      minHeight: selectedFormat === '40x20' ? '76px' : '302px',
+                      minHeight: selectedFormat === '40x20' ? '76px' : '453px',
                     }}
                   >
                     {selectedFormat === '40x20' ? (
@@ -186,11 +188,11 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSelectedFormat(null)}>
-                  Back
+                  {t('back')}
                 </Button>
                 <Button onClick={handlePrint}>
                   <PrinterIcon className="h-4 w-4 mr-2" />
-                  Print
+                  {t('print')}
                 </Button>
               </DialogFooter>
             </>

@@ -20,13 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useSession } from 'next-auth/react';
-
-const TABS = [
-  { id: 'general', label: 'General Settings' },
-  { id: 'branding', label: 'Branding' },
-  { id: 'sms', label: 'SMS Templates' },
-  { id: 'users', label: 'User Management' },
-];
+import { useLanguage } from '@/contexts/language-context';
 
 export function SettingsClient({
   initialSettings,
@@ -37,6 +31,14 @@ export function SettingsClient({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const TABS = [
+    { id: 'general', label: t('generalSettings') },
+    { id: 'branding', label: t('branding') },
+    { id: 'sms', label: t('smsTemplates') },
+    { id: 'users', label: t('userManagement') },
+  ];
   const [settings, setSettings] = useState(initialSettings);
   const [users, setUsers] = useState(initialUsers);
   const [isSaving, setIsSaving] = useState(false);
@@ -401,13 +403,13 @@ export function SettingsClient({
         {activeTab === 'general' && (
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-              <CardDescription>Company information and contact details</CardDescription>
+              <CardTitle>{t('generalSettings')}</CardTitle>
+              <CardDescription>{t('companyInformation')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_name">Company Name</Label>
+                  <Label htmlFor="company_name">{t('companyName')}</Label>
                   <Input
                     id="company_name"
                     value={settings.company_name || ''}
@@ -417,7 +419,7 @@ export function SettingsClient({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company_email">Company Email</Label>
+                  <Label htmlFor="company_email">{t('companyEmail')}</Label>
                   <Input
                     id="company_email"
                     type="email"
@@ -428,7 +430,7 @@ export function SettingsClient({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company_phone">Company Phone</Label>
+                  <Label htmlFor="company_phone">{t('companyPhone')}</Label>
                   <Input
                     id="company_phone"
                     value={settings.company_phone || ''}
@@ -438,7 +440,7 @@ export function SettingsClient({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company_address">Company Address</Label>
+                  <Label htmlFor="company_address">{t('companyAddress')}</Label>
                   <Input
                     id="company_address"
                     value={settings.company_address || ''}
@@ -448,7 +450,7 @@ export function SettingsClient({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Currency</Label>
+                  <Label htmlFor="currency">{t('currency')}</Label>
                   <select
                     id="currency"
                     value={settings.currency || 'USD'}
@@ -472,7 +474,7 @@ export function SettingsClient({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
+                  <Label htmlFor="country">{t('country')}</Label>
                   <select
                     id="country"
                     value={settings.country || 'US'}
@@ -518,31 +520,12 @@ export function SettingsClient({
                     <option value="VE">Venezuela</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  <select
-                    id="language"
-                    value={settings.language || 'en'}
-                    onChange={(e) => {
-                      setSettings({ ...settings, language: e.target.value });
-                      // Update language immediately
-                      localStorage.setItem('app_language', e.target.value);
-                      // Reload to apply language changes
-                      window.location.reload();
-                    }}
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    <option value="en">English</option>
-                    <option value="ar">العربية (Arabic)</option>
-                    <option value="fr">Français (French)</option>
-                  </select>
-                </div>
               </div>
               <div className="pt-4 border-t border-gray-200">
                 <AppVersion />
               </div>
               <Button onClick={handleSaveSettings} disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Settings'}
+                {isSaving ? t('loading') : t('saveSettings')}
               </Button>
             </CardContent>
           </Card>
@@ -553,8 +536,8 @@ export function SettingsClient({
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Company Logo</CardTitle>
-                <CardDescription>Upload your company logo to display on the login page</CardDescription>
+                <CardTitle>{t('companyLogo')}</CardTitle>
+                <CardDescription>{t('uploadYourCompanyLogo')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -592,7 +575,7 @@ export function SettingsClient({
                       onClick={() => logoInputRef.current?.click()}
                       disabled={isUploadingLogo}
                     >
-                      {isUploadingLogo ? 'Uploading...' : settings.company_logo ? 'Change Logo' : 'Upload Logo'}
+                      {isUploadingLogo ? t('uploading') : settings.company_logo ? t('changeLogo') : t('uploadLogo')}
                     </Button>
                   </div>
                 </div>
@@ -601,8 +584,8 @@ export function SettingsClient({
 
             <Card>
               <CardHeader>
-                <CardTitle>Login Page Background</CardTitle>
-                <CardDescription>Customize the login page background image</CardDescription>
+                <CardTitle>{t('loginPageBackground')}</CardTitle>
+                <CardDescription>{t('customizeLoginBackground')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Upload from file */}
@@ -641,14 +624,14 @@ export function SettingsClient({
                       onClick={() => backgroundInputRef.current?.click()}
                       disabled={isUploadingBackground}
                     >
-                      {isUploadingBackground ? 'Uploading...' : 'Upload Image'}
+                      {isUploadingBackground ? t('uploading') : t('uploadImage')}
                     </Button>
                   </div>
                 </div>
 
                 {/* Or use free API */}
                 <div className="space-y-2">
-                  <Label htmlFor="background-url">Or use free image URL (Unsplash, Picsum, etc.)</Label>
+                  <Label htmlFor="background-url">{t('orUseFreeImageUrl')}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="background-url"
@@ -664,7 +647,7 @@ export function SettingsClient({
                       disabled={isSaving || !backgroundImageUrl.trim()}
                     >
                       <SparklesIcon className="h-4 w-4 mr-2" />
-                      Use URL
+                      {t('useUrl')}
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">
@@ -687,11 +670,11 @@ export function SettingsClient({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>User Management</CardTitle>
-                  <CardDescription>Manage staff and admin accounts</CardDescription>
+                  <CardTitle>{t('userManagement')}</CardTitle>
+                  <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
                 </div>
                 <Button onClick={() => setShowNewUser(true)} variant="outline">
-                  Add User
+                  {t('addUser')}
                 </Button>
               </div>
             </CardHeader>
@@ -715,7 +698,7 @@ export function SettingsClient({
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        {user.username} • {user.email || 'No email'}
+                        {user.username} • {user.email || t('noEmail')}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -726,7 +709,7 @@ export function SettingsClient({
                         className="flex items-center gap-1.5"
                       >
                         <PencilIcon className="h-4 w-4" />
-                        Edit
+                        {t('edit')}
                       </Button>
                       <Button
                         variant="outline"
@@ -736,7 +719,7 @@ export function SettingsClient({
                         className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <TrashIcon className="h-4 w-4" />
-                        {isDeleting === user.id ? 'Deleting...' : 'Delete'}
+                        {isDeleting === user.id ? t('deleting') : t('delete')}
                       </Button>
                     </div>
                   </div>
@@ -747,14 +730,14 @@ export function SettingsClient({
               <Dialog open={showNewUser} onOpenChange={(open) => !open && setShowNewUser(false)}>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Create New User</DialogTitle>
+                    <DialogTitle>{t('createNewUser')}</DialogTitle>
                     <DialogDescription>
-                      Add a new staff member or administrator to the system
+                      {t('addNewStaffMember')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="new_username">Username *</Label>
+                      <Label htmlFor="new_username">{t('username')} *</Label>
                       <Input
                         id="new_username"
                         value={newUser.username}
@@ -763,7 +746,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new_email">Email</Label>
+                      <Label htmlFor="new_email">{t('customerEmail')}</Label>
                       <Input
                         id="new_email"
                         type="email"
@@ -773,7 +756,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new_password">Password *</Label>
+                      <Label htmlFor="new_password">{t('password')} *</Label>
                       <Input
                         id="new_password"
                         type="password"
@@ -783,7 +766,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new_name">Name</Label>
+                      <Label htmlFor="new_name">{t('customerName')}</Label>
                       <Input
                         id="new_name"
                         value={newUser.name}
@@ -792,7 +775,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new_role">Role *</Label>
+                      <Label htmlFor="new_role">{t('role')} *</Label>
                       <select
                         id="new_role"
                         value={newUser.role}

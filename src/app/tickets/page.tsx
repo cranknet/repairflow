@@ -9,9 +9,11 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { TicketSearch } from '@/components/tickets/ticket-search';
 import { TicketFilters } from '@/components/tickets/ticket-filters';
+import { TicketsListHeader } from '@/components/tickets/tickets-list-header';
 import { NoTicketsFound } from '@/components/tickets/no-tickets-found';
 import { PageHeader } from '@/components/layout/page-header';
 import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
+import { TicketsTable } from '@/components/tickets/tickets-table';
 
 const TICKETS_PER_PAGE = 10;
 
@@ -111,105 +113,13 @@ export default async function TicketsPage({
         {/* Tickets List */}
         <Card>
           <CardHeader>
-            <CardTitle>
-              All Tickets ({totalCount})
-              {params.search && (
-                <span className="text-sm font-normal text-gray-500 ml-2">
-                  - Filtered by &quot;{params.search}&quot;
-                </span>
-              )}
-            </CardTitle>
+            <TicketsListHeader count={totalCount} searchQuery={params.search} />
           </CardHeader>
           <CardContent>
             {tickets.length === 0 ? (
               <NoTicketsFound />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-800">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Ticket #
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Customer
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Device
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Status
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Priority
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Estimated Price
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Created
-                      </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tickets.map((ticket) => (
-                      <tr
-                        key={ticket.id}
-                        className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      >
-                        <td className="py-3 px-4">
-                          <Link
-                            href={`/tickets/${ticket.id}`}
-                            className="font-medium text-primary-600 hover:underline"
-                          >
-                            {ticket.ticketNumber}
-                          </Link>
-                        </td>
-                        <td className="py-3 px-4">{ticket.customer.name}</td>
-                        <td className="py-3 px-4">
-                          {ticket.deviceBrand} {ticket.deviceModel}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                              ticket.status
-                            )}`}
-                          >
-                            {ticket.status.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              ticket.priority === 'URGENT'
-                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                : ticket.priority === 'HIGH'
-                                ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                            }`}
-                          >
-                            {ticket.priority}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">${ticket.estimatedPrice.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
-                          {format(new Date(ticket.createdAt), 'MMM dd, yyyy')}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Link href={`/tickets/${ticket.id}`}>
-                            <Button variant="ghost" size="sm">
-                              View
-                            </Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <TicketsTable tickets={tickets} />
             )}
 
             {/* Pagination */}

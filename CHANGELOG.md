@@ -16,6 +16,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.2.0] - 2024-12-XX
+
+### Added
+- Date range selector for dashboard analytics with custom date range support
+- Real-time dashboard data fetching based on selected date ranges
+- API endpoint for dynamic sales data retrieval (`/api/dashboard/sales`)
+- Image modal for viewing large images when adding tickets
+- Comprehensive translation support for ticket detail pages
+- Translation support for image upload components (Take Photo, Upload File, Crop Image, etc.)
+- Translation support for device photos component
+- Translation support for ticket tabs (Overview, Status & History, Parts & Returns, Pricing, Messaging)
+- Translation support for all ticket detail labels (Back to List, Customer, Created, Status, Priority, Tracking Code, etc.)
+- Date range picker component with support for Last Week, Last Two Weeks, Last Month, and Custom ranges
+- Dynamic date formatting based on selected range (daily for short ranges, weekly for longer ranges)
+
+### Changed
+- Sales chart now fetches data dynamically based on selected date range
+- Dashboard analytics now use real data with configurable date ranges instead of mock data
+- Image upload component now shows images in a modal when clicked
+- Ticket detail page header is now a client component with full translation support
+- Improved date range display in sales chart with formatted labels
+
+### Fixed
+- Image crop now properly saves to ticket state when applying crop
+- Cropped images are correctly stored in ticket creation form
+- All ticket detail page labels are now properly translated
+- Image upload labels (Take Photo, Upload File, Crop Image, Apply Crop, Cancel) are now translated
+- Device photos component labels are now translated
+- Date range selector properly calculates and displays date ranges
+
 ## [1.1.0] - 2024-12-XX
 
 ### Added
