@@ -44,7 +44,7 @@ export default async function InventoryPage({
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Inventory</h1>
             <p className="text-gray-600 dark:text-gray-400">Manage spare parts and stock</p>
           </div>
-          <Link href="/inventory/new">
+          <Link href="/inventory/new" className="mr-4">
             <Button>Add Part</Button>
           </Link>
         </div>

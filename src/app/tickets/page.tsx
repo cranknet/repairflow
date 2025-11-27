@@ -85,7 +85,7 @@ export default async function TicketsPage({
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Tickets</h1>
             <p className="text-gray-600 dark:text-gray-400">Manage repair tickets</p>
           </div>
-          <Link href="/tickets/new">
+          <Link href="/tickets/new" className="mr-4">
             <Button>Create New Ticket</Button>
           </Link>
         </div>

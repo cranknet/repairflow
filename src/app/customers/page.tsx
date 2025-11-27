@@ -47,7 +47,7 @@ export default async function CustomersPage({
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Customers</h1>
             <p className="text-gray-600 dark:text-gray-400">Manage customer information</p>
           </div>
-          <Link href="/customers/new">
+          <Link href="/customers/new" className="mr-4">
             <Button>Add Customer</Button>
           </Link>
         </div>
