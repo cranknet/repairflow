@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { TicketDetailsClient } from '@/components/tickets/ticket-details-client';
 import { TicketPrintButtons } from '@/components/tickets/ticket-print-buttons';
 import { TicketTabs } from '@/components/tickets/ticket-tabs';

@@ -35,16 +35,7 @@ export function TrackContent() {
       .catch(console.error);
   }, []);
 
-  // Read tracking code from URL and auto-fetch
-  useEffect(() => {
-    const codeFromUrl = searchParams.get('code');
-    if (codeFromUrl) {
-      setTrackingCode(codeFromUrl.toUpperCase());
-      // Automatically fetch ticket
-      handleTrackByCode(codeFromUrl.toUpperCase());
-    }
-  }, [searchParams]);
-
+  // Define handleTrackByCode before using it in useEffect
   const handleTrackByCode = async (code: string) => {
     setIsLoading(true);
     setError('');
@@ -63,6 +54,17 @@ export function TrackContent() {
       setIsLoading(false);
     }
   };
+
+  // Read tracking code from URL and auto-fetch
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('code');
+    if (codeFromUrl) {
+      setTrackingCode(codeFromUrl.toUpperCase());
+      // Automatically fetch ticket
+      handleTrackByCode(codeFromUrl.toUpperCase());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
