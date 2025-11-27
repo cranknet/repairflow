@@ -41,6 +41,7 @@ export function SettingsClient({
   const TABS = [
     { id: 'general', label: t('generalSettings') },
     { id: 'branding', label: t('branding') },
+    { id: 'social', label: t('socialMedia') },
     { id: 'sms', label: t('smsTemplates') },
     { id: 'users', label: t('userManagement') },
   ];
@@ -664,6 +665,54 @@ export function SettingsClient({
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Social Media Tab */}
+        {activeTab === 'social' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('socialMedia')}</CardTitle>
+              <CardDescription>{t('socialMediaDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="facebook_url">Facebook URL</Label>
+                <Input
+                  id="facebook_url"
+                  type="url"
+                  placeholder="https://facebook.com/yourpage"
+                  value={settings.facebook_url || ''}
+                  onChange={(e) =>
+                    setSettings({ ...settings, facebook_url: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="youtube_url">YouTube URL</Label>
+                <Input
+                  id="youtube_url"
+                  type="url"
+                  placeholder="https://youtube.com/@yourchannel"
+                  value={settings.youtube_url || ''}
+                  onChange={(e) =>
+                    setSettings({ ...settings, youtube_url: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="instagram_url">Instagram URL</Label>
+                <Input
+                  id="instagram_url"
+                  type="url"
+                  placeholder="https://instagram.com/yourprofile"
+                  value={settings.instagram_url || ''}
+                  onChange={(e) =>
+                    setSettings({ ...settings, instagram_url: e.target.value })
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* SMS Templates Tab */}

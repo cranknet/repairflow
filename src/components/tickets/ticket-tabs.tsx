@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { DevicePhotos } from './device-photos';
-import { ReturnHandler } from './return-handler';
 import { PriceAdjustment } from './price-adjustment';
 import { TicketAssignment } from './ticket-assignment';
 import { SMSSender } from '@/components/sms/sms-sender';
@@ -25,7 +24,6 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
   const TABS = [
     { id: 'overview', label: t('overview') },
     { id: 'status', label: t('statusHistory') },
-    { id: 'parts', label: t('partsReturns') },
     { id: 'pricing', label: t('pricing') },
     { id: 'messaging', label: t('messaging') },
   ];
@@ -169,6 +167,38 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
               </CardContent>
             </Card>
 
+            {/* Parts Used */}
+            {ticket.parts && ticket.parts.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('partsUsed')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {ticket.parts.map((ticketPart: any) => (
+                      <div
+                        key={ticketPart.id}
+                        className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{ticketPart.part.name}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            SKU: {ticketPart.part.sku}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">Qty: {ticketPart.quantity}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ${(ticketPart.part.unitPrice * ticketPart.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Notes */}
             {ticket.notes && (
               <Card>
@@ -222,57 +252,36 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
           </Card>
         )}
 
-        {/* Parts & Returns Tab */}
-        {activeTab === 'parts' && (
-          <div className="space-y-6">
-            {/* Parts Used */}
-            {ticket.parts && ticket.parts.length > 0 ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('partsUsed')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {ticket.parts.map((ticketPart: any) => (
-                      <div
-                        key={ticketPart.id}
-                        className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{ticketPart.part.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            SKU: {ticketPart.part.sku}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">Qty: {ticketPart.quantity}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            ${(ticketPart.part.unitPrice * ticketPart.quantity).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+        {/* Parts Used - Now in Overview Tab */}
+        {activeTab === 'overview' && ticket.parts && ticket.parts.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>{t('partsUsed')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {ticket.parts.map((ticketPart: any) => (
+                  <div
+                    key={ticketPart.id}
+                    className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{ticketPart.part.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        SKU: {ticketPart.part.sku}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">Qty: {ticketPart.quantity}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        ${(ticketPart.part.unitPrice * ticketPart.quantity).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-gray-500 text-center">{t('noPartsUsed')}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Returns */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('returns')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ReturnHandler ticket={ticket} />
-              </CardContent>
-            </Card>
-          </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Pricing Tab */}

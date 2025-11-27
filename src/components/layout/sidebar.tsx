@@ -12,6 +12,7 @@ import {
   HomeIcon,
   Bars3Icon,
   XMarkIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { AppVersion } from './app-version';
@@ -21,6 +22,7 @@ import { useSettings } from '@/contexts/settings-context';
 const navigationKeys = [
   { key: 'dashboard', href: '/dashboard', icon: HomeIcon },
   { key: 'tickets', href: '/tickets', icon: TicketIcon },
+  { key: 'returns', href: '/returns', icon: ArrowPathIcon },
   { key: 'inventory', href: '/inventory', icon: CubeIcon },
   { key: 'customers', href: '/customers', icon: UserGroupIcon },
   { key: 'settings', href: '/settings', icon: Cog6ToothIcon, adminOnly: true },

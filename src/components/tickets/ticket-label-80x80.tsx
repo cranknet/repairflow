@@ -12,15 +12,19 @@ interface TicketLabel80x80Props {
 export function TicketLabel80x80({ ticket }: TicketLabel80x80Props) {
   const { t } = useLanguage();
   const [companyName, setCompanyName] = useState<string>('RepairFlow');
+  const [companyPhone, setCompanyPhone] = useState<string>('');
   const [trackUrl, setTrackUrl] = useState<string>('');
 
   useEffect(() => {
-    // Fetch company name from settings
+    // Fetch company name and phone from settings
     fetch('/api/settings/public')
       .then((res) => res.json())
       .then((data) => {
         if (data.company_name) {
           setCompanyName(data.company_name);
+        }
+        if (data.company_phone) {
+          setCompanyPhone(data.company_phone);
         }
       })
       .catch(console.error);
@@ -50,6 +54,9 @@ export function TicketLabel80x80({ ticket }: TicketLabel80x80Props) {
         {/* Header */}
         <div style={{ textAlign: 'center', borderBottom: '1px solid #000', paddingBottom: '2mm', marginBottom: '2mm' }}>
           <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '1mm' }}>{companyName}</div>
+          {companyPhone && (
+            <div style={{ fontSize: '9px', color: '#666', marginBottom: '1mm' }}>{companyPhone}</div>
+          )}
           <div style={{ fontSize: '11px', fontWeight: '600', color: '#666' }}>{ticket.ticketNumber || 'N/A'}</div>
         </div>
 

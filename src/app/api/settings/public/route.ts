@@ -6,7 +6,7 @@ export async function GET() {
     const settings = await prisma.settings.findMany({
       where: {
         key: {
-          in: ['company_name', 'company_logo', 'login_background_image', 'login_background_image_url', 'language', 'currency'],
+          in: ['company_name', 'company_logo', 'company_phone', 'login_background_image', 'login_background_image_url', 'language', 'currency', 'facebook_url', 'youtube_url', 'instagram_url'],
         },
       },
     });

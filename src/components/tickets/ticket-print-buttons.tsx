@@ -14,14 +14,28 @@ import {
 import { TicketLabel40x20 } from './ticket-label-40x20';
 import { TicketLabel80x80 } from './ticket-label-80x80';
 import { useLanguage } from '@/contexts/language-context';
+import { useToast } from '@/components/ui/use-toast';
 
 export function TicketPrintButtons({ ticket }: { ticket: any }) {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<'40x20' | '80x80' | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
+  // Check if invoice can be printed (only for COMPLETED or REPAIRED status, or if ticket has returns)
+  const hasReturns = ticket.returns && ticket.returns.length > 0;
+  const canPrintInvoice = ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED' || hasReturns;
+
   const handleSelectFormat = (format: '40x20' | '80x80') => {
+    if (format === '80x80' && !canPrintInvoice) {
+      toast({
+        title: t('error'),
+        description: 'Invoice can only be printed when ticket status is Completed or Repaired',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSelectedFormat(format);
   };
 
@@ -129,11 +143,15 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                   onClick={() => handleSelectFormat('80x80')}
                   variant="outline"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  disabled={!canPrintInvoice}
+                  title={!canPrintInvoice ? 'Invoice can only be printed when ticket status is Completed or Repaired' : undefined}
                 >
                   <div className="flex flex-col items-start">
-                    <div className="font-semibold text-base">{t('printInvoice')}</div>
+                    <div className={`font-semibold text-base ${!canPrintInvoice ? 'opacity-50' : ''}`}>{t('printInvoice')}</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      {t('invoiceDescription')}
+                      {!canPrintInvoice 
+                        ? 'Available only when status is Completed or Repaired'
+                        : t('invoiceDescription')}
                     </div>
                   </div>
                 </Button>
