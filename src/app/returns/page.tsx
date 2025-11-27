@@ -46,6 +46,7 @@ export default async function ReturnsPage() {
             select: {
               name: true,
               sku: true,
+              unitPrice: true,
             },
           },
         },
@@ -77,6 +78,7 @@ export default async function ReturnsPage() {
               id: true,
               name: true,
               sku: true,
+              unitPrice: true,
             },
           },
         },
