@@ -129,15 +129,15 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
           
           {/* Action Buttons Bar */}
           <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <Link href="/tickets">
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                <ArrowLeftIcon className="h-4 w-4 mr-1" />
+                Back to List
+              </Button>
+            </Link>
             <div className="ml-auto flex items-center gap-2">
               <TicketPrintButtons ticket={ticket} />
               <TicketDetailsClient ticket={ticket} userRole={session.user.role} />
-              <Link href="/tickets">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-                  <ArrowLeftIcon className="h-4 w-4 mr-1" />
-                  Back to List
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
