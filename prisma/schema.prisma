@@ -146,6 +146,7 @@ model ReturnItem {
   part      Part     @relation(fields: [partId], references: [id])
   quantity  Int
   reason    String?
+  condition String   @default("GOOD") // GOOD, DAMAGED
   createdAt DateTime @default(now())
 }
 
