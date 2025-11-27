@@ -59,7 +59,7 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/repairflow.git
+   git clone https://github.com/cranknet/repairflow.git
    cd repairflow
    ```
 
@@ -214,8 +214,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Community
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/repairflow/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/repairflow/discussions)
+- **Issues**: [GitHub Issues](https://github.com/cranknet/repairflow/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/cranknet/repairflow/discussions)
 - **Security**: See [SECURITY.md](SECURITY.md) for reporting security vulnerabilities
 
 ## ⭐ Star History

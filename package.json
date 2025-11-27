@@ -6,12 +6,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/repairflow.git"
+    "url": "https://github.com/cranknet/repairflow.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/repairflow/issues"
+    "url": "https://github.com/cranknet/repairflow/issues"
   },
-  "homepage": "https://github.com/yourusername/repairflow#readme",
+  "homepage": "https://github.com/cranknet/repairflow#readme",
   "keywords": [
     "repair-shop",
     "management-system",

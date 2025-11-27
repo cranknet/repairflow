@@ -7,7 +7,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     reviewers:
-      - "yourusername"
+      - "cranknet"
     labels:
       - "dependencies"
       - "javascript"
