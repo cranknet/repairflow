@@ -16,7 +16,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [returnData, setReturnData] = useState({
     reason: '',
-    items: [] as Array<{ partId: string; quantity: number; reason: string }>,
+    items: [] as Array<{ partId: string; quantity: number; reason: string; condition: 'GOOD' | 'DAMAGED' }>,
   });
 
   const handleAddReturnItem = () => {
@@ -37,6 +37,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
           partId: firstPart.partId,
           quantity: 1,
           reason: '',
+          condition: 'GOOD' as const,
         },
       ],
     });
@@ -110,7 +111,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
 
       toast({
         title: 'Success',
-        description: 'Return approved and inventory restored',
+        description: 'Return approved. Good parts restored to inventory, damaged parts recorded as loss.',
       });
       router.refresh();
     } catch (error) {
@@ -144,15 +145,15 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
     }
   };
 
-  // Only allow returns when repair is completed and customer has paid
-  const canCreateReturn = ticket.status === 'COMPLETED' && ticket.paid === true;
+  // Only allow returns when repair is completed (REPAIRED) and customer has paid
+  const canCreateReturn = ticket.status === 'REPAIRED' && ticket.paid === true;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Returns</h3>
         {!showReturnForm && canCreateReturn && (
-          <Button onClick={() => setShowReturnForm(true)} size="sm" variant="outline">
+          <Button onClick={() => setShowReturnForm(true)} size="sm" variant="outlined">
             Create Return
           </Button>
         )}
@@ -186,7 +187,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>Items to Return</Label>
-                <Button onClick={handleAddReturnItem} size="sm" variant="outline" type="button">
+                <Button onClick={handleAddReturnItem} size="sm" variant="outlined" type="button">
                   Add Item
                 </Button>
               </div>
@@ -197,8 +198,13 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                 <div className="space-y-2">
                   {returnData.items.map((item, index) => {
                     const part = ticket.parts.find((p: any) => p.partId === item.partId);
+                    const partInfo = part?.part;
+                    const estimatedLoss = item.condition === 'DAMAGED' && partInfo?.unitPrice
+                      ? partInfo.unitPrice * item.quantity
+                      : 0;
+                    
                     return (
-                      <div key={index} className="border rounded-lg p-3 space-y-2">
+                      <div key={index} className={`border rounded-lg p-3 space-y-2 ${item.condition === 'DAMAGED' ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : ''}`}>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <Label>Part</Label>
@@ -233,6 +239,33 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                             />
                           </div>
                         </div>
+                        <div>
+                          <Label>Condition *</Label>
+                          <select
+                            value={item.condition}
+                            onChange={(e) => {
+                              const newItems = [...returnData.items];
+                              newItems[index].condition = e.target.value as 'GOOD' | 'DAMAGED';
+                              setReturnData({ ...returnData, items: newItems });
+                            }}
+                            className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+                          >
+                            <option value="GOOD">Good (Restore to inventory)</option>
+                            <option value="DAMAGED">Damaged (Loss)</option>
+                          </select>
+                          {item.condition === 'DAMAGED' && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                              ⚠️ This part will be marked as a loss and will not be restored to inventory
+                            </p>
+                          )}
+                        </div>
+                        {estimatedLoss > 0 && (
+                          <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded p-2">
+                            <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                              Estimated Loss: ${estimatedLoss.toFixed(2)}
+                            </p>
+                          </div>
+                        )}
                         <div>
                           <Label>Item Reason (optional)</Label>
                           <Input
@@ -269,7 +302,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                   setShowReturnForm(false);
                   setReturnData({ reason: '', items: [] });
                 }}
-                variant="outline"
+                variant="outlined"
                 type="button"
               >
                 Cancel
@@ -313,12 +346,19 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                   <div>
                     <p className="text-sm font-medium mb-1">Items:</p>
                     <div className="space-y-1">
-                      {returnRecord.items.map((item: any) => (
-                        <div key={item.id} className="text-sm text-gray-600 dark:text-gray-400">
-                          • {item.part.name} - Qty: {item.quantity}
-                          {item.reason && ` (${item.reason})`}
-                        </div>
-                      ))}
+                      {returnRecord.items.map((item: any) => {
+                        const condition = item.condition || 'GOOD';
+                        const conditionColor = condition === 'DAMAGED' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400';
+                        return (
+                          <div key={item.id} className="text-sm text-gray-600 dark:text-gray-400">
+                            • {item.part.name} - Qty: {item.quantity}
+                            <span className={`ml-2 font-medium ${conditionColor}`}>
+                              ({condition})
+                            </span>
+                            {item.reason && ` - ${item.reason}`}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   {returnRecord.status === 'PENDING' && (
@@ -326,14 +366,14 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                       <Button
                         onClick={() => handleApproveReturn(returnRecord.id)}
                         size="sm"
-                        variant="outline"
+                        variant="outlined"
                       >
                         Approve
                       </Button>
                       <Button
                         onClick={() => handleRejectReturn(returnRecord.id)}
                         size="sm"
-                        variant="outline"
+                        variant="outlined"
                       >
                         Reject
                       </Button>
