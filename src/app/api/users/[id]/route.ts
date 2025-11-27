@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import { createNotification } from '@/lib/notifications';
 
 const updateUserSchema = z.object({
   username: z.string().min(1).optional(),
@@ -172,8 +173,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const deletedUsername = existingUser.username;
+
     await prisma.user.delete({
       where: { id },
+    });
+
+    // Create notification for all admins about user deletion
+    await createNotification({
+      type: 'USER_DELETED',
+      message: `User "${deletedUsername}" has been deleted by ${session.user.username || session.user.name || 'Admin'}`,
+      userId: null, // Notify all admins
     });
 
     return NextResponse.json({ success: true });

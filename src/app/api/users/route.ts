@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import { createNotification } from '@/lib/notifications';
 
 const createUserSchema = z.object({
   username: z.string().min(1),
@@ -80,6 +81,13 @@ export async function POST(request: NextRequest) {
         name: true,
         createdAt: true,
       },
+    });
+
+    // Create notification for all admins about new user
+    await createNotification({
+      type: 'USER_CREATED',
+      message: `New ${data.role.toLowerCase()} user "${data.username}" has been created by ${session.user.username || session.user.name || 'Admin'}`,
+      userId: null, // Notify all admins
     });
 
     return NextResponse.json(user, { status: 201 });

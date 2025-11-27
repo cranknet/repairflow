@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
+import { createNotification } from '@/lib/notifications';
 
 const createTicketSchema = z.object({
   customerId: z.string(),
@@ -96,6 +97,14 @@ export async function POST(request: NextRequest) {
         customer: true,
         assignedTo: true,
       },
+    });
+
+    // Create notification for assigned user or all admins
+    await createNotification({
+      type: 'TICKET_CREATED',
+      message: `New ticket ${ticketNumber} created for ${ticket.customer.name}`,
+      userId: data.assignedToId || null,
+      ticketId: ticket.id,
     });
 
     return NextResponse.json(ticket, { status: 201 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { createNotification, getStatusChangeMessage } from '@/lib/notifications';
 
 const updateTicketSchema = z.object({
   status: z.enum(['RECEIVED', 'IN_PROGRESS', 'WAITING_FOR_PARTS', 'REPAIRED', 'COMPLETED', 'CANCELLED']).optional(),
@@ -92,6 +93,15 @@ export async function PATCH(
       if (data.status === 'COMPLETED' && !ticket.completedAt) {
         updateData.completedAt = new Date();
       }
+
+      // Create notification for assigned user or all admins
+      const message = getStatusChangeMessage(ticket.ticketNumber, ticket.status, data.status);
+      await createNotification({
+        type: 'STATUS_CHANGE',
+        message,
+        userId: ticket.assignedToId || null,
+        ticketId: ticket.id,
+      });
     }
 
     // If price is being adjusted by admin or staff (after repair is finished)
@@ -123,6 +133,15 @@ export async function PATCH(
                 reason: data.priceAdjustmentReason,
               },
             };
+
+            // Create notification for assigned user or all admins
+            const priceMessage = `Ticket ${ticket.ticketNumber} price adjusted from ${currentFinalPrice ?? ticket.estimatedPrice ?? 0} to ${newFinalPrice}`;
+            await createNotification({
+              type: 'PRICE_ADJUSTMENT',
+              message: priceMessage,
+              userId: ticket.assignedToId || null,
+              ticketId: ticket.id,
+            });
           }
         } else {
           // Price is not changing, but still allow the update (in case user wants to update other fields)
