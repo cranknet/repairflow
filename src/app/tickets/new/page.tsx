@@ -126,28 +126,40 @@ export default function NewTicketPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
+          customerId: data.customerId,
+          deviceBrand: data.deviceBrand,
+          deviceModel: data.deviceModel,
+          deviceIssue: data.deviceIssue,
+          priority: data.priority,
           estimatedPrice: parseFloat(data.estimatedPrice),
-          assignedToId: data.assignedToId || undefined,
-          deviceConditionFront: frontImage || undefined,
-          deviceConditionBack: backImage || undefined,
+          warrantyDays: data.warrantyDays && data.warrantyDays.trim() !== '' ? parseInt(data.warrantyDays) : undefined,
+          warrantyText: data.warrantyText || undefined,
+          assignedToId: data.assignedToId && data.assignedToId.trim() !== '' ? data.assignedToId : undefined,
+          notes: data.notes || undefined,
+          deviceConditionFront: frontImage && frontImage.trim() !== '' ? frontImage : undefined,
+          deviceConditionBack: backImage && backImage.trim() !== '' ? backImage : undefined,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create ticket');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to create ticket' }));
+        const errorMessage = errorData.details 
+          ? errorData.details.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')
+          : errorData.error || 'Failed to create ticket';
+        throw new Error(errorMessage);
       }
 
       const ticket = await response.json();
       toast({
-        title: 'Success',
-        description: 'Ticket created successfully',
+        title: t('success'),
+        description: t('ticketCreated'),
       });
       router.push(`/tickets/${ticket.id}`);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating ticket:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to create ticket',
+        title: t('error'),
+        description: error.message || t('ticketCreateFailed'),
       });
     } finally {
       setIsLoading(false);

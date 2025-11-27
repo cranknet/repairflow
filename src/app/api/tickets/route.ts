@@ -101,14 +101,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(ticket, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('Validation error creating ticket:', error.errors);
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
         { status: 400 }
       );
     }
     console.error('Error creating ticket:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create ticket';
     return NextResponse.json(
-      { error: 'Failed to create ticket' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
