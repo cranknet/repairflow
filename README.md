@@ -36,7 +36,8 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **Status Tracking**: Complete status history with notes
 - **Price Adjustments**: Track price changes with audit trail
 - **Parts Integration**: Link parts to tickets and track usage
-- **Returns Management**: Handle customer returns and refunds
+- **Returns Management**: Handle customer returns with condition tracking (GOOD/DAMAGED)
+- **Loss Tracking**: Automatic calculation and tracking of financial losses from damaged parts
 - **Payment Tracking**: Mark tickets as paid/unpaid
 - **Device Tracking**: Track device brands, models, and common issues
 - **Image Upload**: Capture device condition photos

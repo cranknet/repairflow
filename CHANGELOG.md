@@ -16,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.4.0] - 2024-12-XX
+
+### Added
+- Damaged parts return handling with condition tracking (GOOD/DAMAGED)
+- Loss calculation for damaged parts on return
+- Condition selection in return creation modals
+- Loss amount display in returns table
+- DAMAGE_LOSS inventory transaction type for tracking damaged parts
+- Loss calculator utility for calculating financial losses from damaged parts
+
+### Changed
+- Return approval logic now only restores inventory for parts in GOOD condition
+- Damaged parts create loss transactions instead of restoring inventory
+- Returns UI now displays condition status and loss amounts
+
+### Fixed
+- Button variant prop in returns client component
+
 ## [1.3.0] - 2024-12-XX
 
 ### Added
