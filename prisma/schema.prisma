@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String                  @id @default(cuid())
+  username         String                  @unique
+  email            String?                 @unique
+  password         String
+  role             String                  @default("STAFF") // ADMIN, STAFF
+  name             String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  tickets          Ticket[]
+  loginLogs        LoginLog[]
+  priceAdjustments TicketPriceAdjustment[]
+  notifications    Notification[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tickets   Ticket[]
+}
+
+model Ticket {
+  id                   String                  @id @default(cuid())
+  ticketNumber         String                  @unique
+  customerId           String
+  customer             Customer                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assignedToId         String?
+  assignedTo           User?                   @relation(fields: [assignedToId], references: [id])
+  deviceBrand          String
+  deviceModel          String
+  deviceIssue          String
+  deviceConditionFront String? // Base64 image
+  deviceConditionBack  String? // Base64 image
+  priority             String                  @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  estimatedPrice       Float
+  finalPrice           Float?
+  status               String                  @default("RECEIVED") // RECEIVED, IN_PROGRESS, WAITING_FOR_PARTS, REPAIRED, COMPLETED, CANCELLED
+  paid                 Boolean                 @default(false)
+  trackingCode         String                  @unique
+  notes                String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  completedAt          DateTime?
+  statusHistory        TicketStatusHistory[]
+  parts                TicketPart[]
+  priceAdjustments     TicketPriceAdjustment[]
+  notifications        Notification[]
+  returns              Return[]
+}
+
+model TicketStatusHistory {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  status    String
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model TicketPart {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model TicketPriceAdjustment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  oldPrice  Float
+  newPrice  Float
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model Part {
+  id                    String                 @id @default(cuid())
+  name                  String
+  sku                   String                 @unique
+  description           String?
+  quantity              Int                    @default(0)
+  reorderLevel          Int                    @default(5)
+  unitPrice             Float                  @default(0)
+  supplier              String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  ticketParts           TicketPart[]
+  inventoryTransactions InventoryTransaction[]
+  returnItems           ReturnItem[]
+}
+
+model InventoryTransaction {
+  id        String   @id @default(cuid())
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id], onDelete: Cascade)
+  type      String // IN, OUT, RETURN
+  quantity  Int
+  reason    String?
+  ticketId  String?
+  createdAt DateTime @default(now())
+  createdBy String?
+}
+
+model Return {
+  id        String       @id @default(cuid())
+  ticketId  String
+  ticket    Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reason    String
+  status    String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  items     ReturnItem[]
+}
+
+model ReturnItem {
+  id        String   @id @default(cuid())
+  returnId  String
+  return    Return   @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id])
+  quantity  Int
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  type      String // STATUS_CHANGE, PRICE_ADJUSTMENT, ASSIGNMENT, etc.
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model LoginLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?
+  success   Boolean
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SMSTemplate {
+  id         String   @id @default(cuid())
+  name       String
+  templateId String // e.g., 'ticket_created', 'ticket_completed'
+  language   String   @default("en") // en, ar, fr
+  message    String
+  variables  String // JSON array of variable names
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([templateId, language])
+}
