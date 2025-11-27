@@ -1,12 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
+  // Configure turbopack to use the correct project root
+  turbopack: {
+    root: __dirname,
   },
   webpack: (config, { isServer }) => {
     // Exclude serialport from webpack bundling (native module)

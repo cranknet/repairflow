@@ -1,32 +1,179 @@
+/* React Image Crop Styles - must be before other rules */
+@import 'react-image-crop/dist/ReactCrop.css';
+
+/* Material Symbols Icons */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* React Image Crop Styles */
-@import 'react-image-crop/dist/ReactCrop.css';
-
+/* Material Design 3 Color Tokens - Light Mode */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Primary */
+  --md-sys-color-primary: 64 126 201;
+  --md-sys-color-on-primary: 255 255 255;
+  --md-sys-color-primary-container: 213 227 247;
+  --md-sys-color-on-primary-container: 0 28 58;
+  --md-sys-color-primary-fixed: 213 227 247;
+  --md-sys-color-primary-fixed-dim: 165 200 234;
+  --md-sys-color-on-primary-fixed: 0 28 58;
+  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  
+  /* Secondary */
+  --md-sys-color-secondary: 88 94 113;
+  --md-sys-color-on-secondary: 255 255 255;
+  --md-sys-color-secondary-container: 220 226 249;
+  --md-sys-color-on-secondary-container: 21 27 44;
+  --md-sys-color-secondary-fixed: 220 226 249;
+  --md-sys-color-secondary-fixed-dim: 192 198 220;
+  --md-sys-color-on-secondary-fixed: 21 27 44;
+  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  
+  /* Tertiary */
+  --md-sys-color-tertiary: 112 85 127;
+  --md-sys-color-on-tertiary: 255 255 255;
+  --md-sys-color-tertiary-container: 241 219 255;
+  --md-sys-color-on-tertiary-container: 39 16 53;
+  --md-sys-color-tertiary-fixed: 241 219 255;
+  --md-sys-color-tertiary-fixed-dim: 213 188 229;
+  --md-sys-color-on-tertiary-fixed: 39 16 53;
+  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  
+  /* Error */
+  --md-sys-color-error: 186 26 26;
+  --md-sys-color-on-error: 255 255 255;
+  --md-sys-color-error-container: 255 218 214;
+  --md-sys-color-on-error-container: 65 0 2;
+  
+  /* Background */
+  --md-sys-color-background: 250 249 253;
+  --md-sys-color-on-background: 26 28 30;
+  
+  /* Surface */
+  --md-sys-color-surface: 250 249 253;
+  --md-sys-color-on-surface: 26 28 30;
+  --md-sys-color-surface-variant: 224 226 236;
+  --md-sys-color-on-surface-variant: 67 71 78;
+  --md-sys-color-surface-dim: 218 217 221;
+  --md-sys-color-surface-bright: 250 249 253;
+  --md-sys-color-surface-container-lowest: 255 255 255;
+  --md-sys-color-surface-container-low: 244 243 247;
+  --md-sys-color-surface-container: 238 238 242;
+  --md-sys-color-surface-container-high: 232 232 236;
+  --md-sys-color-surface-container-highest: 227 227 230;
+  
+  /* Outline */
+  --md-sys-color-outline: 116 119 127;
+  --md-sys-color-outline-variant: 196 199 208;
+  
+  /* Inverse */
+  --md-sys-color-inverse-surface: 47 48 51;
+  --md-sys-color-inverse-on-surface: 241 240 244;
+  --md-sys-color-inverse-primary: 165 200 234;
+  
+  /* Other */
+  --md-sys-color-scrim: 0 0 0;
+  --md-sys-color-shadow: 0 0 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+/* Material Design 3 Color Tokens - Dark Mode */
+.dark {
+  /* Primary */
+  --md-sys-color-primary: 165 200 234;
+  --md-sys-color-on-primary: 11 54 90;
+  --md-sys-color-primary-container: 40 98 155;
+  --md-sys-color-on-primary-container: 213 227 247;
+  --md-sys-color-primary-fixed: 213 227 247;
+  --md-sys-color-primary-fixed-dim: 165 200 234;
+  --md-sys-color-on-primary-fixed: 0 28 58;
+  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  
+  /* Secondary */
+  --md-sys-color-secondary: 192 198 220;
+  --md-sys-color-on-secondary: 42 48 65;
+  --md-sys-color-secondary-container: 64 70 89;
+  --md-sys-color-on-secondary-container: 220 226 249;
+  --md-sys-color-secondary-fixed: 220 226 249;
+  --md-sys-color-secondary-fixed-dim: 192 198 220;
+  --md-sys-color-on-secondary-fixed: 21 27 44;
+  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  
+  /* Tertiary */
+  --md-sys-color-tertiary: 213 188 229;
+  --md-sys-color-on-tertiary: 60 37 76;
+  --md-sys-color-tertiary-container: 86 61 101;
+  --md-sys-color-on-tertiary-container: 241 219 255;
+  --md-sys-color-tertiary-fixed: 241 219 255;
+  --md-sys-color-tertiary-fixed-dim: 213 188 229;
+  --md-sys-color-on-tertiary-fixed: 39 16 53;
+  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  
+  /* Error */
+  --md-sys-color-error: 255 180 171;
+  --md-sys-color-on-error: 105 0 5;
+  --md-sys-color-error-container: 147 0 10;
+  --md-sys-color-on-error-container: 255 218 214;
+  
+  /* Background */
+  --md-sys-color-background: 26 28 30;
+  --md-sys-color-on-background: 227 227 230;
+  
+  /* Surface */
+  --md-sys-color-surface: 26 28 30;
+  --md-sys-color-on-surface: 227 227 230;
+  --md-sys-color-surface-variant: 67 71 78;
+  --md-sys-color-on-surface-variant: 196 199 208;
+  --md-sys-color-surface-dim: 26 28 30;
+  --md-sys-color-surface-bright: 54 57 60;
+  --md-sys-color-surface-container-lowest: 20 22 25;
+  --md-sys-color-surface-container-low: 34 36 39;
+  --md-sys-color-surface-container: 38 41 43;
+  --md-sys-color-surface-container-high: 49 51 54;
+  --md-sys-color-surface-container-highest: 60 62 65;
+  
+  /* Outline */
+  --md-sys-color-outline: 142 145 153;
+  --md-sys-color-outline-variant: 67 71 78;
+  
+  /* Inverse */
+  --md-sys-color-inverse-surface: 227 227 230;
+  --md-sys-color-inverse-on-surface: 47 48 51;
+  --md-sys-color-inverse-primary: 40 98 155;
+  
+  /* Other */
+  --md-sys-color-scrim: 0 0 0;
+  --md-sys-color-shadow: 0 0 0;
 }
 
+/* Material Symbols Icon Defaults */
+.material-symbols-outlined,
+.material-symbols-rounded {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.material-symbols-filled {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  user-select: none;
+  vertical-align: middle;
+}
+
+/* Base body styles with MD3 colors */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: rgb(var(--md-sys-color-background));
+  color: rgb(var(--md-sys-color-on-background));
+  transition: background-color 300ms cubic-bezier(0.2, 0, 0, 1), color 300ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 @layer utilities {
@@ -35,16 +182,73 @@ body {
   }
 }
 
-/* Custom Scrollbar Styles - Ultra thin overlay scrollbar */
+/* Material Design 3 Focus Indicators */
+@layer base {
+  /* Enhanced focus visible styles for accessibility */
+  *:focus-visible {
+    outline: 3px solid rgb(var(--md-sys-color-primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Focus for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 3px solid rgb(var(--md-sys-color-primary));
+    outline-offset: 2px;
+  }
+  
+  /* Input focus styles */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid rgb(var(--md-sys-color-primary));
+    outline-offset: 0px;
+  }
+}
+
+/* Material Design 3 State Layers */
+@layer components {
+  /* Hover state layer */
+  .md-state-layer-hover {
+    position: relative;
+  }
+  
+  .md-state-layer-hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  
+  .md-state-layer-hover:hover::before {
+    opacity: 0.08;
+  }
+  
+  .md-state-layer-hover:focus-visible::before {
+    opacity: 0.12;
+  }
+  
+  .md-state-layer-hover:active::before {
+    opacity: 0.12;
+  }
+}
+
+/* Custom Scrollbar Styles - Material Design 3 */
 * {
-  /* Firefox - auto scrollbar that overlays */
+  /* Firefox - overlay scrollbar */
   scrollbar-width: thin;
-  scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
+  scrollbar-color: rgb(var(--md-sys-color-outline) / 0.3) transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track {
@@ -52,36 +256,63 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(203, 213, 225, 0.5);
-  border-radius: 2px;
-  border: none;
+  background-color: rgb(var(--md-sys-color-outline) / 0.3);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(148, 163, 184, 0.8);
+  background-color: rgb(var(--md-sys-color-outline) / 0.5);
 }
 
-/* Dark mode scrollbar */
-@media (prefers-color-scheme: dark) {
-  * {
-    scrollbar-color: rgba(51, 65, 85, 0.5) transparent;
-  }
-  
-  *::-webkit-scrollbar-thumb {
-    background-color: rgba(51, 65, 85, 0.5);
-  }
-  
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(71, 85, 105, 0.8);
-  }
+*::-webkit-scrollbar-thumb:active {
+  background-color: rgb(var(--md-sys-color-outline) / 0.7);
 }
 
 /* Main content area - ensure scrollbar doesn't push content */
 main {
-  /* Reserve space for scrollbar to prevent layout shift */
   scrollbar-gutter: stable;
-  /* Ensure scrollbar overlays on the right edge */
-  padding-right: 0;
-  margin-right: 0;
+}
+
+/* Reduced Motion Support (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support (Accessibility) */
+@media (prefers-contrast: high) {
+  * {
+    border-width: 2px !important;
+  }
+  
+  button,
+  a,
+  [role="button"] {
+    border: 2px solid currentColor !important;
+  }
+  
+  *:focus-visible {
+    outline-width: 4px !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  *:focus-visible {
+    outline: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }
 

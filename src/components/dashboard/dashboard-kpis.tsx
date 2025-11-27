@@ -32,25 +32,25 @@ export function DashboardKPIs({
         title={t('activeTickets')}
         value={activeTickets.toString()}
         change={activeTicketsChange}
-        color="blue"
+        color="primary"
       />
       <KPICard
         title={t('totalCustomers')}
         value={totalCustomers.toString()}
         change={customersChange}
-        color="green"
+        color="success"
       />
       <KPICard
         title={t('lowStockItems')}
         value={lowStockItems.toString()}
         change={lowStockChange}
-        color="yellow"
+        color="warning"
       />
       <KPICard
         title={t('totalRevenue')}
-        value={`$${weeklyRevenue.toLocaleString()}`}
+        value={`$${weeklyRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
         change={revenueChange}
-        color="purple"
+        color="tertiary"
       />
     </div>
   );

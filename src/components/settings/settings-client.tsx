@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { SMSTemplatesManager } from './sms-templates-manager';
+import { ThemeCustomizer } from './theme-customizer';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AppVersion } from '@/components/layout/app-version';
 import {
@@ -40,6 +41,7 @@ export function SettingsClient({
 
   const TABS = [
     { id: 'general', label: t('generalSettings') },
+    { id: 'appearance', label: 'Appearance' },
     { id: 'branding', label: t('branding') },
     { id: 'social', label: t('socialMedia') },
     { id: 'sms', label: t('smsTemplates') },
@@ -537,6 +539,13 @@ export function SettingsClient({
               </Button>
             </CardContent>
           </Card>
+        )}
+
+        {/* Appearance Tab */}
+        {activeTab === 'appearance' && (
+          <div className="space-y-6">
+            <ThemeCustomizer />
+          </div>
         )}
 
         {/* Branding Tab */}

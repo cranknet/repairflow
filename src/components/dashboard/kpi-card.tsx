@@ -1,70 +1,92 @@
 'use client';
 
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+
+/**
+ * Material Design 3 KPI Card Component
+ * 
+ * Displays key performance indicators with proper MD3 styling,
+ * elevation, and color semantics.
+ */
 
 interface KPICardProps {
   title: string;
   value: string;
   change?: number;
   target?: string;
-  color?: string;
+  color?: 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning';
 }
 
-export function KPICard({ title, value, change, target, color = 'blue' }: KPICardProps) {
+export function KPICard({ title, value, change, target, color = 'primary' }: KPICardProps) {
   const isPositive = change !== undefined && change >= 0;
   
   const colorConfig = {
-    blue: {
-      bg: 'bg-gradient-to-br from-blue-50 to-blue-100/50',
-      border: 'border-blue-200/60',
-      accent: 'text-blue-600',
-      iconBg: 'bg-blue-100',
+    primary: {
+      bg: 'bg-primary-container',
+      text: 'text-on-primary-container',
+      icon: 'text-primary',
+      badge: 'bg-primary',
     },
-    green: {
-      bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100/50',
-      border: 'border-emerald-200/60',
-      accent: 'text-emerald-600',
-      iconBg: 'bg-emerald-100',
+    secondary: {
+      bg: 'bg-secondary-container',
+      text: 'text-on-secondary-container',
+      icon: 'text-secondary',
+      badge: 'bg-secondary',
     },
-    yellow: {
-      bg: 'bg-gradient-to-br from-amber-50 to-amber-100/50',
-      border: 'border-amber-200/60',
-      accent: 'text-amber-600',
-      iconBg: 'bg-amber-100',
+    tertiary: {
+      bg: 'bg-tertiary-container',
+      text: 'text-on-tertiary-container',
+      icon: 'text-tertiary',
+      badge: 'bg-tertiary',
     },
-    purple: {
-      bg: 'bg-gradient-to-br from-purple-50 to-purple-100/50',
-      border: 'border-purple-200/60',
-      accent: 'text-purple-600',
-      iconBg: 'bg-purple-100',
+    success: {
+      bg: 'bg-tertiary-container',
+      text: 'text-on-tertiary-container',
+      icon: 'text-tertiary',
+      badge: 'bg-tertiary',
+    },
+    warning: {
+      bg: 'bg-error-container',
+      text: 'text-on-error-container',
+      icon: 'text-error',
+      badge: 'bg-error',
     },
   };
 
-  const config = colorConfig[color as keyof typeof colorConfig] || colorConfig.blue;
+  const config = colorConfig[color];
 
   return (
-    <Card className={`${config.bg} border ${config.border} overflow-hidden`}>
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">{title}</p>
+    <Card variant="filled" className={cn(config.bg, 'overflow-hidden transition-all duration-short2 ease-standard hover:shadow-md-level1')}>
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <p className="text-label-large uppercase tracking-wide font-medium text-on-surface-variant">
+            {title}
+          </p>
           {change !== undefined && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${config.iconBg} ${config.accent}`}>
-              {isPositive ? (
-                <ArrowUpIcon className="h-3 w-3" />
-              ) : (
-                <ArrowDownIcon className="h-3 w-3" />
-              )}
-              <span className="text-xs font-semibold">{Math.abs(change)}%</span>
+            <div className={cn(
+              'flex items-center gap-1 px-2 py-1 rounded-full text-label-small font-medium',
+              config.badge,
+              isPositive ? 'text-on-primary' : 'text-on-error'
+            )}>
+              <span className="material-symbols-outlined text-[16px]">
+                {isPositive ? 'trending_up' : 'trending_down'}
+              </span>
+              <span>{Math.abs(change)}%</span>
             </div>
           )}
         </div>
-        <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
+        
+        <p className={cn('text-display-small font-normal mb-2', config.text)}>
+          {value}
+        </p>
+        
         {target && (
-          <p className="text-xs text-gray-500 font-medium">Target: {target}</p>
+          <p className="text-body-small text-on-surface-variant font-medium">
+            Target: {target}
+          </p>
         )}
       </CardContent>
     </Card>
   );
 }
-

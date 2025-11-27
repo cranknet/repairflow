@@ -5,11 +5,18 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
+
+/**
+ * Material Design 3 Login Page
+ * 
+ * Implements MD3 patterns for authentication with proper
+ * form styling, elevation, and accessibility.
+ */
 
 export default function LoginPage() {
   const router = useRouter();
@@ -107,7 +114,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 relative"
+      className="min-h-screen flex items-center justify-center px-4 relative bg-background"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',
@@ -116,12 +123,20 @@ export default function LoginPage() {
       }}
     >
       {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60" />
+      {backgroundImage && (
+        <div className="absolute inset-0 bg-scrim/60 backdrop-blur-sm" />
+      )}
       
-      <Card className="w-full max-w-md relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
-        <CardHeader>
-          <div className="flex flex-col items-center gap-3">
-            {companyLogo && (
+      <Card 
+        variant="elevated" 
+        className={cn(
+          "w-full max-w-md relative z-10 shadow-md-level3",
+          backgroundImage && "bg-surface/95 backdrop-blur-md"
+        )}
+      >
+        <CardHeader className="space-y-3">
+          <div className="flex flex-col items-center gap-4">
+            {companyLogo ? (
               <img
                 src={companyLogo}
                 alt="Company Logo"
@@ -134,61 +149,100 @@ export default function LoginPage() {
                   console.log('Company logo loaded successfully:', companyLogo);
                 }}
               />
+            ) : (
+              <div className="h-16 w-16 bg-primary-container rounded-2xl flex items-center justify-center shadow-md-level1">
+                <span className="material-symbols-rounded text-4xl text-on-primary-container">
+                  build
+                </span>
+              </div>
             )}
-            <CardTitle className="text-2xl font-bold text-center">{companyName}</CardTitle>
+            <CardTitle className="text-headline-medium font-normal text-on-surface text-center">
+              {companyName}
+            </CardTitle>
           </div>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-body-large">
             Sign in to your account
           </CardDescription>
         </CardHeader>
+        
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                required
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              id="username"
+              type="text"
+              label="Username"
+              variant="outlined"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              required
+              disabled={isLoading}
+              leadingIcon={<span className="material-symbols-outlined">person</span>}
+            />
+            
+            <Input
+              id="password"
+              type="password"
+              label="Password"
+              variant="outlined"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+              disabled={isLoading}
+              leadingIcon={<span className="material-symbols-outlined">lock</span>}
+            />
+            
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={rememberMe}
+                onClick={() => setRememberMe(!rememberMe)}
                 disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                disabled={isLoading}
-              />
-              <Label htmlFor="remember-me" className="ml-2 text-sm text-gray-700 cursor-pointer">
+                className={cn(
+                  "h-5 w-5 rounded flex items-center justify-center border-2 transition-all duration-short2 ease-standard",
+                  "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary",
+                  rememberMe
+                    ? "bg-primary border-primary"
+                    : "border-outline bg-transparent hover:border-on-surface"
+                )}
+              >
+                {rememberMe && (
+                  <span className="material-symbols-outlined text-[16px] text-on-primary">
+                    check
+                  </span>
+                )}
+              </button>
+              <label 
+                htmlFor="remember-me" 
+                className="text-body-medium text-on-surface cursor-pointer select-none"
+                onClick={() => !isLoading && setRememberMe(!rememberMe)}
+              >
                 {t('rememberMe')}
-              </Label>
+              </label>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            
+            <Button 
+              type="submit" 
+              variant="filled"
+              className="w-full h-12"
+              disabled={isLoading}
+              icon={isLoading ? (
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined">login</span>
+              )}
+              iconPosition="start"
+            >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
+          
+          <div className="mt-6 text-center">
             <Link
               href="/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
+              className="text-body-medium text-primary hover:text-primary/80 transition-colors duration-short2 inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary rounded px-2 py-1"
             >
+              <span className="material-symbols-outlined text-[18px]">help</span>
               Forgot your password?
             </Link>
           </div>
@@ -197,4 +251,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

@@ -45,10 +45,16 @@ export default async function NotificationsPage({
     },
   });
 
+  // Convert Date objects to strings for client component
+  const serializedNotifications = notifications.map((notification) => ({
+    ...notification,
+    createdAt: notification.createdAt.toISOString(),
+  }));
+
   return (
     <MainLayout>
       <div className="space-y-6 pt-6">
-        <NotificationsList notifications={notifications} />
+        <NotificationsList notifications={serializedNotifications} />
       </div>
     </MainLayout>
   );

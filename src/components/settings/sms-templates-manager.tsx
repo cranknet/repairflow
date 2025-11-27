@@ -162,7 +162,7 @@ export function SMSTemplatesManager() {
 
     setIsDeleting(templateToDelete);
     try {
-      const response = await fetch(`/api/sms/templates/${id}`, {
+      const response = await fetch(`/api/sms/templates/${templateToDelete}`, {
         method: 'DELETE',
       });
 

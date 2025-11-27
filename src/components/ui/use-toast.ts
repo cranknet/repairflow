@@ -133,10 +133,17 @@ function dispatch(action: Action) {
   });
 }
 
-type Toast = Omit<ToasterToast, 'id'>;
+type Toast = Omit<ToasterToast, 'id'> & {
+  variant?: 'default' | 'destructive';
+};
 
-function toast({ ...props }: Toast) {
+function toast({ variant, className, ...props }: Toast) {
   const id = genId();
+
+  // Convert variant to className for destructive toasts
+  const toastClassName = variant === 'destructive' 
+    ? `destructive ${className || ''}`.trim()
+    : className;
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -149,6 +156,7 @@ function toast({ ...props }: Toast) {
     type: 'ADD_TOAST',
     toast: {
       ...props,
+      className: toastClassName,
       id,
       open: true,
       onOpenChange: (open) => {
