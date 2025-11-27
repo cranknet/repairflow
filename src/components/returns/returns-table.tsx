@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { calculateReturnLoss } from '@/lib/loss-calculator';
 
 interface ReturnsTableProps {
   returns: any[];
@@ -43,6 +44,28 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
     }
   };
 
+  const getConditionColor = (condition: string) => {
+    switch (condition) {
+      case 'GOOD':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'DAMAGED':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+    }
+  };
+
+  const getConditionText = (condition: string) => {
+    switch (condition) {
+      case 'GOOD':
+        return 'Good';
+      case 'DAMAGED':
+        return 'Damaged';
+      default:
+        return condition || 'Good';
+    }
+  };
+
   const handleApprove = async (returnId: string) => {
     try {
       const response = await fetch(`/api/returns/${returnId}`, {
@@ -55,7 +78,7 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
 
       toast({
         title: t('success'),
-        description: 'Return approved and inventory restored',
+        description: 'Return approved. Good parts restored to inventory, damaged parts recorded as loss.',
       });
       router.refresh();
     } catch (error) {
@@ -106,6 +129,12 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
               {t('items')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+              Condition
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+              Loss Amount
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('reason')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
@@ -147,6 +176,28 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
                     </div>
                   ))}
                 </div>
+              </td>
+              <td className="py-3 px-4">
+                <div className="text-sm space-y-1">
+                  {returnRecord.items.map((item: any, idx: number) => (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getConditionColor(item.condition || 'GOOD')}`}
+                    >
+                      {getConditionText(item.condition || 'GOOD')}
+                    </span>
+                  ))}
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                {(() => {
+                  const lossAmount = calculateReturnLoss(returnRecord.items);
+                  return (
+                    <span className={`text-sm font-medium ${lossAmount > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                      {lossAmount > 0 ? `$${lossAmount.toFixed(2)}` : 'No loss'}
+                    </span>
+                  );
+                })()}
               </td>
               <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                 {returnRecord.reason}
