@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import { AppVersion } from './app-version';
 import { useLanguage } from '@/contexts/language-context';
+import { useSettings } from '@/contexts/settings-context';
 
 const navigationKeys = [
   { key: 'dashboard', href: '/dashboard', icon: HomeIcon },
@@ -29,6 +30,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { t } = useLanguage();
+  const { companyLogo, companyName } = useSettings();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Load collapse state from localStorage
@@ -60,17 +62,35 @@ export function Sidebar() {
       {/* Logo and Toggle */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
         {!isCollapsed && (
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-medium">
-              <TicketIcon className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">RepairFlow</span>
-          </div>
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            {companyLogo ? (
+              <img
+                src={companyLogo}
+                alt="Company Logo"
+                className="h-9 w-auto object-contain"
+              />
+            ) : (
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-medium">
+                <TicketIcon className="h-5 w-5 text-white" />
+              </div>
+            )}
+            <span className="text-xl font-bold text-gray-900">{companyName}</span>
+          </Link>
         )}
         {isCollapsed && (
-          <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-medium mx-auto">
-            <TicketIcon className="h-5 w-5 text-white" />
-          </div>
+          <Link href="/dashboard" className="mx-auto">
+            {companyLogo ? (
+              <img
+                src={companyLogo}
+                alt="Company Logo"
+                className="h-9 w-auto object-contain"
+              />
+            ) : (
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-medium">
+                <TicketIcon className="h-5 w-5 text-white" />
+              </div>
+            )}
+          </Link>
         )}
         <button
           onClick={toggleCollapse}

@@ -252,7 +252,9 @@ export default async function DashboardPage() {
     <MainLayout>
       <div className="space-y-8 p-6 pt-6">
         {/* Welcome Message */}
-        <DashboardHeader userName={session.user?.name || session.user?.username || ''} />
+        <DashboardHeader 
+          userName={session.user?.name || session.user?.username || ''} 
+        />
 
         {/* KPI Cards */}
         <DashboardKPIs
