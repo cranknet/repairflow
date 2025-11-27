@@ -111,7 +111,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pt-6">
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -143,7 +143,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Customer Info Card */}
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
