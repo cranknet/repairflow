@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
-import { getIssueSuggestions } from '@/lib/device-issues';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface DeviceIssueAutocompleteProps {
   value: string;
@@ -15,26 +15,19 @@ export function DeviceIssueAutocomplete({
   onChange,
   error,
 }: DeviceIssueAutocompleteProps) {
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showUseText, setShowUseText] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (value.trim()) {
-      const filtered = getIssueSuggestions(value);
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setSuggestions(getIssueSuggestions(''));
-      setShowSuggestions(false);
-    }
+    // Show "Use this text" option when user is typing and text is not empty
+    setShowUseText(value.trim().length > 0);
   }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
+        setShowUseText(false);
       }
     };
 
@@ -42,9 +35,9 @@ export function DeviceIssueAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (issue: string) => {
-    onChange(issue);
-    setShowSuggestions(false);
+  const handleUseText = () => {
+    // The text is already in the value, just close the dropdown
+    setShowUseText(false);
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
@@ -55,8 +48,8 @@ export function DeviceIssueAutocomplete({
   };
 
   const handleFocus = () => {
-    if (value.trim() || suggestions.length > 0) {
-      setShowSuggestions(true);
+    if (value.trim().length > 0) {
+      setShowUseText(true);
     }
   };
 
@@ -72,23 +65,18 @@ export function DeviceIssueAutocomplete({
           onFocus={handleFocus}
           rows={3}
           className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-          placeholder="Describe the issue or select from suggestions..."
+          placeholder="Describe the device issue..."
         />
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-            <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-              Suggestions
-            </div>
-            {suggestions.map((issue, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleSelect(issue)}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm border-b border-gray-200 dark:border-gray-700 last:border-b-0"
-              >
-                {issue}
-              </button>
-            ))}
+        {showUseText && value.trim().length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg">
+            <button
+              type="button"
+              onClick={handleUseText}
+              className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium flex items-center gap-2"
+            >
+              <PlusIcon className="h-4 w-4" />
+              Use &quot;{value.trim()}&quot; as device issue
+            </button>
           </div>
         )}
       </div>

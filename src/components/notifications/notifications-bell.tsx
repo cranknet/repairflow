@@ -20,9 +20,14 @@ export function NotificationsBell() {
         if (response.ok) {
           const data = await response.json();
           setUnreadCount(data.count || 0);
+        } else {
+          // If unauthorized or error, set count to 0
+          setUnreadCount(0);
         }
       } catch (error) {
+        // Silently fail - notifications are not critical
         console.error('Error fetching unread count:', error);
+        setUnreadCount(0);
       }
     };
 
@@ -56,9 +61,17 @@ export function NotificationsBell() {
           onNotificationRead={() => {
             // Refresh unread count when a notification is read
             fetch('/api/notifications/unread-count')
-              .then((res) => res.json())
+              .then((res) => {
+                if (res.ok) {
+                  return res.json();
+                }
+                return { count: 0 };
+              })
               .then((data) => setUnreadCount(data.count || 0))
-              .catch(console.error);
+              .catch((error) => {
+                console.error('Error refreshing unread count:', error);
+                setUnreadCount(0);
+              });
           }}
         />
       )}

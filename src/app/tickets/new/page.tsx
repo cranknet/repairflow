@@ -18,6 +18,7 @@ import { DeviceIssueAutocomplete } from '@/components/tickets/device-issue-autoc
 import { NewCustomerModal } from '@/components/customers/new-customer-modal';
 import { CustomerSelect } from '@/components/customers/customer-select';
 import { useLanguage } from '@/contexts/language-context';
+import { getCurrencySymbol } from '@/lib/currency';
 
 const createTicketSchema = (t: (key: string) => string) => z.object({
   customerId: z.string().min(1, t('customerRequired')),
@@ -48,6 +49,7 @@ export default function NewTicketPage() {
   const [backImage, setBackImage] = useState<string>('');
   const [deviceBrand, setDeviceBrand] = useState('');
   const [deviceModel, setDeviceModel] = useState('');
+  const [currencySymbol, setCurrencySymbol] = useState('$');
 
   const ticketSchema = createTicketSchema(t);
   type TicketFormData = z.infer<typeof ticketSchema>;
@@ -94,7 +96,21 @@ export default function NewTicketPage() {
   useEffect(() => {
     fetchCustomers();
     fetchStaffUsers();
+    fetchCurrency();
   }, []);
+
+  const fetchCurrency = () => {
+    fetch('/api/settings/public')
+      .then((res) => res.json())
+      .then((data) => {
+        const currency = data.currency || 'USD';
+        setCurrencySymbol(getCurrencySymbol(currency));
+      })
+      .catch((err) => {
+        console.error('Error fetching currency:', err);
+        setCurrencySymbol('$'); // Default to USD
+      });
+  };
 
   const fetchStaffUsers = () => {
     fetch('/api/users/staff')
@@ -264,7 +280,7 @@ export default function NewTicketPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="estimatedPrice">Estimated Price ($) *</Label>
+                  <Label htmlFor="estimatedPrice">Estimated Price ({currencySymbol}) *</Label>
                   <Input
                     id="estimatedPrice"
                     type="number"

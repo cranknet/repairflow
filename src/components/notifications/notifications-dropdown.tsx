@@ -41,9 +41,13 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
+      } else {
+        // If error, set empty array
+        setNotifications([]);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }
@@ -60,6 +64,8 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
           prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
         );
         onNotificationRead();
+      } else {
+        console.error('Failed to mark notification as read');
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -79,8 +85,14 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
           title: 'Success',
           description: 'All notifications marked as read',
         });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to mark all as read',
+        });
       }
     } catch (error) {
+      console.error('Error marking all as read:', error);
       toast({
         title: 'Error',
         description: 'Failed to mark all as read',
