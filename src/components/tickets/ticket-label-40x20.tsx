@@ -2,12 +2,27 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 interface TicketLabel40x20Props {
   ticket: any;
 }
 
 export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
+  const [companyName, setCompanyName] = useState<string>('RepairFlow');
+
+  useEffect(() => {
+    // Fetch company name from settings
+    fetch('/api/settings/public')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.company_name) {
+          setCompanyName(data.company_name);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   return (
     <div
       className="bg-white"
@@ -23,7 +38,17 @@ export function TicketLabel40x20({ ticket }: TicketLabel40x20Props) {
         position: 'relative',
       }}
     >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', height: '100%' }}>
+        <div style={{ 
+          position: 'absolute', 
+          top: '2mm', 
+          left: '2mm', 
+          fontSize: '6px', 
+          fontWeight: 'bold',
+          color: '#000' 
+        }}>
+          {companyName.substring(0, 20)}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', height: '100%', marginTop: '3mm' }}>
           <div style={{ flex: '1', display: 'flex', flexDirection: 'column', paddingRight: '2mm' }}>
             <div>
               <div style={{ fontSize: '6px', lineHeight: '1.2', marginBottom: '0.5mm' }}>
