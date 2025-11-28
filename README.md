@@ -6,7 +6,7 @@
 
 A comprehensive, open-source repair shop management system built with Next.js, designed to streamline operations for phone and device repair businesses.
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing) • [License](#-license)
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Project Index](PROJECT_INDEX.md) • [Contributing](#-contributing) • [License](#-license)
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -40,6 +40,8 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **Device Tracking**: Track device brands, models, and common issues
 - **Image Upload**: Capture device condition photos
 - **Search & Filters**: Quick search and filter tickets by status
+- **Dynamic Branding**: Custom logo, favicon, and login background
+- **Project Index**: Comprehensive codebase overview for developers
 
 ### Platform Support
 - **Web Application**: Full-featured web interface
