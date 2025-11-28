@@ -490,16 +490,16 @@ export function SettingsClient({
     <div className="space-y-6">
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
-        <nav className="flex space-x-8" aria-label="Tabs">
+        <nav className="flex flex-col sm:flex-row sm:space-x-8 space-y-2 sm:space-y-0" aria-label="Tabs">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                py-3 sm:py-4 px-4 sm:px-1 border-l-4 sm:border-l-0 sm:border-b-2 font-medium text-sm transition-colors text-left sm:text-center
                 ${activeTab === tab.id
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-primary-500 text-primary-600 bg-primary-50 sm:bg-transparent'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50 sm:hover:bg-transparent'
                 }
               `}
             >
@@ -871,37 +871,38 @@ export function SettingsClient({
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-soft transition-all"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-soft transition-all gap-3"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <p className="font-semibold text-gray-900">{user.name || user.username}</p>
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${user.role === 'ADMIN'
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-gray-900 truncate">{user.name || user.username}</p>
+                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${user.role === 'ADMIN'
                           ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700'
                           : 'bg-gray-100 text-gray-700'
                           }`}>
                           {user.role}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 mt-1 truncate">
                         {user.username} • {user.email || t('noEmail')}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Button
                         variant="outlined"
                         size="sm"
                         onClick={() => handleViewLoginLogs(user)}
-                        className="flex items-center gap-1.5"
+                        className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
                       >
                         <ClockIcon className="h-4 w-4" />
-                        {t('loginLogs')}
+                        <span className="hidden sm:inline">{t('loginLogs')}</span>
+                        <span className="sm:hidden">Logs</span>
                       </Button>
                       <Button
                         variant="outlined"
                         size="sm"
                         onClick={() => handleEditUser(user)}
-                        className="flex items-center gap-1.5"
+                        className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
                       >
                         <PencilIcon className="h-4 w-4" />
                         {t('edit')}
@@ -911,7 +912,7 @@ export function SettingsClient({
                         size="sm"
                         onClick={() => handleDeleteUser(user.id)}
                         disabled={isDeleting === user.id || user.id === session?.user?.id}
-                        className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 flex-1 sm:flex-none justify-center"
                       >
                         <TrashIcon className="h-4 w-4" />
                         {isDeleting === user.id ? t('deleting') : t('delete')}
@@ -923,14 +924,14 @@ export function SettingsClient({
 
               {/* New User Dialog */}
               <Dialog open={showNewUser} onOpenChange={(open) => !open && setShowNewUser(false)}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{t('createNewUser')}</DialogTitle>
                     <DialogDescription>
                       {t('addNewStaffMember')}
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid grid-cols-2 gap-4 py-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
                     <div className="space-y-2">
                       <Label htmlFor="new_username">{t('username')} *</Label>
                       <Input
@@ -1000,7 +1001,7 @@ export function SettingsClient({
 
               {/* Edit User Dialog */}
               <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{t('editUser')}</DialogTitle>
                     <DialogDescription>
