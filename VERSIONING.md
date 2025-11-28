@@ -85,7 +85,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for complete version history.
 
 ## Current Version
 
-**1.0.0** - Stable Release
+**1.5.2** - Stable Release
 
 ---
 

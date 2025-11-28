@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.5.2] - 2025-11-29
+
+### Changed
+- Maintenance updates and minor fixes
+- Ticket details component improvements
+
 ## [1.5.0] - 2025-11-28
 
 ### Added
@@ -199,4 +205,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version History
 
 - **1.0.0** - Initial release
-
