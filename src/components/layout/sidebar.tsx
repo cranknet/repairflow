@@ -14,6 +14,7 @@ import { useSettings } from '@/contexts/settings-context';
  * 
  * Implements MD3 navigation patterns with proper state layers,
  * active indicators, and accessibility features.
+ * Fully responsive with mobile overlay and tablet auto-collapse.
  * 
  * @see https://m3.material.io/components/navigation-rail/overview
  * @see https://m3.material.io/components/navigation-drawer/overview
@@ -54,43 +55,94 @@ const navigationKeys = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileMenuOpen?: boolean;
+  onMobileMenuClose?: () => void;
+}
+
+export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { t } = useLanguage();
   const { companyLogo, companyName } = useSettings();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Load collapse state from localStorage
+  // Detect screen size for auto-collapse behavior
   useEffect(() => {
-    const saved = localStorage.getItem('sidebar-collapsed');
-    if (saved !== null) {
-      setIsCollapsed(JSON.parse(saved));
+    setIsMounted(true);
+
+    const handleResize = () => {
+      const width = window.innerWidth;
+
+      // On tablet and desktop (768px+), restore user preference
+      if (width >= 768) {
+        const saved = localStorage.getItem('sidebar-collapsed');
+        if (saved !== null) {
+          setIsCollapsed(JSON.parse(saved));
+        } else {
+          setIsCollapsed(false); // Default to expanded
+        }
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Load collapse state from localStorage (tablet/desktop)
+  useEffect(() => {
+    if (window.innerWidth >= 768) {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      if (saved !== null) {
+        setIsCollapsed(JSON.parse(saved));
+      } else {
+        setIsCollapsed(false); // Default to expanded
+      }
     }
   }, []);
 
-  // Save collapse state to localStorage
+  // Save collapse state to localStorage (tablet/desktop)
   const toggleCollapse = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
+    // Only allow manual toggle on tablet/desktop
+    if (window.innerWidth >= 768) {
+      const newState = !isCollapsed;
+      setIsCollapsed(newState);
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
+    }
+  };
+
+  // Close mobile menu when navigating
+  const handleNavClick = () => {
+    if (window.innerWidth < 768 && onMobileMenuClose) {
+      onMobileMenuClose();
+    }
   };
 
   const filteredNavigation = navigationKeys.filter(
     (item) => !item.adminOnly || session?.user?.role === 'ADMIN'
   );
 
-  return (
+  // Don't render until mounted to avoid hydration issues
+  if (!isMounted) {
+    return null;
+  }
+
+  const sidebarContent = (
     <div
       className={cn(
         'flex flex-col bg-surface border-r border-outline-variant h-full transition-all duration-medium2 ease-emphasized shadow-md-level0 flex-shrink-0',
+        // Mobile: full width when open, hidden when closed
+        'md:relative',
+        // Tablet/Desktop: responsive width
         isCollapsed ? 'w-20' : 'w-72'
       )}
     >
       {/* Logo and Toggle */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-outline-variant min-h-[64px]">
         {!isCollapsed && (
-          <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0">
+          <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
             {companyLogo ? (
               <img
                 src={companyLogo}
@@ -107,11 +159,13 @@ export function Sidebar() {
             <span className="text-title-large text-on-surface truncate">{companyName}</span>
           </Link>
         )}
+        {/* Only show toggle on tablet/desktop */}
         <button
           onClick={toggleCollapse}
           className={cn(
             'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
             'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+            'hidden md:block',
             isCollapsed && 'mx-auto'
           )}
           aria-label="Toggle sidebar"
@@ -120,6 +174,18 @@ export function Sidebar() {
           <span className="material-symbols-outlined text-2xl">
             {isCollapsed ? 'menu_open' : 'menu'}
           </span>
+        </button>
+        {/* Close button on mobile */}
+        <button
+          onClick={onMobileMenuClose}
+          className={cn(
+            'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
+            'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+            'md:hidden'
+          )}
+          aria-label="Close menu"
+        >
+          <span className="material-symbols-outlined text-2xl">close</span>
         </button>
       </div>
 
@@ -133,9 +199,12 @@ export function Sidebar() {
             <Link
               key={item.key}
               href={item.href}
+              onClick={handleNavClick}
               className={cn(
                 'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden',
                 'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                // Ensure touch-friendly size on mobile (min 44px)
+                'min-h-[44px]',
                 isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
                 isActive
                   ? 'bg-secondary-container text-on-secondary-container'
@@ -188,5 +257,35 @@ export function Sidebar() {
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile: Overlay sidebar */}
+      <div className={cn(
+        'fixed inset-0 z-50 md:hidden',
+        mobileMenuOpen ? 'block' : 'hidden'
+      )}>
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-scrim/50 backdrop-blur-sm"
+          onClick={onMobileMenuClose}
+          aria-hidden="true"
+        />
+
+        {/* Sidebar */}
+        <div className={cn(
+          'absolute left-0 top-0 bottom-0 w-72 transform transition-transform duration-medium2 ease-emphasized',
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        )}>
+          {sidebarContent}
+        </div>
+      </div>
+
+      {/* Tablet/Desktop: Normal sidebar */}
+      <div className="hidden md:block">
+        {sidebarContent}
+      </div>
+    </>
   );
 }
