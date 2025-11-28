@@ -79,6 +79,16 @@ export function SearchBars() {
     }
   }, [showTypeDropdown]);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-full h-10 bg-gray-50 rounded-lg animate-pulse" />;
+  }
+
   return (
     <div className="relative flex items-center w-full" ref={searchContainerRef}>
       {/* Search Type Dropdown */}
@@ -106,9 +116,8 @@ export function SearchBars() {
                     setSearchType(type.value);
                     setShowTypeDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors ${
-                    searchType === type.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
-                  }`}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors ${searchType === type.value ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
+                    }`}
                 >
                   {type.label}
                 </button>

@@ -38,11 +38,10 @@ export function ReferralChart({ data, storeName, date }: ReferralChartProps) {
             <button
               key={p.id}
               onClick={() => setPeriod(p.id as any)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                period === p.id
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${period === p.id
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-soft'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {p.label}
             </button>
@@ -63,7 +62,7 @@ export function ReferralChart({ data, storeName, date }: ReferralChartProps) {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ percent }: { percent: number }) => `${(percent * 100).toFixed(0)}%`}
+              label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"

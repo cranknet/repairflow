@@ -17,7 +17,7 @@ interface ConfirmDialogProps {
   description: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'filled' | 'destructive';
   onConfirm: () => void;
 }
 
@@ -28,7 +28,7 @@ export function ConfirmDialog({
   description,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  variant = 'default',
+  variant = 'filled',
   onConfirm,
 }: ConfirmDialogProps) {
   const handleConfirm = () => {
@@ -48,7 +48,7 @@ export function ConfirmDialog({
             {cancelText}
           </Button>
           <Button
-            variant={variant === 'destructive' ? 'destructive' : 'default'}
+            variant={variant === 'destructive' ? 'destructive' : 'filled'}
             onClick={handleConfirm}
           >
             {confirmText}

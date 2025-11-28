@@ -193,14 +193,14 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
+          variant={filter === 'all' ? 'filled' : 'outlined'}
           size="sm"
           onClick={() => setFilter('all')}
         >
           All ({notifications.length})
         </Button>
         <Button
-          variant={filter === 'unread' ? 'default' : 'outline'}
+          variant={filter === 'unread' ? 'filled' : 'outlined'}
           size="sm"
           onClick={() => setFilter('unread')}
         >
@@ -209,7 +209,7 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
         {uniqueTypes.map((type) => (
           <Button
             key={type}
-            variant={filter === type ? 'default' : 'outline'}
+            variant={filter === type ? 'filled' : 'outlined'}
             size="sm"
             onClick={() => setFilter(type)}
           >
@@ -233,9 +233,8 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
           {filteredNotifications.map((notification) => (
             <Card
               key={notification.id}
-              className={`cursor-pointer hover:shadow-md transition-shadow ${
-                !notification.read ? 'border-l-4 border-l-blue-500' : ''
-              }`}
+              className={`cursor-pointer hover:shadow-md transition-shadow ${!notification.read ? 'border-l-4 border-l-blue-500' : ''
+                }`}
               onClick={() => handleNotificationClick(notification)}
             >
               <CardContent className="pt-6">

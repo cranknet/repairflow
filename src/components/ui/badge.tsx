@@ -18,31 +18,31 @@ const badgeVariants = cva(
       variant: {
         // Small badge (dot only, no text)
         small: "h-1.5 w-1.5 rounded-full bg-error",
-        
+
         // Default badge (with number)
         default: "h-4 min-w-[16px] px-1 rounded-full bg-error text-on-error text-[11px] leading-none",
-        
+
         // Large badge (with text)
         large: "h-5 px-1.5 rounded-full bg-error text-on-error text-label-small",
-        
+
         // Primary colored
         primary: "h-5 px-1.5 rounded-full bg-primary text-on-primary text-label-small",
-        
+
         // Secondary colored
         secondary: "h-5 px-1.5 rounded-full bg-secondary-container text-on-secondary-container text-label-small",
-        
+
         // Tertiary colored  
         tertiary: "h-5 px-1.5 rounded-full bg-tertiary-container text-on-tertiary-container text-label-small",
-        
+
         // Success (using tertiary)
         success: "h-5 px-1.5 rounded-full bg-tertiary-container text-on-tertiary-container text-label-small",
-        
+
         // Warning (using error)
         warning: "h-5 px-1.5 rounded-full bg-error-container text-on-error-container text-label-small",
-        
+
         // Info (using primary)
         info: "h-5 px-1.5 rounded-full bg-primary-container text-on-primary-container text-label-small",
-        
+
         // Outline variant
         outline: "h-5 px-1.5 rounded-full border-2 border-outline text-on-surface text-label-small bg-transparent",
       },
@@ -55,13 +55,16 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  VariantProps<typeof badgeVariants> { }
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
-}
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className, variant, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />
+    )
+  }
+)
+Badge.displayName = "Badge"
 
 /**
  * Badge Container
@@ -95,10 +98,10 @@ const BadgeContainer = React.forwardRef<HTMLDivElement, BadgeContainerProps>(
       'bottom-right': 'bottom-0 right-0 translate-x-1/2 translate-y-1/2',
       'bottom-left': 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2',
     }
-    
+
     const shouldShowBadge = count !== undefined ? (showZero || count > 0) : !!badge
     const displayCount = count !== undefined && count > max ? `${max}+` : count
-    
+
     return (
       <div ref={ref} className={cn("relative inline-flex", className)} {...props}>
         {children}
@@ -137,7 +140,7 @@ const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(
       info: 'info',
       default: 'outline',
     } as const
-    
+
     const dotColors = {
       success: 'bg-tertiary',
       warning: 'bg-error',
@@ -145,7 +148,7 @@ const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(
       info: 'bg-primary',
       default: 'bg-on-surface-variant',
     }
-    
+
     return (
       <Badge
         ref={ref}
@@ -154,7 +157,7 @@ const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(
         {...props}
       >
         {showDot && (
-          <span 
+          <span
             className={cn("h-1.5 w-1.5 rounded-full", dotColors[status])}
             aria-hidden="true"
           />
