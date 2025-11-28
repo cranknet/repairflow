@@ -58,7 +58,7 @@
     "class-variance-authority": "^0.7.0",
     "date-fns": "^3.0.6",
     "html2canvas": "^1.4.1",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^0.555.0",
     "material-symbols": "^0.40.0",
     "nanoid": "^5.0.4",
     "next": "^16.0.5",
