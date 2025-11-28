@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the RepairFlow project struct
 
 ## 1. Project Overview
 
-**RepairFlow** is a repair shop management system built with Next.js 15. It supports ticket management, customer tracking, inventory, and more. It is designed to run as a web application and a native Android app (via Capacitor).
+**RepairFlow** is a repair shop management system built with Next.js 15. It supports ticket management, customer tracking, inventory, and more.
 
 ### Tech Stack
 - **Framework:** Next.js 15 (App Router)
@@ -12,7 +12,7 @@ This document provides a comprehensive overview of the RepairFlow project struct
 - **Styling:** Tailwind CSS, Radix UI
 - **Database:** SQLite (Dev) / PostgreSQL (Prod) via Prisma ORM
 - **Authentication:** NextAuth.js
-- **Mobile:** Capacitor (Android)
+
 - **State Management:** React Context + SWR (implied for data fetching)
 
 ## 2. Directory Structure
@@ -20,7 +20,7 @@ This document provides a comprehensive overview of the RepairFlow project struct
 ```
 repairflow/
 ├── .github/                # GitHub Actions & templates
-├── android/                # Native Android project files (Capacitor)
+
 ├── prisma/                 # Database schema & migrations
 │   └── schema.prisma       # Main data model definition
 ├── public/                 # Static assets (images, icons)
@@ -44,7 +44,7 @@ repairflow/
 │   │   ├── auth.ts         # Authentication logic
 │   │   └── utils.ts        # Helper functions
 │   └── types/              # TypeScript type definitions
-├── capacitor.config.ts     # Mobile app configuration
+
 ├── next.config.js          # Next.js configuration
 └── package.json            # Dependencies & Scripts
 ```
@@ -101,13 +101,12 @@ The database schema is defined in `prisma/schema.prisma`. Key entities include:
 
 ## 6. External Integrations
 
-- **Mobile (Capacitor):** Configured in `capacitor.config.ts`. See `ANDROID_BUILD.md`.
+
 - **SMS:** Custom implementation in `src/lib/com-port-sms.ts` (Web) and `src/app/api/sms`.
 - **Printing:** Custom print system for labels and invoices.
 
 ## 7. Development Workflow
 
-Refer to `DEVELOPMENT_WORKFLOW.md` for detailed instructions on:
+Refer to `README.md` for detailed instructions on:
 - Running the web server (`npm run dev`)
-- Running the Android app (`npm run android:dev`)
 - Database migrations (`npm run db:push`)

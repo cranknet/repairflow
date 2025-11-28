@@ -45,7 +45,7 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 ### Platform Support
 - **Web Application**: Full-featured web interface
-- **Android App**: Native Android support via Capacitor
+
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 
 ## 🚀 Quick Start
@@ -54,7 +54,7 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 - Node.js 18+ and npm
 - SQLite (included) or PostgreSQL
-- For Android: Android Studio and Java JDK
+
 
 ### Installation
 
@@ -104,25 +104,7 @@ After seeding:
 
 ⚠️ **Change these passwords immediately in production!**
 
-## 📱 Android Setup
 
-1. **Build the web app**
-   ```bash
-   npm run build:android
-   ```
-
-2. **Open Android Studio**
-   ```bash
-   npm run cap:open:android
-   ```
-
-3. **Configure server URL** in `capacitor.config.ts`:
-   - Development: `http://YOUR_IP:3000`
-   - Production: `https://your-domain.com`
-
-4. **Build and run** from Android Studio
-
-See [ANDROID_BUILD.md](./ANDROID_BUILD.md) for detailed instructions.
 
 ## 🛠️ Tech Stack
 
@@ -131,7 +113,7 @@ See [ANDROID_BUILD.md](./ANDROID_BUILD.md) for detailed instructions.
 - **Database**: Prisma ORM with SQLite/PostgreSQL
 - **Authentication**: NextAuth.js
 - **UI Components**: Radix UI + Tailwind CSS
-- **Mobile**: Capacitor
+
 - **Icons**: Heroicons
 - **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
@@ -149,7 +131,7 @@ repairflow/
 │   └── contexts/      # React contexts
 ├── public/            # Static assets
 ├── scripts/          # Utility scripts
-└── capacitor.config.ts # Capacitor configuration
+
 ```
 
 ## 🔧 Configuration
@@ -195,8 +177,7 @@ Create custom SMS templates in multiple languages:
 
 ### Utilities
 - `npm run reset-admin-password` - Reset admin password
-- `npm run cap:sync` - Sync Capacitor
-- `npm run android:build` - Build for Android
+
 
 See [VERSIONING.md](./VERSIONING.md) for detailed version management guide.
 
@@ -249,7 +230,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - UI components from [Radix UI](https://www.radix-ui.com/)
 - Icons from [Heroicons](https://heroicons.com/)
 - Database management with [Prisma](https://www.prisma.io/)
-- Mobile support via [Capacitor](https://capacitorjs.com/)
+
 
 ## 🗺️ Roadmap
 
@@ -258,7 +239,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Barcode scanning for inventory
 - [ ] Multi-store support
 - [ ] API for third-party integrations
-- [ ] Mobile app improvements
+
 - [ ] More language support
 
 ---
