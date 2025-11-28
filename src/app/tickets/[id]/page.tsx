@@ -68,13 +68,6 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
         orderBy: { createdAt: 'desc' },
       },
       returns: {
-        include: {
-          items: {
-            include: {
-              part: true,
-            },
-          },
-        },
         orderBy: { createdAt: 'desc' },
       },
     },
@@ -112,11 +105,11 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
     <MainLayout>
       <div className="space-y-6 pt-6">
         {/* Header */}
-        <TicketDetailHeader 
+        <TicketDetailHeader
           ticketNumber={ticket.ticketNumber}
           createdAt={ticket.createdAt}
         />
-        
+
         {/* Action Buttons Bar */}
         <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
           <div className="ml-auto flex items-center gap-2">
@@ -154,7 +147,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                     finalPrice: ticket.finalPrice || undefined,
                   }}
                 />
-                <CustomerProfileButton 
+                <CustomerProfileButton
                   customer={{
                     ...ticket.customer,
                     createdAt: ticket.customer.createdAt.toISOString(),
@@ -162,7 +155,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                       ...t,
                       createdAt: t.createdAt.toISOString(),
                     })),
-                  }} 
+                  }}
                 />
               </div>
             </div>

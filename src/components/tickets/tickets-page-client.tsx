@@ -43,13 +43,13 @@ interface TicketsPageClientProps {
   search?: string;
 }
 
-export function TicketsPageClient({ 
-  tickets, 
-  totalCount, 
-  currentPage, 
+export function TicketsPageClient({
+  tickets,
+  totalCount,
+  currentPage,
   totalPages,
   status,
-  search 
+  search
 }: TicketsPageClientProps) {
   const router = useRouter();
   const { t } = useLanguage();
@@ -139,7 +139,7 @@ export function TicketsPageClient({
                           }}
                         >
                           <Button
-                            variant={currentPage === pageNum ? 'default' : 'outline'}
+                            variant={currentPage === pageNum ? 'filled' : 'outlined'}
                             size="sm"
                             className="min-w-[40px]"
                           >

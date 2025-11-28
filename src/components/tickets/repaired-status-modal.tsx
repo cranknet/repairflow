@@ -179,7 +179,7 @@ export function RepairedStatusModal({
             <div className="flex gap-4">
               <Button
                 type="button"
-                variant={requiresPart === true ? 'default' : 'outlined'}
+                variant={requiresPart === true ? 'filled' : 'outlined'}
                 onClick={() => setRequiresPart(true)}
                 size="sm"
               >
@@ -187,7 +187,7 @@ export function RepairedStatusModal({
               </Button>
               <Button
                 type="button"
-                variant={requiresPart === false ? 'default' : 'outlined'}
+                variant={requiresPart === false ? 'filled' : 'outlined'}
                 onClick={() => {
                   setRequiresPart(false);
                   setSelectedParts([]);
@@ -236,14 +236,14 @@ export function RepairedStatusModal({
                             </Select>
                           </div>
                           <div>
-                              <Input
-                                id={`quantity-${index}`}
-                                label="Quantity"
-                                type="number"
-                                min="1"
-                                value={part.quantity.toString()}
-                                onChange={(e) => handlePartChange(index, 'quantity', e.target.value)}
-                              />
+                            <Input
+                              id={`quantity-${index}`}
+                              label="Quantity"
+                              type="number"
+                              min="1"
+                              value={part.quantity.toString()}
+                              onChange={(e) => handlePartChange(index, 'quantity', e.target.value)}
+                            />
                           </div>
                         </div>
                         {partData && partData.unitPrice && (

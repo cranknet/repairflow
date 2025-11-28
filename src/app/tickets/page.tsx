@@ -62,6 +62,19 @@ export default async function TicketsPage({
   const serializedTickets = tickets.map((ticket) => ({
     ...ticket,
     createdAt: ticket.createdAt.toISOString(),
+    updatedAt: ticket.updatedAt.toISOString(),
+    completedAt: ticket.completedAt?.toISOString() || null,
+    customer: {
+      id: ticket.customer.id,
+      name: ticket.customer.name,
+      phone: ticket.customer.phone,
+    },
+    assignedTo: ticket.assignedTo
+      ? {
+        username: ticket.assignedTo.username,
+        name: ticket.assignedTo.name || ticket.assignedTo.username,
+      }
+      : null,
   }));
 
   return (
