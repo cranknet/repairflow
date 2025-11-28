@@ -48,13 +48,15 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 
-## 🚀 Quick Start
+## 🚀 Quick Start / Démarrage Rapide / البداية السريعة
+
+<details open>
+<summary><strong>🇬🇧 English</strong></summary>
 
 ### Prerequisites
 
 - Node.js 18+ and npm
 - SQLite (included) or PostgreSQL
-
 
 ### Installation
 
@@ -95,6 +97,108 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+</details>
+
+<details>
+<summary><strong>🇫🇷 Français</strong></summary>
+
+### Prérequis
+
+- Node.js 18+ et npm
+- SQLite (inclus) ou PostgreSQL
+
+### Installation
+
+1. **Cloner le dépôt**
+   ```bash
+   git clone https://github.com/cranknet/repairflow.git
+   cd repairflow
+   ```
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
+
+3. **Configurer les variables d'environnement**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Modifiez `.env` et ajoutez :
+   ```env
+   DATABASE_URL="file:./prisma/dev.db"
+   NEXTAUTH_SECRET="votre-cle-secrete-ici"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. **Configurer la base de données**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npm run db:seed
+   ```
+
+5. **Lancer le serveur de développement**
+   ```bash
+   npm run dev
+   ```
+
+6. **Ouvrir votre navigateur**
+   Accédez à [http://localhost:3000](http://localhost:3000)
+
+</details>
+
+<details>
+<summary><strong>🇸🇦 العربية</strong></summary>
+
+### المتطلبات الأساسية
+
+- Node.js 18+ و npm
+- SQLite (مضمن) أو PostgreSQL
+
+### التثبيت
+
+1. **استنساخ المستودع**
+   ```bash
+   git clone https://github.com/cranknet/repairflow.git
+   cd repairflow
+   ```
+
+2. **تثبيت التبعيات**
+   ```bash
+   npm install
+   ```
+
+3. **إعداد متغيرات البيئة**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   قم بتحرير `.env` وأضف:
+   ```env
+   DATABASE_URL="file:./prisma/dev.db"
+   NEXTAUTH_SECRET="your-secret-key-here"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. **إعداد قاعدة البيانات**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npm run db:seed
+   ```
+
+5. **تشغيل خادم التطوير**
+   ```bash
+   npm run dev
+   ```
+
+6. **افتح متصفحك**
+   انتقل إلى [http://localhost:3000](http://localhost:3000)
+
+</details>
 
 ### Default Login Credentials
 
