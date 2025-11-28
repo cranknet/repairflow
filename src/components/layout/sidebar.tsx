@@ -140,53 +140,55 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       )}
     >
       {/* Logo and Toggle */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-outline-variant min-h-[64px]">
-        {!isCollapsed && (
-          <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
-            {companyLogo ? (
-              <img
-                src={companyLogo}
-                alt="Company Logo"
-                className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
-              />
-            ) : (
-              <img
-                src="/default-logo.png"
-                alt="RepairFlow Logo"
-                className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
-              />
+      <div className="border-b border-outline-variant">
+        <div className="flex items-center justify-between px-4 h-16">
+          {!isCollapsed && (
+            <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
+              {companyLogo ? (
+                <img
+                  src={companyLogo}
+                  alt="Company Logo"
+                  className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
+                />
+              ) : (
+                <img
+                  src="/default-logo.png"
+                  alt="RepairFlow Logo"
+                  className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
+                />
+              )}
+              <span className="text-title-large text-on-surface truncate">{companyName}</span>
+            </Link>
+          )}
+          {/* Only show toggle on tablet/desktop */}
+          <button
+            onClick={toggleCollapse}
+            className={cn(
+              'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
+              'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+              'hidden md:block',
+              isCollapsed && 'mx-auto'
             )}
-            <span className="text-title-large text-on-surface truncate">{companyName}</span>
-          </Link>
-        )}
-        {/* Only show toggle on tablet/desktop */}
-        <button
-          onClick={toggleCollapse}
-          className={cn(
-            'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
-            'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
-            'hidden md:block',
-            isCollapsed && 'mx-auto'
-          )}
-          aria-label="Toggle sidebar"
-          aria-expanded={!isCollapsed}
-        >
-          <span className="material-symbols-outlined text-2xl">
-            {isCollapsed ? 'menu_open' : 'menu'}
-          </span>
-        </button>
-        {/* Close button on mobile */}
-        <button
-          onClick={onMobileMenuClose}
-          className={cn(
-            'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
-            'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
-            'md:hidden'
-          )}
-          aria-label="Close menu"
-        >
-          <span className="material-symbols-outlined text-2xl">close</span>
-        </button>
+            aria-label="Toggle sidebar"
+            aria-expanded={!isCollapsed}
+          >
+            <span className="material-symbols-outlined text-2xl">
+              {isCollapsed ? 'menu_open' : 'menu'}
+            </span>
+          </button>
+          {/* Close button on mobile */}
+          <button
+            onClick={onMobileMenuClose}
+            className={cn(
+              'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
+              'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+              'md:hidden'
+            )}
+            aria-label="Close menu"
+          >
+            <span className="material-symbols-outlined text-2xl">close</span>
+          </button>
+        </div>
       </div>
 
       {/* Navigation */}

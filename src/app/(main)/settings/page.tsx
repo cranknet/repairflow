@@ -31,6 +31,12 @@ export default async function SettingsPage() {
     }),
   ]);
 
+  // Serialize dates for client component
+  const serializedUsers = users.map(user => ({
+    ...user,
+    createdAt: user.createdAt.toISOString(),
+  }));
+
   const settingsMap = settings.reduce((acc, setting) => {
     acc[setting.key] = setting.value;
     return acc;
@@ -44,7 +50,7 @@ export default async function SettingsPage() {
           descriptionKey="manageSystemSettings"
         />
 
-        <SettingsClient initialSettings={settingsMap} initialUsers={users} />
+        <SettingsClient initialSettings={settingsMap} initialUsers={serializedUsers} />
       </div>
     </MainLayout>
   );
