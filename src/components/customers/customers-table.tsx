@@ -107,7 +107,9 @@ export function CustomersTable({ customers }: CustomersTableProps) {
               <td className="py-3 px-4">{customer.email || '-'}</td>
               <td className="py-3 px-4">{customer._count.tickets}</td>
               <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
-                {format(new Date(customer.createdAt), 'MMM dd, yyyy')}
+                <span suppressHydrationWarning>
+                  {format(new Date(customer.createdAt), 'MMM dd, yyyy')}
+                </span>
               </td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">
@@ -127,7 +129,12 @@ export function CustomersTable({ customers }: CustomersTableProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(customer.id)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Delete clicked for:', customer.id);
+                      handleDelete(customer.id);
+                    }}
                     className="text-red-600 hover:text-red-700"
                     disabled={customer._count.tickets > 0}
                     title={customer._count.tickets > 0 ? 'Cannot delete customer with tickets' : 'Delete customer'}
