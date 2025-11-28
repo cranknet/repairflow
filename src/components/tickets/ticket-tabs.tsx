@@ -45,7 +45,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
 
   const handleCopyTrackingCode = async () => {
     if (!ticket.trackingCode) return;
-    
+
     try {
       await navigator.clipboard.writeText(ticket.trackingCode);
       setCopied(true);
@@ -67,17 +67,16 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
     <div className="space-y-4">
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8" aria-label="Tabs">
+        <nav className="flex flex-col sm:flex-row sm:space-x-8 space-y-2 sm:space-y-0" aria-label="Tabs">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                py-3 sm:py-4 px-4 sm:px-1 border-l-4 sm:border-l-0 sm:border-b-2 font-medium text-sm transition-colors text-left sm:text-center
+                ${activeTab === tab.id
+                  ? 'border-primary-500 text-primary-600 bg-primary-50 sm:bg-transparent dark:text-primary-400 dark:bg-primary-900/20'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50 sm:hover:bg-transparent dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 sm:dark:hover:bg-transparent'
                 }
               `}
             >
