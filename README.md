@@ -41,12 +41,8 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **Image Upload**: Capture device condition photos
 - **Search & Filters**: Quick search and filter tickets by status
 - **Dynamic Branding**: Custom logo, favicon, and login background
-- **Project Index**: Comprehensive codebase overview for developers
-
-### Platform Support
-- **Web Application**: Full-featured web interface
-
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Project Index**: Comprehensive codebase overview for developers
 
 ## 🚀 Quick Start / Démarrage Rapide / البداية السريعة
 
@@ -229,7 +225,9 @@ After seeding:
 repairflow/
 ├── prisma/              # Database schema and migrations
 ├── src/
-│   ├── app/            # Next.js app router pages
+│   ├── app/
+│   │   ├── (main)/     # Main application routes
+│   │   └── (setup)/    # Setup routes
 │   ├── components/     # React components
 │   ├── lib/           # Utilities and helpers
 │   └── contexts/      # React contexts
@@ -271,6 +269,7 @@ Create custom SMS templates in multiple languages:
 - `npm run db:push` - Push schema changes to database
 - `npm run db:migrate` - Create a migration
 - `npm run db:seed` - Seed database with sample data
+- `npm run db:reset` - Reset database (clear all data)
 - `npm run db:studio` - Open Prisma Studio
 
 ### Version Management
@@ -324,16 +323,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you find RepairFlow useful, please consider giving it a star on GitHub!
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- UI components from [Radix UI](https://www.radix-ui.com/)
-- Icons from [Heroicons](https://heroicons.com/)
-- Database management with [Prisma](https://www.prisma.io/)
 
 
 ## 🗺️ Roadmap
