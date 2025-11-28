@@ -20,7 +20,7 @@
   --md-sys-color-primary-fixed-dim: 165 200 234;
   --md-sys-color-on-primary-fixed: 0 28 58;
   --md-sys-color-on-primary-fixed-variant: 40 98 155;
-  
+
   /* Secondary */
   --md-sys-color-secondary: 88 94 113;
   --md-sys-color-on-secondary: 255 255 255;
@@ -30,7 +30,7 @@
   --md-sys-color-secondary-fixed-dim: 192 198 220;
   --md-sys-color-on-secondary-fixed: 21 27 44;
   --md-sys-color-on-secondary-fixed-variant: 64 70 89;
-  
+
   /* Tertiary */
   --md-sys-color-tertiary: 112 85 127;
   --md-sys-color-on-tertiary: 255 255 255;
@@ -40,17 +40,17 @@
   --md-sys-color-tertiary-fixed-dim: 213 188 229;
   --md-sys-color-on-tertiary-fixed: 39 16 53;
   --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
-  
+
   /* Error */
   --md-sys-color-error: 186 26 26;
   --md-sys-color-on-error: 255 255 255;
   --md-sys-color-error-container: 255 218 214;
   --md-sys-color-on-error-container: 65 0 2;
-  
+
   /* Background */
   --md-sys-color-background: 250 249 253;
   --md-sys-color-on-background: 26 28 30;
-  
+
   /* Surface */
   --md-sys-color-surface: 250 249 253;
   --md-sys-color-on-surface: 26 28 30;
@@ -63,16 +63,16 @@
   --md-sys-color-surface-container: 238 238 242;
   --md-sys-color-surface-container-high: 232 232 236;
   --md-sys-color-surface-container-highest: 227 227 230;
-  
+
   /* Outline */
   --md-sys-color-outline: 116 119 127;
   --md-sys-color-outline-variant: 196 199 208;
-  
+
   /* Inverse */
   --md-sys-color-inverse-surface: 47 48 51;
   --md-sys-color-inverse-on-surface: 241 240 244;
   --md-sys-color-inverse-primary: 165 200 234;
-  
+
   /* Other */
   --md-sys-color-scrim: 0 0 0;
   --md-sys-color-shadow: 0 0 0;
@@ -89,7 +89,7 @@
   --md-sys-color-primary-fixed-dim: 165 200 234;
   --md-sys-color-on-primary-fixed: 0 28 58;
   --md-sys-color-on-primary-fixed-variant: 40 98 155;
-  
+
   /* Secondary */
   --md-sys-color-secondary: 192 198 220;
   --md-sys-color-on-secondary: 42 48 65;
@@ -99,7 +99,7 @@
   --md-sys-color-secondary-fixed-dim: 192 198 220;
   --md-sys-color-on-secondary-fixed: 21 27 44;
   --md-sys-color-on-secondary-fixed-variant: 64 70 89;
-  
+
   /* Tertiary */
   --md-sys-color-tertiary: 213 188 229;
   --md-sys-color-on-tertiary: 60 37 76;
@@ -109,17 +109,17 @@
   --md-sys-color-tertiary-fixed-dim: 213 188 229;
   --md-sys-color-on-tertiary-fixed: 39 16 53;
   --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
-  
+
   /* Error */
   --md-sys-color-error: 255 180 171;
   --md-sys-color-on-error: 105 0 5;
   --md-sys-color-error-container: 147 0 10;
   --md-sys-color-on-error-container: 255 218 214;
-  
+
   /* Background */
   --md-sys-color-background: 26 28 30;
   --md-sys-color-on-background: 227 227 230;
-  
+
   /* Surface */
   --md-sys-color-surface: 26 28 30;
   --md-sys-color-on-surface: 227 227 230;
@@ -132,16 +132,16 @@
   --md-sys-color-surface-container: 38 41 43;
   --md-sys-color-surface-container-high: 49 51 54;
   --md-sys-color-surface-container-highest: 60 62 65;
-  
+
   /* Outline */
   --md-sys-color-outline: 142 145 153;
   --md-sys-color-outline-variant: 67 71 78;
-  
+
   /* Inverse */
   --md-sys-color-inverse-surface: 227 227 230;
   --md-sys-color-inverse-on-surface: 47 48 51;
   --md-sys-color-inverse-primary: 40 98 155;
-  
+
   /* Other */
   --md-sys-color-scrim: 0 0 0;
   --md-sys-color-shadow: 0 0 0;
@@ -184,13 +184,14 @@ body {
 
 /* Material Design 3 Focus Indicators */
 @layer base {
+
   /* Enhanced focus visible styles for accessibility */
   *:focus-visible {
     outline: 3px solid rgb(var(--md-sys-color-primary));
     outline-offset: 2px;
     border-radius: 4px;
   }
-  
+
   /* Focus for interactive elements */
   button:focus-visible,
   a:focus-visible,
@@ -198,7 +199,7 @@ body {
     outline: 3px solid rgb(var(--md-sys-color-primary));
     outline-offset: 2px;
   }
-  
+
   /* Input focus styles */
   input:focus-visible,
   textarea:focus-visible,
@@ -210,11 +211,12 @@ body {
 
 /* Material Design 3 State Layers */
 @layer components {
+
   /* Hover state layer */
   .md-state-layer-hover {
     position: relative;
   }
-  
+
   .md-state-layer-hover::before {
     content: '';
     position: absolute;
@@ -225,15 +227,15 @@ body {
     pointer-events: none;
     border-radius: inherit;
   }
-  
+
   .md-state-layer-hover:hover::before {
     opacity: 0.08;
   }
-  
+
   .md-state-layer-hover:focus-visible::before {
     opacity: 0.12;
   }
-  
+
   .md-state-layer-hover:active::before {
     opacity: 0.12;
   }
@@ -277,6 +279,7 @@ main {
 
 /* Reduced Motion Support (Accessibility) */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -292,13 +295,13 @@ main {
   * {
     border-width: 2px !important;
   }
-  
+
   button,
   a,
   [role="button"] {
     border: 2px solid currentColor !important;
   }
-  
+
   *:focus-visible {
     outline-width: 4px !important;
   }
@@ -309,10 +312,123 @@ main {
   *:focus-visible {
     outline: none !important;
   }
-  
+
   body {
     background: white !important;
     color: black !important;
   }
 }
 
+/* ===== RESPONSIVE DESIGN UTILITIES ===== */
+
+/* Mobile-first responsive containers */
+@layer utilities {
+
+  /* Ensure inputs don't overflow on mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select {
+    max-width: 100%;
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+  }
+
+  /* Touch-friendly targets (minimum 44x44px) */
+  @media (max-width: 1023px) {
+
+    button,
+    a,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Responsive table containers */
+  @media (max-width: 768px) {
+    table {
+      font-size: 14px;
+    }
+
+    /* Allow horizontal scroll for tables on mobile */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Prevent text overflow in constrained spaces */
+  .truncate-mobile {
+    @media (max-width: 768px) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  /* Responsive grid adjustments */
+  @media (max-width: 640px) {
+    .responsive-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .responsive-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+
+  /* Prevent horizontal scrolling */
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Mobile spacing utilities */
+  @media (max-width: 640px) {
+    .mobile-compact {
+      padding: 0.75rem !important;
+    }
+  }
+}
+
+/* Stack cards on mobile */
+@media (max-width: 768px) {
+  [class*="grid-cols-"] {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Improve form layouts on mobile */
+@media (max-width: 640px) {
+  form {
+    width: 100%;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Responsive Dialog/Modal Adjustments */
+@media (max-width: 640px) {
+  [role="dialog"] {
+    max-width: 95vw !important;
+    margin: 1rem;
+  }
+
+  /* Make dialog content scrollable on mobile */
+  [role="dialog"]>div {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+}
