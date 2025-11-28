@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {
   TicketIcon,
-  CubeIcon,
   UserGroupIcon,
   Cog6ToothIcon,
   ChevronDownIcon,
@@ -19,7 +18,6 @@ import { HomeIcon } from '@heroicons/react/24/outline';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Tickets', href: '/tickets', icon: TicketIcon },
-  { name: 'Inventory', href: '/inventory', icon: CubeIcon },
   { name: 'Customers', href: '/customers', icon: UserGroupIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon, adminOnly: true },
 ];

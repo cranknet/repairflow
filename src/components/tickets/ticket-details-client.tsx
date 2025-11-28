@@ -103,8 +103,6 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
 
   const handleRepairedConfirm = async (data: {
     parts: Array<{ partId: string; quantity: number }>;
-    returnItems: Array<{ partId: string; quantity: number; reason?: string }>;
-    returnReason?: string;
   }) => {
     setIsUpdating(true);
     try {
@@ -115,8 +113,6 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
           status: 'REPAIRED',
           statusNotes: statusNotes || undefined,
           parts: data.parts,
-          returnItems: data.returnItems.length > 0 ? data.returnItems : undefined,
-          returnReason: data.returnReason,
         }),
       });
 
@@ -144,6 +140,8 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
     }
   };
 
+  const isReturned = ticket.status === 'RETURNED';
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -153,9 +151,9 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
             id="status-select"
             value={ticket.status}
             onChange={handleStatusChange}
-            disabled={isUpdating}
-            className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-            title="Change ticket status"
+            disabled={isUpdating || isReturned}
+            className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            title={isReturned ? "Ticket is returned and cannot be edited" : "Change ticket status"}
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -163,6 +161,11 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
               </option>
             ))}
           </select>
+          {isReturned && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              This ticket is returned and cannot be edited
+            </p>
+          )}
         </div>
         
         {/* Quick Action Buttons */}

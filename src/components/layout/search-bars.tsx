@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
-type SearchType = 'all' | 'customer' | 'ticket' | 'inventory';
+type SearchType = 'all' | 'customer' | 'ticket';
 
 export function SearchBars() {
   const router = useRouter();
@@ -18,7 +18,6 @@ export function SearchBars() {
     { value: 'all', label: 'All' },
     { value: 'customer', label: 'Customer' },
     { value: 'ticket', label: 'Ticket #' },
-    { value: 'inventory', label: 'Inventory' },
   ];
 
   const handleSearch = () => {
@@ -30,9 +29,6 @@ export function SearchBars() {
         break;
       case 'ticket':
         router.push(`/tickets?search=${encodeURIComponent(searchValue)}`);
-        break;
-      case 'inventory':
-        router.push(`/inventory?search=${encodeURIComponent(searchValue)}`);
         break;
       case 'all':
       default:
@@ -60,11 +56,9 @@ export function SearchBars() {
         return 'Search customers...';
       case 'ticket':
         return 'Search tickets...';
-      case 'inventory':
-        return 'Search inventory...';
       case 'all':
       default:
-        return 'Search customers, tickets, or inventory...';
+        return 'Search customers or tickets...';
     }
   };
 

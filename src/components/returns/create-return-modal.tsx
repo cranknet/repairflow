@@ -29,46 +29,23 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [returnData, setReturnData] = useState({
     reason: '',
-    items: [] as Array<{ partId: string; quantity: number; reason: string; condition: 'GOOD' | 'DAMAGED' }>,
+    refundAmount: 0,
   });
 
   useEffect(() => {
     if (isOpen && ticket) {
       // Reset form when modal opens
-      setReturnData({ reason: '', items: [] });
+      const maxRefund = ticket.finalPrice || ticket.estimatedPrice || 0;
+      setReturnData({ 
+        reason: '', 
+        refundAmount: maxRefund 
+      });
     }
   }, [isOpen, ticket]);
 
-  const handleAddReturnItem = () => {
-    if (!ticket.parts || ticket.parts.length === 0) {
-      toast({
-        title: t('error'),
-        description: 'This ticket has no parts to return',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const firstPart = ticket.parts[0];
-    setReturnData({
-      ...returnData,
-      items: [
-        ...returnData.items,
-        {
-          partId: firstPart.partId,
-          quantity: 1,
-          reason: '',
-          condition: 'GOOD' as const,
-        },
-      ],
-    });
-  };
-
-  const handleRemoveReturnItem = (index: number) => {
-    setReturnData({
-      ...returnData,
-      items: returnData.items.filter((_, i) => i !== index),
-    });
+  const handleUseFullAmount = () => {
+    const maxRefund = ticket?.finalPrice || ticket?.estimatedPrice || 0;
+    setReturnData({ ...returnData, refundAmount: maxRefund });
   };
 
   const handleSubmitReturn = async () => {
@@ -81,10 +58,20 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
       return;
     }
 
-    if (returnData.items.length === 0) {
+    if (returnData.refundAmount <= 0) {
       toast({
         title: t('error'),
-        description: 'Please add at least one item to return',
+        description: 'Refund amount must be greater than 0',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const maxRefund = ticket?.finalPrice || ticket?.estimatedPrice || 0;
+    if (returnData.refundAmount > maxRefund) {
+      toast({
+        title: t('error'),
+        description: `Refund amount cannot exceed ticket price (${maxRefund})`,
         variant: 'destructive',
       });
       return;
@@ -98,7 +85,7 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
         body: JSON.stringify({
           ticketId: ticket.id,
           reason: returnData.reason,
-          items: returnData.items,
+          refundAmount: returnData.refundAmount,
         }),
       });
 
@@ -109,16 +96,16 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
 
       toast({
         title: t('success'),
-        description: 'Return request created successfully',
+        description: t('returnRequestCreatedSuccessfully'),
       });
 
-      setReturnData({ reason: '', items: [] });
+      setReturnData({ reason: '', refundAmount: 0 });
       onClose();
       router.refresh();
     } catch (error) {
       toast({
         title: t('error'),
-        description: error instanceof Error ? error.message : 'Failed to create return request',
+        description: error instanceof Error ? error.message : t('failedToCreateReturnRequest'),
         variant: 'destructive',
       });
     } finally {
@@ -128,13 +115,15 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
 
   if (!ticket) return null;
 
+  const maxRefund = ticket.finalPrice || ticket.estimatedPrice || 0;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Create Return for {ticket.ticketNumber}</DialogTitle>
           <DialogDescription>
-            Create a return request for parts from this ticket
+            Create a return request for this ticket. The ticket will be marked as returned.
           </DialogDescription>
         </DialogHeader>
 
@@ -153,111 +142,31 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label>Items to Return</Label>
-              <Button onClick={handleAddReturnItem} size="sm" variant="outlined" type="button">
-                Add Item
+              <Label htmlFor="refund-amount">Refund Amount *</Label>
+              <Button 
+                onClick={handleUseFullAmount} 
+                size="sm" 
+                variant="outlined" 
+                type="button"
+              >
+                Use Full Amount
               </Button>
             </div>
-
-            {returnData.items.length === 0 ? (
-              <p className="text-sm text-gray-500">No items added. Click &quot;Add Item&quot; to add parts.</p>
-            ) : (
-              <div className="space-y-2">
-                {returnData.items.map((item, index) => {
-                  const part = ticket.parts?.find((p: any) => p.partId === item.partId);
-                  const partInfo = part?.part;
-                  const estimatedLoss = item.condition === 'DAMAGED' && partInfo?.unitPrice
-                    ? partInfo.unitPrice * item.quantity
-                    : 0;
-                  
-                  return (
-                    <div key={index} className={`border rounded-lg p-3 space-y-2 ${item.condition === 'DAMAGED' ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : ''}`}>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label>Part</Label>
-                          <select
-                            value={item.partId}
-                            onChange={(e) => {
-                              const newItems = [...returnData.items];
-                              newItems[index].partId = e.target.value;
-                              setReturnData({ ...returnData, items: newItems });
-                            }}
-                            className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                          >
-                            {(ticket.parts || []).map((p: any) => (
-                              <option key={p.partId} value={p.partId}>
-                                {p.part.name} (Used: {p.quantity})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <Label>Quantity</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max={part?.quantity || 1}
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const newItems = [...returnData.items];
-                              newItems[index].quantity = parseInt(e.target.value) || 1;
-                              setReturnData({ ...returnData, items: newItems });
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Condition *</Label>
-                        <select
-                          value={item.condition}
-                          onChange={(e) => {
-                            const newItems = [...returnData.items];
-                            newItems[index].condition = e.target.value as 'GOOD' | 'DAMAGED';
-                            setReturnData({ ...returnData, items: newItems });
-                          }}
-                          className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                        >
-                          <option value="GOOD">Good (Restore to inventory)</option>
-                          <option value="DAMAGED">Damaged (Loss)</option>
-                        </select>
-                        {item.condition === 'DAMAGED' && (
-                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                            ⚠️ This part will be marked as a loss and will not be restored to inventory
-                          </p>
-                        )}
-                      </div>
-                      {estimatedLoss > 0 && (
-                        <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded p-2">
-                          <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                            Estimated Loss: ${estimatedLoss.toFixed(2)}
-                          </p>
-                        </div>
-                      )}
-                      <div>
-                        <Label>Item Reason (optional)</Label>
-                        <Input
-                          value={item.reason}
-                          onChange={(e) => {
-                            const newItems = [...returnData.items];
-                            newItems[index].reason = e.target.value;
-                            setReturnData({ ...returnData, items: newItems });
-                          }}
-                          placeholder="Reason for returning this item..."
-                        />
-                      </div>
-                      <Button
-                        onClick={() => handleRemoveReturnItem(index)}
-                        size="sm"
-                        variant="ghost"
-                        type="button"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <div className="space-y-2">
+              <Input
+                id="refund-amount"
+                type="number"
+                min="0"
+                max={maxRefund}
+                step="0.01"
+                value={returnData.refundAmount}
+                onChange={(e) => setReturnData({ ...returnData, refundAmount: parseFloat(e.target.value) || 0 })}
+                placeholder="0.00"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Ticket price: ${maxRefund.toFixed(2)} (Maximum refund: ${maxRefund.toFixed(2)})
+              </p>
+            </div>
           </div>
         </div>
 
@@ -266,11 +175,10 @@ export function CreateReturnModal({ isOpen, onClose, ticket }: CreateReturnModal
             {t('cancel')}
           </Button>
           <Button onClick={handleSubmitReturn} disabled={isSubmitting}>
-            {isSubmitting ? t('loading') : 'Submit Return'}
+            {isSubmitting ? t('loading') : t('submitReturn')}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

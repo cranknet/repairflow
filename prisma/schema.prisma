@@ -112,7 +112,6 @@ model Part {
   updatedAt             DateTime               @updatedAt
   ticketParts           TicketPart[]
   inventoryTransactions InventoryTransaction[]
-  returnItems           ReturnItem[]
 }
 
 model InventoryTransaction {
@@ -128,26 +127,14 @@ model InventoryTransaction {
 }
 
 model Return {
-  id        String       @id @default(cuid())
-  ticketId  String
-  ticket    Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  reason    String
-  status    String       @default("PENDING") // PENDING, APPROVED, REJECTED
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  items     ReturnItem[]
-}
-
-model ReturnItem {
-  id        String   @id @default(cuid())
-  returnId  String
-  return    Return   @relation(fields: [returnId], references: [id], onDelete: Cascade)
-  partId    String
-  part      Part     @relation(fields: [partId], references: [id])
-  quantity  Int
-  reason    String?
-  condition String   @default("GOOD") // GOOD, DAMAGED
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reason       String
+  refundAmount Float
+  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Notification {

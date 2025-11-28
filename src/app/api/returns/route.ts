@@ -6,14 +6,7 @@ import { z } from 'zod';
 const createReturnSchema = z.object({
   ticketId: z.string(),
   reason: z.string().min(1),
-  items: z.array(
-    z.object({
-      partId: z.string(),
-      quantity: z.number().int().min(1),
-      reason: z.string().optional(),
-      condition: z.enum(['GOOD', 'DAMAGED']).optional().default('GOOD'),
-    })
-  ),
+  refundAmount: z.number().min(0),
 });
 
 export async function POST(request: NextRequest) {
@@ -29,44 +22,71 @@ export async function POST(request: NextRequest) {
     // Verify ticket exists
     const ticket = await prisma.ticket.findUnique({
       where: { id: data.ticketId },
-      include: {
-        parts: {
-          include: {
-            part: true,
-          },
-        },
-      },
     });
 
     if (!ticket) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Create return with items
+    // Check if ticket is already returned
+    if (ticket.status === 'RETURNED') {
+      return NextResponse.json(
+        { error: 'Ticket is already returned' },
+        { status: 400 }
+      );
+    }
+
+    // Validate refund amount doesn't exceed final price
+    const maxRefund = ticket.finalPrice || ticket.estimatedPrice;
+    if (data.refundAmount > maxRefund) {
+      return NextResponse.json(
+        { error: `Refund amount cannot exceed ticket price (${maxRefund})` },
+        { status: 400 }
+      );
+    }
+
+    // Create return and automatically mark ticket as RETURNED
     const returnRecord = await prisma.return.create({
       data: {
         ticketId: data.ticketId,
         reason: data.reason,
+        refundAmount: data.refundAmount,
         status: 'PENDING',
-        items: {
-          create: data.items.map((item) => ({
-            partId: item.partId,
-            quantity: item.quantity,
-            reason: item.reason,
-            condition: item.condition || 'GOOD',
-          })),
-        },
       },
-      include: {
-        items: {
-          include: {
-            part: true,
+    });
+
+    // Update ticket status to RETURNED
+    await prisma.ticket.update({
+      where: { id: data.ticketId },
+      data: {
+        status: 'RETURNED',
+        statusHistory: {
+          create: {
+            status: 'RETURNED',
+            notes: `Ticket returned. Refund amount: ${data.refundAmount}`,
           },
         },
       },
     });
 
-    return NextResponse.json(returnRecord, { status: 201 });
+    const returnWithTicket = await prisma.return.findUnique({
+      where: { id: returnRecord.id },
+      include: {
+        ticket: {
+          select: {
+            ticketNumber: true,
+            customer: {
+              select: {
+                name: true,
+                phone: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(returnWithTicket, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -106,13 +126,9 @@ export async function GET(request: NextRequest) {
             customer: {
               select: {
                 name: true,
+                phone: true,
               },
             },
-          },
-        },
-        items: {
-          include: {
-            part: true,
           },
         },
       },

@@ -40,12 +40,6 @@ const navigationKeys = [
     iconFilled: 'sync_alt'
   },
   { 
-    key: 'inventory', 
-    href: '/inventory', 
-    icon: 'inventory_2',
-    iconFilled: 'inventory_2'
-  },
-  { 
     key: 'customers', 
     href: '/customers', 
     icon: 'group',

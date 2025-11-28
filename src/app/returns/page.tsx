@@ -27,41 +27,21 @@ export default async function ReturnsPage() {
               phone: true,
             },
           },
-          parts: {
-            include: {
-              part: {
-                select: {
-                  id: true,
-                  name: true,
-                  sku: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      items: {
-        include: {
-          part: {
-            select: {
-              name: true,
-              sku: true,
-              unitPrice: true,
-            },
-          },
         },
       },
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  // Fetch completed and paid tickets for creating new returns
+  // Fetch tickets that are not already returned for creating new returns
+  // Allow REPAIRED or COMPLETED tickets
   const eligibleTickets = await prisma.ticket.findMany({
     where: {
-      status: 'COMPLETED',
-      paid: true,
-      parts: {
-        some: {},
+      status: {
+        in: ['REPAIRED', 'COMPLETED'],
+      },
+      returns: {
+        none: {},
       },
     },
     include: {
@@ -71,20 +51,8 @@ export default async function ReturnsPage() {
           phone: true,
         },
       },
-      parts: {
-        include: {
-          part: {
-            select: {
-              id: true,
-              name: true,
-              sku: true,
-              unitPrice: true,
-            },
-          },
-        },
-      },
     },
-    orderBy: { completedAt: 'desc' },
+    orderBy: { updatedAt: 'desc' },
     take: 50, // Limit to recent 50 tickets
   });
 

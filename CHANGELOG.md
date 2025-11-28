@@ -19,17 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.0] - 2024-12-XX
 
 ### Added
-- Damaged parts return handling with condition tracking (GOOD/DAMAGED)
-- Loss calculation for damaged parts on return
-- Condition selection in return creation modals
-- Loss amount display in returns table
-- DAMAGE_LOSS inventory transaction type for tracking damaged parts
-- Loss calculator utility for calculating financial losses from damaged parts
+- Simplified returns system with refund amount tracking
+- Automatic ticket status update to RETURNED when return is created
+- Status editing disabled for returned tickets
 
 ### Changed
-- Return approval logic now only restores inventory for parts in GOOD condition
-- Damaged parts create loss transactions instead of restoring inventory
-- Returns UI now displays condition status and loss amounts
+- Returns now track ticket-level refund amounts instead of individual items
+- Return creation automatically marks ticket as RETURNED
+- Returns UI simplified to show refund amount instead of items/condition
 
 ### Fixed
 - Button variant prop in returns client component

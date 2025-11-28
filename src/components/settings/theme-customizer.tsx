@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useTheme } from '@/components/theme-provider';
+import { useLanguage } from '@/contexts/language-context';
 import { 
   PRESET_SEED_COLORS, 
   generateDynamicTheme,
@@ -23,6 +24,7 @@ import { cn } from '@/lib/utils';
 
 export function ThemeCustomizer() {
   const { theme, setTheme, isDynamic, setIsDynamic, seedColor, setSeedColor } = useTheme();
+  const { t } = useLanguage();
   const [customColor, setCustomColor] = useState(seedColor || PRESET_SEED_COLORS.blue);
   const [showPalette, setShowPalette] = useState(false);
   const [palette, setPalette] = useState<{ tone: number; hex: string }[]>([]);
@@ -55,7 +57,7 @@ export function ThemeCustomizer() {
 
   const handleApplySeedColor = (color: string) => {
     if (!isValidHexColor(color)) {
-      alert('Please enter a valid hex color (e.g., #0ea5e9)');
+      alert(t('validHexColorRequired'));
       return;
     }
     
@@ -73,9 +75,9 @@ export function ThemeCustomizer() {
       {/* Theme Mode Selector */}
       <Card>
         <CardHeader>
-          <CardTitle>Theme Mode</CardTitle>
+          <CardTitle>{t('themeMode')}</CardTitle>
           <CardDescription>
-            Choose between light, dark, or automatic theme based on system preferences
+            {t('chooseThemeMode')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -86,7 +88,7 @@ export function ThemeCustomizer() {
               icon={<span className="material-symbols-outlined">light_mode</span>}
               iconPosition="start"
             >
-              Light
+              {t('light')}
             </Button>
             <Button
               variant={theme === 'dark' ? 'filled' : 'outlined'}
@@ -94,7 +96,7 @@ export function ThemeCustomizer() {
               icon={<span className="material-symbols-outlined">dark_mode</span>}
               iconPosition="start"
             >
-              Dark
+              {t('dark')}
             </Button>
             <Button
               variant={theme === 'system' ? 'filled' : 'outlined'}
@@ -102,7 +104,7 @@ export function ThemeCustomizer() {
               icon={<span className="material-symbols-outlined">brightness_auto</span>}
               iconPosition="start"
             >
-              System
+              {t('system')}
             </Button>
           </div>
         </CardContent>
@@ -113,10 +115,10 @@ export function ThemeCustomizer() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <span className="material-symbols-outlined">palette</span>
-            Material You Dynamic Color
+            {t('materialYouDynamicColor')}
           </CardTitle>
           <CardDescription>
-            Generate dynamic color schemes based on a seed color
+            {t('generateDynamicColorSchemes')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -138,7 +140,7 @@ export function ThemeCustomizer() {
               />
             </button>
             <span className="text-body-large text-on-surface">
-              {isDynamic ? 'Enabled' : 'Disabled'}
+              {isDynamic ? t('enabled') : t('disabled')}
             </span>
           </div>
 
@@ -147,7 +149,7 @@ export function ThemeCustomizer() {
               {/* Preset Colors */}
               <div className="space-y-2">
                 <label className="text-title-small text-on-surface block">
-                  Preset Colors
+                  {t('presetColors')}
                 </label>
                 <div className="grid grid-cols-7 gap-2">
                   {Object.entries(PRESET_SEED_COLORS).map(([name, color]) => (
@@ -169,7 +171,7 @@ export function ThemeCustomizer() {
               {/* Custom Color Input */}
               <div className="space-y-2">
                 <label htmlFor="custom-color" className="text-title-small text-on-surface block">
-                  Custom Color
+                  {t('customColor')}
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1 flex gap-2">
@@ -193,7 +195,7 @@ export function ThemeCustomizer() {
                     onClick={() => handleApplySeedColor(customColor)}
                     disabled={!isValidHexColor(customColor)}
                   >
-                    Apply
+                    {t('apply')}
                   </Button>
                 </div>
               </div>
@@ -207,7 +209,7 @@ export function ThemeCustomizer() {
                   <span className="material-symbols-outlined">
                     {showPalette ? 'expand_less' : 'expand_more'}
                   </span>
-                  Tonal Palette Preview
+                  {t('tonalPalettePreview')}
                 </button>
                 
                 {showPalette && palette.length > 0 && (
@@ -241,11 +243,10 @@ export function ThemeCustomizer() {
             </span>
             <div className="space-y-1">
               <p className="text-body-medium text-on-surface">
-                <strong>Material You</strong> dynamically generates color schemes based on a seed color, 
-                creating harmonious palettes that adapt to light and dark modes.
+                {t('materialYouInfo')}
               </p>
               <p className="text-body-small text-on-surface-variant">
-                Disable dynamic colors to use the default Material Design 3 blue theme.
+                {t('disableDynamicColors')}
               </p>
             </div>
           </div>

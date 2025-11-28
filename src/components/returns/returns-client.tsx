@@ -46,7 +46,7 @@ export function ReturnsClient({ returns, eligibleTickets }: ReturnsClientProps) 
                   <div className="flex-1">
                     <div className="font-medium">{ticket.ticketNumber}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {ticket.customer.name} • {ticket.parts.length} part(s)
+                      {ticket.customer.name} • ${(ticket.finalPrice || ticket.estimatedPrice || 0).toFixed(2)}
                     </div>
                   </div>
                   <Button

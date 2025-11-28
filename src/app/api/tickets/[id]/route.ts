@@ -16,13 +16,6 @@ const updateTicketSchema = z.object({
     partId: z.string(),
     quantity: z.number().int().min(1),
   })).optional(),
-  returnItems: z.array(z.object({
-    partId: z.string(),
-    quantity: z.number().int().min(1),
-    reason: z.string().optional(),
-    condition: z.enum(['GOOD', 'DAMAGED']).optional().default('GOOD'),
-  })).optional(),
-  returnReason: z.string().optional(),
 });
 
 export async function GET(
@@ -86,6 +79,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
+    // Prevent status changes for RETURNED tickets
+    if (ticket.status === 'RETURNED' && data.status && data.status !== 'RETURNED') {
+      return NextResponse.json(
+        { error: 'Cannot change status of a returned ticket' },
+        { status: 400 }
+      );
+    }
+
     const updateData: any = { ...data };
     
     // Remove priceAdjustmentReason from updateData as it's not a field in the Ticket model
@@ -105,38 +106,19 @@ export async function PATCH(
         updateData.completedAt = new Date();
       }
       
-      // Handle RETURNED status - create a Return record if items are provided
-      if (data.status === 'RETURNED') {
-        // Check if return already exists for this ticket
-        const existingReturn = await prisma.return.findFirst({
-          where: { ticketId: id },
-        });
-        
-        // Only create return if it doesn't exist and return items are provided
-        if (!existingReturn && data.returnItems && data.returnItems.length > 0) {
-          await prisma.return.create({
-            data: {
-              ticketId: id,
-              reason: data.returnReason || 'Ticket returned',
-              status: 'PENDING',
-              items: {
-                create: data.returnItems.map((item) => ({
-                  partId: item.partId,
-                  quantity: item.quantity,
-                  reason: item.reason,
-                  condition: item.condition || 'GOOD',
-                })),
-              },
-            },
-          });
-        }
-      }
-      
       // Handle REPAIRED status - add parts if provided
       if (data.status === 'REPAIRED' && data.parts && data.parts.length > 0) {
         // Add parts to ticket
         for (const partData of data.parts) {
-          // Check if part exists and has enough quantity
+          // Validate partId is not empty
+          if (!partData.partId || partData.partId.trim() === '') {
+            return NextResponse.json(
+              { error: 'Part ID is required for all parts' },
+              { status: 400 }
+            );
+          }
+          
+          // Check if part exists
           const part = await prisma.part.findUnique({
             where: { id: partData.partId },
           });
@@ -145,13 +127,6 @@ export async function PATCH(
             return NextResponse.json(
               { error: `Part ${partData.partId} not found` },
               { status: 404 }
-            );
-          }
-          
-          if (part.quantity < partData.quantity) {
-            return NextResponse.json(
-              { error: `Insufficient quantity for part ${part.name}. Available: ${part.quantity}, Requested: ${partData.quantity}` },
-              { status: 400 }
             );
           }
           
@@ -173,47 +148,6 @@ export async function PATCH(
               },
             });
           }
-          
-          // Update inventory
-          await prisma.part.update({
-            where: { id: partData.partId },
-            data: {
-              quantity: {
-                decrement: partData.quantity,
-              },
-            },
-          });
-          
-          // Create inventory transaction
-          await prisma.inventoryTransaction.create({
-            data: {
-              partId: partData.partId,
-              type: 'OUT',
-              quantity: partData.quantity,
-              reason: `Used in ticket ${ticket.ticketNumber}`,
-              ticketId: id,
-              createdBy: session.user.id,
-            },
-          });
-        }
-        
-        // Handle return items if provided (create Return records)
-        if (data.returnItems && data.returnItems.length > 0) {
-          await prisma.return.create({
-            data: {
-              ticketId: id,
-              reason: data.returnReason || 'Parts returned from repair',
-              status: 'PENDING',
-              items: {
-                create: data.returnItems.map((item) => ({
-                  partId: item.partId,
-                  quantity: item.quantity,
-                  reason: item.reason,
-                  condition: item.condition || 'GOOD',
-                })),
-              },
-            },
-          });
         }
       }
 
@@ -296,8 +230,9 @@ export async function PATCH(
       );
     }
     console.error('Error updating ticket:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to update ticket' },
+      { error: 'Failed to update ticket', details: errorMessage },
       { status: 500 }
     );
   }

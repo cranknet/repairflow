@@ -28,19 +28,11 @@ interface PartItem {
   quantity: number;
 }
 
-interface ReturnItem {
-  partId: string;
-  quantity: number;
-  reason?: string;
-}
-
 interface RepairedStatusModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: {
     parts: PartItem[];
-    returnItems: ReturnItem[];
-    returnReason?: string;
   }) => Promise<void>;
   ticketId: string;
   existingParts?: any[];
@@ -57,8 +49,6 @@ export function RepairedStatusModal({
   const [parts, setParts] = useState<Part[]>([]);
   const [requiresPart, setRequiresPart] = useState<boolean | null>(null);
   const [selectedParts, setSelectedParts] = useState<PartItem[]>([]);
-  const [returnItems, setReturnItems] = useState<ReturnItem[]>([]);
-  const [returnReason, setReturnReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingParts, setIsLoadingParts] = useState(false);
 
@@ -79,18 +69,17 @@ export function RepairedStatusModal({
       // Reset state when modal closes
       setRequiresPart(null);
       setSelectedParts([]);
-      setReturnItems([]);
-      setReturnReason('');
     }
   }, [isOpen, existingParts]);
 
   const fetchParts = async () => {
     setIsLoadingParts(true);
     try {
-      const response = await fetch('/api/inventory');
+      // Fetch parts directly from database via a simple API
+      const response = await fetch('/api/parts');
       if (response.ok) {
         const data = await response.json();
-        setParts(data.filter((p: Part) => p.quantity > 0)); // Only show parts with available stock
+        setParts(data);
       }
     } catch (error) {
       console.error('Error fetching parts:', error);
@@ -116,33 +105,6 @@ export function RepairedStatusModal({
     setSelectedParts(newParts);
   };
 
-  const handleAddReturnItem = () => {
-    if (selectedParts.length === 0) {
-      toast({
-        title: 'Error',
-        description: 'Please add parts first before creating returns',
-      });
-      return;
-    }
-    setReturnItems([...returnItems, { partId: selectedParts[0].partId, quantity: 1 }]);
-  };
-
-  const handleRemoveReturnItem = (index: number) => {
-    setReturnItems(returnItems.filter((_, i) => i !== index));
-  };
-
-  const handleReturnItemChange = (
-    index: number,
-    field: 'partId' | 'quantity' | 'reason',
-    value: string | number
-  ) => {
-    const newItems = [...returnItems];
-    newItems[index] = {
-      ...newItems[index],
-      [field]: field === 'quantity' ? Number(value) : value,
-    };
-    setReturnItems(newItems);
-  };
 
   const handleConfirm = async () => {
     if (requiresPart === null) {
@@ -156,7 +118,7 @@ export function RepairedStatusModal({
     if (requiresPart) {
       // Validate parts
       for (const part of selectedParts) {
-        if (!part.partId) {
+        if (!part.partId || part.partId.trim() === '') {
           toast({
             title: 'Error',
             description: 'Please select a part for all entries',
@@ -171,15 +133,6 @@ export function RepairedStatusModal({
           return;
         }
 
-        // Check if part has enough quantity
-        const partData = parts.find((p) => p.id === part.partId);
-        if (partData && part.quantity > partData.quantity) {
-          toast({
-            title: 'Error',
-            description: `Insufficient quantity for ${partData.name}. Available: ${partData.quantity}`,
-          });
-          return;
-        }
       }
 
       if (selectedParts.length === 0) {
@@ -189,42 +142,12 @@ export function RepairedStatusModal({
         });
         return;
       }
-
-      // Validate return items if any
-      for (const item of returnItems) {
-        if (!item.partId) {
-          toast({
-            title: 'Error',
-            description: 'Please select a part for all return items',
-          });
-          return;
-        }
-        if (item.quantity < 1) {
-          toast({
-            title: 'Error',
-            description: 'Return quantity must be at least 1',
-          });
-          return;
-        }
-
-        // Check if return quantity doesn't exceed used quantity
-        const usedPart = selectedParts.find((p) => p.partId === item.partId);
-        if (!usedPart || item.quantity > usedPart.quantity) {
-          toast({
-            title: 'Error',
-            description: 'Return quantity cannot exceed used quantity',
-          });
-          return;
-        }
-      }
     }
 
     setIsLoading(true);
     try {
       await onConfirm({
         parts: requiresPart ? selectedParts : [],
-        returnItems: returnItems.length > 0 ? returnItems : [],
-        returnReason: returnItems.length > 0 ? returnReason : undefined,
       });
       onClose();
     } catch (error: any) {
@@ -268,7 +191,6 @@ export function RepairedStatusModal({
                 onClick={() => {
                   setRequiresPart(false);
                   setSelectedParts([]);
-                  setReturnItems([]);
                 }}
                 size="sm"
               >
@@ -307,25 +229,24 @@ export function RepairedStatusModal({
                               <SelectContent>
                                 {parts.map((p) => (
                                   <SelectItem key={p.id} value={p.id}>
-                                    {p.name} (Stock: {p.quantity}) - ${p.unitPrice.toFixed(2)}
+                                    {p.name} {p.unitPrice ? `- $${p.unitPrice.toFixed(2)}` : ''}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
                           <div>
-                            <Input
-                              id={`quantity-${index}`}
-                              label="Quantity"
-                              type="number"
-                              min="1"
-                              max={partData?.quantity || 1}
-                              value={part.quantity.toString()}
-                              onChange={(e) => handlePartChange(index, 'quantity', e.target.value)}
-                            />
+                              <Input
+                                id={`quantity-${index}`}
+                                label="Quantity"
+                                type="number"
+                                min="1"
+                                value={part.quantity.toString()}
+                                onChange={(e) => handlePartChange(index, 'quantity', e.target.value)}
+                              />
                           </div>
                         </div>
-                        {partData && (
+                        {partData && partData.unitPrice && (
                           <div className="text-sm text-gray-600">
                             Total: ${(partData.unitPrice * part.quantity).toFixed(2)}
                           </div>
@@ -342,94 +263,6 @@ export function RepairedStatusModal({
                       </div>
                     );
                   })}
-                </div>
-              )}
-
-              {/* Return Items Section */}
-              {selectedParts.length > 0 && (
-                <div className="space-y-4 border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Parts to Return (Optional)</label>
-                    <Button type="button" onClick={handleAddReturnItem} size="sm" variant="outlined">
-                      Add Return Item
-                    </Button>
-                  </div>
-
-                  {returnItems.length > 0 && (
-                    <div className="space-y-3">
-                      {returnItems.map((item, index) => {
-                        const partData = parts.find((p) => p.id === item.partId);
-                        const usedPart = selectedParts.find((p) => p.partId === item.partId);
-                        const maxReturn = usedPart?.quantity || 0;
-                        return (
-                          <div key={index} className="border rounded-lg p-4 space-y-3">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Select
-                                  value={item.partId}
-                                  onValueChange={(value) => handleReturnItemChange(index, 'partId', value)}
-                                >
-                                  <SelectTrigger label="Part" id={`return-part-${index}`}>
-                                    <SelectValue placeholder="Select a part" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {selectedParts.map((sp) => {
-                                      const spData = parts.find((p) => p.id === sp.partId);
-                                      return (
-                                        <SelectItem key={sp.partId} value={sp.partId}>
-                                          {spData?.name || 'Unknown'} (Used: {sp.quantity})
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Input
-                                  id={`return-quantity-${index}`}
-                                  label="Return Quantity"
-                                  type="number"
-                                  min="1"
-                                  max={maxReturn}
-                                  value={item.quantity.toString()}
-                                  onChange={(e) => handleReturnItemChange(index, 'quantity', e.target.value)}
-                                  helperText={`Max: ${maxReturn}`}
-                                />
-                              </div>
-                            </div>
-                            <Textarea
-                              id={`return-reason-${index}`}
-                              label="Return Reason (Optional)"
-                              rows={2}
-                              value={item.reason || ''}
-                              onChange={(e) => handleReturnItemChange(index, 'reason', e.target.value)}
-                              placeholder="Reason for returning this part..."
-                            />
-                            <Button
-                              type="button"
-                              onClick={() => handleRemoveReturnItem(index)}
-                              size="sm"
-                              variant="outlined"
-                              className="w-full"
-                            >
-                              Remove Return Item
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {returnItems.length > 0 && (
-                    <Textarea
-                      id="return-reason-general"
-                      label="General Return Reason"
-                      rows={2}
-                      value={returnReason}
-                      onChange={(e) => setReturnReason(e.target.value)}
-                      placeholder="General reason for returns..."
-                    />
-                  )}
                 </div>
               )}
             </div>

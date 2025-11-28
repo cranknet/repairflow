@@ -63,9 +63,6 @@ export function UserProfileDropdown() {
           <p className="text-sm font-semibold text-gray-900">
             {session.user.name || session.user.username}
           </p>
-          <p className="text-xs text-gray-600">
-            {session.user.role}
-          </p>
         </div>
         <ChevronDownIcon
           className={`h-4 w-4 text-gray-600 transition-transform ${
@@ -76,25 +73,6 @@ export function UserProfileDropdown() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg border border-gray-200 z-50">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                {userInitials}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {session.user.name || session.user.username}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {session.user.email || session.user.username}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {session.user.role}
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div className="py-2">
             <button
               onClick={handleProfileSettings}

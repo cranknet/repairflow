@@ -25,7 +25,6 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 ### Core Functionality
 - **Ticket Management**: Complete lifecycle management from receipt to completion
 - **Customer Management**: Track customer information, history, and contact details
-- **Inventory Management**: Manage parts, track stock levels, and monitor reorder points
 - **Multi-language Support**: English, French, and Arabic
 - **Print System**: Generate labels (40x20mm) and invoices (80x80mm) with QR codes
 - **SMS Notifications**: Customizable SMS templates in multiple languages
@@ -35,9 +34,8 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **User Management**: Role-based access control (Admin, Staff)
 - **Status Tracking**: Complete status history with notes
 - **Price Adjustments**: Track price changes with audit trail
-- **Parts Integration**: Link parts to tickets and track usage
-- **Returns Management**: Handle customer returns with condition tracking (GOOD/DAMAGED)
-- **Loss Tracking**: Automatic calculation and tracking of financial losses from damaged parts
+- **Parts Integration**: Link parts to tickets (without inventory tracking)
+- **Returns Management**: Handle customer returns with refund amount tracking (partial or full refund)
 - **Payment Tracking**: Mark tickets as paid/unpaid
 - **Device Tracking**: Track device brands, models, and common issues
 - **Image Upload**: Capture device condition photos

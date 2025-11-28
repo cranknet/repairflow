@@ -41,7 +41,7 @@ export function SettingsClient({
 
   const TABS = [
     { id: 'general', label: t('generalSettings') },
-    { id: 'appearance', label: 'Appearance' },
+    { id: 'appearance', label: t('appearance') },
     { id: 'branding', label: t('branding') },
     { id: 'social', label: t('socialMedia') },
     { id: 'sms', label: t('smsTemplates') },
@@ -92,8 +92,8 @@ export function SettingsClient({
       if (!response.ok) throw new Error('Failed to save settings');
 
       toast({
-        title: 'Success',
-        description: 'Settings saved successfully',
+        title: t('success'),
+        description: t('settingsSavedSuccessfully'),
       });
       // Refresh settings context if company name or logo changed
       if (settings.company_name || settings.company_logo) {
@@ -103,8 +103,8 @@ export function SettingsClient({
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to save settings',
+        title: t('error'),
+        description: t('failedToSaveSettings'),
       });
     } finally {
       setIsSaving(false);
@@ -141,8 +141,8 @@ export function SettingsClient({
       });
 
       toast({
-        title: 'Success',
-        description: 'Logo uploaded successfully',
+        title: t('success'),
+        description: t('logoUploadedSuccessfully'),
       });
       // Refresh settings context to update sidebar immediately
       await refreshSettings();
@@ -150,8 +150,8 @@ export function SettingsClient({
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to upload logo',
+        title: t('error'),
+        description: t('failedToUploadLogo'),
       });
     } finally {
       setIsUploadingLogo(false);
@@ -190,15 +190,15 @@ export function SettingsClient({
       });
 
       toast({
-        title: 'Success',
-        description: 'Background image uploaded successfully',
+        title: t('success'),
+        description: t('backgroundImageUploadedSuccessfully'),
       });
       // Refresh in background to sync
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to upload background image',
+        title: t('error'),
+        description: t('failedToUploadBackgroundImage'),
       });
     } finally {
       setIsUploadingBackground(false);
@@ -225,15 +225,15 @@ export function SettingsClient({
       if (!response.ok) throw new Error('Failed to save settings');
 
       toast({
-        title: 'Success',
-        description: 'Background image URL saved',
+        title: t('success'),
+        description: t('backgroundImageUrlSaved'),
       });
       // Refresh in background to sync
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to save background image URL',
+        title: t('error'),
+        description: t('failedToSaveBackgroundImageUrl'),
       });
     } finally {
       setIsSaving(false);
@@ -276,15 +276,15 @@ export function SettingsClient({
         role: 'STAFF',
       });
       toast({
-        title: 'Success',
-        description: 'User created successfully',
+        title: t('success'),
+        description: t('userCreatedSuccessfully'),
       });
       // Refresh in background to sync
       router.refresh();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create user',
+        title: t('error'),
+        description: error.message || t('failedToCreateUser'),
       });
     }
   };
@@ -339,15 +339,15 @@ export function SettingsClient({
         role: 'STAFF',
       });
       toast({
-        title: 'Success',
-        description: 'User updated successfully',
+        title: t('success'),
+        description: t('userUpdatedSuccessfully'),
       });
       // Refresh in background to sync
       router.refresh();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to update user',
+        title: t('error'),
+        description: error.message || t('failedToUpdateUser'),
       });
     }
   };
@@ -365,7 +365,7 @@ export function SettingsClient({
     } catch (error) {
       toast({
         title: t('error'),
-        description: 'Failed to fetch login logs',
+        description: t('failedToFetchLoginLogs'),
       });
     } finally {
       setIsLoadingLogs(false);
@@ -394,15 +394,15 @@ export function SettingsClient({
       // Update users list immediately
       setUsers(users.filter((u) => u.id !== userToDelete));
       toast({
-        title: 'Success',
-        description: 'User deleted successfully',
+        title: t('success'),
+        description: t('userDeletedSuccessfully'),
       });
       // Refresh in background to sync
       router.refresh();
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete user',
+        title: t('error'),
+        description: error.message || t('failedToDeleteUser'),
       });
     } finally {
       setIsDeleting(null);
@@ -685,7 +685,7 @@ export function SettingsClient({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="facebook_url">Facebook URL</Label>
+                <Label htmlFor="facebook_url">{t('facebookUrl')}</Label>
                 <Input
                   id="facebook_url"
                   type="url"
@@ -697,7 +697,7 @@ export function SettingsClient({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="youtube_url">YouTube URL</Label>
+                <Label htmlFor="youtube_url">{t('youtubeUrl')}</Label>
                 <Input
                   id="youtube_url"
                   type="url"
@@ -709,7 +709,7 @@ export function SettingsClient({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="instagram_url">Instagram URL</Label>
+                <Label htmlFor="instagram_url">{t('instagramUrl')}</Label>
                 <Input
                   id="instagram_url"
                   type="url"
@@ -836,7 +836,7 @@ export function SettingsClient({
                         type="password"
                         value={newUser.password}
                         onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        placeholder="Minimum 6 characters"
+                        placeholder={t('minimumCharacters')}
                       />
                     </div>
                     <div className="space-y-2">
@@ -858,20 +858,20 @@ export function SettingsClient({
                         }
                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       >
-                        <option value="STAFF">Staff</option>
-                        <option value="ADMIN">Admin</option>
+                        <option value="STAFF">{t('staff')}</option>
+                        <option value="ADMIN">{t('admin')}</option>
                       </select>
                     </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outlined" onClick={() => setShowNewUser(false)}>
-                      Cancel
+                      {t('cancel')}
                     </Button>
                     <Button
                       onClick={handleCreateUser}
                       disabled={!newUser.username || !newUser.password}
                     >
-                      Create User
+                      {t('createUser')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -881,14 +881,14 @@ export function SettingsClient({
               <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Edit User</DialogTitle>
+                    <DialogTitle>{t('editUser')}</DialogTitle>
                     <DialogDescription>
-                      Update user information. Leave password blank to keep the current password.
+                      {t('updateUserInformation')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="edit_username">Username *</Label>
+                      <Label htmlFor="edit_username">{t('username')} *</Label>
                       <Input
                         id="edit_username"
                         value={editUserData.username}
@@ -896,7 +896,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_email">Email</Label>
+                      <Label htmlFor="edit_email">{t('customerEmail')}</Label>
                       <Input
                         id="edit_email"
                         type="email"
@@ -905,17 +905,17 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_password">New Password (leave blank to keep current)</Label>
+                      <Label htmlFor="edit_password">{t('newPassword')}</Label>
                       <Input
                         id="edit_password"
                         type="password"
                         value={editUserData.password}
                         onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })}
-                        placeholder="Enter new password"
+                        placeholder={t('enterNewPassword')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_name">Name</Label>
+                      <Label htmlFor="edit_name">{t('customerName')}</Label>
                       <Input
                         id="edit_name"
                         value={editUserData.name}
@@ -923,7 +923,7 @@ export function SettingsClient({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_role">Role *</Label>
+                      <Label htmlFor="edit_role">{t('role')} *</Label>
                       <select
                         id="edit_role"
                         value={editUserData.role}
@@ -932,20 +932,20 @@ export function SettingsClient({
                         }
                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       >
-                        <option value="STAFF">Staff</option>
-                        <option value="ADMIN">Admin</option>
+                        <option value="STAFF">{t('staff')}</option>
+                        <option value="ADMIN">{t('admin')}</option>
                       </select>
                     </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outlined" onClick={() => setEditingUser(null)}>
-                      Cancel
+                      {t('cancel')}
                     </Button>
                     <Button
                       onClick={handleUpdateUser}
                       disabled={!editUserData.username}
                     >
-                      Update User
+                      {t('updateUser')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -958,10 +958,10 @@ export function SettingsClient({
         <ConfirmDialog
           open={deleteUserConfirmOpen}
           onOpenChange={setDeleteUserConfirmOpen}
-          title="Delete User"
-          description="Are you sure you want to delete this user? This action cannot be undone."
-          confirmText="Delete"
-          cancelText="Cancel"
+          title={t('deleteUser')}
+          description={t('deleteUserConfirmation')}
+          confirmText={t('delete')}
+          cancelText={t('cancel')}
           variant="destructive"
           onConfirm={confirmDeleteUser}
         />
@@ -974,22 +974,22 @@ export function SettingsClient({
                 {t('loginLogs')} - {selectedUserForLogs?.name || selectedUserForLogs?.username}
               </DialogTitle>
               <DialogDescription>
-                View login history for this user
+                {t('viewLoginHistory')}
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4">
               {isLoadingLogs ? (
                 <div className="text-center py-8 text-gray-500">{t('loading')}</div>
               ) : loginLogs.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">No login logs found</div>
+                <div className="text-center py-8 text-gray-500">{t('noLoginLogsFound')}</div>
               ) : (
                 <div className="space-y-2">
                   <div className="grid grid-cols-5 gap-4 pb-2 border-b font-semibold text-sm text-gray-700 dark:text-gray-300">
-                    <div>Date & Time</div>
-                    <div>Status</div>
-                    <div>IP Address</div>
-                    <div>User Agent</div>
-                    <div>Success</div>
+                    <div>{t('dateAndTime')}</div>
+                    <div>{t('status')}</div>
+                    <div>{t('ipAddress')}</div>
+                    <div>{t('userAgent')}</div>
+                    <div>{t('success')}</div>
                   </div>
                   {loginLogs.map((log) => (
                     <div
@@ -1007,7 +1007,7 @@ export function SettingsClient({
                               : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                           }`}
                         >
-                          {log.success ? 'Success' : 'Failed'}
+                          {log.success ? t('success') : t('failed')}
                         </span>
                       </div>
                       <div className="text-gray-600 dark:text-gray-400 font-mono text-xs">
