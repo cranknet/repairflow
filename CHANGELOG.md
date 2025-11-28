@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.5.0] - 2025-11-28
+
+### Added
+- **Dynamic Branding**: Added support for custom logo, favicon, and login background with default fallbacks.
+- **Project Index**: Added `PROJECT_INDEX.md` for better codebase overview.
+- **Ticket Management**: Enhanced filtering and status updates.
+
+### Changed
+- **UI Refactor**: Updated Badge, ConfirmDialog, SearchBars, and Notifications components for better consistency.
+- **Settings**: Updated settings API and context to handle dynamic assets.
+
+### Fixed
+- **Customer Actions**: Fixed delete and edit actions in customer table.
+
 ## [1.4.0] - 2024-12-XX
 
 ### Added
