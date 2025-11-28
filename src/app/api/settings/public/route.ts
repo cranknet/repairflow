@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const settings = await prisma.settings.findMany({
       where: {
         key: {
-          in: ['company_name', 'company_logo', 'company_phone', 'login_background_image', 'login_background_image_url', 'language', 'currency', 'facebook_url', 'youtube_url', 'instagram_url'],
+          in: ['company_name', 'company_logo', 'company_favicon', 'company_phone', 'login_background_image', 'login_background_image_url', 'language', 'currency', 'facebook_url', 'youtube_url', 'instagram_url'],
         },
       },
     });

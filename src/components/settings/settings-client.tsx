@@ -52,9 +52,11 @@ export function SettingsClient({
   const [isSaving, setIsSaving] = useState(false);
   const [showNewUser, setShowNewUser] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(settings.login_background_image_url || '');
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
   const [newUser, setNewUser] = useState({
     username: '',
@@ -132,7 +134,7 @@ export function SettingsClient({
       // Update settings immediately
       const updatedSettings = { ...settings, company_logo: data.url };
       setSettings(updatedSettings);
-      
+
       // Save to database in background
       await fetch('/api/settings', {
         method: 'PUT',
@@ -159,6 +161,54 @@ export function SettingsClient({
     }
   };
 
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingFavicon(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'favicon');
+
+      const response = await fetch('/api/settings/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload favicon');
+
+      const data = await response.json();
+      // Update settings immediately
+      const updatedSettings = { ...settings, company_favicon: data.url };
+      setSettings(updatedSettings);
+
+      // Save to database in background
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
+      });
+
+      toast({
+        title: t('success'),
+        description: t('faviconUploadedSuccessfully'),
+      });
+      // Refresh settings context
+      await refreshSettings();
+      // Refresh in background to sync
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('failedToUploadFavicon'),
+      });
+    } finally {
+      setIsUploadingFavicon(false);
+      if (faviconInputRef.current) faviconInputRef.current.value = '';
+    }
+  };
+
   const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -181,7 +231,7 @@ export function SettingsClient({
       const updatedSettings = { ...settings, login_background_image: data.url };
       setSettings(updatedSettings);
       setBackgroundImageUrl(data.url);
-      
+
       // Save to database in background
       await fetch('/api/settings', {
         method: 'PUT',
@@ -214,7 +264,7 @@ export function SettingsClient({
       // Update settings immediately
       const updatedSettings = { ...settings, login_background_image_url: backgroundImageUrl };
       setSettings(updatedSettings);
-      
+
       // Save to database
       const response = await fetch('/api/settings', {
         method: 'PUT',
@@ -242,7 +292,32 @@ export function SettingsClient({
 
   const handleRemoveLogo = async () => {
     setSettings({ ...settings, company_logo: '' });
-    await handleSaveSettings();
+
+    // Save to database
+    await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...settings, company_logo: '' }),
+    });
+
+    // Refresh context immediately
+    await refreshSettings();
+    router.refresh();
+  };
+
+  const handleRemoveFavicon = async () => {
+    setSettings({ ...settings, company_favicon: '' });
+
+    // Save to database
+    await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...settings, company_favicon: '' }),
+    });
+
+    // Refresh context immediately
+    await refreshSettings();
+    router.refresh();
   };
 
   const handleRemoveBackground = async () => {
@@ -356,7 +431,7 @@ export function SettingsClient({
     setSelectedUserForLogs(user);
     setShowLoginLogs(true);
     setIsLoadingLogs(true);
-    
+
     try {
       const response = await fetch(`/api/users/${user.id}/login-logs`);
       if (!response.ok) throw new Error('Failed to fetch login logs');
@@ -422,10 +497,9 @@ export function SettingsClient({
               onClick={() => setActiveTab(tab.id)}
               className={`
                 py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ${activeTab === tab.id
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }
               `}
             >
@@ -601,6 +675,54 @@ export function SettingsClient({
 
             <Card>
               <CardHeader>
+                <CardTitle>{t('companyFavicon')}</CardTitle>
+                <CardDescription>{t('uploadYourCompanyFavicon')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  {settings.company_favicon ? (
+                    <div className="relative">
+                      <img
+                        src={settings.company_favicon}
+                        alt="Company Favicon"
+                        className="h-16 w-16 object-contain border border-gray-300 rounded"
+                      />
+                      <button
+                        onClick={handleRemoveFavicon}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-16 w-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                      <PhotoIcon className="h-6 w-6 text-gray-400" />
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      ref={faviconInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFaviconUpload}
+                      className="hidden"
+                      id="favicon-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      onClick={() => faviconInputRef.current?.click()}
+                      disabled={isUploadingFavicon}
+                    >
+                      {isUploadingFavicon ? t('uploading') : settings.company_favicon ? t('changeFavicon') : t('uploadFavicon')}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>{t('loginPageBackground')}</CardTitle>
                 <CardDescription>{t('customizeLoginBackground')}</CardDescription>
               </CardHeader>
@@ -754,11 +876,10 @@ export function SettingsClient({
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <p className="font-semibold text-gray-900">{user.name || user.username}</p>
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'ADMIN' 
-                            ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700' 
-                            : 'bg-gray-100 text-gray-700'
-                        }`}>
+                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${user.role === 'ADMIN'
+                          ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700'
+                          }`}>
                           {user.role}
                         </span>
                       </div>
@@ -1001,11 +1122,10 @@ export function SettingsClient({
                       </div>
                       <div>
                         <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            log.success
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          }`}
+                          className={`px-2 py-1 text-xs rounded-full ${log.success
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            }`}
                         >
                           {log.success ? t('success') : t('failed')}
                         </span>

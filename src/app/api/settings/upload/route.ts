@@ -51,7 +51,17 @@ export async function POST(request: NextRequest) {
     await writeFile(filepath, buffer);
 
     // Save file path to settings
-    const settingKey = type === 'logo' ? 'company_logo' : 'login_background_image';
+    let settingKey = 'login_background_image';
+    let description = 'Login page background image';
+
+    if (type === 'logo') {
+      settingKey = 'company_logo';
+      description = 'Company logo';
+    } else if (type === 'favicon') {
+      settingKey = 'company_favicon';
+      description = 'Company favicon';
+    }
+
     const fileUrl = `/uploads/${filename}`;
 
     await prisma.settings.upsert({
@@ -60,7 +70,7 @@ export async function POST(request: NextRequest) {
       create: {
         key: settingKey,
         value: fileUrl,
-        description: type === 'logo' ? 'Company logo' : 'Login page background image',
+        description: description,
       },
     });
 

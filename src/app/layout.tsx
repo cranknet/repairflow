@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
   adjustFontFallback: true,
@@ -13,6 +13,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "RepairFlow - Repair Shop Management System",
   description: "Complete management system for phone repair shops",
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({

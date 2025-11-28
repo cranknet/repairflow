@@ -21,36 +21,36 @@ import { useSettings } from '@/contexts/settings-context';
 
 // Navigation items with Material Symbols icons
 const navigationKeys = [
-  { 
-    key: 'dashboard', 
-    href: '/dashboard', 
+  {
+    key: 'dashboard',
+    href: '/dashboard',
     icon: 'dashboard',
     iconFilled: 'dashboard'
   },
-  { 
-    key: 'tickets', 
-    href: '/tickets', 
+  {
+    key: 'tickets',
+    href: '/tickets',
     icon: 'confirmation_number',
     iconFilled: 'confirmation_number'
   },
-  { 
-    key: 'returns', 
-    href: '/returns', 
+  {
+    key: 'returns',
+    href: '/returns',
     icon: 'sync_alt',
     iconFilled: 'sync_alt'
   },
-  { 
-    key: 'customers', 
-    href: '/customers', 
+  {
+    key: 'customers',
+    href: '/customers',
     icon: 'group',
     iconFilled: 'group'
   },
-  { 
-    key: 'settings', 
-    href: '/settings', 
+  {
+    key: 'settings',
+    href: '/settings',
     icon: 'settings',
     iconFilled: 'settings',
-    adminOnly: true 
+    adminOnly: true
   },
 ];
 
@@ -98,11 +98,11 @@ export function Sidebar() {
                 className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
               />
             ) : (
-              <div className="h-10 w-10 bg-primary-container rounded-xl flex items-center justify-center shadow-md-level1 flex-shrink-0">
-                <span className="material-symbols-rounded text-2xl text-on-primary-container">
-                  build
-                </span>
-              </div>
+              <img
+                src="/default-logo.png"
+                alt="RepairFlow Logo"
+                className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
+              />
             )}
             <span className="text-title-large text-on-surface truncate">{companyName}</span>
           </Link>
@@ -128,7 +128,7 @@ export function Sidebar() {
         {filteredNavigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const translatedName = t(item.key);
-          
+
           return (
             <Link
               key={item.key}
@@ -148,25 +148,25 @@ export function Sidebar() {
               {isActive && !isCollapsed && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
               )}
-              
+
               {/* Icon */}
-              <span 
+              <span
                 className={cn(
                   'material-symbols-outlined text-2xl flex-shrink-0',
                   isActive && 'material-symbols-rounded font-bold'
                 )}
-                style={{ 
-                  fontVariationSettings: isActive 
+                style={{
+                  fontVariationSettings: isActive
                     ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
                     : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
                 }}
               >
                 {item.icon}
               </span>
-              
+
               {/* Label */}
               {!isCollapsed && <span className="flex-1 truncate">{translatedName}</span>}
-              
+
               {/* State layer for hover/press */}
               <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
             </Link>
@@ -180,7 +180,7 @@ export function Sidebar() {
           <AppVersion />
         </div>
       )}
-      
+
       {/* Collapsed version indicator */}
       {isCollapsed && (
         <div className="px-2 py-3 border-t border-outline-variant flex justify-center">
