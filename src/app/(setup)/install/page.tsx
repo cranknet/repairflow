@@ -95,7 +95,7 @@ export default async function InstallPage() {
         <Card className="border-0 shadow-none">
             <CardHeader>
                 <div className="flex justify-center mb-4">
-                    <Image src="/default-logo.png" alt="RepairFlow Logo" width={64} height={64} />
+                    <Image src="/default-logo.png" alt="RepairFlow Logo" width={128} height={128} unoptimized />
                 </div>
                 <CardTitle>Welcome to RepairFlow</CardTitle>
                 <CardDescription>
