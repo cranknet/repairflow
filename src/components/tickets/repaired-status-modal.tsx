@@ -210,7 +210,7 @@ export function RepairedStatusModal({
               </div>
 
               {selectedParts.length === 0 ? (
-                <p className="text-sm text-gray-500">No parts added. Click "Add Part" to add parts used in the repair.</p>
+                <p className="text-sm text-gray-500">No parts added. Click &quot;Add Part&quot; to add parts used in the repair.</p>
               ) : (
                 <div className="space-y-3">
                   {selectedParts.map((part, index) => {

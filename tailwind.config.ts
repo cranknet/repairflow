@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Override Tailwind's default border color
+      borderColor: {
+        DEFAULT: 'transparent',
+      },
       // Material Design 3 Color Tokens
       colors: {
         // Primary colors

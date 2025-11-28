@@ -16,14 +16,13 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { companyLogo, companyName } = useSettings();
+  const { companyName } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
   const [rememberMe, setRememberMe] = useState(false);
-  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     // Load remembered username from localStorage
@@ -105,18 +104,7 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
 
         <CardHeader className="space-y-6 pb-2 pt-8">
-          <div className="flex flex-col items-center gap-6">
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-              <div className="relative h-24 w-24 md:h-28 md:w-28 flex items-center justify-center">
-                <img
-                  src={logoError ? '/default-logo.png' : (companyLogo || '/default-logo.png')}
-                  alt={companyName || "Company Logo"}
-                  onError={() => setLogoError(true)}
-                  className="max-h-full max-w-full object-contain drop-shadow-2xl transform transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-            </div>
+          <div className="flex flex-col items-center gap-4">
             <div className="text-center space-y-1.5">
               <CardTitle className="text-3xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
                 {companyName || 'REPAIR FLOW'}
@@ -144,7 +132,7 @@ export default function LoginPage() {
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required
                   disabled={isLoading}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-blue-500/50 focus:ring-blue-500/20 h-12 pl-11 transition-all duration-300 rounded-xl group-hover:bg-white/10"
+                  className="w-full bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-blue-500/50 focus:ring-blue-500/20 h-12 pl-11 transition-all duration-300 rounded-xl group-hover:bg-white/10"
                 />
                 <span className="material-symbols-outlined absolute left-3.5 top-3 text-gray-500 group-focus-within:text-blue-400 transition-colors">person</span>
               </div>
@@ -161,7 +149,7 @@ export default function LoginPage() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                   disabled={isLoading}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-blue-500/50 focus:ring-blue-500/20 h-12 pl-11 transition-all duration-300 rounded-xl group-hover:bg-white/10"
+                  className="w-full bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-blue-500/50 focus:ring-blue-500/20 h-12 pl-11 transition-all duration-300 rounded-xl group-hover:bg-white/10"
                 />
                 <span className="material-symbols-outlined absolute left-3.5 top-3 text-gray-500 group-focus-within:text-blue-400 transition-colors">lock</span>
               </div>

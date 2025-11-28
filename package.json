@@ -30,7 +30,7 @@
     "build:android": "prisma generate && next build && npx cap sync",
     "start": "next start",
     "start:web": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
@@ -85,6 +85,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.39.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.10.5",
     "@types/nodemailer": "^6.4.14",
