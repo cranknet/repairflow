@@ -46,7 +46,7 @@
     "@hookform/resolvers": "^3.3.2",
     "@material/material-color-utilities": "^0.3.0",
     "@material/web": "^2.4.1",
-    "@prisma/client": "^5.7.1",
+    "@prisma/client": "^7.0.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
