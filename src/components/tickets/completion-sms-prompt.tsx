@@ -28,7 +28,7 @@ export function CompletionSMSPrompt({
   ticketData,
 }: CompletionSMSPromptProps) {
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [ports, setPorts] = useState<any[]>([]);
   const [selectedPort, setSelectedPort] = useState('');
   const [isLoadingPorts, setIsLoadingPorts] = useState(false);
@@ -43,7 +43,7 @@ export function CompletionSMSPrompt({
         const completedTemplate = templates.find(
           (t) => t.id === 'ticket_completed' || t.templateId === 'ticket_completed'
         ) || DEFAULT_SMS_TEMPLATES.find((t) => t.id === 'ticket_completed');
-        
+
         if (completedTemplate) {
           const data: Record<string, string> = {
             customerName: customerName || 'Customer',
@@ -80,8 +80,8 @@ export function CompletionSMSPrompt({
   const handleSendSMS = async () => {
     if (!selectedPort) {
       toast({
-        title: 'Warning',
-        description: 'No COM port selected. SMS cannot be sent automatically.',
+        title: t('warning'),
+        description: t('noComPortSelected'),
       });
       onClose();
       return;
@@ -89,8 +89,8 @@ export function CompletionSMSPrompt({
 
     if (!message.trim()) {
       toast({
-        title: 'Error',
-        description: 'Message cannot be empty',
+        title: t('error'),
+        description: t('messageCannotBeEmpty'),
       });
       return;
     }
@@ -121,14 +121,14 @@ export function CompletionSMSPrompt({
       }
 
       toast({
-        title: 'Success',
-        description: 'SMS notification sent successfully!',
+        title: t('success'),
+        description: t('smsSentSuccessfully'),
       });
       onClose();
     } catch (error: any) {
       toast({
-        title: 'SMS Send Failed',
-        description: error.message || 'Failed to send SMS. You can try again from the Messaging tab.',
+        title: t('smsSendFailed'),
+        description: error.message || t('smsSendFailedMessage'),
       });
       // Still close the modal even if SMS fails
       onClose();
@@ -145,16 +145,16 @@ export function CompletionSMSPrompt({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Send Completion Notification</DialogTitle>
+          <DialogTitle>{t('sendCompletionNotification')}</DialogTitle>
           <DialogDescription>
-            Notify the customer that their repair is completed and ready for pickup.
+            {t('notifyCustomerCompletion')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* COM Port Selection */}
           <div>
-            <label className="text-sm font-medium mb-2 block">COM Port</label>
+            <label className="text-sm font-medium mb-2 block">{t('comPort')}</label>
             <div className="flex gap-2">
               <select
                 value={selectedPort}
@@ -162,7 +162,7 @@ export function CompletionSMSPrompt({
                 disabled={isLoadingPorts || isSending}
                 className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
               >
-                <option value="">Select COM port</option>
+                <option value="">{t('selectComPort')}</option>
                 {ports.map((port) => (
                   <option key={port.path} value={port.path}>
                     {port.path} {port.manufacturer ? `(${port.manufacturer})` : ''}
@@ -180,38 +180,38 @@ export function CompletionSMSPrompt({
             </div>
             {ports.length === 0 && !isLoadingPorts && (
               <p className="text-xs text-amber-600 mt-1">
-                No COM ports found. SMS cannot be sent automatically.
+                {t('noComPortsFound')}
               </p>
             )}
           </div>
 
           {/* Message Preview */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Message</label>
+            <label className="text-sm font-medium mb-2 block">{t('message')}</label>
             <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-              <p className="text-sm whitespace-pre-wrap">{message || 'No message'}</p>
-              <p className="text-xs text-gray-500 mt-2">Length: {message.length} characters</p>
+              <p className="text-sm whitespace-pre-wrap">{message || t('noMessage')}</p>
+              <p className="text-xs text-gray-500 mt-2">{t('lengthCharacters').replace('{length}', message.length.toString())}</p>
             </div>
           </div>
 
           {/* Phone Number */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Recipient</label>
+            <label className="text-sm font-medium mb-2 block">{t('recipient')}</label>
             <p className="text-sm text-gray-600 dark:text-gray-400">{phoneNumber}</p>
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outlined" onClick={handleSkip} disabled={isSending}>
-            Skip
+            {t('skip')}
           </Button>
           <Button onClick={handleSendSMS} disabled={isSending || !selectedPort || !message.trim()}>
             {isSending ? (
-              'Sending...'
+              t('sending')
             ) : (
               <>
                 <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                Send SMS
+                {t('sendSms')}
               </>
             )}
           </Button>

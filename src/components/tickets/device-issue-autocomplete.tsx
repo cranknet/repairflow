@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { DEVICE_ISSUES } from '@/lib/device-issues';
+import { getAllIssues, addCustomIssue } from '@/lib/device-storage';
 
 interface DeviceIssueAutocompleteProps {
   value: string;
@@ -15,19 +17,17 @@ export function DeviceIssueAutocomplete({
   onChange,
   error,
 }: DeviceIssueAutocompleteProps) {
-  const [showUseText, setShowUseText] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredIssues, setFilteredIssues] = useState<string[]>([]);
+  const [showAddIssue, setShowAddIssue] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Show "Use this text" option when user is typing and text is not empty
-    setShowUseText(value.trim().length > 0);
-  }, [value]);
+  const shouldOpenDropdownRef = useRef(true);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowUseText(false);
+        setShowDropdown(false);
       }
     };
 
@@ -35,21 +35,61 @@ export function DeviceIssueAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleUseText = () => {
-    // The text is already in the value, just close the dropdown
-    setShowUseText(false);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
+  const handleInput = (inputValue: string) => {
+    onChange(inputValue);
+
+    if (inputValue.trim()) {
+      const allIssues = getAllIssues(DEVICE_ISSUES);
+      const filtered = allIssues.filter((issue) =>
+        issue.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredIssues(filtered.slice(0, 10)); // Limit to 10 suggestions
+
+      // Show "Add new" option if input doesn't exactly match any issue
+      const exactMatch = allIssues.some(
+        (issue) => issue.toLowerCase() === inputValue.toLowerCase()
+      );
+      setShowAddIssue(!exactMatch && inputValue.trim().length > 0);
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+      setShowAddIssue(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
+  const selectIssue = (issue: string) => {
+    onChange(issue);
+    setShowDropdown(false);
+    setShowAddIssue(false);
+
+    // Prevent dropdown from reopening immediately due to focus
+    shouldOpenDropdownRef.current = false;
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+    // Reset after a short delay to allow onFocus to fire and be ignored
+    setTimeout(() => {
+      shouldOpenDropdownRef.current = true;
+    }, 200);
+  };
+
+  const handleAddIssue = () => {
+    const newIssue = value.trim();
+    if (newIssue) {
+      addCustomIssue(newIssue);
+      selectIssue(newIssue);
+    }
   };
 
   const handleFocus = () => {
-    if (value.trim().length > 0) {
-      setShowUseText(true);
+    if (!shouldOpenDropdownRef.current) return;
+
+    if (value.trim()) {
+      handleInput(value);
+    } else {
+      const allIssues = getAllIssues(DEVICE_ISSUES);
+      setFilteredIssues(allIssues.slice(0, 5));
+      setShowDropdown(true);
     }
   };
 
@@ -61,22 +101,36 @@ export function DeviceIssueAutocomplete({
           id="deviceIssue"
           ref={textareaRef}
           value={value}
-          onChange={handleInputChange}
+          onChange={(e) => handleInput(e.target.value)}
           onFocus={handleFocus}
           rows={3}
           className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
           placeholder="Describe the device issue..."
         />
-        {showUseText && value.trim().length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg">
-            <button
-              type="button"
-              onClick={handleUseText}
-              className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium flex items-center gap-2"
-            >
-              <PlusIcon className="h-4 w-4" />
-              Add &quot;{value.trim()}&quot; as Device Issue
-            </button>
+        {showDropdown && (filteredIssues.length > 0 || showAddIssue) && (
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+            {filteredIssues.map((issue) => (
+              <button
+                key={issue}
+                type="button"
+                onClick={() => selectIssue(issue)}
+                onMouseDown={(e) => e.preventDefault()}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+              >
+                {issue}
+              </button>
+            ))}
+            {showAddIssue && (
+              <button
+                type="button"
+                onClick={handleAddIssue}
+                onMouseDown={(e) => e.preventDefault()}
+                className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
+              >
+                <PlusIcon className="h-4 w-4" />
+                Add &quot;{value}&quot; to common issues
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -84,4 +138,3 @@ export function DeviceIssueAutocomplete({
     </div>
   );
 }
-

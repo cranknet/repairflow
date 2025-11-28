@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 async function setupApp(formData: FormData) {
     "use server";
@@ -42,6 +43,12 @@ async function setupApp(formData: FormData) {
             }),
             prisma.settings.create({
                 data: { key: "company_name", value: storeName },
+            }),
+            prisma.settings.create({
+                data: { key: "company_logo", value: "/default-logo.png" },
+            }),
+            prisma.settings.create({
+                data: { key: "company_favicon", value: "/default-favicon.png" },
             }),
             prisma.settings.create({
                 data: { key: "currency", value: "USD" },
@@ -87,6 +94,9 @@ export default async function InstallPage() {
     return (
         <Card className="border-0 shadow-none">
             <CardHeader>
+                <div className="flex justify-center mb-4">
+                    <Image src="/default-logo.png" alt="RepairFlow Logo" width={64} height={64} />
+                </div>
                 <CardTitle>Welcome to RepairFlow</CardTitle>
                 <CardDescription>
                     Let&apos;s get your repair shop set up.

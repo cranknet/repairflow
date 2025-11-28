@@ -57,11 +57,11 @@ export function addCustomModel(brand: string, model: string): void {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_MODELS);
     const allModels: Record<string, string[]> = stored ? JSON.parse(stored) : {};
-    
+
     if (!allModels[brand]) {
       allModels[brand] = [];
     }
-    
+
     if (!allModels[brand].includes(model)) {
       allModels[brand].push(model);
       localStorage.setItem(STORAGE_KEY_MODELS, JSON.stringify(allModels));
@@ -89,5 +89,46 @@ export function getAllModels(brand: string, defaultModels: string[]): string[] {
   const allModels = [...defaultModels, ...customModels];
   // Remove duplicates and sort
   return Array.from(new Set(allModels)).sort();
+}
+
+const STORAGE_KEY_ISSUES = 'repairflow_custom_issues';
+
+/**
+ * Get all custom issues from localStorage
+ */
+export function getCustomIssues(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_ISSUES);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Add a custom issue to localStorage
+ */
+export function addCustomIssue(issue: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const issues = getCustomIssues();
+    if (!issues.includes(issue)) {
+      issues.push(issue);
+      localStorage.setItem(STORAGE_KEY_ISSUES, JSON.stringify(issues));
+    }
+  } catch (error) {
+    console.error('Error saving custom issue:', error);
+  }
+}
+
+/**
+ * Get all issues (default + custom)
+ */
+export function getAllIssues(defaultIssues: string[]): string[] {
+  const customIssues = getCustomIssues();
+  const allIssues = [...defaultIssues, ...customIssues];
+  // Remove duplicates and sort
+  return Array.from(new Set(allIssues)).sort();
 }
 
