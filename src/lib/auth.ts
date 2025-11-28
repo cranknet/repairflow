@@ -3,10 +3,9 @@ import { authConfig } from './auth.config';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-dev",
   trustHost: true,
 });
 
 // Export authOptions for backward compatibility if needed
 export const authOptions = authConfig;
-
