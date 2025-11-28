@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,6 +82,37 @@ export function SettingsClient({
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const { data: session } = useSession();
 
+  // Handle URL parameters for tab selection and auto-edit user
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const editUserId = params.get('editUser');
+
+      if (tab && tab !== activeTab) {
+        setActiveTab(tab);
+      }
+
+      if (editUserId && users.length > 0) {
+        const userToEdit = users.find(u => u.id === editUserId);
+        if (userToEdit && !editingUser) {
+          // Directly set editing user state
+          setEditingUser(userToEdit);
+          setEditUserData({
+            username: userToEdit.username,
+            email: userToEdit.email || '',
+            password: '',
+            name: userToEdit.name || '',
+            role: userToEdit.role,
+          });
+          // Clear the URL parameter after opening
+          window.history.replaceState({}, '', '/settings?tab=users');
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users.length]);
+
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
@@ -135,12 +166,7 @@ export function SettingsClient({
       const updatedSettings = { ...settings, company_logo: data.url };
       setSettings(updatedSettings);
 
-      // Save to database in background
-      await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedSettings),
-      });
+
 
       toast({
         title: t('success'),
@@ -183,12 +209,7 @@ export function SettingsClient({
       const updatedSettings = { ...settings, company_favicon: data.url };
       setSettings(updatedSettings);
 
-      // Save to database in background
-      await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedSettings),
-      });
+
 
       toast({
         title: t('success'),
@@ -231,13 +252,6 @@ export function SettingsClient({
       const updatedSettings = { ...settings, login_background_image: data.url };
       setSettings(updatedSettings);
       setBackgroundImageUrl(data.url);
-
-      // Save to database in background
-      await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedSettings),
-      });
 
       toast({
         title: t('success'),
@@ -417,8 +431,19 @@ export function SettingsClient({
         title: t('success'),
         description: t('userUpdatedSuccessfully'),
       });
-      // Refresh in background to sync
-      router.refresh();
+
+      // If user updated their own profile, refresh the session
+      if (session?.user?.id === updatedUser.id) {
+        // Force session update to reflect changes in header
+        router.refresh();
+        // Also trigger a window reload to ensure session is fully refreshed
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        // Refresh in background to sync
+        router.refresh();
+      }
     } catch (error: any) {
       toast({
         title: t('error'),
@@ -668,6 +693,7 @@ export function SettingsClient({
                     >
                       {isUploadingLogo ? t('uploading') : settings.company_logo ? t('changeLogo') : t('uploadLogo')}
                     </Button>
+                    <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
                   </div>
                 </div>
               </CardContent>
@@ -716,6 +742,7 @@ export function SettingsClient({
                     >
                       {isUploadingFavicon ? t('uploading') : settings.company_favicon ? t('changeFavicon') : t('uploadFavicon')}
                     </Button>
+                    <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
                   </div>
                 </div>
               </CardContent>
@@ -765,6 +792,7 @@ export function SettingsClient({
                     >
                       {isUploadingBackground ? t('uploading') : t('uploadImage')}
                     </Button>
+                    <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
                   </div>
                 </div>
 

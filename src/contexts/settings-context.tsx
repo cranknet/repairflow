@@ -6,6 +6,7 @@ interface SettingsContextType {
   companyLogo: string;
   companyFavicon: string;
   companyName: string;
+  loginBackgroundImage: string;
   refreshSettings: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [companyLogo, setCompanyLogo] = useState<string>('');
   const [companyFavicon, setCompanyFavicon] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('RepairFlow');
+  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState(false);
 
   const refreshSettings = async () => {
@@ -60,6 +62,22 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setCompanyName('RepairFlow');
         localStorage.removeItem('company_name');
       }
+
+      // Handle login background image
+      const bgImage = data.login_background_image_url || data.login_background_image;
+      if (bgImage) {
+        const bgPath = bgImage.startsWith('http')
+          ? bgImage
+          : bgImage.startsWith('/')
+            ? bgImage
+            : `/${bgImage}`;
+        setLoginBackgroundImage(bgPath);
+        localStorage.setItem('login_background_image', bgPath);
+      } else {
+        const defaultBg = '/default-login-bg.png';
+        setLoginBackgroundImage(defaultBg);
+        localStorage.setItem('login_background_image', defaultBg);
+      }
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
@@ -70,18 +88,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     // Load from localStorage immediately (no flicker)
     const savedLogo = localStorage.getItem('company_logo');
     const savedName = localStorage.getItem('company_name');
-
-    if (savedLogo) {
-      setCompanyLogo(savedLogo);
-    }
-    if (savedName) {
-      setCompanyName(savedName);
-    }
-
     const savedFavicon = localStorage.getItem('company_favicon');
-    if (savedFavicon) {
-      setCompanyFavicon(savedFavicon);
-    }
+    const savedBg = localStorage.getItem('login_background_image');
+
+    if (savedLogo) setCompanyLogo(savedLogo);
+    if (savedName) setCompanyName(savedName);
+    if (savedFavicon) setCompanyFavicon(savedFavicon);
+    if (savedBg) setLoginBackgroundImage(savedBg);
 
     setIsInitialized(true);
 
@@ -101,7 +114,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [companyFavicon]);
 
   return (
-    <SettingsContext.Provider value={{ companyLogo, companyFavicon, companyName, refreshSettings }}>
+    <SettingsContext.Provider value={{ companyLogo, companyFavicon, companyName, loginBackgroundImage, refreshSettings }}>
       {children}
     </SettingsContext.Provider>
   );

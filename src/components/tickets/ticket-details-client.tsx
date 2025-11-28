@@ -7,24 +7,27 @@ import { useToast } from '@/components/ui/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CompletionSMSPrompt } from './completion-sms-prompt';
-import { RepairedStatusModal } from './repaired-status-modal';
+import { useLanguage } from '@/contexts/language-context';
 
-const STATUS_OPTIONS = [
-  { value: 'RECEIVED', label: 'Received' },
-  { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'REPAIRED', label: 'Repaired' },
-  { value: 'CANCELLED', label: 'Cancelled' },
-  { value: 'RETURNED', label: 'Returned' },
-];
+
+
 
 export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRole: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusNotes, setStatusNotes] = useState('');
   const [paid, setPaid] = useState(ticket.paid || false);
   const [showSMSPrompt, setShowSMSPrompt] = useState(false);
-  const [showRepairedModal, setShowRepairedModal] = useState(false);
+
+  const STATUS_OPTIONS = [
+    { value: 'RECEIVED', label: t('received') },
+    { value: 'IN_PROGRESS', label: t('inProgress') },
+    { value: 'REPAIRED', label: t('repaired') },
+    { value: 'CANCELLED', label: t('cancelled') },
+    { value: 'RETURNED', label: t('returned') },
+  ];
 
   const updateStatus = async (newStatus: string, notes?: string) => {
     setIsUpdating(true);
@@ -32,7 +35,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
       const response = await fetch(`/api/tickets/${ticket.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: newStatus,
           statusNotes: notes || undefined,
         }),
@@ -41,21 +44,21 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
       if (!response.ok) throw new Error('Failed to update status');
 
       toast({
-        title: 'Success',
-        description: 'Ticket status updated',
+        title: t('success'),
+        description: t('ticketStatusUpdated'),
       });
       setStatusNotes('');
-      
+
       // Show SMS prompt if status changed to REPAIRED
       if (newStatus === 'REPAIRED' && ticket.status !== 'REPAIRED') {
         setShowSMSPrompt(true);
       }
-      
+
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update ticket status',
+        title: t('error'),
+        description: t('failedToUpdateTicketStatus'),
       });
     } finally {
       setIsUpdating(false);
@@ -74,15 +77,15 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
       if (!response.ok) throw new Error('Failed to update paid status');
 
       toast({
-        title: 'Success',
-        description: `Payment status updated to ${paidStatus ? 'Paid' : 'Unpaid'}`,
+        title: t('success'),
+        description: `${t('paymentStatusUpdatedTo')} ${paidStatus ? t('paid') : t('unpaid')}`,
       });
       setPaid(paidStatus);
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update payment status',
+        title: t('error'),
+        description: t('failedToUpdatePaidStatus'),
       });
     } finally {
       setIsUpdating(false);
@@ -92,53 +95,11 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
     if (newStatus !== ticket.status) {
-      // If changing to REPAIRED, show modal instead of directly updating
-      if (newStatus === 'REPAIRED') {
-        setShowRepairedModal(true);
-      } else {
-        updateStatus(newStatus, statusNotes);
-      }
+      updateStatus(newStatus, statusNotes);
     }
   };
 
-  const handleRepairedConfirm = async (data: {
-    parts: Array<{ partId: string; quantity: number }>;
-  }) => {
-    setIsUpdating(true);
-    try {
-      const response = await fetch(`/api/tickets/${ticket.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: 'REPAIRED',
-          statusNotes: statusNotes || undefined,
-          parts: data.parts,
-        }),
-      });
 
-      if (!response.ok) throw new Error('Failed to update status');
-
-      toast({
-        title: 'Success',
-        description: 'Ticket marked as repaired',
-      });
-      setStatusNotes('');
-      setShowRepairedModal(false);
-      
-      // Show SMS prompt
-      setShowSMSPrompt(true);
-      
-      router.refresh();
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update ticket status',
-      });
-      throw error;
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const isReturned = ticket.status === 'RETURNED';
 
@@ -153,7 +114,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
             onChange={handleStatusChange}
             disabled={isUpdating || isReturned}
             className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            title={isReturned ? "Ticket is returned and cannot be edited" : "Change ticket status"}
+            title={isReturned ? t('ticketReturnedCannotEdit') : t('changeTicketStatus')}
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -163,11 +124,11 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
           </select>
           {isReturned && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              This ticket is returned and cannot be edited
+              {t('ticketReturnedCannotEdit')}
             </p>
           )}
         </div>
-        
+
         {/* Quick Action Buttons */}
         <div className="flex gap-2">
           {ticket.status !== 'CANCELLED' && ticket.status !== 'RETURNED' && (
@@ -178,16 +139,16 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
                   disabled={isUpdating}
                   size="sm"
                 >
-                  Start Repair
+                  {t('startRepair')}
                 </Button>
               )}
               {ticket.status === 'IN_PROGRESS' && (
                 <Button
-                  onClick={() => setShowRepairedModal(true)}
+                  onClick={() => updateStatus('REPAIRED')}
                   disabled={isUpdating}
                   size="sm"
                 >
-                  Mark Repaired
+                  {t('markRepaired')}
                 </Button>
               )}
             </>
@@ -195,14 +156,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
         </div>
       </div>
 
-      {/* Repaired Status Modal */}
-      <RepairedStatusModal
-        isOpen={showRepairedModal}
-        onClose={() => setShowRepairedModal(false)}
-        onConfirm={handleRepairedConfirm}
-        ticketId={ticket.id}
-        existingParts={ticket.parts}
-      />
+
 
       {/* SMS Prompt Modal */}
       <CompletionSMSPrompt

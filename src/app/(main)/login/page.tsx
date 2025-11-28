@@ -16,7 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { companyName } = useSettings();
+  const { companyName, loginBackgroundImage } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -80,7 +80,7 @@ export default function LoginPage() {
     <div
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
-        backgroundImage: 'url("/default-login-bg.png")',
+        backgroundImage: `url("${loginBackgroundImage || '/default-login-bg.png'}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

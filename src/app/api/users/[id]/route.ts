@@ -94,11 +94,19 @@ export async function PUT(
 
     // Prepare update data
     const updateData: any = {};
-    // Only admins can change username and role
-    if (session.user.role === 'ADMIN') {
-      if (data.username) updateData.username = data.username;
-      if (data.role) updateData.role = data.role;
+
+    // Allow users to change their own username, but only admins can change others' usernames
+    if (data.username) {
+      if (session.user.id === id || session.user.role === 'ADMIN') {
+        updateData.username = data.username;
+      }
     }
+
+    // Only admins can change roles
+    if (data.role && session.user.role === 'ADMIN') {
+      updateData.role = data.role;
+    }
+
     if (data.email !== undefined) updateData.email = data.email || null;
     if (data.name !== undefined) updateData.name = data.name || null;
     if (data.password) {

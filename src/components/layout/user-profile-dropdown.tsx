@@ -2,19 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
-import { ProfileSettingsModal } from './profile-settings-modal';
 import { useLanguage } from '@/contexts/language-context';
 
 export function UserProfileDropdown() {
   const { data: session } = useSession();
   const { t } = useLanguage();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,22 +32,23 @@ export function UserProfileDropdown() {
 
   const userInitials = session.user.name
     ? session.user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
     : session.user.username
-        .slice(0, 2)
-        .toUpperCase();
+      .slice(0, 2)
+      .toUpperCase();
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
   };
 
   const handleProfileSettings = () => {
-    setShowProfileModal(true);
     setIsOpen(false);
+    // Navigate to settings page with user management tab and edit current user
+    router.push(`/settings?tab=users&editUser=${session.user.id}`);
   };
 
   return (
@@ -65,9 +66,8 @@ export function UserProfileDropdown() {
           </p>
         </div>
         <ChevronDownIcon
-          className={`h-4 w-4 text-gray-600 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`}
+          className={`h-4 w-4 text-gray-600 transition-transform ${isOpen ? 'rotate-180' : ''
+            }`}
         />
       </button>
 
@@ -91,18 +91,6 @@ export function UserProfileDropdown() {
           </div>
         </div>
       )}
-
-      <ProfileSettingsModal
-        isOpen={showProfileModal}
-        onClose={() => {
-          setShowProfileModal(false);
-          // Trigger session update to refresh UI
-          if (session) {
-            // The session will be updated by the modal, but we can force a refresh
-            window.dispatchEvent(new Event('session-update'));
-          }
-        }}
-      />
     </div>
   );
 }

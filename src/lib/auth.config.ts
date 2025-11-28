@@ -14,7 +14,7 @@ export const authConfig: NextAuthConfig = {
           // Import here to avoid edge runtime issues
           const { prisma } = await import('./prisma');
           const bcrypt = await import('bcryptjs');
-          
+
           if (!credentials?.username || !credentials?.password) {
             return null;
           }
@@ -74,12 +74,40 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.username = user.username;
       }
+
+      // Refresh user data from database when session is updated
+      if (trigger === 'update' && token.id) {
+        try {
+          const { prisma } = await import('./prisma');
+          const updatedUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              role: true,
+              name: true,
+            },
+          });
+
+          if (updatedUser) {
+            token.id = updatedUser.id;
+            token.role = updatedUser.role;
+            token.username = updatedUser.username;
+            token.email = updatedUser.email;
+            token.name = updatedUser.name;
+          }
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -87,6 +115,8 @@ export const authConfig: NextAuthConfig = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.username = token.username as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
       }
       return session;
     },

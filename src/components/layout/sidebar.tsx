@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils';
@@ -145,16 +146,22 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
           {!isCollapsed && (
             <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
               {companyLogo ? (
-                <img
+                <Image
                   src={companyLogo}
                   alt="Company Logo"
-                  className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
+                  width={40}
+                  height={40}
+                  className="object-contain flex-shrink-0 rounded-lg"
+                  unoptimized
                 />
               ) : (
-                <img
+                <Image
                   src="/default-logo.png"
                   alt="RepairFlow Logo"
-                  className="h-10 w-10 object-contain flex-shrink-0 rounded-lg"
+                  width={40}
+                  height={40}
+                  className="object-contain flex-shrink-0 rounded-lg"
+                  unoptimized
                 />
               )}
               <span className="text-title-large text-on-surface truncate">{companyName}</span>

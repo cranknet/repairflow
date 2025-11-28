@@ -77,7 +77,7 @@ export default function NewTicketPage() {
       .then((data) => {
         setCustomers(data);
         // Set walking-customer as default if it exists
-        const walkingCustomer = data.find((c: any) => 
+        const walkingCustomer = data.find((c: any) =>
           c.id === 'walking-customer' ||
           c.name.toLowerCase() === 'walking-customer' ||
           c.name === 'walking-customer'
@@ -97,7 +97,7 @@ export default function NewTicketPage() {
     fetchCustomers();
     fetchStaffUsers();
     fetchCurrency();
-  }, []);
+  }, [fetchCustomers]);
 
   const fetchCurrency = () => {
     fetch('/api/settings/public')
@@ -159,7 +159,7 @@ export default function NewTicketPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to create ticket' }));
-        const errorMessage = errorData.details 
+        const errorMessage = errorData.details
           ? errorData.details.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')
           : errorData.error || 'Failed to create ticket';
         throw new Error(errorMessage);

@@ -12,10 +12,11 @@ async function setupApp(formData: FormData) {
 
     const storeName = formData.get("storeName") as string;
     const adminName = formData.get("adminName") as string;
+    const adminUsername = formData.get("adminUsername") as string;
     const adminEmail = formData.get("adminEmail") as string;
     const adminPassword = formData.get("adminPassword") as string;
 
-    if (!storeName || !adminName || !adminEmail || !adminPassword) {
+    if (!storeName || !adminName || !adminUsername || !adminEmail || !adminPassword) {
         return;
     }
 
@@ -34,7 +35,7 @@ async function setupApp(formData: FormData) {
                 data: {
                     name: adminName,
                     email: adminEmail,
-                    username: adminEmail.split("@")[0],
+                    username: adminUsername,
                     password: hashedPassword,
                     role: "ADMIN",
                 },
@@ -59,7 +60,7 @@ async function setupApp(formData: FormData) {
 
     try {
         await signIn("credentials", {
-            username: adminEmail.split("@")[0],
+            username: adminUsername,
             password: adminPassword,
             redirectTo: "/dashboard",
         });
@@ -88,7 +89,7 @@ export default async function InstallPage() {
             <CardHeader>
                 <CardTitle>Welcome to RepairFlow</CardTitle>
                 <CardDescription>
-                    Let's get your repair shop set up.
+                    Let&apos;s get your repair shop set up.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,6 +102,11 @@ export default async function InstallPage() {
                     <div className="space-y-2">
                         <Label htmlFor="adminName">Admin Name</Label>
                         <Input id="adminName" name="adminName" placeholder="John Doe" required />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="adminUsername">Username</Label>
+                        <Input id="adminUsername" name="adminUsername" placeholder="admin" required />
                     </div>
 
                     <div className="space-y-2">

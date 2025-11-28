@@ -1,4 +1,5 @@
 import * as React from "react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 /**
@@ -18,7 +19,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'elevated', interactive = false, ...props }, ref) => {
     const baseClasses = "rounded-xl transition-all duration-short2 ease-standard"
-    
+
     const variantClasses = {
       filled: cn(
         "bg-surface-container-highest text-on-surface",
@@ -33,7 +34,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         interactive && "hover:shadow-md-level1 hover:border-outline cursor-pointer md-state-layer-hover"
       ),
     }
-    
+
     return (
       <div
         ref={ref}
@@ -94,10 +95,10 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div 
-    ref={ref} 
-    className={cn("p-6 pt-0", className)} 
-    {...props} 
+  <div
+    ref={ref}
+    className={cn("p-6 pt-0", className)}
+    {...props}
   />
 ))
 CardContent.displayName = "CardContent"
@@ -163,11 +164,25 @@ const CardMedia = React.forwardRef<
     {...props}
   >
     {image ? (
-      <img 
-        src={image} 
-        alt={alt || ''} 
-        className="w-full h-full object-cover"
-      />
+      aspectRatio !== 'auto' ? (
+        <Image
+          src={image}
+          alt={alt || ''}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+      ) : (
+        <Image
+          src={image}
+          alt={alt || ''}
+          width={0}
+          height={0}
+          sizes="100vw"
+          className="w-full h-auto object-cover"
+          unoptimized
+        />
+      )
     ) : (
       children
     )}
@@ -191,7 +206,7 @@ const CardActions = React.forwardRef<
     between: 'justify-between',
     center: 'justify-center',
   }
-  
+
   return (
     <div
       ref={ref}

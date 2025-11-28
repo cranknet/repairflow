@@ -18,18 +18,29 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const type = formData.get('type') as string; // 'logo' or 'background'
 
+    console.log('Upload request:', {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileType: file?.type,
+      fileSize: file?.size,
+      type
+    });
+
     if (!file || !type) {
+      console.error('Missing file or type:', { file: !!file, type });
       return NextResponse.json({ error: 'File and type are required' }, { status: 400 });
     }
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml'];
     if (!validTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+      console.error('Invalid file type:', file.type, 'Valid types:', validTypes);
+      return NextResponse.json({ error: `Invalid file type: ${file.type}. Allowed types: ${validTypes.join(', ')}` }, { status: 400 });
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
+      console.error('File too large:', file.size);
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
     }
 

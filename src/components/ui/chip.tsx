@@ -1,4 +1,5 @@
 import * as React from "react"
+import Image from "next/image"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
@@ -18,16 +19,16 @@ const chipVariants = cva(
       variant: {
         // Assist chip - Help users take action
         assist: "bg-transparent border border-outline text-on-surface hover:shadow-md-level1",
-        
+
         // Filter chip - Filter content
         filter: "bg-transparent border border-outline text-on-surface-variant data-[selected=true]:bg-secondary-container data-[selected=true]:text-on-secondary-container data-[selected=true]:border-transparent",
-        
+
         // Input chip - Represent discrete information
         input: "bg-transparent border border-outline text-on-surface-variant hover:shadow-md-level1",
-        
+
         // Suggestion chip - Offer dynamic recommendations
         suggestion: "bg-transparent border border-outline text-on-surface-variant hover:shadow-md-level1",
-        
+
         // Elevated (alternative styling)
         elevated: "bg-surface-container-low text-on-surface shadow-md-level1 hover:shadow-md-level2 border-none",
       },
@@ -45,7 +46,7 @@ const chipVariants = cva(
 
 export interface ChipProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof chipVariants> {
+  VariantProps<typeof chipVariants> {
   leadingIcon?: React.ReactNode
   trailingIcon?: React.ReactNode
   onRemove?: () => void
@@ -115,13 +116,19 @@ const ChipAvatar = React.forwardRef<HTMLDivElement, ChipAvatarProps>(
       <div
         ref={ref}
         className={cn(
-          "inline-flex h-6 w-6 items-center justify-center rounded-full overflow-hidden bg-secondary-container text-on-secondary-container text-label-small",
+          "relative inline-flex h-6 w-6 items-center justify-center rounded-full overflow-hidden bg-secondary-container text-on-secondary-container text-label-small",
           className
         )}
         {...props}
       >
         {src ? (
-          <img src={src} alt={alt || ''} className="h-full w-full object-cover" />
+          <Image
+            src={src}
+            alt={alt || ''}
+            fill
+            className="object-cover"
+            unoptimized
+          />
         ) : (
           <span>{fallback}</span>
         )}
@@ -146,7 +153,7 @@ const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
       onSelectedChange?.(!selected)
       props.onClick?.(e)
     }
-    
+
     return (
       <Chip
         ref={ref}

@@ -54,7 +54,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('app_language', lang);
-    
+
     // Try to save to settings (only works if user is admin, but that's OK)
     fetch('/api/settings', {
       method: 'PUT',
