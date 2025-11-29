@@ -112,6 +112,7 @@ function startNextServer() {
                     ...process.env,
                     PORT: port,
                     NODE_ENV: 'production',
+                    HOSTNAME: 'localhost',
                     DATABASE_URL: `file:${path.join(app.getPath('userData'), 'repairflow.db')}`
                 },
                 stdio: ['ignore', 'pipe', 'pipe']
