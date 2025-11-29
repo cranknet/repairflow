@@ -12,13 +12,20 @@
         "public/**/*",
         "prisma/**/*",
         "node_modules/**/*",
-        "!node_modules/.prisma",
-        "node_modules/.prisma/**/*",
         "node_modules/@prisma/client/**/*",
         "package.json",
         "next.config.js",
         "postcss.config.js",
         "tailwind.config.ts"
+    ],
+    "extraResources": [
+        {
+            "from": "node_modules/.prisma",
+            "to": "node_modules/.prisma",
+            "filter": [
+                "**/*"
+            ]
+        }
     ],
     "asar": false,
     "win": {
@@ -38,7 +45,7 @@
             }
         ],
         "icon": "public/favicon.png",
-        "artifactName": "${productName}-${version}-${arch}.${ext}"
+        "artifactName": "RepairFlow-${version}-${arch}.${ext}"
     },
     "nsis": {
         "oneClick": false,
@@ -48,7 +55,7 @@
         "shortcutName": "RepairFlow"
     },
     "portable": {
-        "artifactName": "${productName}-${version}-portable.${ext}"
+        "artifactName": "RepairFlow-${version}-portable.${ext}"
     },
     "extraMetadata": {
         "main": "electron/main.js"
