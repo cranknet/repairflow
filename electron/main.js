@@ -127,6 +127,10 @@ function startNextServer() {
                     PORT: port,
                     NODE_ENV: 'production',
                     HOSTNAME: 'localhost',
+                    // Force Prisma to use the binary engine which is more reliable in Electron
+                    PRISMA_CLIENT_ENGINE_TYPE: 'binary',
+                    // Explicitly set the schema path if needed, though usually auto-detected
+                    // PRISMA_SCHEMA_PATH: path.join(appPath, 'prisma', 'schema.prisma'),
                     DATABASE_URL: `file:${path.join(app.getPath('userData'), 'repairflow.db')}`
                 },
                 stdio: ['ignore', 'pipe', 'pipe']
