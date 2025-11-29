@@ -30,7 +30,6 @@ SMTP_FROM="noreply@repairshop.com"
    ```bash
    npx prisma generate
    npx prisma db push
-   npm run db:seed
    ```
 
 3. Start the development server:
@@ -40,10 +39,9 @@ SMTP_FROM="noreply@repairshop.com"
 
 4. Open [http://localhost:3000](http://localhost:3000)
 
-## Default Login Credentials
+## Setup Wizard
 
-- **Admin**: username: `admin`, password: `admin123`
-- **Staff**: username: `staff`, password: `staff123`
+The application includes a setup wizard that runs on first launch. Follow the instructions to create your admin account and configure the system.
 
 ## Troubleshooting
 
@@ -60,4 +58,9 @@ SMTP_FROM="noreply@repairshop.com"
 ### Build Errors
 - Run `npm install --legacy-peer-deps` if dependency conflicts occur
 - Delete `node_modules` and `.next` folders, then reinstall if needed
+
+## Desktop App Setup
+
+For instructions on running and building the Windows desktop application, please refer to [ELECTRON.md](ELECTRON.md).
+
 

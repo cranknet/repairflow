@@ -16,6 +16,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 
 
+## [1.6.1] - 2025-11-29
+
+### Fixed
+- **Setup Wizard**: Removed deprecated database seeding (db:seed) from installation instructions
+- **Documentation**: Replaced default login credentials with Setup Wizard instructions across all docs
+- **Electron Build**: Fixed code signing configuration to prevent build hanging
+- **Electron Build**: Removed 32-bit (ia32) builds, now only building 64-bit (x64) versions
+- **Build Scripts**: Added CSC_IDENTITY_AUTO_DISCOVERY=false to prevent code signing attempts
+- **Documentation**: Updated README.md, SETUP.md, TROUBLESHOOTING.md, and CONTRIBUTING.md to reflect Setup Wizard flow
+
+### Changed
+- Electron builds now only create 64-bit versions (NSIS installer and portable)
+- All documentation updated to remove references to db:seed command
+- Installation process now uses Setup Wizard for first-time configuration
+
+## [1.6.0] - 2025-11-29 (Defective - Fixed in 1.6.1)
+
+### Added
+- **Windows Desktop App**: Full Electron integration with automatic server management
+- **Database Switcher**: UI component to switch between SQLite (local) and MySQL (remote) databases
+- **MySQL Support**: Added MySQL database support alongside existing SQLite and PostgreSQL
+- **Electron Documentation**: Comprehensive ELECTRON.md guide for desktop app usage
+
+### Changed
+- Project structure updated to support hybrid web/desktop deployment
+- Added electron/ directory with main process and preload scripts
+- Updated package.json with Electron build scripts and dependencies
+
+
+
 ## [1.5.2] - 2025-11-29
 
 ### Changed

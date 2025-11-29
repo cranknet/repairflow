@@ -62,7 +62,7 @@ Thank you for your interest in contributing to RepairFlow! This document provide
 1. Fork and clone the repository
 2. Install dependencies: `npm install`
 3. Set up environment variables (see README.md)
-4. Set up database: `npx prisma db push && npm run db:seed`
+4. Set up database: `npx prisma db push`
 5. Start dev server: `npm run dev`
 6. Start Electron dev app: `npm run dev:electron`
 

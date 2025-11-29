@@ -4,7 +4,8 @@ const { spawn } = require('child_process');
 
 let mainWindow;
 let nextServerProcess;
-const isDev = process.env.NODE_ENV !== 'production';
+// Use app.isPackaged to reliably detect if we're in production
+const isDev = !app.isPackaged;
 const port = process.env.PORT || 3000;
 
 function createWindow() {
@@ -21,19 +22,30 @@ function createWindow() {
         },
         autoHideMenuBar: true,
         backgroundColor: '#ffffff',
+        show: false, // Don't show until ready
     });
 
     // Load the Next.js app
-    const url = isDev
-        ? `http://localhost:${port}`
-        : `http://localhost:${port}`;
+    const url = `http://localhost:${port}`;
+
+    console.log(`Loading URL: ${url} (isDev: ${isDev})`);
 
     mainWindow.loadURL(url);
 
-    // Open DevTools in development mode
+    // Show window when ready to avoid blank screen
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
+
+    // Open DevTools in development mode only
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }
+
+    // Handle load errors
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        console.error('Failed to load:', errorCode, errorDescription);
+    });
 
     // Handle window close
     mainWindow.on('closed', () => {
@@ -49,12 +61,40 @@ function startNextServer() {
             resolve();
         } else {
             // In production, start the Next.js server
-            const nextServerPath = path.join(__dirname, '../server.js');
+            console.log('Production mode: starting Next.js server...');
 
-            nextServerProcess = spawn('node', [nextServerPath], {
-                cwd: path.join(__dirname, '..'),
-                env: { ...process.env, PORT: port },
-                stdio: 'inherit'
+            // With ASAR enabled, point to app.asar
+            // Note: Node.js cannot execute files inside ASAR directly
+            // This will likely fail unless server.js is unpacked
+            const serverPath = path.join(process.resourcesPath, 'app.asar', 'server.js');
+            const appPath = path.join(process.resourcesPath, 'app.asar');
+
+            console.log('Server path:', serverPath);
+            console.log('App path:', appPath);
+
+            nextServerProcess = spawn('node', [serverPath], {
+                cwd: appPath,
+                env: {
+                    ...process.env,
+                    PORT: port,
+                    NODE_ENV: 'production'
+                },
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
+
+            let serverReady = false;
+
+            nextServerProcess.stdout.on('data', (data) => {
+                const message = data.toString();
+                console.log('Server:', message);
+                if (message.includes('Ready') || message.includes('started')) {
+                    serverReady = true;
+                    resolve();
+                }
+            });
+
+            nextServerProcess.stderr.on('data', (data) => {
+                console.error('Server error:', data.toString());
             });
 
             nextServerProcess.on('error', (error) => {
@@ -62,11 +102,17 @@ function startNextServer() {
                 reject(error);
             });
 
-            // Wait a bit for the server to start
+            nextServerProcess.on('exit', (code) => {
+                console.log('Server process exited with code:', code);
+            });
+
+            // Fallback timeout if we don't detect "Ready" message
             setTimeout(() => {
-                console.log('Next.js server started on port', port);
-                resolve();
-            }, 3000);
+                if (!serverReady) {
+                    console.log('Server should be ready (timeout reached)');
+                    resolve();
+                }
+            }, 5000);
         }
     });
 }

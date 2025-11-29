@@ -34,7 +34,6 @@ Generate NEXTAUTH_SECRET:
 ```bash
 npx prisma generate
 npx prisma db push
-npm run db:seed
 ```
 
 ### 4. Module Not Found Errors
@@ -70,8 +69,8 @@ This will show all type errors. Fix them one by one.
 **Error**: Can't login or redirected to login page
 
 **Solution**:
-- Check that database is seeded: `npm run db:seed`
-- Verify credentials: admin/admin123 or staff/staff123
+- Check that database is initialized
+- Verify credentials
 - Check browser console for errors
 - Verify NEXTAUTH_SECRET is set
 
@@ -90,7 +89,6 @@ rm -rf .next node_modules
 npm install --legacy-peer-deps
 npx prisma generate
 npx prisma db push
-npm run db:seed
 npm run dev
 ```
 
@@ -100,7 +98,6 @@ Remove-Item -Recurse -Force .next, node_modules -ErrorAction SilentlyContinue
 npm install --legacy-peer-deps
 npx prisma generate
 npx prisma db push
-npm run db:seed
 npm run dev
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "repairflow",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "A comprehensive, open-source repair shop management system",
   "author": "RepairFlow Contributors",
   "license": "MIT",
@@ -42,8 +42,8 @@
     "version:set": "node scripts/update-version.js set",
     "dev:electron": "concurrently \"cross-env BROWSER=none next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "build:electron": "prisma generate && next build",
-    "electron:build": "npm run build:electron && electron-builder --win",
-    "electron:dist": "npm run build:electron && electron-builder --win --publish never"
+    "electron:build": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false npm run build:electron && electron-builder --win",
+    "electron:dist": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false npm run build:electron && electron-builder --win --publish never"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.0",

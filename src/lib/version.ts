@@ -1,5 +1,5 @@
 // App version - synced with package.json
-export const APP_VERSION = '1.6.0';
+export const APP_VERSION = '1.6.1';
 export const APP_NAME = 'RepairFlow';
 
 // Version info

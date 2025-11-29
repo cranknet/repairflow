@@ -48,10 +48,11 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 RepairFlow is available as a native Windows application!
 
-- **Native Experience**: Runs as a standalone desktop app
-- **Database Switcher**: Toggle between local (SQLite) and remote (MySQL) databases
-- **System Integration**: Taskbar, system tray, and file system access
-- **Offline Capable**: Works offline with local database
+- **Native Experience**: Runs as a standalone desktop app with taskbar and system tray integration
+- **Dual Database Support**: Seamlessly switch between local **SQLite** (offline) and remote **MySQL** (multi-user) databases via the Settings UI
+- **Automatic Server Management**: The app automatically manages the internal server lifecycle
+- **Flexible Deployment**: Available as a standard **Installer (.exe)** or **Portable** application
+- **Offline Capable**: Fully functional offline when using the local database
 
 See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
 
@@ -94,7 +95,6 @@ See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
    ```bash
    npx prisma generate
    npx prisma db push
-   npm run db:seed
    ```
 
 5. **Run the development server**
@@ -144,7 +144,6 @@ See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
    ```bash
    npx prisma generate
    npx prisma db push
-   npm run db:seed
    ```
 
 5. **Lancer le serveur de développement**
@@ -194,7 +193,6 @@ See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
    ```bash
    npx prisma generate
    npx prisma db push
-   npm run db:seed
    ```
 
 5. **تشغيل خادم التطوير**
@@ -207,13 +205,12 @@ See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
 
 </details>
 
-### Default Login Credentials
+### Setup Wizard
 
-After seeding:
-- **Admin**: `admin` / `admin123`
-- **Staff**: `staff` / `staff123`
-
-⚠️ **Change these passwords immediately in production!**
+Upon first launch, the application will automatically redirect you to the setup wizard. Follow the on-screen instructions to:
+1. Create your administrator account
+2. Configure company details
+3. Set up initial preferences
 
 
 
@@ -221,7 +218,7 @@ After seeding:
 
 - **Framework**: Next.js 15.0
 - **Language**: TypeScript
-- **Database**: Prisma ORM with SQLite/PostgreSQL
+- **Database**: Prisma ORM with SQLite/PostgreSQL/MySQL
 - **Authentication**: NextAuth.js
 - **UI Components**: Radix UI + Tailwind CSS
 
@@ -284,7 +281,6 @@ Create custom SMS templates in multiple languages:
 ### Database
 - `npm run db:push` - Push schema changes to database
 - `npm run db:migrate` - Create a migration
-- `npm run db:seed` - Seed database with sample data
 - `npm run db:reset` - Reset database (clear all data)
 - `npm run db:studio` - Open Prisma Studio
 
