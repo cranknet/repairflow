@@ -9,6 +9,28 @@ let nextServerProcess;
 const isDev = !app.isPackaged;
 const port = process.env.PORT || 3000;
 
+// Logging setup
+const logFile = path.join(app.getPath('userData'), 'app.log');
+
+function logToFile(message) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `${timestamp}: ${message}\n`;
+    try {
+        fs.appendFileSync(logFile, logMessage);
+    } catch (error) {
+        // Fallback to console if file write fails
+        console.log(message);
+    }
+}
+
+// Clear log file on startup
+try {
+    fs.writeFileSync(logFile, '');
+} catch (e) { }
+
+logToFile(`App starting... isDev: ${isDev}`);
+logToFile(`UserData path: ${app.getPath('userData')}`);
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1400,
@@ -29,7 +51,7 @@ function createWindow() {
     // Load the Next.js app
     const url = `http://localhost:${port}`;
 
-    console.log(`Loading URL: ${url} (isDev: ${isDev})`);
+    logToFile(`Loading URL: ${url} (isDev: ${isDev})`);
 
     mainWindow.loadURL(url);
 
@@ -45,7 +67,7 @@ function createWindow() {
 
     // Handle load errors
     mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error('Failed to load:', errorCode, errorDescription);
+        logToFile(`Failed to load: ${errorCode} ${errorDescription}`);
     });
 
     // Handle window close
@@ -62,7 +84,7 @@ function startNextServer() {
             resolve();
         } else {
             // In production, start the Next.js server
-            console.log('Production mode: starting Next.js server...');
+            logToFile('Production mode: starting Next.js server...');
 
             // With ASAR enabled, point to app.asar
             // Note: Node.js cannot execute files inside ASAR directly
@@ -70,8 +92,19 @@ function startNextServer() {
             const serverPath = path.join(process.resourcesPath, 'app', 'server.js');
             const appPath = path.join(process.resourcesPath, 'app');
 
-            console.log('Server path:', serverPath);
-            console.log('App path:', appPath);
+            logToFile(`Server path: ${serverPath}`);
+            logToFile(`App path: ${appPath}`);
+
+            if (!fs.existsSync(serverPath)) {
+                logToFile(`ERROR: Server file not found at ${serverPath}`);
+                // Try to list contents of app path
+                try {
+                    const files = fs.readdirSync(appPath);
+                    logToFile(`Files in app path: ${files.join(', ')}`);
+                } catch (e) {
+                    logToFile(`Error listing app path: ${e.message}`);
+                }
+            }
 
             nextServerProcess = spawn('node', [serverPath], {
                 cwd: appPath,
@@ -88,7 +121,7 @@ function startNextServer() {
 
             nextServerProcess.stdout.on('data', (data) => {
                 const message = data.toString();
-                console.log('Server:', message);
+                logToFile(`Server: ${message}`);
                 if (message.includes('Ready') || message.includes('started')) {
                     serverReady = true;
                     resolve();
@@ -96,22 +129,22 @@ function startNextServer() {
             });
 
             nextServerProcess.stderr.on('data', (data) => {
-                console.error('Server error:', data.toString());
+                logToFile(`Server error: ${data.toString()}`);
             });
 
             nextServerProcess.on('error', (error) => {
-                console.error('Failed to start Next.js server:', error);
+                logToFile(`Failed to start Next.js server: ${error.message}`);
                 reject(error);
             });
 
             nextServerProcess.on('exit', (code) => {
-                console.log('Server process exited with code:', code);
+                logToFile(`Server process exited with code: ${code}`);
             });
 
             // Fallback timeout if we don't detect "Ready" message
             setTimeout(() => {
                 if (!serverReady) {
-                    console.log('Server should be ready (timeout reached)');
+                    logToFile('Server should be ready (timeout reached)');
                     resolve();
                 }
             }, 5000);
@@ -143,7 +176,7 @@ app.on('ready', async () => {
         await startNextServer();
         createWindow();
     } catch (error) {
-        console.error('Failed to start application:', error);
+        logToFile(`Failed to start application: ${error.message}`);
         app.quit();
     }
 });
