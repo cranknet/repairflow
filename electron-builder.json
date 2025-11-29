@@ -19,7 +19,11 @@
     ],
     "asar": true,
     "asarUnpack": [
-        "node_modules/@serialport/**"
+        "node_modules/**/*",
+        "server.js",
+        ".next/**/*",
+        "public/**/*",
+        "prisma/**/*"
     ],
     "win": {
         "signAndEditExecutable": false,

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const fs = require('fs');
 
 let mainWindow;
 let nextServerProcess;
@@ -66,8 +67,8 @@ function startNextServer() {
             // With ASAR enabled, point to app.asar
             // Note: Node.js cannot execute files inside ASAR directly
             // This will likely fail unless server.js is unpacked
-            const serverPath = path.join(process.resourcesPath, 'app.asar', 'server.js');
-            const appPath = path.join(process.resourcesPath, 'app.asar');
+            const serverPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'server.js');
+            const appPath = path.join(process.resourcesPath, 'app.asar.unpacked');
 
             console.log('Server path:', serverPath);
             console.log('App path:', appPath);
@@ -77,7 +78,8 @@ function startNextServer() {
                 env: {
                     ...process.env,
                     PORT: port,
-                    NODE_ENV: 'production'
+                    NODE_ENV: 'production',
+                    DATABASE_URL: `file:${path.join(app.getPath('userData'), 'repairflow.db')}`
                 },
                 stdio: ['ignore', 'pipe', 'pipe']
             });
