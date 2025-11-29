@@ -32,6 +32,10 @@ jobs:
       run: npm run electron:dist
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CSC_IDENTITY_AUTO_DISCOVERY: false
+        DATABASE_URL: "file:./prisma/build.db"
+        NEXTAUTH_SECRET: "build-secret-key"
+        NEXTAUTH_URL: "http://localhost:3000"
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
