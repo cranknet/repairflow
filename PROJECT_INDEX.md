@@ -12,7 +12,7 @@ This document provides a comprehensive overview of the RepairFlow project struct
 - **Styling:** Tailwind CSS, Radix UI
 - **Database:** SQLite (Dev) / PostgreSQL (Prod) / MySQL via Prisma ORM
 - **Authentication:** NextAuth.js
-- **Desktop:** Electron + Electron Builder
+
 
 - **State Management:** React Context + SWR (implied for data fetching)
 
@@ -21,7 +21,7 @@ This document provides a comprehensive overview of the RepairFlow project struct
 ```
 repairflow/
 ├── .github/                # GitHub Actions & templates
-├── electron/               # Electron main process & preload
+
 ├── prisma/                 # Database schema & migrations
 │   └── schema.prisma       # Main data model definition
 ├── public/                 # Static assets (images, icons)
@@ -105,7 +105,7 @@ The database schema is defined in `prisma/schema.prisma`. Key entities include:
 
 - **SMS:** Custom implementation in `src/lib/com-port-sms.ts` (Web) and `src/app/api/sms`.
 - **Printing:** Custom print system for labels and invoices.
-- **Desktop Integration:** `electron/main.js` (Process Management), `electron/preload.js` (IPC), `src/components/settings/database-switcher.tsx` (DB Switching).
+
 
 ## 7. Development Workflow
 

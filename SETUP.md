@@ -59,8 +59,5 @@ The application includes a setup wizard that runs on first launch. Follow the in
 - Run `npm install --legacy-peer-deps` if dependency conflicts occur
 - Delete `node_modules` and `.next` folders, then reinstall if needed
 
-## Desktop App Setup
-
-For instructions on running and building the Windows desktop application, please refer to [ELECTRON.md](ELECTRON.md).
 
 
