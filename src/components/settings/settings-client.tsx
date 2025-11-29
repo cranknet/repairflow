@@ -83,6 +83,9 @@ export function SettingsClient({
   const [loginLogs, setLoginLogs] = useState<any[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
   const { data: session } = useSession();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetConfirmation, setResetConfirmation] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   // Handle URL parameters for tab selection and auto-edit user
   useEffect(() => {
@@ -114,6 +117,30 @@ export function SettingsClient({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users.length]);
+
+  const handleFactoryReset = async () => {
+    if (resetConfirmation !== 'RESET') {
+      toast({ title: t('error'), description: t('typeResetToConfirm') });
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const response = await fetch('/api/settings/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation: resetConfirmation }),
+      });
+      if (!response.ok) throw new Error('Failed to reset system');
+      toast({ title: t('success'), description: t('resetSuccessful') });
+      setTimeout(() => { window.location.href = '/install'; }, 1500);
+    } catch (error: any) {
+      toast({ title: t('error'), description: error.message || t('resetFailed') });
+      setIsResetting(false);
+    } finally {
+      setShowResetConfirm(false);
+      setResetConfirmation('');
+    }
+  };
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
@@ -635,6 +662,31 @@ export function SettingsClient({
               <div className="pt-4 border-t border-gray-200">
                 <AppVersion />
               </div>
+
+              {/* Danger Zone - Factory Reset */}
+              <div className="pt-6 border-t-2 border-red-200">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-red-900">{t('factoryReset')}</h3>
+                      <p className="mt-1 text-sm text-red-700">{t('resetSettingsDescription')}</p>
+                      <Button
+                        variant="outlined"
+                        onClick={() => setShowResetConfirm(true)}
+                        className="mt-3 border-red-600 text-red-600 hover:bg-red-50"
+                      >
+                        {t('resetSettings')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <Button onClick={handleSaveSettings} disabled={isSaving}>
                 {isSaving ? t('loading') : t('saveSettings')}
               </Button>
@@ -1191,8 +1243,47 @@ export function SettingsClient({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Factory Reset Confirmation Dialog */}
+        <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="text-red-600">{t('factoryReset')}</DialogTitle>
+              <DialogDescription className="text-red-700 font-semibold">
+                {t('resetWarning')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm">{t('confirmReset')}</p>
+              <div className="space-y-2">
+                <Label htmlFor="reset-confirm">{t('typeResetToConfirm')}</Label>
+                <Input
+                  id="reset-confirm"
+                  value={resetConfirmation}
+                  onChange={(e) => setResetConfirmation(e.target.value)}
+                  placeholder="RESET"
+                  className="font-mono"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outlined" onClick={() => {
+                setShowResetConfirm(false);
+                setResetConfirmation('');
+              }}>
+                {t('cancel')}
+              </Button>
+              <Button
+                onClick={handleFactoryReset}
+                disabled={isResetting || resetConfirmation !== 'RESET'}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isResetting ? t('resetInProgress') : t('resetSettings')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
 }
-
