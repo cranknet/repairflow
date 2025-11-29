@@ -17,22 +17,14 @@
         "postcss.config.js",
         "tailwind.config.ts"
     ],
-    "asar": true,
-    "asarUnpack": [
-        "node_modules/**/*",
-        "server.js",
-        ".next/**/*",
-        "public/**/*",
-        "prisma/**/*"
-    ],
+    "asar": false,
     "win": {
         "signAndEditExecutable": false,
         "target": [
             {
                 "target": "nsis",
                 "arch": [
-                    "x64",
-                    "ia32"
+                    "x64"
                 ]
             },
             {

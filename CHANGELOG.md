@@ -5,7 +5,13 @@ All notable changes to RepairFlow will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.1] - 2025-11-29
+## [1.7.2] - 2025-11-29
+
+### Fixed
+- **Electron Build**: Disabled ASAR packaging to resolve file path and unpacking issues during build.
+- **Electron Build**: Updated server path configuration to support non-ASAR structure.
+
+
 
 ### Fixed
 - **Electron Build**: Fixed startup crash by unpacking server dependencies from ASAR.

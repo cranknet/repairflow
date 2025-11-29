@@ -67,8 +67,8 @@ function startNextServer() {
             // With ASAR enabled, point to app.asar
             // Note: Node.js cannot execute files inside ASAR directly
             // This will likely fail unless server.js is unpacked
-            const serverPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'server.js');
-            const appPath = path.join(process.resourcesPath, 'app.asar.unpacked');
+            const serverPath = path.join(process.resourcesPath, 'app', 'server.js');
+            const appPath = path.join(process.resourcesPath, 'app');
 
             console.log('Server path:', serverPath);
             console.log('App path:', appPath);
