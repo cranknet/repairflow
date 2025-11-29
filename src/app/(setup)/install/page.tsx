@@ -69,7 +69,7 @@ async function setupApp(formData: FormData) {
         await signIn("credentials", {
             username: adminUsername,
             password: adminPassword,
-            redirectTo: "/dashboard",
+            redirectTo: "/complete",
         });
     } catch (error) {
         if ((error as any).digest?.startsWith('NEXT_REDIRECT')) {
@@ -77,7 +77,7 @@ async function setupApp(formData: FormData) {
         }
         console.error("SignIn error:", error);
         // Fallback redirect if signin fails for some reason (though it shouldn't)
-        redirect("/dashboard");
+        redirect("/complete");
     }
 }
 

@@ -14,7 +14,8 @@ export default auth(async (req) => {
         path.startsWith('/track') ||
         path.startsWith('/login') ||
         path.startsWith('/api/auth') ||
-        path.startsWith('/install') // Allow install page to be accessed without auth
+        path.startsWith('/install') || // Allow install page to be accessed without auth
+        path.startsWith('/complete') // Allow completion page after install
     ) {
         return NextResponse.next({
             request: {
