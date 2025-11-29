@@ -1,0 +1,52 @@
+{
+    "appId": "com.repairflow.app",
+    "productName": "RepairFlow",
+    "directories": {
+        "output": "dist",
+        "buildResources": "build"
+    },
+    "files": [
+        "electron/**/*",
+        "server.js",
+        ".next/**/*",
+        "public/**/*",
+        "prisma/**/*",
+        "node_modules/**/*",
+        "package.json",
+        "next.config.js",
+        "postcss.config.js",
+        "tailwind.config.ts"
+    ],
+    "win": {
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64",
+                    "ia32"
+                ]
+            },
+            {
+                "target": "portable",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ],
+        "icon": "public/favicon.png",
+        "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true,
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "shortcutName": "RepairFlow"
+    },
+    "portable": {
+        "artifactName": "${productName}-${version}-portable.${ext}"
+    },
+    "extraMetadata": {
+        "main": "electron/main.js"
+    }
+}

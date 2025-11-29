@@ -64,6 +64,7 @@ Thank you for your interest in contributing to RepairFlow! This document provide
 3. Set up environment variables (see README.md)
 4. Set up database: `npx prisma db push && npm run db:seed`
 5. Start dev server: `npm run dev`
+6. Start Electron dev app: `npm run dev:electron`
 
 ## Code Style
 
@@ -81,6 +82,7 @@ Thank you for your interest in contributing to RepairFlow! This document provide
 - `src/lib/` - Utility functions and helpers
 - `src/contexts/` - React contexts
 - `prisma/` - Database schema
+- `electron/` - Electron main process and preload scripts
 
 ## Commit Message Guidelines
 
@@ -130,6 +132,7 @@ Before submitting:
 - Check for TypeScript errors: `npm run build`
 - Verify linting: `npm run lint`
 - Test on different screen sizes (responsive)
+- If modifying desktop features, test with `npm run dev:electron`
 
 ## Questions?
 

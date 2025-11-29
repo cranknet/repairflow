@@ -23,8 +23,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 ## Environment
+- Platform: [Web / Windows Desktop App]
 - OS: [e.g. Windows 10, macOS 13, Ubuntu 22.04]
-- Browser: [e.g. Chrome 120, Firefox 121, Safari 17]
+- Browser (if Web): [e.g. Chrome 120, Firefox 121]
 - Node Version: [e.g. 18.17.0]
 - App Version: [e.g. 1.0.0]
 

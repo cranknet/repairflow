@@ -44,6 +44,17 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Project Index**: Comprehensive codebase overview for developers
 
+## 🖥️ Windows Desktop App
+
+RepairFlow is available as a native Windows application!
+
+- **Native Experience**: Runs as a standalone desktop app
+- **Database Switcher**: Toggle between local (SQLite) and remote (MySQL) databases
+- **System Integration**: Taskbar, system tray, and file system access
+- **Offline Capable**: Works offline with local database
+
+See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
+
 ## 🚀 Quick Start / Démarrage Rapide / البداية السريعة
 
 <details open>
@@ -218,6 +229,7 @@ After seeding:
 - **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
 - **Printing**: Custom print system
+- **Desktop**: Electron + Electron Builder
 
 ## 📁 Project Structure
 
@@ -264,6 +276,10 @@ Create custom SMS templates in multiple languages:
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+### Windows App
+- `npm run dev:electron` - Run desktop app in development mode
+- `npm run electron:dist` - Build Windows installer (.exe)
 
 ### Database
 - `npm run db:push` - Push schema changes to database
