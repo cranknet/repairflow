@@ -5,7 +5,13 @@ All notable changes to RepairFlow will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.4] - 2025-11-29
+## [1.7.5] - 2025-11-29
+
+### Fixed
+- **Electron Build**: Resolved missing `.prisma` folder issue by explicitly negating the default dotfile exclusion in `electron-builder.json`.
+- **Electron Build**: Restored `files` configuration in `electron-builder.json` which was accidentally removed.
+
+
 
 ### Fixed
 - **Electron Build**: Explicitly included `.prisma` folder in build configuration to resolve "Cannot find module" errors.
