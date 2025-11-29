@@ -106,6 +106,20 @@ function startNextServer() {
                 }
             }
 
+            // Debug Prisma files
+            const prismaPath = path.join(appPath, 'node_modules', '.prisma');
+            if (fs.existsSync(prismaPath)) {
+                logToFile(`Prisma path exists: ${prismaPath}`);
+                try {
+                    const prismaFiles = fs.readdirSync(path.join(prismaPath, 'client'));
+                    logToFile(`Prisma client files: ${prismaFiles.join(', ')}`);
+                } catch (e) {
+                    logToFile(`Error listing prisma client files: ${e.message}`);
+                }
+            } else {
+                logToFile(`ERROR: Prisma path NOT found at ${prismaPath}`);
+            }
+
             nextServerProcess = spawn('node', [serverPath], {
                 cwd: appPath,
                 env: {

@@ -5,7 +5,13 @@ All notable changes to RepairFlow will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.3] - 2025-11-29
+## [1.7.4] - 2025-11-29
+
+### Fixed
+- **Electron Build**: Explicitly included `.prisma` folder in build configuration to resolve "Cannot find module" errors.
+- **Debugging**: Added specific logging for Prisma client files to diagnose database connectivity issues.
+
+
 
 ### Fixed
 - **Electron Build**: Added `HOSTNAME` environment variable to fix "server-side exception" on startup.
