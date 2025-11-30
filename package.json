@@ -23,11 +23,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:web": "next dev",
     "build": "prisma generate && next build",
-    "build:web": "prisma generate && next build",
     "start": "next start",
-    "start:web": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
