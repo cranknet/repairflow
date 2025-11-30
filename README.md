@@ -8,7 +8,7 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Project Index](PROJECT_INDEX.md) • [Contributing](#-contributing) • [License](#-license)
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.0-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.7-2D3748?logo=prisma)](https://www.prisma.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -16,45 +16,40 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 </div>
 
 ![RepairFlow](https://img.shields.io/badge/RepairFlow-Open%20Source-blue)
-![Next.js](https://img.shields.io/badge/Next.js-15.0-black)
+![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🌟 Features
 
 ### Core Functionality
-- **Ticket Management**: Complete lifecycle management from receipt to completion
+- **Ticket Management**: Complete lifecycle management with status workflow (RECEIVED → IN_PROGRESS → WAITING_FOR_PARTS → REPAIRED → COMPLETED, with CANCELLED and RETURNED states)
 - **Customer Management**: Track customer information, history, and contact details
-- **Multi-language Support**: English, French, and Arabic
-- **Print System**: Generate labels (40x20mm) and invoices (80x80mm) with QR codes
-- **SMS Notifications**: Customizable SMS templates in multiple languages
-- **Dashboard Analytics**: Real-time KPIs, sales charts, and business insights
+- **Returns Management**: Handle customer returns with refund amount tracking (partial or full refund), automatically marks tickets as RETURNED
+- **Multi-language Support**: English, French, and Arabic with full UI translation
+- **Print System**: Generate labels (40x20mm) and invoices (80x120mm) with QR codes
+- **SMS Notifications**: Customizable SMS templates in multiple languages with variable substitution. COM port SMS support (web only, mobile native SMS coming soon)
+- **Dashboard Analytics**: Real-time KPIs (active tickets, customers, low stock items, revenue), sales charts with COGS tracking, sales targets, and recent activity
+- **Public Tracking**: Customer-facing tracking page with status history and social media links
 
 ### Advanced Features
-- **User Management**: Role-based access control (Admin, Staff)
-- **Status Tracking**: Complete status history with notes
-- **Price Adjustments**: Track price changes with audit trail
-- **Parts Integration**: Link parts to tickets (without inventory tracking)
-- **Returns Management**: Handle customer returns with refund amount tracking (partial or full refund)
-- **Payment Tracking**: Mark tickets as paid/unpaid
-- **Device Tracking**: Track device brands, models, and common issues
-- **Image Upload**: Capture device condition photos
-- **Search & Filters**: Quick search and filter tickets by status
-- **Dynamic Branding**: Custom logo, favicon, and login background
+- **User Management**: Role-based access control (Admin, Staff) with login logs
+- **Notifications System**: In-app notifications for status changes, price adjustments, and user actions
+- **Status Tracking**: Complete status history with notes and timestamps
+- **Price Adjustments**: Track price changes with audit trail and user attribution
+- **Parts Management**: Link parts to tickets with inventory tracking and transaction history
+- **Payment Tracking**: Mark tickets as paid/unpaid with payment status indicators
+- **Device Tracking**: Track device brands, models, and common issues with condition photos
+- **Image Upload**: Capture device condition photos (front and back) stored as Base64
+- **Search & Filters**: Quick search and filter tickets by status, customer, and more
+- **Dynamic Branding**: Custom logo, favicon, and login background with image upload
+- **Theme Customization**: Customize app appearance with theme settings
+- **Social Media Integration**: Add social media links displayed on public tracking page
+- **Warranty Management**: Track warranty periods and custom warranty text per ticket
+- **Password Reset**: Forgot password functionality with email-based reset tokens
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Project Index**: Comprehensive codebase overview for developers
 
-## 🖥️ Windows Desktop App
-
-RepairFlow is available as a native Windows application!
-
-- **Native Experience**: Runs as a standalone desktop app with taskbar and system tray integration
-- **Dual Database Support**: Seamlessly switch between local **SQLite** (offline) and remote **MySQL** (multi-user) databases via the Settings UI
-- **Automatic Server Management**: The app automatically manages the internal server lifecycle
-- **Flexible Deployment**: Available as a standard **Installer (.exe)** or **Portable** application
-- **Offline Capable**: Fully functional offline when using the local database
-
-See [ELECTRON.md](ELECTRON.md) for detailed installation and usage instructions.
 
 ## 🚀 Quick Start / Démarrage Rapide / البداية السريعة
 
@@ -216,7 +211,7 @@ Upon first launch, the application will automatically redirect you to the setup 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15.0
+- **Framework**: Next.js 16.0
 - **Language**: TypeScript
 - **Database**: Prisma ORM with SQLite/PostgreSQL/MySQL
 - **Authentication**: NextAuth.js
@@ -226,7 +221,6 @@ Upon first launch, the application will automatically redirect you to the setup 
 - **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
 - **Printing**: Custom print system
-- **Desktop**: Electron + Electron Builder
 
 ## 📁 Project Structure
 
@@ -254,17 +248,28 @@ The app uses Prisma ORM. To modify the schema:
 
 ### Settings
 Access settings via the Settings page (Admin only):
-- Company information
-- Branding (logo, background)
-- SMS templates
-- User management
-- Language preferences
+- **General Settings**: Company information (name, email, phone, address, currency, country)
+- **Appearance**: Theme customization and color preferences
+- **Branding**: Custom logo, favicon, and login background image uploads
+- **Social Media**: Facebook, YouTube, and Instagram links for public tracking page
+- **SMS Templates**: Create and manage SMS templates in multiple languages
+- **User Management**: Create, edit, and delete users with role assignment and login log viewing
 
 ### SMS Templates
 Create custom SMS templates in multiple languages:
 - Navigate to Settings → SMS Templates
 - Create templates for different ticket statuses
 - Use variables: `{customerName}`, `{ticketNumber}`, `{trackingCode}`, `{finalPrice}`
+- Enable/disable templates individually
+- Support for multiple languages per template type
+- **SMS Sending**: COM port SMS via AT commands (web platform only). Mobile devices show a notice that native Android SMS integration is coming soon
+
+### Public Tracking
+Customers can track their repair status using a tracking code:
+- Access via `/track` route or direct link with tracking code
+- View ticket status, device information, and status history
+- Display social media links for business promotion
+- No authentication required for public access
 
 ## 📝 Scripts
 
@@ -274,9 +279,6 @@ Create custom SMS templates in multiple languages:
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
-### Windows App
-- `npm run dev:electron` - Run desktop app in development mode
-- `npm run electron:dist` - Build Windows installer (.exe)
 
 ### Database
 - `npm run db:push` - Push schema changes to database
@@ -340,12 +342,12 @@ If you find RepairFlow useful, please consider giving it a star on GitHub!
 
 ## 🗺️ Roadmap
 
-- [ ] Email notifications
+- [ ] Email notifications (SMTP configuration available, full email notifications coming soon)
 - [ ] Advanced reporting and analytics
 - [ ] Barcode scanning for inventory
 - [ ] Multi-store support
 - [ ] API for third-party integrations
-
+- [ ] Native Android SMS integration for mobile devices
 - [ ] More language support
 
 ---
