@@ -52,46 +52,38 @@ export async function POST(request: NextRequest) {
 
         if (config.type === 'sqlite') {
             // Use default SQLite configuration
-            if (typeof window !== 'undefined' && (window as any).electron) {
-                // In Electron, use user data directory
-                newDatabaseUrl = 'file:./prisma/repairflow.db';
-            } else {
-                newDatabaseUrl = 'file:./prisma/dev.db';
-            }
+            newDatabaseUrl = 'file:./prisma/dev.db';
         } else if (config.type === 'mysql') {
             // Build MySQL URL
             const { host, port, database, user, password } = config;
             newDatabaseUrl = `mysql://${user}:${password}@${host}:${port}/${database}`;
         }
 
-        // In Electron, we can update the .env file
-        // For web, this would require manual .env update
-        if (process.env.ELECTRON_ENV) {
-            const envPath = path.join(process.cwd(), '.env');
-            let envContent = '';
+        // Update the .env file
+        const envPath = path.join(process.cwd(), '.env');
+        let envContent = '';
 
-            if (fs.existsSync(envPath)) {
-                envContent = fs.readFileSync(envPath, 'utf-8');
-            }
-
-            // Update DATABASE_URL in .env
-            const lines = envContent.split('\n');
-            let found = false;
-
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('DATABASE_URL=')) {
-                    lines[i] = `DATABASE_URL="${newDatabaseUrl}"`;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                lines.push(`DATABASE_URL="${newDatabaseUrl}"`);
-            }
-
-            fs.writeFileSync(envPath, lines.join('\n'));
+        if (fs.existsSync(envPath)) {
+            envContent = fs.readFileSync(envPath, 'utf-8');
         }
+
+        // Update DATABASE_URL in .env
+        const lines = envContent.split('\n');
+        let found = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('DATABASE_URL=')) {
+                lines[i] = `DATABASE_URL="${newDatabaseUrl}"`;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            lines.push(`DATABASE_URL="${newDatabaseUrl}"`);
+        }
+
+        fs.writeFileSync(envPath, lines.join('\n'));
 
         return NextResponse.json({ success: true, message: 'Configuration saved. Please restart the application.' });
     } catch (error) {

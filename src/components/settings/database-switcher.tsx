@@ -22,8 +22,8 @@ export function DatabaseSwitcher() {
     }>({ status: 'idle' });
     const [isSaving, setIsSaving] = useState(false);
 
-    // Check if running in Electron
-    const isElectron = typeof window !== 'undefined' && (window as any).electron?.isElectron;
+    // Database switcher is no longer available (Electron removed)
+    const isElectron = false;
 
     useEffect(() => {
         // Load current database configuration

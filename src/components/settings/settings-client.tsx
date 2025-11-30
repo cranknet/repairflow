@@ -11,7 +11,6 @@ import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon, ClockIcon } 
 import { format } from 'date-fns';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ThemeCustomizer } from './theme-customizer';
-import { DatabaseSwitcher } from './database-switcher';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AppVersion } from '@/components/layout/app-version';
 import {
@@ -46,7 +45,6 @@ export function SettingsClient({
     { id: 'branding', label: t('branding') },
     { id: 'social', label: t('socialMedia') },
     { id: 'sms', label: t('smsTemplates') },
-    { id: 'database', label: 'Database' },
     { id: 'users', label: t('userManagement') },
   ];
   const [settings, setSettings] = useState(initialSettings);
@@ -931,11 +929,6 @@ export function SettingsClient({
         {/* SMS Templates Tab */}
         {activeTab === 'sms' && (
           <SMSTemplatesManager />
-        )}
-
-        {/* Database Tab */}
-        {activeTab === 'database' && (
-          <DatabaseSwitcher />
         )}
 
         {/* User Management Tab */}

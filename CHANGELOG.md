@@ -9,4 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Release**: Reset project versioning to Beta.
-- **Electron Build**: Fixed critical startup issues by ensuring `.prisma` folder is included in the build using `extraResources`.
+- **Removed**: Electron desktop app support - application is now web-only.
