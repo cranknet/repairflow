@@ -41,7 +41,55 @@ SMTP_FROM="noreply@repairshop.com"
 
 ## Setup Wizard
 
-The application includes a setup wizard that runs on first launch. Follow the instructions to create your admin account and configure the system.
+The application includes a setup wizard that runs on first launch. Follow the instructions to:
+1. Create your administrator account
+2. Configure company details
+3. Set up initial preferences
+
+After completing the setup wizard, you'll be redirected to the main dashboard.
+
+## Initial Configuration
+
+After setup, configure your system through the Settings page (Admin only):
+
+### General Settings
+- Company name, email, phone, and address
+- Currency and country selection
+- Timezone preferences
+
+### Branding
+- Upload company logo
+- Upload favicon
+- Set login background image
+
+### Social Media
+- Add Facebook, YouTube, and Instagram links
+- These links appear on the public tracking page
+
+### SMS Templates
+- Create SMS templates for different ticket statuses
+- Support for multiple languages (English, French, Arabic)
+- Use variables: `{customerName}`, `{ticketNumber}`, `{trackingCode}`, `{finalPrice}`
+- **SMS Sending**: Requires a GSM modem or USB dongle connected via COM port (web platform only)
+- COM ports are automatically detected when sending SMS
+- Mobile devices: Native Android SMS integration coming soon
+
+### User Management
+- Create additional staff accounts
+- Assign roles (Admin or Staff)
+- View login logs for security monitoring
+
+### Ticket Workflow
+The system supports the following ticket statuses:
+- **RECEIVED**: Initial status when ticket is created
+- **IN_PROGRESS**: Repair work has started
+- **WAITING_FOR_PARTS**: Waiting for parts to arrive
+- **REPAIRED**: Device has been repaired
+- **COMPLETED**: Ticket is fully completed
+- **CANCELLED**: Ticket was cancelled (terminal status)
+- **RETURNED**: Ticket was returned to customer (terminal status, set automatically when return is created)
+
+**Note**: Once a ticket is marked as CANCELLED or RETURNED, its status cannot be changed.
 
 ## Troubleshooting
 
@@ -59,8 +107,22 @@ The application includes a setup wizard that runs on first launch. Follow the in
 - Run `npm install --legacy-peer-deps` if dependency conflicts occur
 - Delete `node_modules` and `.next` folders, then reinstall if needed
 
-## Desktop App Setup
+## Database Options
 
-For instructions on running and building the Windows desktop application, please refer to [ELECTRON.md](ELECTRON.md).
+### SQLite (Default)
+- Local file-based database
+- Perfect for single-user installations
+- No additional setup required
+- Database file location: `prisma/dev.db`
+
+### MySQL/PostgreSQL
+- For multi-user or production deployments
+- Update `DATABASE_URL` in `.env`:
+  ```env
+  DATABASE_URL="mysql://user:password@localhost:3306/repairflow"
+  # or
+  DATABASE_URL="postgresql://user:password@localhost:5432/repairflow"
+  ```
+- Run migrations: `npx prisma migrate dev`
 
 
