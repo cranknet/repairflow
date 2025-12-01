@@ -10,8 +10,73 @@ import { SMSSender } from '@/components/sms/sms-sender';
 import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
 
+// Type definitions
+interface PriceAdjustmentUser {
+  name: string | null;
+  username: string;
+}
+
+interface PriceAdjustmentEntry {
+  id: string;
+  ticketId: string;
+  userId: string;
+  oldPrice: number;
+  newPrice: number;
+  reason: string;
+  createdAt: Date | string;
+  user: PriceAdjustmentUser;
+}
+
+interface StatusHistoryEntry {
+  id: string;
+  ticketId: string;
+  status: string;
+  notes: string | null;
+  createdAt: Date | string;
+}
+
+interface TicketPart {
+  id: string;
+  quantity: number;
+  part: {
+    id: string;
+    name: string;
+    sku: string;
+    unitPrice: number;
+  };
+}
+
+interface TicketCustomer {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+}
+
+interface Ticket {
+  id: string;
+  ticketNumber: string;
+  status: string;
+  priority: string;
+  trackingCode: string;
+  deviceBrand: string;
+  deviceModel: string;
+  deviceIssue: string;
+  deviceConditionFront: string | null;
+  deviceConditionBack: string | null;
+  estimatedPrice: number;
+  finalPrice: number | null;
+  paid: boolean;
+  notes: string | null;
+  customer: TicketCustomer;
+  assignedTo: { id: string; name: string | null; username: string } | null;
+  statusHistory: StatusHistoryEntry[];
+  parts: TicketPart[];
+  priceAdjustments: PriceAdjustmentEntry[];
+}
+
 interface TicketTabsProps {
-  ticket: any;
+  ticket: Ticket;
   userRole: string;
 }
 
@@ -317,29 +382,87 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
 
                 {ticket.priceAdjustments && ticket.priceAdjustments.length > 0 && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-sm font-medium mb-3">{t('priceAdjustmentHistory')}</p>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm font-medium">{t('priceAdjustmentHistory')}</p>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {ticket.priceAdjustments.length} {ticket.priceAdjustments.length === 1 ? 'entry' : 'entries'}
+                      </span>
+                    </div>
                     <div className="space-y-3">
-                      {(ticket.priceAdjustments || []).map((adjustment: any) => (
-                        <div
-                          key={adjustment.id}
-                          className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium">
-                              ${adjustment.oldPrice.toFixed(2)} → ${adjustment.newPrice.toFixed(2)}
+                      {(ticket.priceAdjustments || []).map((adjustment: PriceAdjustmentEntry, index: number) => {
+                        const priceDiff = adjustment.newPrice - adjustment.oldPrice;
+                        const isIncrease = priceDiff > 0;
+                        const isDecrease = priceDiff < 0;
+                        const isInitialSetting = adjustment.reason.toLowerCase().includes('initial');
+                        
+                        return (
+                          <div
+                            key={adjustment.id}
+                            className={`p-4 rounded-lg border transition-colors ${
+                              isInitialSetting 
+                                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                                : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {/* Price change indicator */}
+                                <div className={`flex items-center gap-1 font-semibold ${
+                                  isIncrease ? 'text-red-600 dark:text-red-400' 
+                                  : isDecrease ? 'text-green-600 dark:text-green-400'
+                                  : 'text-gray-700 dark:text-gray-300'
+                                }`}>
+                                  <span className="text-gray-500 dark:text-gray-400 font-normal">
+                                    ${adjustment.oldPrice.toFixed(2)}
+                                  </span>
+                                  <span className="mx-1">→</span>
+                                  <span>${adjustment.newPrice.toFixed(2)}</span>
+                                </div>
+                                {/* Price change badge */}
+                                {priceDiff !== 0 && (
+                                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                                    isIncrease 
+                                      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                      : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  }`}>
+                                    {isIncrease ? '+' : ''}{priceDiff.toFixed(2)}
+                                  </span>
+                                )}
+                                {/* Initial setting badge */}
+                                {isInitialSetting && (
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                    {t('initial') || 'Initial'}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {format(new Date(adjustment.createdAt), 'MMM dd, yyyy')}
+                                </p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">
+                                  {format(new Date(adjustment.createdAt), 'HH:mm')}
+                                </p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 bg-white dark:bg-gray-900/50 p-2 rounded">
+                              {adjustment.reason}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              {format(new Date(adjustment.createdAt), 'MMM dd, yyyy')}
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <span className="w-4 h-4 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-medium">
+                                  {(adjustment.user.name || adjustment.user.username).charAt(0).toUpperCase()}
+                                </span>
+                                {adjustment.user.name || adjustment.user.username}
+                              </p>
+                              {index === 0 && ticket.priceAdjustments.length > 1 && (
+                                <span className="text-xs text-primary-600 dark:text-primary-400 font-medium">
+                                  {t('latestAdjustment') || 'Latest'}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                            {adjustment.reason}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            by {adjustment.user.name || adjustment.user.username}
-                          </p>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

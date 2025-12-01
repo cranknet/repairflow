@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { createNotification } from '@/lib/notifications';
+import { shouldAutoMarkTicketsAsPaid } from '@/lib/settings';
 
 const createTicketSchema = z.object({
   customerId: z.string(),
@@ -80,12 +81,16 @@ export async function POST(request: NextRequest) {
     const ticketNumber = `TKT-${Date.now()}`;
     const trackingCode = nanoid(8).toUpperCase();
 
+    // Check if tickets should be automatically marked as paid
+    const autoMarkAsPaid = await shouldAutoMarkTicketsAsPaid();
+
     const ticket = await prisma.ticket.create({
       data: {
         ...data,
         ticketNumber,
         trackingCode,
         status: 'RECEIVED',
+        paid: autoMarkAsPaid,
         statusHistory: {
           create: {
             status: 'RECEIVED',

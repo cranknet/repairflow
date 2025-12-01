@@ -29,9 +29,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       include: {
         customer: true,
         assignedTo: true,
-        statusHistory: true,
+        statusHistory: {
+          orderBy: { createdAt: 'desc' },
+        },
         // Keep parts include for backward compatibility (no write operations)
         parts: { include: { part: true } },
+        priceAdjustments: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                username: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -70,6 +83,21 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const updateData: any = { ...data };
     // priceAdjustmentReason is not a column on Ticket
     delete updateData.priceAdjustmentReason;
+
+    // Paid status change handling (admin / staff only)
+    if (data.paid !== undefined && data.paid !== ticket.paid) {
+      if (session.user.role !== 'ADMIN' && session.user.role !== 'STAFF') {
+        return NextResponse.json({ error: 'Only admin or staff can change payment status' }, { status: 403 });
+      }
+      // Create notification for payment status change
+      const paidMessage = `Ticket ${ticket.ticketNumber} marked as ${data.paid ? 'paid' : 'unpaid'}`;
+      await createNotification({
+        type: 'PAYMENT_STATUS_CHANGE',
+        message: paidMessage,
+        userId: ticket.assignedToId || null,
+        ticketId: ticket.id,
+      });
+    }
 
     // Status change handling
     if (data.status && data.status !== ticket.status) {
@@ -173,28 +201,40 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (ticket.status === 'REPAIRED' || data.status === 'REPAIRED') {
         const currentFinalPrice = ticket.finalPrice ?? null;
         const newFinalPrice = data.finalPrice;
-        const priceIsChanging = currentFinalPrice === null || Math.abs((currentFinalPrice || 0) - newFinalPrice) > 0.01;
+        const isInitialPriceSetting = currentFinalPrice === null;
+        const priceIsChanging = isInitialPriceSetting || Math.abs((currentFinalPrice || 0) - newFinalPrice) > 0.01;
+        
         if (priceIsChanging) {
-          if (currentFinalPrice !== null && (!data.priceAdjustmentReason || data.priceAdjustmentReason.trim() === '')) {
+          // For subsequent adjustments (not initial), require a reason
+          if (!isInitialPriceSetting && (!data.priceAdjustmentReason || data.priceAdjustmentReason.trim() === '')) {
             return NextResponse.json({ error: 'Reason is required for price adjustment' }, { status: 400 });
           }
-          if (data.priceAdjustmentReason && data.priceAdjustmentReason.trim() !== '') {
-            updateData.priceAdjustments = {
-              create: {
-                userId: session.user.id,
-                oldPrice: currentFinalPrice ?? ticket.estimatedPrice ?? 0,
-                newPrice: newFinalPrice,
-                reason: data.priceAdjustmentReason,
-              },
-            };
-            const priceMessage = `Ticket ${ticket.ticketNumber} price adjusted from ${currentFinalPrice ?? ticket.estimatedPrice ?? 0} to ${newFinalPrice}`;
-            await createNotification({
-              type: 'PRICE_ADJUSTMENT',
-              message: priceMessage,
-              userId: ticket.assignedToId || null,
-              ticketId: ticket.id,
-            });
-          }
+          
+          // Determine the reason for the history entry
+          const adjustmentReason = isInitialPriceSetting 
+            ? (data.priceAdjustmentReason?.trim() || 'Initial price set upon repair completion')
+            : data.priceAdjustmentReason!.trim();
+          
+          // Always create a price adjustment history entry for any price change
+          updateData.priceAdjustments = {
+            create: {
+              userId: session.user.id,
+              oldPrice: currentFinalPrice ?? ticket.estimatedPrice ?? 0,
+              newPrice: newFinalPrice,
+              reason: adjustmentReason,
+            },
+          };
+          
+          const priceMessage = isInitialPriceSetting
+            ? `Ticket ${ticket.ticketNumber} final price set to ${newFinalPrice}`
+            : `Ticket ${ticket.ticketNumber} price adjusted from ${currentFinalPrice} to ${newFinalPrice}`;
+          
+          await createNotification({
+            type: 'PRICE_ADJUSTMENT',
+            message: priceMessage,
+            userId: ticket.assignedToId || null,
+            ticketId: ticket.id,
+          });
         }
       } else {
         return NextResponse.json({ error: 'Price can only be adjusted after repair is finished' }, { status: 400 });

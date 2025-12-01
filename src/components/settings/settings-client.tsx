@@ -657,6 +657,37 @@ export function SettingsClient({
                   </select>
                 </div>
               </div>
+              {/* Ticket Settings */}
+              <div className="pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold mb-4">{t('ticketSettings')}</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium">{t('autoMarkTicketsAsPaid')}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t('autoMarkTicketsAsPaidDescription')}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSettings({ 
+                        ...settings, 
+                        auto_mark_tickets_as_paid: settings.auto_mark_tickets_as_paid === 'true' ? 'false' : 'true' 
+                      })}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                        settings.auto_mark_tickets_as_paid !== 'false' ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          settings.auto_mark_tickets_as_paid !== 'false' ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-4 border-t border-gray-200">
                 <AppVersion />
               </div>

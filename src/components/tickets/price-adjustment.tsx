@@ -7,15 +7,44 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/contexts/language-context';
+
+// Type definitions for ticket with price adjustments
+interface PriceAdjustmentUser {
+  name: string | null;
+  username: string;
+}
+
+interface TicketPriceAdjustment {
+  id: string;
+  ticketId: string;
+  userId: string;
+  oldPrice: number;
+  newPrice: number;
+  reason: string;
+  createdAt: Date | string;
+  user: PriceAdjustmentUser;
+}
+
+interface Ticket {
+  id: string;
+  ticketNumber: string;
+  status: string;
+  estimatedPrice: number;
+  finalPrice: number | null;
+  paid: boolean;
+  priceAdjustments?: TicketPriceAdjustment[];
+}
 
 interface PriceAdjustmentProps {
-  ticket: any;
+  ticket: Ticket;
   userRole: string;
 }
 
 export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [newPrice, setNewPrice] = useState(
     ticket.finalPrice !== null && ticket.finalPrice !== undefined 
@@ -24,21 +53,85 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   );
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaid, setIsPaid] = useState(ticket.paid);
+  const [isTogglingPaid, setIsTogglingPaid] = useState(false);
 
+  // Permission check for admin/staff
+  const canManagePrice = userRole === 'ADMIN' || userRole === 'STAFF';
+  
   // Only show price adjustment if repair is finished (REPAIRED)
-  const canAdjustPrice =
-    ticket.status === 'REPAIRED' &&
-    (userRole === 'ADMIN' || userRole === 'STAFF');
+  const canAdjustPrice = ticket.status === 'REPAIRED' && canManagePrice;
 
+  // Toggle paid status handler
+  const handleTogglePaid = async () => {
+    setIsTogglingPaid(true);
+    const newPaidStatus = !isPaid;
+    
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paid: newPaidStatus }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || t('failedToUpdatePaidStatus'));
+      }
+
+      setIsPaid(newPaidStatus);
+      toast({
+        title: t('success'),
+        description: `${t('paymentStatusUpdatedTo')} ${newPaidStatus ? t('paid') : t('unpaid')}`,
+      });
+      router.refresh();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : t('failedToUpdatePaidStatus');
+      toast({
+        title: t('error'),
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsTogglingPaid(false);
+    }
+  };
+
+  // If not REPAIRED, only show payment status toggle for admin/staff
   if (!canAdjustPrice) {
-    return null;
+    if (!canManagePrice) {
+      return null;
+    }
+    // Show only payment status toggle for admin/staff on non-REPAIRED tickets
+    return (
+      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div>
+          <p className="text-sm font-medium">{t('paymentStatus')}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {t('togglePaymentStatus')}
+          </p>
+        </div>
+        <Button
+          onClick={handleTogglePaid}
+          disabled={isTogglingPaid}
+          variant={isPaid ? 'default' : 'outlined'}
+          size="sm"
+          className={isPaid 
+            ? 'bg-green-600 hover:bg-green-700 text-white' 
+            : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300'
+          }
+        >
+          {isTogglingPaid ? t('loading') : (isPaid ? t('paid') : t('unpaid'))}
+        </Button>
+      </div>
+    );
   }
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please provide a reason for the price adjustment',
+        title: t('error'),
+        description: t('provideReasonForPriceAdjustment'),
       });
       return;
     }
@@ -46,8 +139,8 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
     const price = parseFloat(newPrice.toString());
     if (isNaN(price) || price < 0) {
       toast({
-        title: 'Error',
-        description: 'Please enter a valid price',
+        title: t('error'),
+        description: t('enterValidPrice'),
       });
       return;
     }
@@ -65,21 +158,22 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to adjust price');
+        throw new Error(errorData.error || t('failedToAdjustPrice'));
       }
 
       toast({
-        title: 'Success',
-        description: 'Price adjusted successfully',
+        title: t('success'),
+        description: t('priceAdjustedSuccessfully'),
       });
 
       setShowForm(false);
       setReason('');
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : t('failedToAdjustPrice');
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to adjust price',
+        title: t('error'),
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -88,33 +182,56 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
+      {/* Payment Status Toggle */}
+      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div>
+          <p className="text-sm font-medium">{t('paymentStatus')}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {t('togglePaymentStatus')}
+          </p>
+        </div>
+        <Button
+          onClick={handleTogglePaid}
+          disabled={isTogglingPaid}
+          variant={isPaid ? 'default' : 'outlined'}
+          size="sm"
+          className={isPaid 
+            ? 'bg-green-600 hover:bg-green-700 text-white' 
+            : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300'
+          }
+        >
+          {isTogglingPaid ? t('loading') : (isPaid ? t('paid') : t('unpaid'))}
+        </Button>
+      </div>
+
+      {/* Price Adjustment Form */}
       {!showForm ? (
         <Button
           onClick={() => setShowForm(true)}
           variant="outlined"
           size="sm"
         >
-          Adjust Price
+          {t('adjustPrice')}
         </Button>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Adjust Price</CardTitle>
-            <CardDescription>Update the final price for this ticket</CardDescription>
+            <CardTitle>{t('adjustPrice')}</CardTitle>
+            <CardDescription>{t('updateFinalPriceForTicket')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="current-price">Current Price</Label>
+              <Label htmlFor="current-price">{t('currentPrice')}</Label>
               <Input
                 id="current-price"
-                value={ticket.finalPrice ? `$${ticket.finalPrice.toFixed(2)}` : `$${ticket.estimatedPrice.toFixed(2)} (Estimated)`}
+                value={ticket.finalPrice ? `$${ticket.finalPrice.toFixed(2)}` : `$${ticket.estimatedPrice.toFixed(2)} (${t('estimated')})`}
                 disabled
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="new-price">New Price ($) *</Label>
+              <Label htmlFor="new-price">{t('newPrice')} ($) *</Label>
               <Input
                 id="new-price"
                 type="number"
@@ -127,19 +244,19 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
               />
             </div>
             <div>
-              <Label htmlFor="adjustment-reason">Reason for Adjustment *</Label>
+              <Label htmlFor="adjustment-reason">{t('reasonForAdjustment')} *</Label>
               <textarea
                 id="adjustment-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
-                placeholder="Explain why the price is being adjusted..."
+                placeholder={t('explainPriceAdjustment')}
               />
             </div>
             <div className="flex gap-2">
               <Button onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Adjustment'}
+                {isSubmitting ? t('saving') : t('saveAdjustment')}
               </Button>
               <Button
                 onClick={() => {
@@ -150,7 +267,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
                 variant="outlined"
                 type="button"
               >
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </CardContent>
