@@ -23,7 +23,7 @@ interface SMSSenderProps {
 
 export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderProps) {
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [ports, setPorts] = useState<any[]>([]);
   const [selectedPort, setSelectedPort] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
@@ -59,14 +59,14 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
         }
       } else {
         toast({
-          title: 'Error',
-          description: 'Failed to fetch COM ports',
+          title: t('error'),
+          description: t('sms.failed_fetch_ports'),
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch COM ports',
+        title: t('error'),
+        description: t('sms.failed_fetch_ports'),
       });
     } finally {
       setIsRefreshing(false);
@@ -94,16 +94,16 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
     // Skip COM port check on mobile
     if (!isMobile() && !selectedPort) {
       toast({
-        title: 'Error',
-        description: 'Please select a COM port',
+        title: t('error'),
+        description: t('sms.select_port_required'),
       });
       return;
     }
 
     if (!phoneNumber) {
       toast({
-        title: 'Error',
-        description: 'Phone number is required',
+        title: t('error'),
+        description: t('sms.phone_required'),
       });
       return;
     }
@@ -111,8 +111,8 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
     const message = selectedTemplate === 'custom' ? customMessage : preview;
     if (!message.trim()) {
       toast({
-        title: 'Error',
-        description: 'Message cannot be empty',
+        title: t('error'),
+        description: t('messageCannotBeEmpty'),
       });
       return;
     }
@@ -140,12 +140,12 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send SMS');
+        throw new Error(result.error || t('sms.failed_send'));
       }
 
       toast({
-        title: 'Success',
-        description: 'SMS sent successfully',
+        title: t('success'),
+        description: t('smsSentSuccessfully'),
       });
 
       // Reset form
@@ -153,8 +153,8 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
       setCustomMessage('');
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to send SMS',
+        title: t('error'),
+        description: error.message || t('sms.failed_send'),
       });
     } finally {
       setIsLoading(false);
@@ -169,11 +169,11 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Send SMS</CardTitle>
+            <CardTitle>{t('sms.title')}</CardTitle>
             <CardDescription>
               {isMobile() 
-                ? 'SMS via native Android API (coming soon)' 
-                : 'Send SMS via COM port (AT commands)'}
+                ? t('sms.android_api_coming_soon')
+                : t('sms.com_port_description')}
             </CardDescription>
           </div>
           {showCOMPortFeatures && (
@@ -184,7 +184,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
               disabled={isRefreshing}
             >
               <ArrowPathIcon className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh Ports
+              {t('sms.refresh_ports')}
             </Button>
           )}
         </div>
@@ -193,14 +193,14 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
         {/* COM Port Selection - Only show on web */}
         {showCOMPortFeatures && (
           <div>
-            <Label htmlFor="com-port">COM Port *</Label>
+            <Label htmlFor="com-port">{t('sms.com_port_label')} *</Label>
             <select
               id="com-port"
               value={selectedPort}
               onChange={(e) => setSelectedPort(e.target.value)}
               className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
             >
-              <option value="">Select COM port</option>
+              <option value="">{t('sms.select_com_port')}</option>
               {ports.map((port) => (
                 <option key={port.path} value={port.path}>
                   {port.path} {port.manufacturer ? `(${port.manufacturer})` : ''}
@@ -208,7 +208,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
               ))}
             </select>
             {ports.length === 0 && (
-              <p className="text-xs text-gray-500 mt-1">No COM ports found. Click &quot;Refresh Ports&quot; to scan.</p>
+              <p className="text-xs text-gray-500 mt-1">{t('sms.no_ports_instruction')}</p>
             )}
           </div>
         )}
@@ -216,14 +216,14 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
         {isMobile() && (
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              COM port SMS is not available on mobile devices. Native Android SMS integration coming soon.
+              {t('sms.mobile_not_available')}
             </p>
           </div>
         )}
 
         {/* Phone Number */}
         <div>
-          <Label htmlFor="phone-number">Phone Number *</Label>
+          <Label htmlFor="phone-number">{t('sms.phone_number_label')} *</Label>
           <Input
             id="phone-number"
             value={phoneNumber}
@@ -234,14 +234,14 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
 
         {/* Template Selection */}
         <div>
-          <Label htmlFor="template">Message Template</Label>
+          <Label htmlFor="template">{t('sms.message_template_label')}</Label>
           <select
             id="template"
             value={selectedTemplate}
             onChange={(e) => setSelectedTemplate(e.target.value)}
             className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
           >
-            <option value="">Select a template</option>
+            <option value="">{t('sms.select_template')}</option>
             {templates
               .filter((t) => t.isActive !== false)
               .map((template) => (
@@ -255,14 +255,14 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
         {/* Custom Message (if custom template selected) */}
         {selectedTemplate === 'custom' && (
           <div>
-            <Label htmlFor="custom-message">Custom Message *</Label>
+            <Label htmlFor="custom-message">{t('sms.custom_message_label')} *</Label>
             <textarea
               id="custom-message"
               value={customMessage}
               onChange={(e) => setCustomMessage(e.target.value)}
               rows={4}
               className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
-              placeholder="Enter your custom message..."
+              placeholder={t('sms.custom_message_placeholder')}
             />
           </div>
         )}
@@ -270,10 +270,10 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
         {/* Message Preview */}
         {(selectedTemplate || customMessage) && (
           <div>
-            <Label>Message Preview</Label>
+            <Label>{t('sms.message_preview_label')}</Label>
             <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-              <p className="text-sm whitespace-pre-wrap">{preview || 'No preview available'}</p>
-              <p className="text-xs text-gray-500 mt-2">Length: {preview.length} characters</p>
+              <p className="text-sm whitespace-pre-wrap">{preview || t('sms.no_preview')}</p>
+              <p className="text-xs text-gray-500 mt-2">{t('lengthCharacters').replace('{length}', preview.length.toString())}</p>
             </div>
           </div>
         )}
@@ -285,7 +285,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
           className="w-full"
         >
           <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-          {isLoading ? 'Sending...' : isMobile() ? 'Send SMS (Not Available)' : 'Send SMS'}
+          {isLoading ? t('sending') : isMobile() ? t('sms.send_not_available') : t('sendSms')}
         </Button>
       </CardContent>
     </Card>

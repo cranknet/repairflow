@@ -61,7 +61,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create customer');
+        throw new Error(t('customerCreateFailed'));
       }
 
       const customer = await response.json();
@@ -99,7 +99,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
                 errorText={errors.name?.message}
                 required
                 {...register('name')}
-                placeholder="John Doe"
+                placeholder={t('customers.placeholder.name')}
                 autoFocus
               />
 
@@ -109,7 +109,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
                 errorText={errors.phone?.message}
                 required
                 {...register('phone')}
-                placeholder="+1 (555) 123-4567"
+                placeholder={t('customers.placeholder.phone')}
               />
             </div>
 
@@ -119,7 +119,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
               errorText={errors.email?.message}
               type="email"
               {...register('email')}
-              placeholder="john@example.com"
+              placeholder={t('customers.placeholder.email')}
             />
 
             <Input
@@ -127,7 +127,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
               label={t('customerAddress')}
               errorText={errors.address?.message}
               {...register('address')}
-              placeholder="123 Main St"
+              placeholder={t('customers.placeholder.address')}
             />
 
             <Textarea
@@ -136,7 +136,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
               errorText={errors.notes?.message}
               rows={2}
               {...register('notes')}
-              placeholder="Additional notes..."
+              placeholder={t('customers.placeholder.notes')}
             />
           </div>
 
