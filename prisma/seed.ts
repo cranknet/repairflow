@@ -277,7 +277,13 @@ async function main() {
 
   console.log('✅ Parts created');
 
-  // Clear existing data for clean seed
+  // Verify parts were created successfully
+  if (parts.length === 0) {
+    throw new Error('No parts were created. Cannot create tickets with parts.');
+  }
+  console.log(`   - ${parts.length} parts available for tickets`);
+
+  // Clear existing data for clean seed (in correct order to respect foreign keys)
   await prisma.notification.deleteMany({});
   await prisma.ticketStatusHistory.deleteMany({});
   await prisma.ticketPart.deleteMany({});
@@ -285,6 +291,7 @@ async function main() {
   await prisma.return.deleteMany({});
   await prisma.ticket.deleteMany({});
   await prisma.inventoryTransaction.deleteMany({});
+  // Note: Parts are not deleted here as they are upserted above and should persist
 
   // Create dates for mock tickets
   const now = new Date();
@@ -600,6 +607,104 @@ async function main() {
           create: [
             {
               partId: parts[3].id,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    }),
+    // CANCELLED tickets (various scenarios)
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[3].id,
+        assignedToId: staff.id,
+        deviceBrand: 'Samsung',
+        deviceModel: 'Galaxy A52',
+        deviceIssue: 'Screen replacement',
+        priority: 'MEDIUM',
+        estimatedPrice: 80.00,
+        status: 'CANCELLED',
+        paid: false,
+        trackingCode: generateTrackingCode(),
+        createdAt: dates.weekAgo,
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'IN_PROGRESS', notes: 'Started diagnosis' },
+            { status: 'CANCELLED', notes: 'Customer cancelled - found cheaper option elsewhere' },
+          ],
+        },
+      },
+    }),
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[5].id,
+        assignedToId: admin.id,
+        deviceBrand: 'Apple',
+        deviceModel: 'iPhone X',
+        deviceIssue: 'Battery replacement',
+        priority: 'LOW',
+        estimatedPrice: 65.00,
+        status: 'CANCELLED',
+        paid: false,
+        trackingCode: generateTrackingCode(),
+        createdAt: dates.twoWeeksAgo,
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'CANCELLED', notes: 'Customer decided to upgrade instead of repair' },
+          ],
+        },
+      },
+    }),
+    // Additional RECEIVED tickets (newly arrived)
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[2].id,
+        deviceBrand: 'Samsung',
+        deviceModel: 'Galaxy Note 20',
+        deviceIssue: 'Water damage repair',
+        priority: 'HIGH',
+        estimatedPrice: 200.00,
+        status: 'RECEIVED',
+        paid: false,
+        trackingCode: generateTrackingCode(),
+        createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000), // 2 hours ago
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received with water damage, urgent assessment needed' },
+          ],
+        },
+      },
+    }),
+    // Additional IN_PROGRESS tickets
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[1].id,
+        assignedToId: admin.id,
+        deviceBrand: 'Apple',
+        deviceModel: 'iPhone 15',
+        deviceIssue: 'Camera module replacement',
+        priority: 'HIGH',
+        estimatedPrice: 180.00,
+        status: 'IN_PROGRESS',
+        paid: false,
+        trackingCode: generateTrackingCode(),
+        createdAt: dates.yesterday,
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'IN_PROGRESS', notes: 'Replacing camera module' },
+          ],
+        },
+        parts: {
+          create: [
+            {
+              partId: parts[4].id,
               quantity: 1,
             },
           ],
