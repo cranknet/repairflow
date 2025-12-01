@@ -106,6 +106,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Only admins can delete customers
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Only administrators can delete customers' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
 
     // Check if customer exists

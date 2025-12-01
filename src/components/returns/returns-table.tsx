@@ -1,21 +1,29 @@
 'use client';
 
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface ReturnsTableProps {
   returns: any[];
+  userRole: string;
 }
 
-export function ReturnsTable({ returns }: ReturnsTableProps) {
+export function ReturnsTable({ returns, userRole }: ReturnsTableProps) {
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [returnToDelete, setReturnToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isAdmin = userRole === 'ADMIN';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -55,7 +63,7 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
 
       toast({
         title: t('success'),
-        description: t('returnApprovedMessage'),
+        description: t('returnApprovedTicketStatusChanged'),
       });
       router.refresh();
     } catch (error) {
@@ -79,7 +87,7 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
 
       toast({
         title: t('success'),
-        description: t('returnRejected'),
+        description: t('returnRejectedTicketRemainsRepaired'),
       });
       router.refresh();
     } catch (error) {
@@ -88,6 +96,43 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
         description: t('failedToRejectReturn'),
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleDeleteClick = (returnId: string) => {
+    setReturnToDelete(returnId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!returnToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/returns/${returnToDelete}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete return');
+      }
+
+      toast({
+        title: t('success'),
+        description: t('returnDeletedSuccessfully'),
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: error instanceof Error ? error.message : t('failedToDeleteReturn'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmOpen(false);
+      setReturnToDelete(null);
     }
   };
 
@@ -103,13 +148,16 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
               {t('customer')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-              Refund Amount
+              {t('refundAmount')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('reason')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('status')}
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+              {t('ticketStatus')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('createdAt')}
@@ -154,37 +202,67 @@ export function ReturnsTable({ returns }: ReturnsTableProps) {
                   {getStatusText(returnRecord.status)}
                 </span>
               </td>
+              <td className="py-3 px-4">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                  {returnRecord.ticket.status}
+                </span>
+              </td>
               <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                 {format(new Date(returnRecord.createdAt), 'MMM dd, yyyy HH:mm')}
               </td>
               <td className="py-3 px-4">
-                {returnRecord.status === 'PENDING' && (
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  {returnRecord.status === 'PENDING' && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleApprove(returnRecord.id)}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <CheckCircleIcon className="h-4 w-4 mr-1" />
+                        {t('approve')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleReject(returnRecord.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <XCircleIcon className="h-4 w-4 mr-1" />
+                        {t('reject')}
+                      </Button>
+                    </>
+                  )}
+                  {isAdmin && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleApprove(returnRecord.id)}
-                      className="text-green-600 hover:text-green-700"
-                    >
-                      <CheckCircleIcon className="h-4 w-4 mr-1" />
-                      {t('approve')}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleReject(returnRecord.id)}
+                      onClick={() => handleDeleteClick(returnRecord.id)}
                       className="text-red-600 hover:text-red-700"
+                      disabled={isDeleting}
                     >
-                      <XCircleIcon className="h-4 w-4 mr-1" />
-                      {t('reject')}
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      {t('delete')}
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title={t('deleteReturn')}
+        description={t('deleteReturnConfirmation')}
+        confirmText={t('delete')}
+        cancelText={t('cancel')}
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

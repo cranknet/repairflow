@@ -23,9 +23,9 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 ## 🌟 Features
 
 ### Core Functionality
-- **Ticket Management**: Complete lifecycle management with status workflow (RECEIVED → IN_PROGRESS → WAITING_FOR_PARTS → REPAIRED → COMPLETED, with CANCELLED and RETURNED states)
-- **Customer Management**: Track customer information, history, and contact details
-- **Returns Management**: Handle customer returns with refund amount tracking (partial or full refund), automatically marks tickets as RETURNED
+- **Ticket Management**: Complete lifecycle management with status workflow (RECEIVED → IN_PROGRESS → WAITING_FOR_PARTS → REPAIRED → COMPLETED, with CANCELLED and RETURNED states). Styled action buttons (View with icon, Delete with conditional access - admin-only, disabled for repaired/returned tickets)
+- **Customer Management**: Track customer information, history, and contact details. Styled action buttons (View with icon, Edit with icon, Delete with conditional access - admin-only, disabled when customer has linked tickets)
+- **Returns Management**: Handle customer returns with refund amount tracking (partial or full refund). Workflow: Create return from REPAIRED tickets → Admin approval/rejection → Ticket status updates accordingly
 - **Multi-language Support**: English, French, and Arabic with full UI translation
 - **Print System**: Generate labels (40x20mm) and invoices (80x120mm) with QR codes
 - **SMS Notifications**: Customizable SMS templates in multiple languages with variable substitution. COM port SMS support (web only, mobile native SMS coming soon)
@@ -270,6 +270,49 @@ Customers can track their repair status using a tracking code:
 - View ticket status, device information, and status history
 - Display social media links for business promotion
 - No authentication required for public access
+
+## Returns Workflow
+
+### Creating a Return
+
+**From Returns Page:**
+1. Navigate to the Returns page
+2. Click "Create Return" button (Admin only)
+3. Search for a ticket by:
+   - Customer name, or
+   - Ticket ID
+4. Select a ticket from search results
+5. Fill in the return form and submit
+
+**From Ticket View:**
+1. Navigate to a ticket detail page
+2. Change ticket status to RETURNED
+3. Create Return modal opens automatically prefilled with ticket data
+4. Fill in the return form and submit
+
+**Return Form Fields:**
+- Reason (required)
+- Refund amount (defaults to ticket price)
+- Returned to (optional)
+- Notes (optional)
+
+**Note:** Only repaired tickets without existing returns are eligible for returns. Ticket → change status to Returned opens Create Return modal prefilled by ticket ID; search remains on Returns page.
+
+### Admin: Approving/Rejecting Returns
+1. Navigate to Returns page
+2. View pending returns
+3. Click Approve:
+   - Return status → APPROVED
+   - Ticket status → RETURNED
+   - Tracked: who approved, when
+4. Click Reject:
+   - Return status → REJECTED
+   - Ticket status → remains REPAIRED
+   - Tracked: who rejected, when
+
+### Authorization
+- Creating returns: Admin only
+- Approving/rejecting: Admin only
 
 ## 📝 Scripts
 

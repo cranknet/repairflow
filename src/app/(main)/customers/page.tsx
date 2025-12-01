@@ -38,7 +38,7 @@ export default async function CustomersPage({
   return (
     <MainLayout>
       <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-        <CustomersPageClient customers={customers} search={params.search} />
+        <CustomersPageClient customers={customers} search={params.search} userRole={session.user.role} />
       </Suspense>
     </MainLayout>
   );

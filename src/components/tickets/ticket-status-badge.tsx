@@ -5,9 +5,10 @@ import { useLanguage } from '@/contexts/language-context';
 interface TicketStatusBadgeProps {
   status: string;
   className?: string;
+  hasPendingReturn?: boolean;
 }
 
-export function TicketStatusBadge({ status, className = '' }: TicketStatusBadgeProps) {
+export function TicketStatusBadge({ status, className = '', hasPendingReturn = false }: TicketStatusBadgeProps) {
   const { t } = useLanguage();
 
   const getStatusTranslation = (status: string) => {
@@ -37,9 +38,19 @@ export function TicketStatusBadge({ status, className = '' }: TicketStatusBadgeP
   };
 
   return (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status)} ${className}`}>
-      {getStatusTranslation(status)}
-    </span>
+    <div className={`inline-flex items-center gap-1.5 ${className}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(status)}`}>
+        {getStatusTranslation(status)}
+      </span>
+      {hasPendingReturn && (
+        <span 
+          className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+          title={t('returnPendingTooltip')}
+        >
+          ⏳ {t('returnPending')}
+        </span>
+      )}
+    </div>
   );
 }
 

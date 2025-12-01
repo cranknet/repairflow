@@ -27,9 +27,10 @@ interface Customer {
 interface CustomersPageClientProps {
   customers: Customer[];
   search?: string;
+  userRole: string;
 }
 
-export function CustomersPageClient({ customers, search }: CustomersPageClientProps) {
+export function CustomersPageClient({ customers, search, userRole }: CustomersPageClientProps) {
   const router = useRouter();
   const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +68,7 @@ export function CustomersPageClient({ customers, search }: CustomersPageClientPr
             {customers.length === 0 ? (
               <NoCustomersFound />
             ) : (
-              <CustomersTable customers={customers} />
+              <CustomersTable customers={customers} userRole={userRole} />
             )}
           </CardContent>
         </Card>

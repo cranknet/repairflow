@@ -7,6 +7,8 @@ const createReturnSchema = z.object({
   ticketId: z.string(),
   reason: z.string().min(1),
   refundAmount: z.number().min(0),
+  returnedTo: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -14,6 +16,14 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Admin-only check for creating returns
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Only administrators can create returns' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -28,11 +38,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Check if ticket is already returned
-    if (ticket.status === 'RETURNED') {
+    // Validate that ticket status is REPAIRED
+    if (ticket.status !== 'REPAIRED') {
       return NextResponse.json(
-        { error: 'Ticket is already returned' },
+        { error: 'Only repaired tickets can be returned' },
         { status: 400 }
+      );
+    }
+
+    // Revalidate on create to handle race conditions - check for active returns
+    const existingReturn = await prisma.return.findFirst({
+      where: {
+        ticketId: data.ticketId,
+        status: {
+          in: ['PENDING', 'APPROVED']
+        }
+      },
+    });
+
+    if (existingReturn) {
+      return NextResponse.json(
+        { error: 'A return request already exists for this ticket. Please refresh the page.' },
+        { status: 409 }
       );
     }
 
@@ -45,27 +72,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create return and automatically mark ticket as RETURNED
+    // Create return record - ticket status remains REPAIRED until return is approved
     const returnRecord = await prisma.return.create({
       data: {
         ticketId: data.ticketId,
         reason: data.reason,
         refundAmount: data.refundAmount,
+        returnedTo: data.returnedTo || null,
+        notes: data.notes || null,
+        createdBy: session.user.id,
         status: 'PENDING',
       },
     });
 
-    // Update ticket status to RETURNED
-    await prisma.ticket.update({
-      where: { id: data.ticketId },
+    // Add status history note that return was created (ticket stays REPAIRED)
+    await prisma.ticketStatusHistory.create({
       data: {
-        status: 'RETURNED',
-        statusHistory: {
-          create: {
-            status: 'RETURNED',
-            notes: `Ticket returned. Refund amount: ${data.refundAmount}`,
-          },
-        },
+        ticketId: data.ticketId,
+        status: ticket.status, // Keep current status (REPAIRED)
+        notes: `Return request created. Refund amount: ${data.refundAmount}. Ticket remains REPAIRED until return is approved.`,
       },
     });
 

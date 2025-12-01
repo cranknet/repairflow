@@ -17,6 +17,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Admin-only check for approving/rejecting returns
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Only administrators can approve or reject returns' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const data = updateReturnSchema.parse(body);
@@ -27,6 +35,7 @@ export async function PATCH(
         ticket: {
           select: {
             ticketNumber: true,
+            status: true,
           },
         },
       },
@@ -36,17 +45,47 @@ export async function PATCH(
       return NextResponse.json({ error: 'Return not found' }, { status: 404 });
     }
 
-    // If rejecting return, optionally allow reverting ticket status from RETURNED
-    if (data.status === 'REJECTED' && returnRecord.status === 'PENDING') {
-      // Optionally revert ticket status - for now, we'll keep it as RETURNED
-      // This can be changed later if needed
+    const updateData: any = {
+      status: data.status,
+    };
+
+    // Handle return status changes
+    if (data.status === 'APPROVED' && returnRecord.status !== 'APPROVED') {
+      // When return is approved, set handledAt and handledBy
+      updateData.handledAt = new Date();
+      updateData.handledBy = session.user.id;
+      
+      // Change ticket status to RETURNED
+      await prisma.ticket.update({
+        where: { id: returnRecord.ticketId },
+        data: {
+          status: 'RETURNED',
+          statusHistory: {
+            create: {
+              status: 'RETURNED',
+              notes: `Return approved. Refund amount: ${returnRecord.refundAmount}. Ticket status changed to RETURNED.`,
+            },
+          },
+        },
+      });
+    } else if (data.status === 'REJECTED' && returnRecord.status === 'PENDING') {
+      // When return is rejected, set handledAt and handledBy
+      updateData.handledAt = new Date();
+      updateData.handledBy = session.user.id;
+      
+      // Keep ticket status unchanged (remain REPAIRED)
+      await prisma.ticketStatusHistory.create({
+        data: {
+          ticketId: returnRecord.ticketId,
+          status: returnRecord.ticket.status, // Current status (REPAIRED)
+          notes: `Return rejected. Ticket remains REPAIRED.`,
+        },
+      });
     }
 
     const updatedReturn = await prisma.return.update({
       where: { id },
-      data: {
-        status: data.status,
-      },
+      data: updateData,
       include: {
         ticket: {
           select: {
@@ -73,6 +112,78 @@ export async function PATCH(
     console.error('Error updating return:', error);
     return NextResponse.json(
       { error: 'Failed to update return' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Admin-only check for deleting returns
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Only administrators can delete returns' },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await params;
+
+    // Find return record with ticket
+    const returnRecord = await prisma.return.findUnique({
+      where: { id },
+      include: {
+        ticket: true,
+      },
+    });
+
+    if (!returnRecord) {
+      return NextResponse.json({ error: 'Return not found' }, { status: 404 });
+    }
+
+    // Revert ticket status back to REPAIRED only if ticket is currently RETURNED
+    if (returnRecord.ticket.status === 'RETURNED') {
+      await prisma.ticket.update({
+        where: { id: returnRecord.ticketId },
+        data: {
+          status: 'REPAIRED',
+          statusHistory: {
+            create: {
+              status: 'REPAIRED',
+              notes: `Return deleted. Ticket status reverted from RETURNED to REPAIRED.`,
+            },
+          },
+        },
+      });
+    } else {
+      // If ticket is not RETURNED, just add a status history note
+      await prisma.ticketStatusHistory.create({
+        data: {
+          ticketId: returnRecord.ticketId,
+          status: returnRecord.ticket.status,
+          notes: `Return deleted. Ticket status unchanged.`,
+        },
+      });
+    }
+
+    // Delete the return record
+    await prisma.return.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: 'Return deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting return:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete return' },
       { status: 500 }
     );
   }

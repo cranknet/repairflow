@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 
 const prisma = new PrismaClient();
@@ -87,6 +87,46 @@ async function main() {
       key: 'company_address',
       value: '123 Main St, City, State 12345',
       description: 'Company address',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'currency' },
+    update: {},
+    create: {
+      key: 'currency',
+      value: 'USD',
+      description: 'Default currency',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'country' },
+    update: {},
+    create: {
+      key: 'country',
+      value: 'US',
+      description: 'Default country',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'language' },
+    update: {},
+    create: {
+      key: 'language',
+      value: 'en',
+      description: 'Default language',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'is_installed' },
+    update: {},
+    create: {
+      key: 'is_installed',
+      value: 'true',
+      description: 'Installation status',
     },
   });
 
@@ -237,7 +277,8 @@ async function main() {
 
   console.log('✅ Parts created');
 
-  // Clear existing tickets and related data for clean seed
+  // Clear existing data for clean seed
+  await prisma.notification.deleteMany({});
   await prisma.ticketStatusHistory.deleteMany({});
   await prisma.ticketPart.deleteMany({});
   await prisma.ticketPriceAdjustment.deleteMany({});
@@ -450,7 +491,8 @@ async function main() {
         status: 'REPAIRED',
         paid: false,
         trackingCode: generateTrackingCode(),
-        createdAt: dates.yesterday,
+        completedAt: dates.yesterday,
+        createdAt: dates.weekAgo,
         statusHistory: {
           create: [
             { status: 'RECEIVED', notes: 'Device received' },
@@ -460,9 +502,170 @@ async function main() {
         },
       },
     }),
+    // Additional REPAIRED tickets for returns testing
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[2].id,
+        assignedToId: staff.id,
+        deviceBrand: 'Samsung',
+        deviceModel: 'Galaxy S22',
+        deviceIssue: 'Screen replacement',
+        priority: 'HIGH',
+        estimatedPrice: 140.00,
+        finalPrice: 135.00,
+        status: 'REPAIRED',
+        paid: true,
+        trackingCode: generateTrackingCode(),
+        completedAt: dates.completedWeekAgo,
+        createdAt: dates.twoWeeksAgo,
+        warrantyDays: 90,
+        warrantyText: '90 days warranty on screen replacement',
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'IN_PROGRESS', notes: 'Replacing screen' },
+            { status: 'REPAIRED', notes: 'Screen replaced successfully' },
+          ],
+        },
+        parts: {
+          create: [
+            {
+              partId: parts[0].id,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    }),
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[4].id,
+        assignedToId: staff.id,
+        deviceBrand: 'Apple',
+        deviceModel: 'iPhone 12',
+        deviceIssue: 'Charging port repair',
+        priority: 'MEDIUM',
+        estimatedPrice: 45.00,
+        finalPrice: 40.00,
+        status: 'REPAIRED',
+        paid: true,
+        trackingCode: generateTrackingCode(),
+        completedAt: dates.completedYesterday,
+        createdAt: dates.weekAgo,
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'IN_PROGRESS', notes: 'Repairing charging port' },
+            { status: 'REPAIRED', notes: 'Charging port fixed' },
+          ],
+        },
+        parts: {
+          create: [
+            {
+              partId: parts[2].id,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    }),
+    // RETURNED ticket (has a return)
+    prisma.ticket.create({
+      data: {
+        ticketNumber: generateTicketNumber(),
+        customerId: customers[0].id,
+        assignedToId: admin.id,
+        deviceBrand: 'Apple',
+        deviceModel: 'iPhone 11',
+        deviceIssue: 'Back glass replacement',
+        priority: 'LOW',
+        estimatedPrice: 55.00,
+        finalPrice: 50.00,
+        status: 'RETURNED',
+        paid: true,
+        trackingCode: generateTrackingCode(),
+        completedAt: dates.completedWeekAgo,
+        createdAt: dates.twoWeeksAgo,
+        statusHistory: {
+          create: [
+            { status: 'RECEIVED', notes: 'Device received' },
+            { status: 'IN_PROGRESS', notes: 'Replacing back glass' },
+            { status: 'REPAIRED', notes: 'Back glass replaced' },
+            { status: 'RETURNED', notes: 'Ticket returned. Refund amount: 50.00' },
+          ],
+        },
+        parts: {
+          create: [
+            {
+              partId: parts[3].id,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    }),
   ]);
 
   console.log('✅ Tickets created');
+
+  // Create returns for testing returns page
+  // Find tickets by their characteristics
+  const returnedTicket = tickets.find(t => t.status === 'RETURNED');
+  const repairedPaidTickets = tickets.filter(t => t.status === 'REPAIRED' && t.paid === true);
+
+  const returns = [];
+  
+  // Create a return for the RETURNED ticket (this ticket was created with RETURNED status)
+  if (returnedTicket) {
+    const returnRecord = await prisma.return.create({
+      data: {
+        ticketId: returnedTicket.id,
+        reason: 'Customer requested full refund due to dissatisfaction with repair quality',
+        refundAmount: returnedTicket.finalPrice || returnedTicket.estimatedPrice,
+        createdBy: admin.id,
+        status: 'APPROVED',
+        handledAt: new Date(),
+        handledBy: admin.id,
+      },
+    });
+    returns.push(returnRecord);
+  }
+
+  // Create a pending return for a REPAIRED and paid ticket
+  // This will test the returns creation flow
+  if (repairedPaidTickets.length > 0) {
+    const ticketForReturn = repairedPaidTickets[0];
+    const refundAmount = (ticketForReturn.finalPrice || ticketForReturn.estimatedPrice) * 0.8; // 80% refund
+    
+    const returnRecord = await prisma.return.create({
+      data: {
+        ticketId: ticketForReturn.id,
+        reason: 'Customer wants to return device, partial refund requested',
+        refundAmount: refundAmount,
+        createdBy: admin.id,
+        status: 'PENDING',
+      },
+    });
+    returns.push(returnRecord);
+    
+    // Update ticket status to RETURNED (matching the API behavior)
+    await prisma.ticket.update({
+      where: { id: ticketForReturn.id },
+      data: {
+        status: 'RETURNED',
+        statusHistory: {
+          create: {
+            status: 'RETURNED',
+            notes: `Ticket returned. Refund amount: ${refundAmount}`,
+          },
+        },
+      },
+    });
+  }
+
+  console.log(`✅ Returns created (${returns.length})`);
 
   // Create inventory transactions
   await Promise.all([
@@ -504,10 +707,62 @@ async function main() {
 
   console.log('✅ Inventory transactions created');
 
+  // Create some notifications for testing
+  await Promise.all([
+    prisma.notification.create({
+      data: {
+        userId: staff.id,
+        ticketId: tickets[3].id,
+        type: 'STATUS_CHANGE',
+        message: `Ticket ${tickets[3].ticketNumber} status changed to IN_PROGRESS`,
+        read: false,
+      },
+    }),
+    prisma.notification.create({
+      data: {
+        userId: admin.id,
+        ticketId: tickets[4].id,
+        type: 'STATUS_CHANGE',
+        message: `Ticket ${tickets[4].ticketNumber} status changed to WAITING_FOR_PARTS`,
+        read: false,
+      },
+    }),
+    prisma.notification.create({
+      data: {
+        userId: staff.id,
+        ticketId: tickets[0].id,
+        type: 'STATUS_CHANGE',
+        message: `Ticket ${tickets[0].ticketNumber} has been completed`,
+        read: true,
+      },
+    }),
+  ]);
+
+  console.log('✅ Notifications created');
+
+  // Create some price adjustments for testing
+  if (tickets.length > 0 && tickets[0].status === 'COMPLETED') {
+    await prisma.ticketPriceAdjustment.create({
+      data: {
+        ticketId: tickets[0].id,
+        userId: admin.id,
+        oldPrice: tickets[0].estimatedPrice,
+        newPrice: tickets[0].finalPrice || tickets[0].estimatedPrice,
+        reason: 'Customer discount applied',
+      },
+    });
+  }
+
+  console.log('✅ Price adjustments created');
+
   console.log('🎉 Seed data created successfully!');
   console.log(`   - ${customers.length} customers`);
   console.log(`   - ${parts.length} parts`);
   console.log(`   - ${tickets.length} tickets`);
+  console.log(`   - ${returns.length} returns`);
+  console.log(`   - Login credentials:`);
+  console.log(`     Admin: username=admin, password=admin123`);
+  console.log(`     Staff: username=staff, password=staff123`);
 }
 
 main()

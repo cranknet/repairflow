@@ -1,16 +1,75 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
+import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { TicketStatusBadge } from './ticket-status-badge';
+import { EyeIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface TicketsTableProps {
   tickets: any[];
+  userRole: string;
 }
 
-export function TicketsTable({ tickets }: TicketsTableProps) {
+export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
   const { t } = useLanguage();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = (ticket: any) => {
+    setTicketToDelete(ticket);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!ticketToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/tickets/${ticketToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        let errorMessage = error.error || t('tickets.delete.error');
+        
+        // Handle specific error cases
+        if (response.status === 403) {
+          errorMessage = t('tickets.delete.errorPermission');
+        } else if (response.status === 400 && error.error?.includes('returns')) {
+          errorMessage = t('tickets.delete.errorWithReturns');
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      toast({
+        title: t('success'),
+        description: t('tickets.delete.success'),
+      });
+      
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: error instanceof Error ? error.message : t('tickets.delete.error'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmOpen(false);
+      setTicketToDelete(null);
+    }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -87,7 +146,10 @@ export function TicketsTable({ tickets }: TicketsTableProps) {
                 {ticket.deviceBrand} {ticket.deviceModel}
               </td>
               <td className="py-3 px-4">
-                <TicketStatusBadge status={ticket.status} />
+                <TicketStatusBadge 
+                  status={ticket.status} 
+                  hasPendingReturn={(ticket as any).hasPendingReturn || false}
+                />
               </td>
               <td className="py-3 px-4">
                 <span
@@ -103,14 +165,59 @@ export function TicketsTable({ tickets }: TicketsTableProps) {
                 {format(new Date(ticket.createdAt), 'MMM dd, yyyy')}
               </td>
               <td className="py-3 px-4">
-                <Link href={`/tickets/${ticket.id}`}>
-                  <button className="text-primary-600 hover:underline text-sm">{t('view')}</button>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href={`/tickets/${ticket.id}`}>
+                    <Button
+                      variant="outlined"
+                      size="sm"
+                      icon={<EyeIcon className="h-4 w-4" />}
+                      aria-label={`${t('tickets.action.view')} ${ticket.ticketNumber}`}
+                    >
+                      {t('tickets.action.view')}
+                    </Button>
+                  </Link>
+                  {userRole === 'ADMIN' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(ticket);
+                      }}
+                      disabled={ticket.status === 'REPAIRED' || ticket.status === 'RETURNED'}
+                      aria-disabled={ticket.status === 'REPAIRED' || ticket.status === 'RETURNED'}
+                      aria-label={`${t('tickets.action.delete')} ${ticket.ticketNumber}`}
+                      className="text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:hover:text-gray-400"
+                      title={
+                        ticket.status === 'REPAIRED' || ticket.status === 'RETURNED'
+                          ? t('tickets.action.deleteDisabledRepairedReturned')
+                          : t('tickets.action.delete')
+                      }
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      
+      {/* Delete Confirmation Modal */}
+      {ticketToDelete && (
+        <ConfirmDialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          title={t('tickets.delete.confirmTitle').replace('{ticketNumber}', ticketToDelete.ticketNumber)}
+          description={`${t('tickets.delete.confirmDescription')} ${t('ticketNumber')}: ${ticketToDelete.ticketNumber}, ${t('customer')}: ${ticketToDelete.customer.name}, ${t('device')}: ${ticketToDelete.deviceBrand} ${ticketToDelete.deviceModel}`}
+          confirmText={t('tickets.delete.confirmButton')}
+          cancelText={t('tickets.delete.cancelButton')}
+          variant="destructive"
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   );
 }

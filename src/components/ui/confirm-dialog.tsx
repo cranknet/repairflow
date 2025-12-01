@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/language-context';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface ConfirmDialogProps {
   cancelText?: string;
   variant?: 'filled' | 'destructive';
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 export function ConfirmDialog({
@@ -30,7 +32,9 @@ export function ConfirmDialog({
   cancelText = 'Cancel',
   variant = 'filled',
   onConfirm,
+  isLoading = false,
 }: ConfirmDialogProps) {
+  const { t } = useLanguage();
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);
@@ -44,14 +48,15 @@ export function ConfirmDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outlined" onClick={() => onOpenChange(false)}>
+          <Button variant="outlined" onClick={() => onOpenChange(false)} disabled={isLoading}>
             {cancelText}
           </Button>
           <Button
             variant={variant === 'destructive' ? 'destructive' : 'filled'}
             onClick={handleConfirm}
+            disabled={isLoading}
           >
-            {confirmText}
+            {isLoading ? t('loading') : confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

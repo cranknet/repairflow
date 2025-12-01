@@ -9,20 +9,21 @@ import { Button } from '@/components/ui/button';
 import { EditCustomerModal } from './edit-customer-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/ui/use-toast';
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface CustomersTableProps {
   customers: any[];
+  userRole: string;
 }
 
-export function CustomersTable({ customers }: CustomersTableProps) {
+export function CustomersTable({ customers, userRole }: CustomersTableProps) {
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = (customer: any) => {
@@ -30,8 +31,8 @@ export function CustomersTable({ customers }: CustomersTableProps) {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (customerId: string) => {
-    setCustomerToDelete(customerId);
+  const handleDelete = (customer: any) => {
+    setCustomerToDelete(customer);
     setDeleteConfirmOpen(true);
   };
 
@@ -40,24 +41,33 @@ export function CustomersTable({ customers }: CustomersTableProps) {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/customers/${customerToDelete}`, {
+      const response = await fetch(`/api/customers/${customerToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete customer');
+        let errorMessage = error.error || t('customers.delete_failed');
+        
+        // Handle specific error cases
+        if (response.status === 403) {
+          errorMessage = t('customers.delete_forbidden');
+        } else if (response.status === 400 && error.error?.includes('tickets')) {
+          errorMessage = t('customers.delete_failed');
+        }
+        
+        throw new Error(errorMessage);
       }
 
       toast({
         title: t('success'),
-        description: 'Customer deleted successfully',
+        description: t('customers.delete_success'),
       });
       router.refresh();
     } catch (error) {
       toast({
         title: t('error'),
-        description: error instanceof Error ? error.message : 'Failed to delete customer',
+        description: error instanceof Error ? error.message : t('customers.delete_failed'),
         variant: 'destructive',
       });
     } finally {
@@ -114,33 +124,48 @@ export function CustomersTable({ customers }: CustomersTableProps) {
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">
                   <Link href={`/customers/${customer.id}`}>
-                    <Button variant="ghost" size="sm">
-                      {t('view')}
+                    <Button
+                      variant="outlined"
+                      size="sm"
+                      icon={<EyeIcon className="h-4 w-4" />}
+                      aria-label={`${t('customers.action.view')} ${customer.name}`}
+                    >
+                      {t('customers.action.view')}
                     </Button>
                   </Link>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(customer)}
+                    icon={<PencilIcon className="h-4 w-4" />}
                     className="text-blue-600 hover:text-blue-700"
+                    aria-label={`${t('customers.action.edit')} ${customer.name}`}
                   >
-                    <PencilIcon className="h-4 w-4" />
+                    {t('customers.action.edit')}
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Delete clicked for:', customer.id);
-                      handleDelete(customer.id);
-                    }}
-                    className="text-red-600 hover:text-red-700"
-                    disabled={customer._count.tickets > 0}
-                    title={customer._count.tickets > 0 ? 'Cannot delete customer with tickets' : 'Delete customer'}
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </Button>
+                  {userRole === 'ADMIN' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(customer);
+                      }}
+                      disabled={customer._count.tickets > 0}
+                      aria-disabled={customer._count.tickets > 0}
+                      aria-label={`${t('customers.action.delete')} ${customer.name}`}
+                      className="text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:hover:text-gray-400"
+                      icon={<TrashIcon className="h-4 w-4" />}
+                      title={
+                        customer._count.tickets > 0
+                          ? t('customers.action.delete_disabled_has_tickets')
+                          : t('customers.action.delete')
+                      }
+                    >
+                      {t('customers.action.delete')}
+                    </Button>
+                  )}
                 </div>
               </td>
             </tr>
@@ -158,16 +183,20 @@ export function CustomersTable({ customers }: CustomersTableProps) {
         onSuccess={handleEditSuccess}
       />
 
-      <ConfirmDialog
-        open={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
-        title={t('delete') + ' Customer'}
-        description="Are you sure you want to delete this customer? This action cannot be undone."
-        confirmText={t('delete')}
-        cancelText={t('cancel')}
-        variant="destructive"
-        onConfirm={confirmDelete}
-      />
+      {/* Delete Confirmation Modal */}
+      {customerToDelete && (
+        <ConfirmDialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          title={t('customers.modal.delete_title').replace('{name}', customerToDelete.name)}
+          description={`${t('customers.modal.delete_body')} ${t('customerName')}: ${customerToDelete.name}, ${customerToDelete.email ? `${t('customerEmail')}: ${customerToDelete.email}, ` : ''}${t('customerPhone')}: ${customerToDelete.phone}, ${t('totalTickets')}: ${customerToDelete._count.tickets}`}
+          confirmText={t('customers.action.delete')}
+          cancelText={t('cancel')}
+          variant="destructive"
+          onConfirm={confirmDelete}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }

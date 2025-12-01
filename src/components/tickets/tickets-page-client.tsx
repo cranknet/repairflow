@@ -41,6 +41,7 @@ interface TicketsPageClientProps {
   totalPages: number;
   status?: string;
   search?: string;
+  userRole: string;
 }
 
 export function TicketsPageClient({
@@ -49,7 +50,8 @@ export function TicketsPageClient({
   currentPage,
   totalPages,
   status,
-  search
+  search,
+  userRole
 }: TicketsPageClientProps) {
   const router = useRouter();
   const { t } = useLanguage();
@@ -90,7 +92,7 @@ export function TicketsPageClient({
             {tickets.length === 0 ? (
               <NoTicketsFound />
             ) : (
-              <TicketsTable tickets={tickets} />
+              <TicketsTable tickets={tickets} userRole={userRole} />
             )}
 
             {/* Pagination */}

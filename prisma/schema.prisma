@@ -23,6 +23,8 @@ model User {
   loginLogs        LoginLog[]
   priceAdjustments TicketPriceAdjustment[]
   notifications    Notification[]
+  returnsCreated   Return[]                @relation("ReturnCreatedBy")
+  returnsHandled   Return[]                @relation("ReturnHandledBy")
 }
 
 model Customer {
@@ -133,6 +135,13 @@ model Return {
   reason       String
   refundAmount Float
   status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  returnedTo   String?  // Optional field for return recipient
+  notes        String?  // Additional notes, separate from reason
+  createdBy    String   // userId who created the return
+  createdByUser User    @relation("ReturnCreatedBy", fields: [createdBy], references: [id])
+  handledAt    DateTime? // When admin approved/rejected
+  handledBy    String?  // userId who handled the return
+  handledByUser User?   @relation("ReturnHandledBy", fields: [handledBy], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

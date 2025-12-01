@@ -49,6 +49,15 @@ export default async function TicketsPage({
             username: true,
           },
         },
+        returns: {
+          where: {
+            status: 'PENDING',
+          },
+          select: {
+            id: true,
+            status: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       skip,
@@ -75,6 +84,7 @@ export default async function TicketsPage({
         name: ticket.assignedTo.name || ticket.assignedTo.username,
       }
       : null,
+    hasPendingReturn: ticket.returns && ticket.returns.length > 0,
   }));
 
   return (
@@ -87,6 +97,7 @@ export default async function TicketsPage({
           totalPages={totalPages}
           status={params.status}
           search={params.search}
+          userRole={session.user.role}
         />
       </Suspense>
     </MainLayout>
