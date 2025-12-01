@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { createNotification, getStatusChangeMessage } from '@/lib/notifications';
+import { emitEvent } from '@/lib/events/emitter';
+import { nanoid } from 'nanoid';
 
 // Schema for ticket updates – parts field removed
 const updateTicketSchema = z.object({
@@ -126,12 +127,21 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (session.user.role !== 'ADMIN' && session.user.role !== 'STAFF') {
         return NextResponse.json({ error: 'Only admin or staff can change payment status' }, { status: 403 });
       }
-      // Create notification for payment status change
-      const paidMessage = `Ticket ${ticket.ticketNumber} marked as ${data.paid ? 'paid' : 'unpaid'}`;
-      await createNotification({
-        type: 'PAYMENT_STATUS_CHANGE',
-        message: paidMessage,
-        userId: ticket.assignedToId || null,
+      // Emit ticket.updated event for payment status change
+      emitEvent({
+        eventId: nanoid(),
+        entityType: 'ticket',
+        entityId: ticket.id,
+        action: 'updated',
+        actorId: session.user.id,
+        actorName: session.user.name || session.user.username,
+        timestamp: new Date(),
+        summary: `Ticket ${ticket.ticketNumber} marked as ${data.paid ? 'paid' : 'unpaid'}`,
+        meta: {
+          ticketNumber: ticket.ticketNumber,
+          changeType: 'payment_status',
+        },
+        customerId: ticket.customerId,
         ticketId: ticket.id,
       });
     }
@@ -201,11 +211,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         // Don't change ticket status - keep it as REPAIRED
         delete updateData.status;
 
-        // Notification about return creation
-        await createNotification({
-          type: 'STATUS_CHANGE',
-          message: `Return request created for ticket ${ticket.ticketNumber}. Awaiting approval.`,
-          userId: ticket.assignedToId || null,
+        // Emit ticket.status_changed event for return creation
+        emitEvent({
+          eventId: nanoid(),
+          entityType: 'ticket',
+          entityId: ticket.id,
+          action: 'status_changed',
+          actorId: session.user.id,
+          actorName: session.user.name || session.user.username,
+          timestamp: new Date(),
+          summary: `Return request created for ticket ${ticket.ticketNumber}. Awaiting approval.`,
+          meta: {
+            ticketNumber: ticket.ticketNumber,
+            oldStatus: ticket.status,
+            newStatus: ticket.status, // Stays REPAIRED
+          },
+          customerId: ticket.customerId,
           ticketId: ticket.id,
         });
       } else {
@@ -222,14 +243,43 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           updateData.completedAt = new Date();
         }
 
-        // Notification about status change
-        const message = getStatusChangeMessage(ticket.ticketNumber, ticket.status, data.status);
-        await createNotification({
-          type: 'STATUS_CHANGE',
-          message,
-          userId: ticket.assignedToId || null,
+        // Emit ticket.status_changed event
+        emitEvent({
+          eventId: nanoid(),
+          entityType: 'ticket',
+          entityId: ticket.id,
+          action: 'status_changed',
+          actorId: session.user.id,
+          actorName: session.user.name || session.user.username,
+          timestamp: new Date(),
+          summary: `Ticket ${ticket.ticketNumber} status changed from ${ticket.status} to ${data.status}`,
+          meta: {
+            ticketNumber: ticket.ticketNumber,
+            oldStatus: ticket.status,
+            newStatus: data.status,
+          },
+          customerId: ticket.customerId,
           ticketId: ticket.id,
         });
+
+        // Emit repairjob.completed event when status changes to REPAIRED
+        if (data.status === 'REPAIRED') {
+          emitEvent({
+            eventId: nanoid(),
+            entityType: 'repairjob',
+            entityId: ticket.id,
+            action: 'completed',
+            actorId: session.user.id,
+            actorName: session.user.name || session.user.username,
+            timestamp: new Date(),
+            summary: `Repair job ${ticket.ticketNumber} has been completed`,
+            meta: {
+              ticketNumber: ticket.ticketNumber,
+            },
+            customerId: ticket.customerId,
+            ticketId: ticket.id,
+          });
+        }
       }
     }
 
@@ -279,14 +329,25 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             },
           };
           
-          const priceMessage = isInitialPriceSetting
-            ? `Ticket ${ticket.ticketNumber} final price set to ${newFinalPrice}`
-            : `Ticket ${ticket.ticketNumber} price adjusted from ${currentFinalPrice} to ${newFinalPrice}`;
-          
-          await createNotification({
-            type: 'PRICE_ADJUSTMENT',
-            message: priceMessage,
-            userId: ticket.assignedToId || null,
+          // Emit charge.added event for price adjustment
+          emitEvent({
+            eventId: nanoid(),
+            entityType: 'charge',
+            entityId: ticket.id,
+            action: 'added',
+            actorId: session.user.id,
+            actorName: session.user.name || session.user.username,
+            timestamp: new Date(),
+            summary: isInitialPriceSetting
+              ? `Ticket ${ticket.ticketNumber} final price set to ${newFinalPrice}`
+              : `Ticket ${ticket.ticketNumber} price adjusted from ${currentFinalPrice} to ${newFinalPrice}`,
+            meta: {
+              ticketNumber: ticket.ticketNumber,
+              oldPrice: currentFinalPrice ?? ticket.estimatedPrice ?? 0,
+              newPrice: newFinalPrice,
+              reason: adjustmentReason,
+            },
+            customerId: ticket.customerId,
             ticketId: ticket.id,
           });
         }
@@ -307,6 +368,48 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       data: updateData,
       include: { customer: true, assignedTo: true },
     });
+
+    // Check for assignment change and emit repairjob.assigned event
+    if (data.assignedToId !== undefined && data.assignedToId !== ticket.assignedToId) {
+      if (data.assignedToId) {
+        emitEvent({
+          eventId: nanoid(),
+          entityType: 'repairjob',
+          entityId: updatedTicket.id,
+          action: 'assigned',
+          actorId: session.user.id,
+          actorName: session.user.name || session.user.username,
+          timestamp: new Date(),
+          summary: `Repair job ${updatedTicket.ticketNumber} was assigned`,
+          meta: {
+            ticketNumber: updatedTicket.ticketNumber,
+            assignedToId: data.assignedToId,
+          },
+          customerId: updatedTicket.customerId,
+          ticketId: updatedTicket.id,
+        });
+      }
+    }
+
+    // Emit ticket.updated event for general updates (if no specific event was emitted)
+    const hasSpecificEvent = data.status || data.finalPrice !== undefined || data.assignedToId !== undefined;
+    if (!hasSpecificEvent && Object.keys(updateData).length > 0) {
+      emitEvent({
+        eventId: nanoid(),
+        entityType: 'ticket',
+        entityId: updatedTicket.id,
+        action: 'updated',
+        actorId: session.user.id,
+        actorName: session.user.name || session.user.username,
+        timestamp: new Date(),
+        summary: `Ticket ${updatedTicket.ticketNumber} was updated`,
+        meta: {
+          ticketNumber: updatedTicket.ticketNumber,
+        },
+        customerId: updatedTicket.customerId,
+        ticketId: updatedTicket.id,
+      });
+    }
 
     return NextResponse.json(updatedTicket);
   } catch (error) {
@@ -359,6 +462,7 @@ export async function DELETE(
     const ticket = await prisma.ticket.findUnique({
       where: { id },
       include: {
+        customer: true,
         _count: {
           select: {
             returns: true,
@@ -379,9 +483,32 @@ export async function DELETE(
       );
     }
 
+    // Store ticket data before deletion
+    const ticketData = {
+      ticketNumber: ticket.ticketNumber,
+      customerId: ticket.customerId,
+    };
+
     // Delete the ticket
     await prisma.ticket.delete({
       where: { id },
+    });
+
+    // Emit ticket.deleted event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'ticket',
+      entityId: id,
+      action: 'deleted',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Ticket ${ticketData.ticketNumber} was deleted`,
+      meta: {
+        ticketNumber: ticketData.ticketNumber,
+      },
+      customerId: ticketData.customerId,
+      ticketId: id,
     });
 
     return NextResponse.json({ success: true, message: 'Ticket deleted successfully' });

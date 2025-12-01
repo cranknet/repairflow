@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { emitEvent } from '@/lib/events/emitter';
+import { nanoid } from 'nanoid';
 
 const updateCustomerSchema = z.object({
   name: z.string().min(1).optional(),
@@ -80,6 +82,22 @@ export async function PATCH(
       data: updateData,
     });
 
+    // Emit customer.updated event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'customer',
+      entityId: updatedCustomer.id,
+      action: 'updated',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Customer ${updatedCustomer.name} was updated`,
+      meta: {
+        customerName: updatedCustomer.name,
+      },
+      customerId: updatedCustomer.id,
+    });
+
     return NextResponse.json(updatedCustomer);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -140,6 +158,22 @@ export async function DELETE(
 
     await prisma.customer.delete({
       where: { id },
+    });
+
+    // Emit customer.deleted event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'customer',
+      entityId: id,
+      action: 'deleted',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Customer ${existingCustomer.name} was deleted`,
+      meta: {
+        customerName: existingCustomer.name,
+      },
+      customerId: id,
     });
 
     return NextResponse.json({ success: true });

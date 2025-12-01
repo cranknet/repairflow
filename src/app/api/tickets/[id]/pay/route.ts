@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { createNotification } from '@/lib/notifications';
+import { emitEvent } from '@/lib/events/emitter';
+import { nanoid } from 'nanoid';
 
 const createPaymentSchema = z.object({
   amount: z.number().positive('Amount must be greater than 0'),
@@ -143,12 +144,25 @@ export async function POST(
       },
     });
 
-    // Create notification
-    const paymentMessage = `Payment of ${data.amount} recorded for ticket ${ticket.ticketNumber} via ${data.method}`;
-    await createNotification({
-      type: 'PAYMENT_STATUS_CHANGE',
-      message: paymentMessage,
-      userId: ticket.assignedToId || null,
+    // Emit payment.created event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'payment',
+      entityId: result.id,
+      action: 'created',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Payment of ${data.amount} recorded for ticket ${ticket.ticketNumber} via ${data.method}`,
+      meta: {
+        amount: data.amount,
+        method: data.method,
+        reference: data.reference,
+        ticketNumber: ticket.ticketNumber,
+        totalPaid: newTotalPaid,
+        finalPrice: finalPrice,
+      },
+      customerId: ticket.customerId,
       ticketId: ticket.id,
     });
 

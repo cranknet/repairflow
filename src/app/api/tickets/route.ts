@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
-import { createNotification } from '@/lib/notifications';
+import { emitEvent } from '@/lib/events/emitter';
 import { shouldAutoMarkTicketsAsPaid } from '@/lib/settings';
 
 const createTicketSchema = z.object({
@@ -104,12 +104,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create notification for assigned user or all admins
-    await createNotification({
-      type: 'TICKET_CREATED',
-      message: `New ticket ${ticketNumber} created for ${ticket.customer.name}`,
-      userId: data.assignedToId || null,
+    // Emit ticket.created event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'ticket',
+      entityId: ticket.id,
+      action: 'created',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Ticket ${ticketNumber} created for ${ticket.customer.name}`,
+      meta: {
+        ticketNumber: ticket.ticketNumber,
+        customerName: ticket.customer.name,
+      },
+      customerId: ticket.customerId,
       ticketId: ticket.id,
+      device: {
+        brand: ticket.deviceBrand,
+        model: ticket.deviceModel,
+        issue: ticket.deviceIssue,
+      },
     });
 
     return NextResponse.json(ticket, { status: 201 });

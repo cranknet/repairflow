@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { emitEvent } from '@/lib/events/emitter';
+import { nanoid } from 'nanoid';
 
 const createCustomerSchema = z.object({
   name: z.string().min(1),
@@ -65,6 +67,22 @@ export async function POST(request: NextRequest) {
         ...data,
         email: data.email || undefined,
       },
+    });
+
+    // Emit customer.created event
+    emitEvent({
+      eventId: nanoid(),
+      entityType: 'customer',
+      entityId: customer.id,
+      action: 'created',
+      actorId: session.user.id,
+      actorName: session.user.name || session.user.username,
+      timestamp: new Date(),
+      summary: `Customer ${customer.name} was created`,
+      meta: {
+        customerName: customer.name,
+      },
+      customerId: customer.id,
     });
 
     return NextResponse.json(customer, { status: 201 });
