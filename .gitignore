@@ -61,3 +61,5 @@ Thumbs.db
 # Logs
 logs
 *.log
+.cursor/audit-report.txt
+.cursor/commit-split-report.txt
