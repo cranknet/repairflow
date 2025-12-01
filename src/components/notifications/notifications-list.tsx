@@ -150,12 +150,33 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
     }
   };
 
+  const getNotificationDeepLink = (notification: Notification): string | null => {
+    // Ticket-related notifications
+    if (notification.ticketId) {
+      return `/tickets/${notification.ticketId}`;
+    }
+    
+    // Customer-related notifications (would need customerId in notification model)
+    // For now, we can't deep link to customers as the old system doesn't store customerId
+    
+    // Supplier-related notifications (would need supplierId in notification model)
+    // For now, we can't deep link to suppliers as the old system doesn't store supplierId
+    
+    // Payment notifications link to the ticket
+    if (notification.type === 'PAYMENT_STATUS_CHANGE' && notification.ticketId) {
+      return `/tickets/${notification.ticketId}`;
+    }
+    
+    return null;
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
       markAsRead(notification.id);
     }
-    if (notification.ticketId) {
-      router.push(`/tickets/${notification.ticketId}`);
+    const deepLink = getNotificationDeepLink(notification);
+    if (deepLink) {
+      router.push(deepLink);
     }
   };
 

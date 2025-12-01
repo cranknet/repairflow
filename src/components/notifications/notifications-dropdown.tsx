@@ -303,12 +303,27 @@ export function NotificationsDropdown({ onClose, onNotificationRead }: Notificat
     }
   };
 
+  const getNotificationDeepLink = (notification: Notification): string | null => {
+    // Ticket-related notifications
+    if (notification.ticketId) {
+      return `/tickets/${notification.ticketId}`;
+    }
+    
+    // Payment notifications link to the ticket
+    if (notification.type === 'PAYMENT_STATUS_CHANGE' && notification.ticketId) {
+      return `/tickets/${notification.ticketId}`;
+    }
+    
+    return null;
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
       markAsRead(notification.id);
     }
-    if (notification.ticketId) {
-      router.push(`/tickets/${notification.ticketId}`);
+    const deepLink = getNotificationDeepLink(notification);
+    if (deepLink) {
+      router.push(deepLink);
       onClose();
     }
   };
