@@ -3,6 +3,7 @@ import { prisma } from './prisma';
 export type NotificationType = 
   | 'STATUS_CHANGE' 
   | 'PRICE_ADJUSTMENT' 
+  | 'PAYMENT_STATUS_CHANGE'
   | 'ASSIGNMENT' 
   | 'TICKET_CREATED' 
   | 'USER_DELETED' 

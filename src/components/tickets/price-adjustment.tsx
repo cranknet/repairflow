@@ -114,7 +114,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
         <Button
           onClick={handleTogglePaid}
           disabled={isTogglingPaid}
-          variant={isPaid ? 'default' : 'outlined'}
+          variant={isPaid ? 'filled' : 'outlined'}
           size="sm"
           className={isPaid 
             ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -194,7 +194,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
         <Button
           onClick={handleTogglePaid}
           disabled={isTogglingPaid}
-          variant={isPaid ? 'default' : 'outlined'}
+          variant={isPaid ? 'filled' : 'outlined'}
           size="sm"
           className={isPaid 
             ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -238,7 +238,10 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
                 step="0.01"
                 min="0"
                 value={newPrice}
-                onChange={(e) => setNewPrice(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewPrice(value === '' ? 0 : parseFloat(value) || 0);
+                }}
                 placeholder="0.00"
                 className="mt-1"
               />

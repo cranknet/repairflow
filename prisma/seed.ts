@@ -207,7 +207,7 @@ async function main() {
   console.log('✅ Customers created');
 
   // Create mock inventory parts
-  const parts = await Promise.all([
+  const parts: Awaited<ReturnType<typeof prisma.part.upsert>>[] = await Promise.all([
     prisma.part.upsert({
       where: { sku: 'IPH14-SCR-001' },
       update: {},
