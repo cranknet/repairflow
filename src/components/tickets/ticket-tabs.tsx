@@ -88,7 +88,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
 
   const TABS = [
     { id: 'overview', label: t('overview') },
-    { id: 'status', label: t('statusHistory') },
+    { id: 'status', label: t('ticketStatusHistory') },
     { id: 'pricing', label: t('pricing') },
     { id: 'messaging', label: t('messaging') },
   ];
@@ -279,7 +279,7 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
         {activeTab === 'status' && (
           <Card>
             <CardHeader>
-              <CardTitle>{t('statusHistory')}</CardTitle>
+              <CardTitle>{t('ticketStatusHistory')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
