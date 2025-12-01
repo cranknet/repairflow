@@ -6,7 +6,7 @@ import { Language, languages, getTranslation } from '@/lib/i18n';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -65,7 +65,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const t = (key: string) => getTranslation(key, language);
+  const t = (key: string, params?: Record<string, string | number>) => 
+    getTranslation(key, language, params);
 
   // Always provide the context, even during initialization
   return (
