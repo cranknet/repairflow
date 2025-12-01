@@ -58,6 +58,11 @@ export default async function TicketsPage({
             status: true,
           },
         },
+        payments: {
+          select: {
+            amount: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       skip,
@@ -68,24 +73,33 @@ export default async function TicketsPage({
   const totalPages = Math.ceil(totalCount / TICKETS_PER_PAGE);
 
   // Serialize tickets data for client component (convert Date objects to strings)
-  const serializedTickets = tickets.map((ticket) => ({
-    ...ticket,
-    createdAt: ticket.createdAt.toISOString(),
-    updatedAt: ticket.updatedAt.toISOString(),
-    completedAt: ticket.completedAt?.toISOString() || null,
-    customer: {
-      id: ticket.customer.id,
-      name: ticket.customer.name,
-      phone: ticket.customer.phone,
-    },
-    assignedTo: ticket.assignedTo
-      ? {
-        username: ticket.assignedTo.username,
-        name: ticket.assignedTo.name || ticket.assignedTo.username,
-      }
-      : null,
-    hasPendingReturn: ticket.returns && ticket.returns.length > 0,
-  }));
+  const serializedTickets = tickets.map((ticket) => {
+    // Calculate total paid and outstanding amount
+    const totalPaid = ticket.payments.reduce((sum, p) => sum + p.amount, 0);
+    const finalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
+    const outstandingAmount = Math.max(0, finalPrice - totalPaid);
+
+    return {
+      ...ticket,
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      completedAt: ticket.completedAt?.toISOString() || null,
+      customer: {
+        id: ticket.customer.id,
+        name: ticket.customer.name,
+        phone: ticket.customer.phone,
+      },
+      assignedTo: ticket.assignedTo
+        ? {
+          username: ticket.assignedTo.username,
+          name: ticket.assignedTo.name || ticket.assignedTo.username,
+        }
+        : null,
+      hasPendingReturn: ticket.returns && ticket.returns.length > 0,
+      totalPaid,
+      outstandingAmount,
+    };
+  });
 
   return (
     <MainLayout>

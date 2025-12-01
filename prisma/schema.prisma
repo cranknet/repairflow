@@ -25,6 +25,7 @@ model User {
   notifications    Notification[]
   returnsCreated   Return[]                @relation("ReturnCreatedBy")
   returnsHandled   Return[]                @relation("ReturnHandledBy")
+  paymentsCreated  Payment[]               @relation("PaymentCreatedBy")
 }
 
 model Customer {
@@ -68,6 +69,7 @@ model Ticket {
   priceAdjustments     TicketPriceAdjustment[]
   notifications        Notification[]
   returns              Return[]
+  payments             Payment[]
 }
 
 model TicketStatusHistory {
@@ -197,4 +199,19 @@ model SMSTemplate {
   updatedAt  DateTime @updatedAt
 
   @@index([templateId, language])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  amount      Float
+  method      String   // cash, card, mobile, other
+  reference   String?  // Optional transaction ID
+  reason      String?  // Required when amount differs from outstanding
+  performedBy String
+  performedByUser User @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([ticketId])
 }

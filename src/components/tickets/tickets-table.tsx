@@ -9,7 +9,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { TicketStatusBadge } from './ticket-status-badge';
-import { EyeIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { TicketPaymentModal } from './ticket-payment-modal';
 
 interface TicketsTableProps {
   tickets: any[];
@@ -23,10 +24,23 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [ticketToDelete, setTicketToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [ticketToPay, setTicketToPay] = useState<any>(null);
 
   const handleDelete = (ticket: any) => {
     setTicketToDelete(ticket);
     setDeleteConfirmOpen(true);
+  };
+
+  const handlePay = (ticket: any) => {
+    setTicketToPay(ticket);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentModalOpen(false);
+    setTicketToPay(null);
+    router.refresh();
   };
 
   const confirmDelete = async () => {
@@ -117,7 +131,10 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
               {t('priority')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
-              {t('estimatedPrice')}
+              {t('finalPrice') || t('price')}
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+              {t('paymentStatus') || t('payment')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('createdAt')}
@@ -160,7 +177,18 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                   {getPriorityTranslation(ticket.priority)}
                 </span>
               </td>
-              <td className="py-3 px-4">${ticket.estimatedPrice.toFixed(2)}</td>
+              <td className="py-3 px-4">${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}</td>
+              <td className="py-3 px-4">
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    ticket.paid
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                  }`}
+                >
+                  {ticket.paid ? t('paid') : t('unpaid')}
+                </span>
+              </td>
               <td className="py-3 px-4">
                 {format(new Date(ticket.createdAt), 'MMM dd, yyyy')}
               </td>
@@ -176,6 +204,24 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                       {t('tickets.action.view')}
                     </Button>
                   </Link>
+                  {(userRole === 'ADMIN' || userRole === 'STAFF') &&
+                    ticket.status === 'REPAIRED' &&
+                    !ticket.paid &&
+                    (ticket.outstandingAmount ?? (ticket.finalPrice ?? ticket.estimatedPrice) - (ticket.totalPaid ?? 0)) > 0.01 && (
+                    <Button
+                      variant="outlined"
+                      size="sm"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePay(ticket);
+                      }}
+                      icon={<BanknotesIcon className="h-4 w-4" />}
+                      aria-label={`${t('tickets.action.pay')} ${ticket.ticketNumber}`}
+                    >
+                      {t('tickets.action.pay')}
+                    </Button>
+                  )}
                   {userRole === 'ADMIN' && (
                     <Button
                       variant="ghost"
@@ -216,6 +262,29 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
           cancelText={t('tickets.delete.cancelButton')}
           variant="destructive"
           onConfirm={confirmDelete}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {ticketToPay && (
+        <TicketPaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setTicketToPay(null);
+          }}
+          ticket={{
+            id: ticketToPay.id,
+            ticketNumber: ticketToPay.ticketNumber,
+            customer: ticketToPay.customer,
+            deviceBrand: ticketToPay.deviceBrand,
+            deviceModel: ticketToPay.deviceModel,
+            finalPrice: ticketToPay.finalPrice,
+            estimatedPrice: ticketToPay.estimatedPrice,
+            outstandingAmount: ticketToPay.outstandingAmount,
+            totalPaid: ticketToPay.totalPaid,
+          }}
+          onSuccess={handlePaymentSuccess}
         />
       )}
     </div>

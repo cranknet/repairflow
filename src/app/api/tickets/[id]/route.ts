@@ -45,6 +45,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
           orderBy: { createdAt: 'desc' },
         },
+        payments: {
+          include: {
+            performedByUser: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
@@ -52,7 +64,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    return NextResponse.json(ticket);
+    // Calculate outstanding amount and total paid
+    const totalPaid = ticket.payments.reduce((sum, p) => sum + p.amount, 0);
+    const finalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
+    const outstandingAmount = Math.max(0, finalPrice - totalPaid);
+
+    return NextResponse.json({
+      ...ticket,
+      totalPaid,
+      outstandingAmount,
+    });
   } catch (error) {
     console.error('Error fetching ticket:', error);
     return NextResponse.json({ error: 'Failed to fetch ticket' }, { status: 500 });
@@ -60,6 +81,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  let updateData: any = {};
+  
   try {
     const session = await auth();
     if (!session) {
@@ -80,9 +103,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Cannot change status of a returned ticket' }, { status: 400 });
     }
 
-    const updateData: any = { ...data };
+    updateData = { ...data };
     // priceAdjustmentReason is not a column on Ticket
     delete updateData.priceAdjustmentReason;
+
+    // Validate assignedToId if it's being updated and not null
+    // Note: assignedToId can be null (unassigned), so we only validate if it's a non-null value
+    if (data.assignedToId !== undefined && data.assignedToId !== null && data.assignedToId.trim() !== '') {
+      const assignedUser = await prisma.user.findUnique({
+        where: { id: data.assignedToId },
+      });
+      if (!assignedUser) {
+        return NextResponse.json(
+          { error: 'Assigned user not found' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Paid status change handling (admin / staff only)
     if (data.paid !== undefined && data.paid !== ticket.paid) {
@@ -210,6 +247,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             return NextResponse.json({ error: 'Reason is required for price adjustment' }, { status: 400 });
           }
           
+          // Verify the user exists before creating price adjustment
+          // This prevents foreign key constraint violations
+          const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { id: true },
+          });
+          
+          if (!user) {
+            return NextResponse.json(
+              { 
+                error: 'Authentication error', 
+                details: 'Your user account is no longer valid. Please log out and log in again.' 
+              },
+              { status: 401 }
+            );
+          }
+          
           // Determine the reason for the history entry
           const adjustmentReason = isInitialPriceSetting 
             ? (data.priceAdjustmentReason?.trim() || 'Initial price set upon repair completion')
@@ -241,6 +295,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
+    // Log updateData for debugging (remove sensitive nested data)
+    console.log('Updating ticket with data:', {
+      ...updateData,
+      statusHistory: updateData.statusHistory ? '[nested create]' : undefined,
+      priceAdjustments: updateData.priceAdjustments ? '[nested create]' : undefined,
+    });
+
     const updatedTicket = await prisma.ticket.update({
       where: { id },
       data: updateData,
@@ -252,6 +313,22 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 });
     }
+    
+    // Handle Prisma foreign key errors
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
+      const meta = (error as any).meta;
+      console.error('Foreign key constraint violation - Full error:', JSON.stringify(error, null, 2));
+      console.error('Foreign key constraint violation - Meta:', JSON.stringify(meta, null, 2));
+      console.error('Update data that caused error:', JSON.stringify(updateData, null, 2));
+      return NextResponse.json(
+        { 
+          error: 'Foreign key constraint violation', 
+          details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}, Model: ${meta?.model_name || 'unknown'}, Target: ${JSON.stringify(meta?.target || 'unknown')}` 
+        },
+        { status: 400 }
+      );
+    }
+    
     console.error('Error updating ticket:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ error: 'Failed to update ticket', details: errorMessage }, { status: 500 });
