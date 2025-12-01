@@ -308,6 +308,27 @@ main {
 }
 
 /* Print Styles */
+/* Track page print styles */
+@media print {
+  /* Hide header and footer on track page */
+  header[class*="sticky"],
+  footer[class*="bg-gray-100"],
+  button[class*="gap-2"],
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure content is printable */
+  main {
+    padding: 0 !important;
+  }
+  
+  /* Print page breaks */
+  .print-break {
+    page-break-after: always;
+  }
+}
+
 @media print {
   *:focus-visible {
     outline: none !important;
