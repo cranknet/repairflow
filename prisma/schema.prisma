@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id               String                  @id @default(cuid())
-  username         String                  @unique
-  email            String?                 @unique
-  password         String
-  role             String                  @default("STAFF") // ADMIN, STAFF
-  name             String?
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @updatedAt
-  tickets          Ticket[]
-  loginLogs        LoginLog[]
-  priceAdjustments TicketPriceAdjustment[]
-  notifications    Notification[]
-  returnsCreated   Return[]                @relation("ReturnCreatedBy")
-  returnsHandled   Return[]                @relation("ReturnHandledBy")
-  paymentsCreated  Payment[]               @relation("PaymentCreatedBy")
+  id                    String                  @id @default(cuid())
+  username              String                  @unique
+  email                 String?                 @unique
+  password              String
+  role                  String                  @default("STAFF") // ADMIN, STAFF
+  name                  String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  tickets               Ticket[]
+  loginLogs             LoginLog[]
+  priceAdjustments      TicketPriceAdjustment[]
+  notifications         Notification[]
+  returnsCreated        Return[]                @relation("ReturnCreatedBy")
+  returnsHandled        Return[]                @relation("ReturnHandledBy")
+  paymentsCreated       Payment[]               @relation("PaymentCreatedBy")
+  notificationPreferences NotificationPreference[]
 }
 
 model Customer {
@@ -111,11 +112,39 @@ model Part {
   quantity              Int                    @default(0)
   reorderLevel          Int                    @default(5)
   unitPrice             Float                  @default(0)
-  supplier              String?
+  supplierId            String?
+  supplier              Supplier?              @relation(fields: [supplierId], references: [id])
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   ticketParts           TicketPart[]
   inventoryTransactions InventoryTransaction[]
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  contactPerson String?
+  email       String?
+  phone       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  parts       Part[]
+}
+
+model NotificationPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType String  // customer, ticket, payment, charge, repairjob, part, supplier
+  action    String   // created, updated, deleted, status_changed, assigned, completed, used, removed, added
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, entityType, action])
+  @@index([userId])
 }
 
 model InventoryTransaction {

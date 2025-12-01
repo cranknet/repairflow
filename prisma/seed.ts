@@ -206,6 +206,51 @@ async function main() {
 
   console.log('✅ Customers created');
 
+  // Create suppliers first (using findFirst + create pattern since name is not unique)
+  let supplier1 = await prisma.supplier.findFirst({
+    where: { name: 'TechParts Inc.' },
+  });
+  if (!supplier1) {
+    supplier1 = await prisma.supplier.create({
+      data: {
+        name: 'TechParts Inc.',
+        contactPerson: 'John Smith',
+        email: 'orders@techparts.com',
+        phone: '+1 (555) 123-4567',
+      },
+    });
+  }
+
+  let supplier2 = await prisma.supplier.findFirst({
+    where: { name: 'Samsung Parts Direct' },
+  });
+  if (!supplier2) {
+    supplier2 = await prisma.supplier.create({
+      data: {
+        name: 'Samsung Parts Direct',
+        contactPerson: 'Sarah Johnson',
+        email: 'parts@samsungdirect.com',
+        phone: '+1 (555) 234-5678',
+      },
+    });
+  }
+
+  let supplier3 = await prisma.supplier.findFirst({
+    where: { name: 'ElectroParts Co.' },
+  });
+  if (!supplier3) {
+    supplier3 = await prisma.supplier.create({
+      data: {
+        name: 'ElectroParts Co.',
+        contactPerson: 'Mike Davis',
+        email: 'sales@electroparts.com',
+        phone: '+1 (555) 345-6789',
+      },
+    });
+  }
+
+  console.log('✅ Suppliers created');
+
   // Create mock inventory parts
   const parts: Awaited<ReturnType<typeof prisma.part.upsert>>[] = await Promise.all([
     prisma.part.upsert({
@@ -218,7 +263,7 @@ async function main() {
         quantity: 15,
         reorderLevel: 5,
         unitPrice: 89.99,
-        supplier: 'TechParts Inc.',
+        supplierId: supplier1.id,
       },
     }),
     prisma.part.upsert({
@@ -231,7 +276,7 @@ async function main() {
         quantity: 8,
         reorderLevel: 5,
         unitPrice: 45.00,
-        supplier: 'Samsung Parts Direct',
+        supplierId: supplier2.id,
       },
     }),
     prisma.part.upsert({
@@ -244,7 +289,7 @@ async function main() {
         quantity: 3,
         reorderLevel: 5,
         unitPrice: 12.50,
-        supplier: 'ElectroParts Co.',
+        supplierId: supplier3.id,
       },
     }),
     prisma.part.upsert({
@@ -257,7 +302,7 @@ async function main() {
         quantity: 20,
         reorderLevel: 5,
         unitPrice: 35.00,
-        supplier: 'TechParts Inc.',
+        supplierId: supplier1.id,
       },
     }),
     prisma.part.upsert({
@@ -270,7 +315,7 @@ async function main() {
         quantity: 2,
         reorderLevel: 5,
         unitPrice: 75.00,
-        supplier: 'TechParts Inc.',
+        supplierId: supplier1.id,
       },
     }),
   ]);
