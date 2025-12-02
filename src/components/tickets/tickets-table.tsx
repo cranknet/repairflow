@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { TicketStatusBadge } from './ticket-status-badge';
 import { EyeIcon, TrashIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 import { TicketPaymentModal } from './ticket-payment-modal';
 
 interface TicketsTableProps {
@@ -140,6 +142,9 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
               {t('createdAt')}
             </th>
             <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+              {t('satisfaction.rating_label')}
+            </th>
+            <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
               {t('actions')}
             </th>
           </tr>
@@ -191,6 +196,21 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
               </td>
               <td className="py-3 px-4">
                 {format(new Date(ticket.createdAt), 'MMM dd, yyyy')}
+              </td>
+              <td className="py-3 px-4">
+                {ticket.satisfactionRating ? (
+                  <div className="flex items-center gap-1" title={`${ticket.satisfactionRating.rating}/5 ${ticket.satisfactionRating.comment ? `- ${ticket.satisfactionRating.comment}` : ''}`}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      star <= ticket.satisfactionRating.rating ? (
+                        <StarIcon key={star} className="h-4 w-4 text-yellow-400" />
+                      ) : (
+                        <StarOutlineIcon key={star} className="h-4 w-4 text-gray-300" />
+                      )
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-400 text-sm">-</span>
+                )}
               </td>
               <td className="py-3 px-4">
                 <div className="flex items-center gap-2">

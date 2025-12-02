@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
+import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
 interface DashboardTicketTableProps {
   tickets: any[];
@@ -48,12 +50,15 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
               <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
                 {t('status')}
               </th>
+              <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                {t('satisfaction.rating_label')}
+              </th>
             </tr>
           </thead>
           <tbody>
             {tickets.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-gray-500">
+                <td colSpan={7} className="text-center py-12 text-gray-500">
                   {t('noActiveTickets')}
                 </td>
               </tr>
@@ -91,6 +96,21 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
                     >
                       {getStatusTranslation(ticket.status)}
                     </span>
+                  </td>
+                  <td className="py-4 px-4">
+                    {ticket.satisfactionRating ? (
+                      <div className="flex items-center gap-1" title={`${ticket.satisfactionRating.rating}/5 ${ticket.satisfactionRating.comment ? `- ${ticket.satisfactionRating.comment}` : ''}`}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          star <= ticket.satisfactionRating.rating ? (
+                            <StarIcon key={star} className="h-4 w-4 text-yellow-400" />
+                          ) : (
+                            <StarOutlineIcon key={star} className="h-4 w-4 text-gray-300" />
+                          )
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">-</span>
+                    )}
                   </td>
                 </tr>
               ))

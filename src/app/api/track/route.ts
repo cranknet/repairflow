@@ -156,8 +156,31 @@ export async function GET(request: NextRequest) {
       estimatedCompletion = new Date(Date.now() + avgDays * 24 * 60 * 60 * 1000);
     }
 
+    // Check for existing satisfaction rating for THIS specific ticket
+    const existingRating = await prisma.satisfactionRating.findFirst({
+      where: {
+        ticketId: ticket.id,
+        customerEmail: ticket.customer.email?.trim().toLowerCase() || '',
+      },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        phoneNumber: true,
+        verifiedBy: true,
+        createdAt: true,
+      },
+    });
+
+    // Determine if customer can submit rating
+    // Can submit if: ticket is COMPLETED or REPAIRED, and no existing rating
+    const canSubmitRating = 
+      (ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') &&
+      !existingRating;
+
     // Return limited, privacy-protected information for public tracking
     return NextResponse.json({
+      id: ticket.id,
       ticketNumber: ticket.ticketNumber,
       trackingCode: maskTrackingCode(ticket.trackingCode), // Masked for display
       status: ticket.status,
@@ -186,6 +209,8 @@ export async function GET(request: NextRequest) {
         email: ticket.customer.email, // Unmasked since they authenticated with tracking code
         phone: ticket.customer.phone || null,
       },
+      satisfactionRating: existingRating || null,
+      canSubmitRating,
     });
   } catch (error) {
     console.error('Error fetching ticket:', error);

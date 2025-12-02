@@ -63,6 +63,20 @@ export default async function TicketsPage({
             amount: true,
           },
         },
+        satisfactionRatings: {
+          select: {
+            id: true,
+            rating: true,
+            comment: true,
+            phoneNumber: true,
+            verifiedBy: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
       },
       orderBy: { createdAt: 'desc' },
       skip,
@@ -98,6 +112,16 @@ export default async function TicketsPage({
       hasPendingReturn: ticket.returns && ticket.returns.length > 0,
       totalPaid,
       outstandingAmount,
+      satisfactionRating: ticket.satisfactionRatings && ticket.satisfactionRatings.length > 0
+        ? {
+          id: ticket.satisfactionRatings[0].id,
+          rating: ticket.satisfactionRatings[0].rating,
+          comment: ticket.satisfactionRatings[0].comment,
+          phoneNumber: ticket.satisfactionRatings[0].phoneNumber,
+          verifiedBy: ticket.satisfactionRatings[0].verifiedBy,
+          createdAt: ticket.satisfactionRatings[0].createdAt.toISOString(),
+        }
+        : null,
     };
   });
 

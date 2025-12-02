@@ -154,6 +154,20 @@ export default async function DashboardPage() {
             username: true,
           },
         },
+        satisfactionRatings: {
+          select: {
+            id: true,
+            rating: true,
+            comment: true,
+            phoneNumber: true,
+            verifiedBy: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
       },
     }),
     prisma.settings.findMany({
@@ -248,6 +262,24 @@ export default async function DashboardPage() {
   const monthlyTarget = 20000; // Can be made configurable
   const currentMonthSales = weeklyRevenue * 4; // Approximate
 
+  // Serialize recent tickets data for client component
+  const serializedRecentTickets = recentTickets.map((ticket) => ({
+    ...ticket,
+    createdAt: ticket.createdAt.toISOString(),
+    updatedAt: ticket.updatedAt.toISOString(),
+    completedAt: ticket.completedAt?.toISOString() || null,
+    satisfactionRating: ticket.satisfactionRatings && ticket.satisfactionRatings.length > 0
+      ? {
+          id: ticket.satisfactionRatings[0].id,
+          rating: ticket.satisfactionRatings[0].rating,
+          comment: ticket.satisfactionRatings[0].comment,
+          phoneNumber: ticket.satisfactionRatings[0].phoneNumber,
+          verifiedBy: ticket.satisfactionRatings[0].verifiedBy,
+          createdAt: ticket.satisfactionRatings[0].createdAt.toISOString(),
+        }
+      : null,
+  }));
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -288,7 +320,7 @@ export default async function DashboardPage() {
                 <DashboardTicketHeader />
               </CardHeader>
               <CardContent>
-                <DashboardTicketTable tickets={recentTickets} />
+                <DashboardTicketTable tickets={serializedRecentTickets} />
               </CardContent>
             </Card>
           </div>

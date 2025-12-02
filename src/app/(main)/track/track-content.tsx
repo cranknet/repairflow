@@ -29,11 +29,14 @@ import {
   PhotoIcon,
   ClockIcon,
   CheckBadgeIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { ContactSupportModal } from '@/components/track/contact-support-modal';
+import { SatisfactionRatingModal } from '@/components/track/satisfaction-rating-modal';
 
 interface TicketData {
+  id: string;
   ticketNumber: string;
   trackingCode: string;
   status: string;
@@ -62,6 +65,15 @@ interface TicketData {
     email: string;
     phone: string | null;
   };
+  satisfactionRating?: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    phoneNumber: string | null;
+    verifiedBy: string;
+    createdAt: string;
+  } | null;
+  canSubmitRating?: boolean;
 }
 
 const STATUS_CONFIG: Record<string, {
@@ -143,6 +155,7 @@ export function TrackContent() {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [expandedPhotos, setExpandedPhotos] = useState<string | null>(null);
+  const [isSatisfactionModalOpen, setIsSatisfactionModalOpen] = useState(false);
   const [socialMedia, setSocialMedia] = useState({
     facebook_url: '',
     youtube_url: '',
@@ -596,6 +609,16 @@ export function TrackContent() {
                     <EnvelopeIcon className="h-4 w-4" />
                     {t('contactSupport')}
                   </Button>
+                  {(ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') && (
+                    <Button
+                      variant="outlined"
+                      className="gap-2"
+                      onClick={() => setIsSatisfactionModalOpen(true)}
+                    >
+                      <StarIcon className="h-4 w-4" />
+                      {t('satisfaction.rating_label')}
+                    </Button>
+                  )}
                   <Button variant="outlined" onClick={() => setShowQR(!showQR)} className="gap-2">
                     <QrCodeIcon className="h-4 w-4" />
                     {t('shareTracking')}
@@ -874,17 +897,32 @@ export function TrackContent() {
             <XCircleIcon className="h-8 w-8" />
           </button>
         </div>
-      )}
+            )}
 
-      <ContactSupportModal
-        open={isContactModalOpen}
-        onOpenChange={setIsContactModalOpen}
-        customerData={ticket ? {
-          name: ticket.customer.name,
-          email: ticket.customer.email,
-          phone: ticket.customer.phone,
-        } : undefined}
-      />
+            <ContactSupportModal
+              open={isContactModalOpen}
+              onOpenChange={setIsContactModalOpen}
+              customerData={ticket ? {
+                name: ticket.customer.name,
+                email: ticket.customer.email,
+                phone: ticket.customer.phone,
+              } : undefined}
+            />
+
+            {/* Satisfaction Rating Modal */}
+            {ticket && (ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') && (
+              <SatisfactionRatingModal
+                open={isSatisfactionModalOpen}
+                onOpenChange={setIsSatisfactionModalOpen}
+                ticketId={ticket.id}
+                ticketNumber={ticket.ticketNumber}
+                trackingCode={ticket.trackingCode}
+                customerName={ticket.customer.name}
+                customerEmail={ticket.customer.email}
+                canSubmitRating={ticket.canSubmitRating || false}
+                existingRating={ticket.satisfactionRating || null}
+              />
+            )}
     </div>
   );
 }

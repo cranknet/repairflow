@@ -28,6 +28,7 @@ model User {
   paymentsCreated       Payment[]               @relation("PaymentCreatedBy")
   notificationPreferences NotificationPreference[]
   contactMessagesAssigned ContactMessage[]
+  satisfactionRatingsOverridden SatisfactionRating[]
 }
 
 model Customer {
@@ -40,6 +41,7 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tickets   Ticket[]
+  satisfactionRatings SatisfactionRating[]
 }
 
 model Ticket {
@@ -73,6 +75,7 @@ model Ticket {
   returns              Return[]
   payments             Payment[]
   contactMessages      ContactMessage[]
+  satisfactionRatings  SatisfactionRating[]
 }
 
 model TicketStatusHistory {
@@ -263,4 +266,25 @@ model ContactMessage {
   @@index([status])
   @@index([assignedToId])
   @@index([ticketId])
+}
+
+model SatisfactionRating {
+  id            String   @id @default(cuid())
+  ticketId      String
+  ticket        Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerEmail String
+  rating        Int      // 1-5
+  comment       String?
+  phoneNumber   String?  // Phone number for follow-up on low ratings
+  verifiedBy    String   // TOKEN, EMAIL, AUTH
+  overriddenBy  String?
+  overriddenByUser User? @relation(fields: [overriddenBy], references: [id], onDelete: SetNull)
+  overrideReason String?
+  createdAt     DateTime @default(now())
+
+  @@unique([ticketId, customerEmail])
+  @@index([ticketId])
+  @@index([verifiedBy])
 }
