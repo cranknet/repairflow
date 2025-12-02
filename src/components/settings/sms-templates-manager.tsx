@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,11 +60,7 @@ export function SMSTemplatesManager() {
     isActive: true,
   });
 
-  useEffect(() => {
-    fetchTemplates();
-  }, [selectedLanguage]);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/sms/templates?language=${selectedLanguage}`);
@@ -83,7 +79,11 @@ export function SMSTemplatesManager() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedLanguage, t, toast]);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const handleCreate = () => {
     setEditingTemplate(null);
@@ -374,11 +374,10 @@ export function SMSTemplatesManager() {
                     key={variable}
                     type="button"
                     onClick={() => toggleVariable(variable)}
-                    className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                      formData.variables.includes(variable)
-                        ? 'bg-blue-100 border-blue-300 text-blue-700'
-                        : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${formData.variables.includes(variable)
+                      ? 'bg-blue-100 border-blue-300 text-blue-700'
+                      : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {'{'}{variable}{'}'}
                   </button>

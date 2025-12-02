@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,21 +33,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
   const [preview, setPreview] = useState('');
   const [templates, setTemplates] = useState<SMSTemplate[]>(DEFAULT_SMS_TEMPLATES);
 
-  useEffect(() => {
-    // Only fetch COM ports on web platform
-    if (!isMobile()) {
-      fetchPorts();
-    }
-    // Fetch templates for current language
-    fetchSMSTemplates(language).then(setTemplates);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
-
-  useEffect(() => {
-    updatePreview();
-  }, [selectedTemplate, customMessage, customerName, ticketData]);
-
-  const fetchPorts = async () => {
+  const fetchPorts = useCallback(async () => {
     setIsRefreshing(true);
     try {
       const response = await fetch('/api/sms/ports');
@@ -71,9 +57,19 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [selectedPort, t, toast]);
 
-  const updatePreview = () => {
+  useEffect(() => {
+    // Only fetch COM ports on web platform
+    if (!isMobile()) {
+      fetchPorts();
+    }
+    // Fetch templates for current language
+    fetchSMSTemplates(language).then(setTemplates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  const updatePreview = useCallback(() => {
     if (selectedTemplate && selectedTemplate !== 'custom') {
       const template = templates.find((t) => t.id === selectedTemplate || t.templateId === selectedTemplate);
       if (template) {
@@ -88,7 +84,11 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
     } else {
       setPreview(customMessage);
     }
-  };
+  }, [selectedTemplate, customMessage, customerName, ticketData, templates]);
+
+  useEffect(() => {
+    updatePreview();
+  }, [updatePreview]);
 
   const handleSend = async () => {
     // Skip COM port check on mobile
@@ -171,7 +171,7 @@ export function SMSSender({ phoneNumber, customerName, ticketData }: SMSSenderPr
           <div>
             <CardTitle>{t('sms.title')}</CardTitle>
             <CardDescription>
-              {isMobile() 
+              {isMobile()
                 ? t('sms.android_api_coming_soon')
                 : t('sms.com_port_description')}
             </CardDescription>

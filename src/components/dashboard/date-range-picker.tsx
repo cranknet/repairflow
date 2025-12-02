@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { useState, useEffect, useCallback } from 'react';
+import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -19,7 +19,7 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
   const [customEndDate, setCustomEndDate] = useState<string>('');
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
-  const calculateDateRange = (rangeType: DateRangeType): { start: Date; end: Date } => {
+  const calculateDateRange = useCallback((rangeType: DateRangeType): { start: Date; end: Date } => {
     const now = new Date();
     let start: Date;
     let end: Date = endOfDay(now);
@@ -49,12 +49,12 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
     }
 
     return { start, end };
-  };
+  }, [customStartDate, customEndDate]);
 
   useEffect(() => {
     const { start, end } = calculateDateRange(selectedRange);
     onDateRangeChange(start, end, selectedRange);
-  }, [selectedRange, customStartDate, customEndDate]);
+  }, [selectedRange, customStartDate, customEndDate, calculateDateRange, onDateRangeChange]);
 
   const handleRangeSelect = (range: DateRangeType) => {
     setSelectedRange(range);
@@ -101,7 +101,7 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
           </option>
         ))}
       </select>
-      
+
       {selectedRange !== 'custom' && (
         <span className="text-xs text-gray-600 dark:text-gray-400">
           {getDateRangeLabel()}

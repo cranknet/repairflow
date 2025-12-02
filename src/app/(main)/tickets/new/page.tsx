@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,7 +71,7 @@ export default function NewTicketPage() {
     mode: 'onChange',
   });
 
-  const fetchCustomers = () => {
+  const fetchCustomers = useCallback(() => {
     fetch('/api/customers')
       .then((res) => res.json())
       .then((data) => {
@@ -91,7 +91,7 @@ export default function NewTicketPage() {
         }
       })
       .catch((err) => console.error('Error fetching customers:', err));
-  };
+  }, [setValue, trigger, watch]);
 
   useEffect(() => {
     fetchCustomers();
