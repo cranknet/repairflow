@@ -1,458 +1,335 @@
-/* React Image Crop Styles - must be before other rules */
-@import 'react-image-crop/dist/ReactCrop.css';
-
-/* Inter Font - Using CSS import for better build resilience */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
-/* Material Symbols Icons */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Material Design 3 Color Tokens - Light Mode */
+/* Material Design 3 Color System Variables */
 :root {
-  /* Primary */
-  --md-sys-color-primary: 64 126 201;
+  /* Primary Colors - Light Mode */
+  --md-sys-color-primary: 103 80 164;
   --md-sys-color-on-primary: 255 255 255;
-  --md-sys-color-primary-container: 213 227 247;
-  --md-sys-color-on-primary-container: 0 28 58;
-  --md-sys-color-primary-fixed: 213 227 247;
-  --md-sys-color-primary-fixed-dim: 165 200 234;
-  --md-sys-color-on-primary-fixed: 0 28 58;
-  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  --md-sys-color-primary-container: 234 221 255;
+  --md-sys-color-on-primary-container: 33 0 94;
+  --md-sys-color-primary-fixed: 234 221 255;
+  --md-sys-color-primary-fixed-dim: 208 188 255;
+  --md-sys-color-on-primary-fixed: 33 0 94;
+  --md-sys-color-on-primary-fixed-variant: 79 55 139;
 
-  /* Secondary */
-  --md-sys-color-secondary: 88 94 113;
+  /* Secondary Colors - Light Mode */
+  --md-sys-color-secondary: 98 91 113;
   --md-sys-color-on-secondary: 255 255 255;
-  --md-sys-color-secondary-container: 220 226 249;
-  --md-sys-color-on-secondary-container: 21 27 44;
-  --md-sys-color-secondary-fixed: 220 226 249;
-  --md-sys-color-secondary-fixed-dim: 192 198 220;
-  --md-sys-color-on-secondary-fixed: 21 27 44;
-  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  --md-sys-color-secondary-container: 232 222 248;
+  --md-sys-color-on-secondary-container: 30 25 43;
+  --md-sys-color-secondary-fixed: 232 222 248;
+  --md-sys-color-secondary-fixed-dim: 204 194 220;
+  --md-sys-color-on-secondary-fixed: 30 25 43;
+  --md-sys-color-on-secondary-fixed-variant: 74 68 88;
 
-  /* Tertiary */
-  --md-sys-color-tertiary: 112 85 127;
+  /* Tertiary Colors - Light Mode */
+  --md-sys-color-tertiary: 125 82 96;
   --md-sys-color-on-tertiary: 255 255 255;
-  --md-sys-color-tertiary-container: 241 219 255;
-  --md-sys-color-on-tertiary-container: 39 16 53;
-  --md-sys-color-tertiary-fixed: 241 219 255;
-  --md-sys-color-tertiary-fixed-dim: 213 188 229;
-  --md-sys-color-on-tertiary-fixed: 39 16 53;
-  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  --md-sys-color-tertiary-container: 255 216 228;
+  --md-sys-color-on-tertiary-container: 55 11 30;
+  --md-sys-color-tertiary-fixed: 255 216 228;
+  --md-sys-color-tertiary-fixed-dim: 239 184 200;
+  --md-sys-color-on-tertiary-fixed: 55 11 30;
+  --md-sys-color-on-tertiary-fixed-variant: 99 59 72;
 
-  /* Error */
-  --md-sys-color-error: 186 26 26;
+  /* Error Colors - Light Mode */
+  --md-sys-color-error: 179 38 30;
   --md-sys-color-on-error: 255 255 255;
-  --md-sys-color-error-container: 255 218 214;
-  --md-sys-color-on-error-container: 65 0 2;
+  --md-sys-color-error-container: 249 222 220;
+  --md-sys-color-on-error-container: 65 14 11;
 
-  /* Background */
-  --md-sys-color-background: 250 249 253;
-  --md-sys-color-on-background: 26 28 30;
-
-  /* Surface */
-  --md-sys-color-surface: 250 249 253;
-  --md-sys-color-on-surface: 26 28 30;
-  --md-sys-color-surface-variant: 224 226 236;
-  --md-sys-color-on-surface-variant: 67 71 78;
-  --md-sys-color-surface-dim: 218 217 221;
-  --md-sys-color-surface-bright: 250 249 253;
+  /* Surface Colors - Light Mode */
+  --md-sys-color-surface: 254 247 255;
+  --md-sys-color-surface-dim: 222 216 225;
+  --md-sys-color-surface-bright: 254 247 255;
   --md-sys-color-surface-container-lowest: 255 255 255;
-  --md-sys-color-surface-container-low: 244 243 247;
-  --md-sys-color-surface-container: 238 238 242;
-  --md-sys-color-surface-container-high: 232 232 236;
-  --md-sys-color-surface-container-highest: 227 227 230;
+  --md-sys-color-surface-container-low: 247 242 250;
+  --md-sys-color-surface-container: 243 237 247;
+  --md-sys-color-surface-container-high: 236 230 240;
+  --md-sys-color-surface-container-highest: 230 224 233;
+  --md-sys-color-on-surface: 28 27 31;
+  --md-sys-color-surface-variant: 231 224 236;
+  --md-sys-color-on-surface-variant: 73 69 79;
 
-  /* Outline */
-  --md-sys-color-outline: 116 119 127;
-  --md-sys-color-outline-variant: 196 199 208;
+  /* Outline Colors - Light Mode */
+  --md-sys-color-outline: 121 116 126;
+  --md-sys-color-outline-variant: 202 196 208;
 
-  /* Inverse */
-  --md-sys-color-inverse-surface: 47 48 51;
-  --md-sys-color-inverse-on-surface: 241 240 244;
-  --md-sys-color-inverse-primary: 165 200 234;
+  /* Background Colors - Light Mode */
+  --md-sys-color-background: 254 247 255;
+  --md-sys-color-on-background: 28 27 31;
 
-  /* Other */
-  --md-sys-color-scrim: 0 0 0;
+  /* Inverse Colors - Light Mode */
+  --md-sys-color-inverse-surface: 49 48 51;
+  --md-sys-color-inverse-on-surface: 244 239 244;
+  --md-sys-color-inverse-primary: 208 188 255;
+
+  /* Additional Colors */
   --md-sys-color-shadow: 0 0 0;
+  --md-sys-color-scrim: 0 0 0;
 }
 
-/* Material Design 3 Color Tokens - Dark Mode */
+/* Dark Mode Color Overrides */
 .dark {
-  /* Primary */
-  --md-sys-color-primary: 165 200 234;
-  --md-sys-color-on-primary: 11 54 90;
-  --md-sys-color-primary-container: 40 98 155;
-  --md-sys-color-on-primary-container: 213 227 247;
-  --md-sys-color-primary-fixed: 213 227 247;
-  --md-sys-color-primary-fixed-dim: 165 200 234;
-  --md-sys-color-on-primary-fixed: 0 28 58;
-  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  /* Primary Colors - Dark Mode */
+  --md-sys-color-primary: 208 188 255;
+  --md-sys-color-on-primary: 55 30 115;
+  --md-sys-color-primary-container: 79 55 139;
+  --md-sys-color-on-primary-container: 234 221 255;
+  --md-sys-color-primary-fixed: 234 221 255;
+  --md-sys-color-primary-fixed-dim: 208 188 255;
+  --md-sys-color-on-primary-fixed: 33 0 94;
+  --md-sys-color-on-primary-fixed-variant: 79 55 139;
 
-  /* Secondary */
-  --md-sys-color-secondary: 192 198 220;
-  --md-sys-color-on-secondary: 42 48 65;
-  --md-sys-color-secondary-container: 64 70 89;
-  --md-sys-color-on-secondary-container: 220 226 249;
-  --md-sys-color-secondary-fixed: 220 226 249;
-  --md-sys-color-secondary-fixed-dim: 192 198 220;
-  --md-sys-color-on-secondary-fixed: 21 27 44;
-  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  /* Secondary Colors - Dark Mode */
+  --md-sys-color-secondary: 204 194 220;
+  --md-sys-color-on-secondary: 51 45 65;
+  --md-sys-color-secondary-container: 74 68 88;
+  --md-sys-color-on-secondary-container: 232 222 248;
+  --md-sys-color-secondary-fixed: 232 222 248;
+  --md-sys-color-secondary-fixed-dim: 204 194 220;
+  --md-sys-color-on-secondary-fixed: 30 25 43;
+  --md-sys-color-on-secondary-fixed-variant: 74 68 88;
 
-  /* Tertiary */
-  --md-sys-color-tertiary: 213 188 229;
-  --md-sys-color-on-tertiary: 60 37 76;
-  --md-sys-color-tertiary-container: 86 61 101;
-  --md-sys-color-on-tertiary-container: 241 219 255;
-  --md-sys-color-tertiary-fixed: 241 219 255;
-  --md-sys-color-tertiary-fixed-dim: 213 188 229;
-  --md-sys-color-on-tertiary-fixed: 39 16 53;
-  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  /* Tertiary Colors - Dark Mode */
+  --md-sys-color-tertiary: 239 184 200;
+  --md-sys-color-on-tertiary: 73 37 50;
+  --md-sys-color-tertiary-container: 99 59 72;
+  --md-sys-color-on-tertiary-container: 255 216 228;
+  --md-sys-color-tertiary-fixed: 255 216 228;
+  --md-sys-color-tertiary-fixed-dim: 239 184 200;
+  --md-sys-color-on-tertiary-fixed: 55 11 30;
+  --md-sys-color-on-tertiary-fixed-variant: 99 59 72;
 
-  /* Error */
-  --md-sys-color-error: 255 180 171;
+  /* Error Colors - Dark Mode */
+  --md-sys-color-error: 242 184 181;
   --md-sys-color-on-error: 105 0 5;
   --md-sys-color-error-container: 147 0 10;
-  --md-sys-color-on-error-container: 255 218 214;
+  --md-sys-color-on-error-container: 249 222 220;
 
-  /* Background */
-  --md-sys-color-background: 26 28 30;
-  --md-sys-color-on-background: 227 227 230;
+  /* Surface Colors - Dark Mode */
+  --md-sys-color-surface: 28 27 31;
+  --md-sys-color-surface-dim: 28 27 31;
+  --md-sys-color-surface-bright: 66 64 69;
+  --md-sys-color-surface-container-lowest: 19 18 22;
+  --md-sys-color-surface-container-low: 32 31 38;
+  --md-sys-color-surface-container: 37 36 41;
+  --md-sys-color-surface-container-high: 47 46 51;
+  --md-sys-color-surface-container-highest: 58 56 62;
+  --md-sys-color-on-surface: 230 224 233;
+  --md-sys-color-surface-variant: 73 69 79;
+  --md-sys-color-on-surface-variant: 202 196 208;
 
-  /* Surface */
-  --md-sys-color-surface: 26 28 30;
-  --md-sys-color-on-surface: 227 227 230;
-  --md-sys-color-surface-variant: 67 71 78;
-  --md-sys-color-on-surface-variant: 196 199 208;
-  --md-sys-color-surface-dim: 26 28 30;
-  --md-sys-color-surface-bright: 54 57 60;
-  --md-sys-color-surface-container-lowest: 20 22 25;
-  --md-sys-color-surface-container-low: 34 36 39;
-  --md-sys-color-surface-container: 38 41 43;
-  --md-sys-color-surface-container-high: 49 51 54;
-  --md-sys-color-surface-container-highest: 60 62 65;
+  /* Outline Colors - Dark Mode */
+  --md-sys-color-outline: 147 143 153;
+  --md-sys-color-outline-variant: 73 69 79;
 
-  /* Outline */
-  --md-sys-color-outline: 142 145 153;
-  --md-sys-color-outline-variant: 67 71 78;
+  /* Background Colors - Dark Mode */
+  --md-sys-color-background: 28 27 31;
+  --md-sys-color-on-background: 230 224 233;
 
-  /* Inverse */
-  --md-sys-color-inverse-surface: 227 227 230;
-  --md-sys-color-inverse-on-surface: 47 48 51;
-  --md-sys-color-inverse-primary: 40 98 155;
+  /* Inverse Colors - Dark Mode */
+  --md-sys-color-inverse-surface: 230 224 233;
+  --md-sys-color-inverse-on-surface: 49 48 51;
+  --md-sys-color-inverse-primary: 103 80 164;
 
-  /* Other */
-  --md-sys-color-scrim: 0 0 0;
+  /* Additional Colors */
   --md-sys-color-shadow: 0 0 0;
+  --md-sys-color-scrim: 0 0 0;
 }
 
-/* Material Symbols Icon Defaults */
-.material-symbols-outlined,
-.material-symbols-rounded {
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  user-select: none;
-  vertical-align: middle;
-}
-
-.material-symbols-filled {
-  font-variation-settings:
-    'FILL' 1,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-  user-select: none;
-  vertical-align: middle;
-}
-
-/* Base body styles with MD3 colors */
-body {
-  background-color: rgb(var(--md-sys-color-background));
-  color: rgb(var(--md-sys-color-on-background));
-  transition: background-color 300ms cubic-bezier(0.2, 0, 0, 1), color 300ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-/* Material Design 3 Focus Indicators */
+/* Base Styles */
 @layer base {
-
-  /* Enhanced focus visible styles for accessibility */
-  *:focus-visible {
-    outline: 3px solid rgb(var(--md-sys-color-primary));
-    outline-offset: 2px;
-    border-radius: 4px;
+  body {
+    @apply bg-background text-on-background antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Focus for interactive elements */
-  button:focus-visible,
-  a:focus-visible,
-  [role="button"]:focus-visible {
-    outline: 3px solid rgb(var(--md-sys-color-primary));
-    outline-offset: 2px;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
-  /* Input focus styles */
-  input:focus-visible,
-  textarea:focus-visible,
-  select:focus-visible {
-    outline: 2px solid rgb(var(--md-sys-color-primary));
-    outline-offset: 0px;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-container;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-outline-variant rounded-md;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-outline;
+  }
+
+  /* Material Symbols Font */
+  .material-symbols-outlined,
+  .material-symbols-rounded {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-feature-settings: 'liga';
+    -moz-font-feature-settings: 'liga';
+    font-variant-ligatures: common-ligatures;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .material-symbols-rounded {
+    font-family: 'Material Symbols Rounded';
   }
 }
 
-/* Material Design 3 State Layers */
-@layer components {
+/* Utility Classes */
+@layer utilities {
 
-  /* Hover state layer */
+  /* Material Design 3 State Layers */
+  .state-layer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .state-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1);
+    pointer-events: none;
+  }
+
+  .state-layer:hover::before {
+    opacity: 0.08;
+    background-color: rgb(var(--md-sys-color-on-surface));
+  }
+
+  .state-layer:focus-visible::before {
+    opacity: 0.12;
+    background-color: rgb(var(--md-sys-color-on-surface));
+  }
+
+  .state-layer:active::before {
+    opacity: 0.12;
+    background-color: rgb(var(--md-sys-color-on-surface));
+  }
+
+  /* MD3 State Layer Hover - Simplified version for hover effects */
   .md-state-layer-hover {
     position: relative;
   }
 
-  .md-state-layer-hover::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: currentColor;
-    opacity: 0;
-    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
-    pointer-events: none;
-    border-radius: inherit;
+  /* MD3 Focus Ring */
+  .md-focus-ring:focus-visible {
+    outline: 3px solid rgb(var(--md-sys-color-primary));
+    outline-offset: 2px;
   }
 
-  .md-state-layer-hover:hover::before {
-    opacity: 0.08;
+  /* Material Design 3 Shadow Levels */
+  .shadow-md-level0 {
+    box-shadow: none;
   }
 
-  .md-state-layer-hover:focus-visible::before {
-    opacity: 0.12;
+  .shadow-md-level1 {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
   }
 
-  .md-state-layer-hover:active::before {
-    opacity: 0.12;
-  }
-}
-
-/* Custom Scrollbar Styles - Material Design 3 */
-* {
-  /* Firefox - overlay scrollbar */
-  scrollbar-width: thin;
-  scrollbar-color: rgb(var(--md-sys-color-outline) / 0.3) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--md-sys-color-outline) / 0.3);
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(var(--md-sys-color-outline) / 0.5);
-}
-
-*::-webkit-scrollbar-thumb:active {
-  background-color: rgb(var(--md-sys-color-outline) / 0.7);
-}
-
-/* Main content area - ensure scrollbar doesn't push content */
-main {
-  scrollbar-gutter: stable;
-}
-
-/* Reduced Motion Support (Accessibility) */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* High Contrast Mode Support (Accessibility) */
-@media (prefers-contrast: high) {
-  * {
-    border-width: 2px !important;
+  .shadow-md-level2 {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+      0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   }
 
-  button,
-  a,
-  [role="button"] {
-    border: 2px solid currentColor !important;
+  .shadow-md-level3 {
+    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
+      0px 1px 3px 0px rgba(0, 0, 0, 0.3);
   }
 
-  *:focus-visible {
-    outline-width: 4px !important;
-  }
-}
-
-/* Print Styles */
-/* Track page print styles */
-@media print {
-  /* Hide header and footer on track page */
-  header[class*="sticky"],
-  footer[class*="bg-gray-100"],
-  button[class*="gap-2"],
-  .no-print {
-    display: none !important;
-  }
-  
-  /* Ensure content is printable */
-  main {
-    padding: 0 !important;
-  }
-  
-  /* Print page breaks */
-  .print-break {
-    page-break-after: always;
-  }
-}
-
-@media print {
-  *:focus-visible {
-    outline: none !important;
+  .shadow-md-level4 {
+    box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.15),
+      0px 2px 3px 0px rgba(0, 0, 0, 0.3);
   }
 
-  body {
-    background: white !important;
-    color: black !important;
-  }
-}
-
-/* ===== RESPONSIVE DESIGN UTILITIES ===== */
-
-/* Mobile-first responsive containers */
-@layer utilities {
-
-  /* Ensure inputs don't overflow on mobile */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="url"],
-  textarea,
-  select {
-    max-width: 100%;
-    font-size: 16px;
-    /* Prevents zoom on iOS */
+  .hover\:shadow-md-level1:hover {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
   }
 
-  /* Touch-friendly targets (minimum 44x44px) */
-  @media (max-width: 1023px) {
-
-    button,
-    a,
-    [role="button"],
-    input[type="button"],
-    input[type="submit"] {
-      min-height: 44px;
-      min-width: 44px;
-    }
+  .hover\:shadow-md-level2:hover {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+      0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   }
 
-  /* Responsive table containers */
-  @media (max-width: 768px) {
-    table {
-      font-size: 14px;
-    }
-
-    /* Allow horizontal scroll for tables on mobile */
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+  .hover\:shadow-md-level3:hover {
+    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
+      0px 1px 3px 0px rgba(0, 0, 0, 0.3);
   }
 
-  /* Prevent text overflow in constrained spaces */
-  .truncate-mobile {
-    @media (max-width: 768px) {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+  .hover\:shadow-md-level4:hover {
+    box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.15),
+      0px 2px 3px 0px rgba(0, 0, 0, 0.3);
   }
 
-  /* Responsive grid adjustments */
-  @media (max-width: 640px) {
-    .responsive-grid {
-      grid-template-columns: 1fr !important;
-    }
+  .active\:shadow-md-level1:active,
+  .active\:shadow-md-level3:active {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
+      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
   }
 
-  @media (min-width: 641px) and (max-width: 1023px) {
-    .responsive-grid {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
+  /* Hover border outline */
+  .hover\:border-outline:hover {
+    border-color: rgb(var(--md-sys-color-outline));
   }
 
-  /* Prevent horizontal scrolling */
-  html,
-  body {
-    max-width: 100vw;
-    overflow-x: hidden;
+  /* Focus visible outline for accessibility */
+  .focus-visible-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(var(--md-sys-color-primary)),
+      0 0 0 4px rgb(var(--md-sys-color-surface));
   }
 
-  /* Mobile spacing utilities */
-  @media (max-width: 640px) {
-    .mobile-compact {
-      padding: 0.75rem !important;
-    }
-  }
-}
-
-/* Stack cards on mobile */
-@media (max-width: 768px) {
-  [class*="grid-cols-"] {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Improve form layouts on mobile */
-@media (max-width: 640px) {
-  form {
-    width: 100%;
+  /* Text overflow utilities */
+  .text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .form-group {
-    margin-bottom: 1rem;
-  }
-}
-
-/* Responsive Dialog/Modal Adjustments */
-@media (max-width: 640px) {
-  [role="dialog"] {
-    max-width: 95vw !important;
-    margin: 1rem;
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  /* Make dialog content scrollable on mobile */
-  [role="dialog"]>div {
-    max-height: 85vh;
-    overflow-y: auto;
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
