@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useTheme } from '@/components/theme-provider';
 import { useLanguage } from '@/contexts/language-context';
-import { 
-  PRESET_SEED_COLORS, 
+import {
+  PRESET_SEED_COLORS,
   generateDynamicTheme,
   generateTonalPalette,
   isValidHexColor,
@@ -27,13 +27,13 @@ export function ThemeCustomizer() {
   const { t } = useLanguage();
   const [customColor, setCustomColor] = useState(seedColor || PRESET_SEED_COLORS.blue);
   const [showPalette, setShowPalette] = useState(false);
-  const [palette, setPalette] = useState<{ tone: number; hex: string }[]>([]);
 
-  // Generate palette when custom color changes
-  useEffect(() => {
+  // Use useMemo to derive palette when custom color changes
+  const palette = useMemo(() => {
     if (isValidHexColor(customColor)) {
-      setPalette(generateTonalPalette(customColor));
+      return generateTonalPalette(customColor);
     }
+    return [];
   }, [customColor]);
 
   const handleThemeModeChange = (newTheme: 'light' | 'dark' | 'system') => {
@@ -60,12 +60,12 @@ export function ThemeCustomizer() {
       alert(t('validHexColorRequired'));
       return;
     }
-    
+
     setSeedColor(color);
     storeSeedColor(color);
     setDynamicThemeEnabled(true);
     setIsDynamic(true);
-    
+
     // Force re-render by updating the color
     setCustomColor(color);
   };
@@ -211,7 +211,7 @@ export function ThemeCustomizer() {
                   </span>
                   {t('tonalPalettePreview')}
                 </button>
-                
+
                 {showPalette && palette.length > 0 && (
                   <div className="grid grid-cols-13 gap-1 p-4 bg-surface-container-low rounded-lg">
                     {palette.map(({ tone, hex }) => (

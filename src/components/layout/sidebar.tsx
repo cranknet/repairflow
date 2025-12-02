@@ -66,7 +66,17 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const { data: session } = useSession();
   const { t } = useLanguage();
   const { companyLogo, companyName } = useSettings();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Initialize collapsed state from localStorage
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      if (saved !== null) {
+        return JSON.parse(saved);
+      }
+    }
+    return false;
+  });
+
   const [isMounted, setIsMounted] = useState(false);
 
   // Detect screen size for auto-collapse behavior
@@ -76,32 +86,19 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     const handleResize = () => {
       const width = window.innerWidth;
 
-      // On tablet and desktop (768px+), restore user preference
+      // On tablet and desktop (768px+), restore user preference if not already set
       if (width >= 768) {
         const saved = localStorage.getItem('sidebar-collapsed');
         if (saved !== null) {
-          setIsCollapsed(JSON.parse(saved));
-        } else {
-          setIsCollapsed(false); // Default to expanded
+          // Only update if different to avoid loop
+          const shouldBeCollapsed = JSON.parse(saved);
+          setIsCollapsed((prev: boolean) => prev !== shouldBeCollapsed ? shouldBeCollapsed : prev);
         }
       }
     };
 
-    handleResize(); // Initial check
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Load collapse state from localStorage (tablet/desktop)
-  useEffect(() => {
-    if (window.innerWidth >= 768) {
-      const saved = localStorage.getItem('sidebar-collapsed');
-      if (saved !== null) {
-        setIsCollapsed(JSON.parse(saved));
-      } else {
-        setIsCollapsed(false); // Default to expanded
-      }
-    }
   }, []);
 
   // Save collapse state to localStorage (tablet/desktop)

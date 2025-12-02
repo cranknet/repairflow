@@ -1,15 +1,15 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  defaultMaterialTheme, 
-  applyMaterialTheme, 
-  type MaterialTheme 
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import {
+  defaultMaterialTheme,
+  applyMaterialTheme,
+  type MaterialTheme
 } from '@/lib/material-theme';
-import { 
-  applyDynamicTheme, 
+import {
+  applyDynamicTheme,
   isDynamicThemeEnabled,
-  getStoredSeedColor 
+  getStoredSeedColor
 } from '@/lib/dynamic-color';
 
 type Theme = 'dark' | 'light' | 'system';
@@ -51,21 +51,31 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (typeof window !== 'undefined' && localStorage.getItem(storageKey)) as Theme || defaultTheme
   );
-  
-  const [isDynamic, setIsDynamic] = useState(() => 
+
+  const [isDynamic, setIsDynamic] = useState(() =>
     typeof window !== 'undefined' ? isDynamicThemeEnabled() : false
   );
-  
-  const [seedColor, setSeedColor] = useState<string | null>(() => 
+
+  const [seedColor, setSeedColor] = useState<string | null>(() =>
     typeof window !== 'undefined' ? getStoredSeedColor() : null
   );
-  
-  const [currentTheme, setCurrentTheme] = useState<MaterialTheme>(defaultMaterialTheme);
 
-  // Apply theme changes
+  // Derive current theme using useMemo
+  const currentTheme = useMemo(() => {
+    if (typeof window === 'undefined') return defaultMaterialTheme;
+
+    if (isDynamic && seedColor) {
+      const dynamicTheme = applyDynamicTheme();
+      return dynamicTheme || defaultMaterialTheme;
+    }
+
+    return defaultMaterialTheme;
+  }, [isDynamic, seedColor]);
+
+  // Apply theme changes (side effects only)
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const root = window.document.documentElement;
 
     // Remove existing theme classes
@@ -84,17 +94,8 @@ export function ThemeProvider({
     // Apply theme class
     root.classList.add(effectiveMode);
 
-    // Get and apply Material Design theme
-    let materialTheme: MaterialTheme;
-    if (isDynamic && seedColor) {
-      const dynamicTheme = applyDynamicTheme();
-      materialTheme = dynamicTheme || defaultMaterialTheme;
-    } else {
-      materialTheme = defaultMaterialTheme;
-    }
-    
-    setCurrentTheme(materialTheme);
-    applyMaterialTheme(materialTheme, effectiveMode);
+    // Apply Material Design theme CSS variables
+    applyMaterialTheme(currentTheme, effectiveMode);
 
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -103,13 +104,13 @@ export function ThemeProvider({
         const newMode = e.matches ? 'dark' : 'light';
         root.classList.remove('light', 'dark');
         root.classList.add(newMode);
-        applyMaterialTheme(materialTheme, newMode);
+        applyMaterialTheme(currentTheme, newMode);
       }
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, isDynamic, seedColor]);
+  }, [theme, currentTheme]);
 
   const value = {
     theme,

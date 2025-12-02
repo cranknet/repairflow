@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -14,10 +14,10 @@ interface TicketDetailHeaderProps {
 
 export function TicketDetailHeader({ ticketNumber, createdAt }: TicketDetailHeaderProps) {
   const { t } = useLanguage();
-  const [formattedDate, setFormattedDate] = useState<string>('');
 
-  useEffect(() => {
-    setFormattedDate(format(new Date(createdAt), 'MMM dd, yyyy HH:mm'));
+  // Use useMemo to derive formatted date instead of storing in state
+  const formattedDate = useMemo(() => {
+    return format(new Date(createdAt), 'MMM dd, yyyy HH:mm');
   }, [createdAt]);
 
   return (

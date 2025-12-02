@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -29,26 +29,22 @@ export function CustomerSelect({
 }: CustomerSelectProps) {
   const [search, setSearch] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedCustomer = customers.find((c) => c.id === value);
 
-  useEffect(() => {
+  // Use useMemo to derive filtered customers instead of setState in effect
+  const filteredCustomers = useMemo(() => {
     if (search.trim()) {
-      const filtered = customers.filter(
+      return customers.filter(
         (c) =>
           c.name.toLowerCase().includes(search.toLowerCase()) ||
           c.phone.includes(search) ||
           (c.email && c.email.toLowerCase().includes(search.toLowerCase()))
       );
-      setFilteredCustomers(filtered);
-      setShowDropdown(true);
-    } else {
-      setFilteredCustomers(customers.slice(0, 10)); // Show first 10 when no search
-      setShowDropdown(false);
     }
+    return customers.slice(0, 10); // Show first 10 when no search
   }, [search, customers]);
 
   useEffect(() => {
@@ -89,7 +85,7 @@ export function CustomerSelect({
             value={search || selectedCustomer?.name || ''}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => {
-              if (!selectedCustomer) {
+              if (!selectedCustomer || search.trim()) {
                 setShowDropdown(true);
               }
             }}

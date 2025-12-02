@@ -31,20 +31,26 @@ export function DeviceAutocomplete({
 }: DeviceAutocompleteProps) {
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
-  const [filteredBrands, setFilteredBrands] = useState<string[]>([]);
-  const [filteredModels, setFilteredModels] = useState<string[]>([]);
+
+  // Initialize with all brands on mount using useState initializer
+  const [filteredBrands, setFilteredBrands] = useState<string[]>(() => getAllBrands(DEVICE_BRANDS));
+
+  // Initialize models based on brand using useState initializer
+  const [filteredModels, setFilteredModels] = useState<string[]>(() => {
+    if (brand) {
+      const defaultModels = DEVICE_MODELS[brand] || [];
+      return getAllModels(brand, defaultModels);
+    }
+    return [];
+  });
+
   const [showAddBrand, setShowAddBrand] = useState(false);
   const [showAddModel, setShowAddModel] = useState(false);
   const brandInputRef = useRef<HTMLInputElement>(null);
   const modelInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Load all brands (default + custom) on mount
-  useEffect(() => {
-    const allBrands = getAllBrands(DEVICE_BRANDS);
-    setFilteredBrands(allBrands);
-  }, []);
-
+  // Update filteredModels when brand changes
   useEffect(() => {
     if (brand) {
       const defaultModels = DEVICE_MODELS[brand] || [];
@@ -75,7 +81,7 @@ export function DeviceAutocomplete({
         b.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredBrands(filtered);
-      
+
       // Show "Add new" option if input doesn't exactly match any brand
       const exactMatch = allBrands.some(
         (b) => b.toLowerCase() === value.toLowerCase()
@@ -99,7 +105,7 @@ export function DeviceAutocomplete({
         m.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredModels(filtered);
-      
+
       // Show "Add new" option if input doesn't exactly match any model
       const exactMatch = allModels.some(
         (m) => m.toLowerCase() === value.toLowerCase()

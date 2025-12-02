@@ -79,16 +79,6 @@ export function SearchBars() {
     }
   }, [showTypeDropdown]);
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <div className="w-full h-10 bg-gray-50 rounded-lg animate-pulse" />;
-  }
-
   return (
     <div className="relative flex items-center w-full" ref={searchContainerRef}>
       {/* Search Type Dropdown */}

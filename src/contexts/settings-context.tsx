@@ -13,10 +13,34 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [companyLogo, setCompanyLogo] = useState<string>('');
-  const [companyFavicon, setCompanyFavicon] = useState<string>('');
-  const [companyName, setCompanyName] = useState<string>('RepairFlow');
-  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>('');
+  const [companyLogo, setCompanyLogo] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('company_logo') || '';
+    }
+    return '';
+  });
+
+  const [companyFavicon, setCompanyFavicon] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('company_favicon') || '';
+    }
+    return '';
+  });
+
+  const [companyName, setCompanyName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('company_name') || 'RepairFlow';
+    }
+    return 'RepairFlow';
+  });
+
+  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('login_background_image') || '';
+    }
+    return '';
+  });
+
   const [isInitialized, setIsInitialized] = useState(false);
 
   const refreshSettings = async () => {
@@ -83,22 +107,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Load settings from localStorage first (instant), then fetch from API
+  // Fetch from API to get latest values on mount
   useEffect(() => {
-    // Load from localStorage immediately (no flicker)
-    const savedLogo = localStorage.getItem('company_logo');
-    const savedName = localStorage.getItem('company_name');
-    const savedFavicon = localStorage.getItem('company_favicon');
-    const savedBg = localStorage.getItem('login_background_image');
-
-    if (savedLogo) setCompanyLogo(savedLogo);
-    if (savedName) setCompanyName(savedName);
-    if (savedFavicon) setCompanyFavicon(savedFavicon);
-    if (savedBg) setLoginBackgroundImage(savedBg);
-
     setIsInitialized(true);
-
-    // Then fetch from API to get latest values
     refreshSettings();
   }, []);
 
