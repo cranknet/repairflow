@@ -233,8 +233,8 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               {/* Icon */}
               <span
                 className={cn(
-                  'material-symbols-outlined text-2xl flex-shrink-0',
-                  isActive && 'material-symbols-rounded font-bold'
+                  'text-2xl flex-shrink-0',
+                  isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
                 )}
                 style={{
                   fontVariationSettings: isActive
@@ -242,7 +242,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                     : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
                 }}
               >
-                {item.icon}
+                {isActive ? item.iconFilled : item.icon}
               </span>
 
               {/* Label */}

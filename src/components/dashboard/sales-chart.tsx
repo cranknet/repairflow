@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/language-context';
@@ -18,11 +18,11 @@ interface SalesChartProps {
   initialTotalCogs?: number;
 }
 
-export function SalesChart({ 
-  initialData = [], 
-  initialInvoices = 0, 
-  initialTotalSales = 0, 
-  initialTotalCogs = 0 
+export function SalesChart({
+  initialData = [],
+  initialInvoices = 0,
+  initialTotalSales = 0,
+  initialTotalCogs = 0
 }: SalesChartProps) {
   const { t } = useLanguage();
   const [data, setData] = useState(initialData);
@@ -32,14 +32,14 @@ export function SalesChart({
   const [loading, setLoading] = useState(false);
   const [dateRangeLabel, setDateRangeLabel] = useState('');
 
-  const fetchSalesData = async (startDate: Date, endDate: Date, rangeType: DateRangeType) => {
+  const fetchSalesData = useCallback(async (startDate: Date, endDate: Date, rangeType: DateRangeType) => {
     setLoading(true);
     try {
       const response = await fetch(
         `/api/dashboard/sales?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&rangeType=${rangeType}`
       );
       if (!response.ok) throw new Error('Failed to fetch sales data');
-      
+
       const result = await response.json();
       setData(result.data);
       setInvoices(result.invoices);
@@ -51,18 +51,18 @@ export function SalesChart({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleDateRangeChange = (startDate: Date, endDate: Date, rangeType: DateRangeType) => {
+  const handleDateRangeChange = useCallback((startDate: Date, endDate: Date, rangeType: DateRangeType) => {
     fetchSalesData(startDate, endDate, rangeType);
-  };
+  }, [fetchSalesData]);
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">{t('salesVsCogs')}</CardTitle>
-          <DateRangePicker 
+          <DateRangePicker
             onDateRangeChange={handleDateRangeChange}
             defaultRange="lastWeek"
           />
