@@ -1,0 +1,10 @@
+{
+    "title": "Security-Only Audit",
+    "description": "Run a focused security audit: secrets, auth/authorization, XSS/CSRF/SSRF, SQL injection, unsafe deserialization, insecure uploads, and config issues.",
+    "prompt": [
+        {
+            "role": "user",
+            "content": "You are a security analyst. Perform a focused repository scan and produce a machine-readable JSON report plus a short human summary. ONLY look for security issues (do not include performance/duplication findings). Apply static heuristics and repo context.\n\nSCOPE:\n- Secrets in repo (.env, configs, hardcoded keys)\n- Authentication & authorization checks on APIs and pages\n- SQL injection and unparameterized DB calls\n- XSS sinks (dangerouslySetInnerHTML, innerHTML, unescaped templates)\n- CSRF exposure for state-changing endpoints\n- SSRF (unsanitized URL fetches)\n- Unsafe eval/Function/new Function usage\n- Insecure file uploads / path traversal\n- Weak crypto usage (MD5/SHA1/hardcoded salts)\n- Insecure CORS/CSP defaults\n- Open redirects and unsafe redirect targets\n\nOUTPUT FORMAT:\nReturn a JSON with keys: summary, findings, suggested_fixes, commands_to_run, metrics_to_monitor, dependency_vulns.\nEach finding must include: id, severity, category=security, title, description, files (path,line,snippet), reproduction, recommendation, confidence.\n\nPRIORITIZATION RULES:\n- RCE/credential leakage/auth bypass/SQLi/XSS → HIGH\n- CSRF/SSRF/unvalidated redirects/PII leaks → HIGH or MEDIUM depending on context\n\nREQUIREMENTS:\n- Cite exact file paths and lines when possible.\n- Do NOT invent issues; mark low confidence if heuristic only.\n- Provide up to 3 patch-ready diffs for HIGH-confidence issues.\n\nRun the security-only audit now and output the JSON report followed by a one-page human summary (top 10 security items)."
+        }
+    ]
+}

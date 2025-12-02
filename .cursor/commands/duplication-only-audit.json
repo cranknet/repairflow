@@ -1,0 +1,10 @@
+{
+    "title": "Duplication-Only Audit",
+    "description": "Scan the repo for duplicated code, copy/paste blocks, and opportunities for refactor into shared helpers or components. Produce a JSON report with duplicates and refactor suggestions.",
+    "prompt": [
+        {
+            "role": "user",
+            "content": "You are a code-quality analyst specializing in duplication detection. Scan the repository to find duplicated code blocks, near-duplicates, and copy/paste clones. Produce a machine-readable JSON report and a short refactor plan.\n\nSCOPE:\n- Frontend components and utility functions that are duplicated\n- Backend service methods and DB query duplication\n- Repeated config parsing logic or repeated validation schemas\n- Duplicate tests that could be data-driven\n\nOUTPUT FORMAT:\nReturn JSON with: summary, duplicates (files array, similarity 0..1, snippet), findings (id,severity,category=duplication,title,description,files,reproduction,recommendation,confidence), suggested_fixes, commands_to_run.\n\nREQUIREMENTS:\n- Use fuzzy matching heuristics; report similarity score.\n- When confidence is high, provide a patch-ready diff for 1-2 refactors (extract helper or shared component).\n- Provide exact paths and snippet context for each duplicate cluster.\n\nRun the duplication-only audit now and output the JSON followed by a prioritized refactor list (top 10)."
+        }
+    ]
+}

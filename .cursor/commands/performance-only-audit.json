@@ -1,0 +1,10 @@
+{
+    "title": "Performance-Only Audit",
+    "description": "Scan the repo for performance and scalability problems: N+1 queries, missing indexes, heavy loops, blocking I/O, large payloads, caching misses, and expensive renders.",
+    "prompt": [
+        {
+            "role": "user",
+            "content": "You are a performance analyst. Scan the repository for performance and scalability issues and produce a machine-readable JSON report and a short prioritized list. Focus only on performance, not security or duplication.\n\nSCOPE:\n- N+1 DB query patterns and missing indexes\n- Missing pagination on list endpoints\n- Heavy synchronous/blocking IO in request-handling paths\n- Expensive client renders (large lists without virtualization)\n- Large JSON payloads or images served without optimization\n- Missing caching (responses, DB aggregations)\n- Long-running sync jobs on request path\n- Inefficient loops, repeated DB calls in loops\n- Potential memory leaks (global retainers, big arrays)\n\nOUTPUT FORMAT:\nReturn JSON with: summary, findings (id,severity,category=performance,title,description,files,reproduction,recommendation,confidence), suggested_fixes, commands_to_run, performance_hotspots, metrics_to_monitor.\n\nREQUIREMENTS:\n- Provide exact file paths & line numbers where heuristics indicate issues.\n- Provide recommended fixes: SQL indexes, caching strategy, pagination, virtualization, async offload.\n- Produce up to 3 patch-ready diffs for HIGH-confidence performance fixes (e.g., add an index, add query pagination, change sync call to async worker).\n\nRun the performance-only audit now and output the JSON report followed by a short prioritized action list (top 10)."
+        }
+    ]
+}
