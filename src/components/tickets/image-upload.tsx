@@ -79,9 +79,20 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
+      let stream: MediaStream;
+      try {
+        // First try to get the environment camera
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        });
+      } catch (err) {
+        // If that fails (e.g. no environment camera), try any available video device
+        console.log('Environment camera not found or access denied, trying fallback to any video device...');
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+      }
+
       streamRef.current = stream;
       setShowCamera(true);
       // Wait for next tick to ensure video element is rendered
