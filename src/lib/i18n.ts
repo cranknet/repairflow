@@ -2239,14 +2239,14 @@ export function getTranslation(
   params?: Record<string, string | number>
 ): string {
   let translation = translations[lang]?.[key] || translations.en[key] || key;
-  
+
   // Replace placeholders if params provided
   if (params) {
     translation = translation.replace(/\{(\w+)\}/g, (match, paramName) => {
       return params[paramName]?.toString() || match;
     });
   }
-  
+
   return translation;
 }
 

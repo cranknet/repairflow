@@ -13,33 +13,13 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [companyLogo, setCompanyLogo] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('company_logo') || '';
-    }
-    return '';
-  });
+  const [companyLogo, setCompanyLogo] = useState<string>('');
 
-  const [companyFavicon, setCompanyFavicon] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('company_favicon') || '';
-    }
-    return '';
-  });
+  const [companyFavicon, setCompanyFavicon] = useState<string>('');
 
-  const [companyName, setCompanyName] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('company_name') || 'RepairFlow';
-    }
-    return 'RepairFlow';
-  });
+  const [companyName, setCompanyName] = useState<string>('RepairFlow');
 
-  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('login_background_image') || '';
-    }
-    return '';
-  });
+  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>('');
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -109,6 +89,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Fetch from API to get latest values on mount
   useEffect(() => {
+    // Load from local storage first to avoid flash
+    const storedLogo = localStorage.getItem('company_logo');
+    if (storedLogo) setCompanyLogo(storedLogo);
+
+    const storedFavicon = localStorage.getItem('company_favicon');
+    if (storedFavicon) setCompanyFavicon(storedFavicon);
+
+    const storedName = localStorage.getItem('company_name');
+    if (storedName) setCompanyName(storedName);
+
+    const storedBg = localStorage.getItem('login_background_image');
+    if (storedBg) setLoginBackgroundImage(storedBg);
+
     setIsInitialized(true);
     refreshSettings();
   }, []);
