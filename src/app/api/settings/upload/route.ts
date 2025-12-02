@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
     } else if (type === 'favicon') {
       settingKey = 'company_favicon';
       description = 'Company favicon';
+    } else if (type === 'track_image') {
+      settingKey = 'default_track_image';
+      description = 'Default track page background image';
     }
 
     const fileUrl = `/uploads/${filename}`;

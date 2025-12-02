@@ -23,6 +23,8 @@ export default function LoginPage() {
     password: '',
   });
   const [rememberMe, setRememberMe] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [photographer, setPhotographer] = useState<{ name: string; username: string; profileUrl: string } | null>(null);
 
   useEffect(() => {
     // Load remembered username from localStorage
@@ -31,7 +33,48 @@ export default function LoginPage() {
       setFormData((prev) => ({ ...prev, username: rememberedUsername }));
       setRememberMe(true);
     }
-  }, []);
+
+    // Fetch settings and handle Unsplash integration
+    fetch('/api/settings/public')
+      .then((res) => res.json())
+      .then((data) => {
+        const isUnsplashEnabled = data.UNSPLASH_ENABLED === 'true';
+
+        if (isUnsplashEnabled) {
+          // Try to fetch Unsplash image
+          fetch('/api/unsplash/search?query=technology repair')
+            .then((res) => res.json())
+            .then((unsplashData) => {
+              if (unsplashData.ok && unsplashData.data) {
+                setBackgroundImage(unsplashData.data.url);
+                setPhotographer({
+                  name: unsplashData.data.photographer.name,
+                  username: unsplashData.data.photographer.username,
+                  profileUrl: unsplashData.data.photographer.profileUrl,
+                });
+              } else {
+                // Fallback to existing login background
+                setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+                setPhotographer(null);
+              }
+            })
+            .catch(() => {
+              // Fallback to existing login background on error
+              setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+              setPhotographer(null);
+            });
+        } else {
+          // Use existing login background when Unsplash is disabled
+          setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+          setPhotographer(null);
+        }
+      })
+      .catch(() => {
+        // Fallback to existing login background on error
+        setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+        setPhotographer(null);
+      });
+  }, [loginBackgroundImage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +123,7 @@ export default function LoginPage() {
     <div
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
-        backgroundImage: `url("${loginBackgroundImage || '/default-login-bg.png'}")`,
+        backgroundImage: `url("${backgroundImage || loginBackgroundImage || '/default-login-bg.png'}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -93,6 +136,20 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent" />
         <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent" />
       </div>
+
+      {/* Photographer attribution (only for Unsplash images) */}
+      {photographer && (
+        <div className="absolute bottom-6 left-6 z-40 text-white/80 text-xs">
+          <a
+            href={photographer.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors underline"
+          >
+            {t('images.unsplash.photographer', { name: photographer.name })}
+          </a>
+        </div>
+      )}
 
       <Card
         className={cn(

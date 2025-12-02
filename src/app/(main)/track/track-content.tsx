@@ -173,8 +173,11 @@ export function TrackContent() {
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [photographer, setPhotographer] = useState<{ name: string; username: string; profileUrl: string } | null>(null);
+  const [unsplashEnabled, setUnsplashEnabled] = useState(false);
 
-  // Fetch public settings
+  // Fetch public settings and background image
   useEffect(() => {
     fetch('/api/settings/public')
       .then((res) => res.json())
@@ -204,6 +207,42 @@ export function TrackContent() {
           phone: data.company_phone || data.phone || '',
           email: data.email || '',
         });
+
+        // Handle Unsplash integration
+        const isUnsplashEnabled = data.UNSPLASH_ENABLED === 'true';
+        setUnsplashEnabled(isUnsplashEnabled);
+
+        if (isUnsplashEnabled) {
+          // Try to fetch Unsplash image
+          fetch('/api/unsplash/search?query=repair workshop tools')
+            .then((res) => res.json())
+            .then((unsplashData) => {
+              if (unsplashData.ok && unsplashData.data) {
+                setBackgroundImage(unsplashData.data.url);
+                setPhotographer({
+                  name: unsplashData.data.photographer.name,
+                  username: unsplashData.data.photographer.username,
+                  profileUrl: unsplashData.data.photographer.profileUrl,
+                });
+              } else {
+                // Fallback to default track image
+                const defaultImage = data.default_track_image || '/default-track-bg.png';
+                setBackgroundImage(defaultImage);
+                setPhotographer(null);
+              }
+            })
+            .catch(() => {
+              // Fallback to default track image on error
+              const defaultImage = data.default_track_image || '/default-track-bg.png';
+              setBackgroundImage(defaultImage);
+              setPhotographer(null);
+            });
+        } else {
+          // Use default track image when Unsplash is disabled
+          const defaultImage = data.default_track_image || '/default-track-bg.png';
+          setBackgroundImage(defaultImage);
+          setPhotographer(null);
+        }
       })
       .catch(console.error);
   }, []);
@@ -352,9 +391,37 @@ export function TrackContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div 
+      className={`min-h-screen relative ${!backgroundImage ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
+      style={{
+        backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: backgroundImage ? 'fixed' : undefined,
+      }}
+    >
+      {/* Background overlay for text legibility */}
+      {backgroundImage && (
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70 backdrop-blur-sm" />
+      )}
+
+      {/* Photographer attribution (only for Unsplash images) */}
+      {photographer && (
+        <div className="absolute bottom-4 left-4 z-40 text-white/80 text-xs">
+          <a
+            href={photographer.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors underline"
+          >
+            {t('images.unsplash.photographer', { name: photographer.name })}
+          </a>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm relative">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
@@ -382,7 +449,7 @@ export function TrackContent() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
+      <main className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
         {!ticket ? (
           /* Tracking Form */
           <div className="max-w-2xl mx-auto space-y-8">

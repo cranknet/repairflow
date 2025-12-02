@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Font family - Inter as default sans
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
       // Override Tailwind's default border color
       borderColor: {
         DEFAULT: 'transparent',

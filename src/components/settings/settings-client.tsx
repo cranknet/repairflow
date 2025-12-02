@@ -56,10 +56,12 @@ export function SettingsClient({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [isUploadingTrackImage, setIsUploadingTrackImage] = useState(false);
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(settings.login_background_image_url || '');
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
+  const trackImageInputRef = useRef<HTMLInputElement>(null);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -330,6 +332,71 @@ export function SettingsClient({
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleTrackImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingTrackImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'track_image');
+
+      const response = await fetch('/api/settings/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload track image');
+
+      const data = await response.json();
+      // Update settings immediately
+      const updatedSettings = { ...settings, default_track_image: data.url };
+      setSettings(updatedSettings);
+
+      toast({
+        title: t('success'),
+        description: t('trackImageUploaded'),
+      });
+      // Refresh in background to sync
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('failedToUploadTrackImage'),
+      });
+    } finally {
+      setIsUploadingTrackImage(false);
+      if (trackImageInputRef.current) trackImageInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveTrackImage = async () => {
+    setSettings({ ...settings, default_track_image: '' });
+    // Save to database
+    try {
+      const updatedSettings = { ...settings, default_track_image: '' };
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
+      });
+
+      if (!response.ok) throw new Error('Failed to remove track image');
+
+      toast({
+        title: t('success'),
+        description: t('trackImageRemoved'),
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('failedToRemoveTrackImage'),
+      });
     }
   };
 
@@ -905,6 +972,116 @@ export function SettingsClient({
                   <p className="text-xs text-gray-500">
                     Example: https://source.unsplash.com/1920x1080/?technology,repair,workshop
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('settings.unsplash.title')}</CardTitle>
+                <CardDescription>{t('settings.unsplash.description')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Unsplash Enabled Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <Label htmlFor="unsplash-enabled" className="text-base font-medium">
+                      {t('settings.unsplash.enabled')}
+                    </Label>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {t('settings.unsplash.help')}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="unsplash-enabled"
+                      checked={settings.UNSPLASH_ENABLED === 'true'}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          UNSPLASH_ENABLED: e.target.checked ? 'true' : 'false',
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {/* Unsplash API Key */}
+                {settings.UNSPLASH_ENABLED === 'true' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="unsplash-api-key">{t('settings.unsplash.apiKey')}</Label>
+                    <Input
+                      id="unsplash-api-key"
+                      type="password"
+                      placeholder="Your Unsplash Access Key"
+                      value={settings.UNSPLASH_ACCESS_KEY || ''}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          UNSPLASH_ACCESS_KEY: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500">
+                      {t('settings.unsplash.apiKeyHelp')}
+                      <a
+                        href="https://unsplash.com/developers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline ml-1"
+                      >
+                        {t('settings.unsplash.getApiKey')}
+                      </a>
+                    </p>
+                  </div>
+                )}
+
+                {/* Default Track Image */}
+                <div className="space-y-2">
+                  <Label>{t('settings.unsplash.defaultTrackImage')}</Label>
+                  <div className="flex items-center gap-4">
+                    {settings.default_track_image ? (
+                      <div className="relative">
+                        <img
+                          src={settings.default_track_image}
+                          alt="Default Track Background"
+                          className="h-32 w-48 object-cover border border-gray-300 rounded"
+                        />
+                        <button
+                          onClick={handleRemoveTrackImage}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <XMarkIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-32 w-48 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                        <PhotoIcon className="h-8 w-8 text-gray-400" />
+                      </div>
+                    )}
+                    <div>
+                      <input
+                        ref={trackImageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleTrackImageUpload}
+                        className="hidden"
+                        id="track-image-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        onClick={() => trackImageInputRef.current?.click()}
+                        disabled={isUploadingTrackImage}
+                      >
+                        {isUploadingTrackImage ? t('uploading') : settings.default_track_image ? t('changeImage') : t('uploadImage')}
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-1">Max 5MB. Used as fallback when Unsplash is disabled or unavailable.</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

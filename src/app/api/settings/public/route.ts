@@ -8,7 +8,7 @@ export async function GET() {
     const settings = await prisma.settings.findMany({
       where: {
         key: {
-          in: ['company_name', 'company_logo', 'company_favicon', 'company_phone', 'login_background_image', 'login_background_image_url', 'language', 'currency', 'facebook_url', 'youtube_url', 'instagram_url', 'auto_mark_tickets_as_paid'],
+          in: ['company_name', 'company_logo', 'company_favicon', 'company_phone', 'login_background_image', 'login_background_image_url', 'language', 'currency', 'facebook_url', 'youtube_url', 'instagram_url', 'auto_mark_tickets_as_paid', 'UNSPLASH_ENABLED', 'default_track_image'],
         },
       },
     });
