@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
-import { MaterialSymbolsLoader } from "@/components/MaterialSymbolsLoader";
+
 
 export const metadata: Metadata = {
   title: "RepairFlow - Repair Shop Management System",
@@ -53,11 +53,13 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to Google Fonts for faster loading */}
+        {/* Material Symbols Font */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Async load fonts to prevent render blocking */}
-        <MaterialSymbolsLoader />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        />
       </head>
       <body className="font-sans">
         <Providers>
