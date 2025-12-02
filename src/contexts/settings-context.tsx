@@ -6,7 +6,6 @@ interface SettingsContextType {
   companyLogo: string;
   companyFavicon: string;
   companyName: string;
-  loginBackgroundImage: string;
   refreshSettings: () => Promise<void>;
 }
 
@@ -18,8 +17,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [companyFavicon, setCompanyFavicon] = useState<string>('');
 
   const [companyName, setCompanyName] = useState<string>('RepairFlow');
-
-  const [loginBackgroundImage, setLoginBackgroundImage] = useState<string>('');
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -66,22 +63,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setCompanyName('RepairFlow');
         localStorage.removeItem('company_name');
       }
-
-      // Handle login background image
-      const bgImage = data.login_background_image_url || data.login_background_image;
-      if (bgImage) {
-        const bgPath = bgImage.startsWith('http')
-          ? bgImage
-          : bgImage.startsWith('/')
-            ? bgImage
-            : `/${bgImage}`;
-        setLoginBackgroundImage(bgPath);
-        localStorage.setItem('login_background_image', bgPath);
-      } else {
-        const defaultBg = '/default-login-bg.png';
-        setLoginBackgroundImage(defaultBg);
-        localStorage.setItem('login_background_image', defaultBg);
-      }
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
@@ -99,9 +80,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const storedName = localStorage.getItem('company_name');
     if (storedName) setCompanyName(storedName);
 
-    const storedBg = localStorage.getItem('login_background_image');
-    if (storedBg) setLoginBackgroundImage(storedBg);
-
     setIsInitialized(true);
     refreshSettings();
   }, []);
@@ -118,7 +96,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [companyFavicon]);
 
   return (
-    <SettingsContext.Provider value={{ companyLogo, companyFavicon, companyName, loginBackgroundImage, refreshSettings }}>
+    <SettingsContext.Provider value={{ companyLogo, companyFavicon, companyName, refreshSettings }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -16,7 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { companyName, loginBackgroundImage } = useSettings();
+  const { companyName } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState<string>('');
   const [photographer, setPhotographer] = useState<{ name: string; username: string; profileUrl: string } | null>(null);
+  const [unsplashEnabled, setUnsplashEnabled] = useState(false);
 
   useEffect(() => {
     // Load remembered username from localStorage
@@ -38,43 +39,80 @@ export default function LoginPage() {
     fetch('/api/settings/public')
       .then((res) => res.json())
       .then((data) => {
+        // Handle Unsplash integration
         const isUnsplashEnabled = data.UNSPLASH_ENABLED === 'true';
+        setUnsplashEnabled(isUnsplashEnabled);
 
         if (isUnsplashEnabled) {
+          // Check if we have a cached image in sessionStorage
+          const cachedData = sessionStorage.getItem('login_unsplash_cache');
+          if (cachedData) {
+            try {
+              const parsed = JSON.parse(cachedData);
+              setBackgroundImage(parsed.url);
+              setPhotographer(parsed.photographer);
+              return;
+            } catch (e) {
+              // Invalid cache, continue to fetch
+            }
+          }
+
+          // Check if random is enabled
+          const randomEnabled = data.unsplash_random_enabled === 'true';
+          const defaultGoal = data.unsplash_default_goal || 'repairflow_default';
+
+          // Build the API URL
+          const unsplashUrl = randomEnabled
+            ? `/api/unsplash/search?goal=${encodeURIComponent(defaultGoal)}`
+            : '/api/unsplash/search?query=technology repair';
+
           // Try to fetch Unsplash image
-          fetch('/api/unsplash/search?query=technology repair')
+          fetch(unsplashUrl)
             .then((res) => res.json())
             .then((unsplashData) => {
               if (unsplashData.ok && unsplashData.data) {
                 setBackgroundImage(unsplashData.data.url);
-                setPhotographer({
+                const photographerData = {
                   name: unsplashData.data.photographer.name,
                   username: unsplashData.data.photographer.username,
                   profileUrl: unsplashData.data.photographer.profileUrl,
-                });
+                };
+                setPhotographer(photographerData);
+
+                // Cache the result in sessionStorage
+                sessionStorage.setItem(
+                  'login_unsplash_cache',
+                  JSON.stringify({
+                    url: unsplashData.data.url,
+                    photographer: photographerData,
+                  })
+                );
               } else {
-                // Fallback to existing login background
-                setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+                // Fallback to default login image
+                const defaultImage = data.default_login_image || '/default-login-bg.png';
+                setBackgroundImage(defaultImage);
                 setPhotographer(null);
               }
             })
             .catch(() => {
-              // Fallback to existing login background on error
-              setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+              // Fallback to default login image on error
+              const defaultImage = data.default_login_image || '/default-login-bg.png';
+              setBackgroundImage(defaultImage);
               setPhotographer(null);
             });
         } else {
-          // Use existing login background when Unsplash is disabled
-          setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+          // Use default login image when Unsplash is disabled
+          const defaultImage = data.default_login_image || '/default-login-bg.png';
+          setBackgroundImage(defaultImage);
           setPhotographer(null);
         }
       })
       .catch(() => {
-        // Fallback to existing login background on error
-        setBackgroundImage(loginBackgroundImage || '/default-login-bg.png');
+        // Fallback to default login image on error
+        setBackgroundImage('/default-login-bg.png');
         setPhotographer(null);
       });
-  }, [loginBackgroundImage]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +161,7 @@ export default function LoginPage() {
     <div
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
-        backgroundImage: `url("${backgroundImage || loginBackgroundImage || '/default-login-bg.png'}")`,
+        backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
