@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const token = searchParams.get('token');
+    const body = await request.json();
+    const { token } = body;
 
     if (!token) {
       return NextResponse.json({ valid: false }, { status: 400 });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ valid: false });
     }
 
-    return NextResponse.json({ valid: true });
+    return NextResponse.json({ valid: true, userId: resetToken.userId });
   } catch (error) {
     console.error('Error validating reset token:', error);
     return NextResponse.json({ valid: false }, { status: 500 });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { nanoid } from 'nanoid';
-import { sendEmail } from '@/lib/email';
+import { randomBytes } from 'crypto';
+import { sendPasswordResetEmail } from '@/lib/email';
 import { authRateLimiters } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate reset token
-    const token = nanoid(32);
+    // Generate secure random token using crypto.randomBytes
+    const token = randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
 
@@ -70,32 +70,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send reset email
-    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+    // Send reset email using template
+    const resetUrl = `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
     try {
-      await sendEmail({
-        to: user.email || user.username,
-        subject: 'Password Reset Request - RepairFlow',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Password Reset Request</h2>
-            <p>Hello ${user.name || user.username},</p>
-            <p>You requested to reset your password. Click the link below to reset it:</p>
-            <p style="margin: 20px 0;">
-              <a href="${resetUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-                Reset Password
-              </a>
-            </p>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you didn't request this, please ignore this email.</p>
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-            <p style="color: #666; font-size: 12px;">RepairFlow - Repair Shop Management System</p>
-          </div>
-        `,
-      });
+      await sendPasswordResetEmail(
+        user.email,
+        resetUrl,
+        user.name || user.username
+      );
     } catch (emailError) {
       console.error('Error sending email:', emailError);
       // Still return success to prevent revealing email issues

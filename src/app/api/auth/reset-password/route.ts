@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { authRateLimiters } from '@/lib/rate-limit';
+import { sendPasswordChangedConfirmation } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,9 +39,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 10) {
+    // Enhanced password validation
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Password must be at least 10 characters long' },
+        { error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      );
+    }
+
+    // Check password complexity
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      return NextResponse.json(
+        { error: 'Password must contain at least one uppercase letter, one lowercase letter, and one number' },
         { status: 400 }
       );
     }
@@ -76,6 +90,18 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Get user info for confirmation email
+    const user = await prisma.user.findUnique({
+      where: { id: resetToken.userId },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     // Update user password and mark token as used
     await prisma.$transaction([
       prisma.user.update({
@@ -87,6 +113,17 @@ export async function POST(request: NextRequest) {
         data: { used: true },
       }),
     ]);
+
+    // Send password changed confirmation email
+    try {
+      await sendPasswordChangedConfirmation(
+        user.email,
+        user.name || user.username
+      );
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       message: 'Password has been reset successfully',

@@ -13,6 +13,8 @@ export default auth(async (req) => {
     if (
         path.startsWith('/track') ||
         path.startsWith('/login') ||
+        path.startsWith('/forgot-password') ||
+        path.startsWith('/reset-password') ||
         path.startsWith('/api/auth') ||
         path.startsWith('/install') || // Allow install page to be accessed without auth
         path.startsWith('/complete') // Allow completion page after install
