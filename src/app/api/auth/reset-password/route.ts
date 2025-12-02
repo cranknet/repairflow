@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { authRateLimiters } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting (5 attempts per IP per hour)
+    const clientId = authRateLimiters.resetPassword.getClientId(request);
+    const rateLimit = authRateLimiters.resetPassword.check(clientId);
+
+    if (!rateLimit.allowed) {
+      const remainingSeconds = Math.ceil((rateLimit.resetAt! - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: 'Too many password reset attempts. Please try again later.',
+          retryAfter: remainingSeconds
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': remainingSeconds.toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimit.resetAt!).toISOString(),
+          }
+        }
+      );
+    }
+
     const body = await request.json();
     const { token, password } = body;
 
@@ -14,9 +38,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    if (password.length < 10) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters long' },
+        { error: 'Password must be at least 10 characters long' },
         { status: 400 }
       );
     }

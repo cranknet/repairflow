@@ -8,7 +8,7 @@ import { createNotification } from '@/lib/notifications';
 const createUserSchema = z.object({
   username: z.string().min(1),
   email: z.string().email().optional().or(z.literal('')),
-  password: z.string().min(6),
+  password: z.string().min(10, 'Password must be at least 10 characters'),
   name: z.string().optional(),
   role: z.enum(['ADMIN', 'STAFF']).default('STAFF'),
 });

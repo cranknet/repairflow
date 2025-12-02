@@ -54,6 +54,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "date-fns": "^3.0.6",
+    "file-type": "^21.1.1",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.344.0",
     "material-symbols": "^0.40.0",
@@ -69,6 +70,7 @@
     "react-to-print": "^2.14.15",
     "recharts": "^3.5.0",
     "serialport": "^12.0.0",
+    "sharp": "^0.34.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {

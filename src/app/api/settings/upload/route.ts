@@ -31,17 +31,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File and type are required' }, { status: 400 });
     }
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml'];
-    if (!validTypes.includes(file.type)) {
-      console.error('Invalid file type:', file.type, 'Valid types:', validTypes);
-      return NextResponse.json({ error: `Invalid file type: ${file.type}. Allowed types: ${validTypes.join(', ')}` }, { status: 400 });
+    // SECURITY: Read file buffer for magic byte validation
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Validate file size BEFORE processing (max 5MB)
+    if (buffer.length > 5 * 1024 * 1024) {
+      console.error('File too large:', buffer.length);
+      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      console.error('File too large:', file.size);
-      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
+    // SECURITY: Validate actual file type using magic bytes (file-type package)
+    // This prevents MIME type spoofing attacks
+    const { fileTypeFromBuffer } = await import('file-type');
+    const detectedType = await fileTypeFromBuffer(buffer);
+
+    if (!detectedType) {
+      return NextResponse.json({ error: 'Unable to determine file type' }, { status: 400 });
+    }
+
+    // SECURITY: Only allow safe image formats - SVG BLOCKED due to XSS risk
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    if (!allowedMimeTypes.includes(detectedType.mime)) {
+      console.error('Invalid file type detected:', detectedType.mime, 'Claimed:', file.type);
+      return NextResponse.json({
+        error: `Invalid file type: ${detectedType.mime}. Only JPEG, PNG, GIF, and WebP images are allowed. SVG is blocked for security.`
+      }, { status: 400 });
+    }
+
+    if (!allowedExtensions.includes(detectedType.ext)) {
+      return NextResponse.json({
+        error: `Invalid file extension: ${detectedType.ext}`
+      }, { status: 400 });
     }
 
     // Create uploads directory if it doesn't exist
@@ -50,15 +73,12 @@ export async function POST(request: NextRequest) {
       mkdirSync(uploadsDir, { recursive: true });
     }
 
-    // Generate unique filename
+    // Generate unique filename using validated extension
     const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const filename = `${type}-${timestamp}.${extension}`;
+    const filename = `${type}-${timestamp}.${detectedType.ext}`;
     const filepath = join(uploadsDir, filename);
 
-    // Save file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Save validated file buffer
     await writeFile(filepath, buffer);
 
     // Save file path to settings

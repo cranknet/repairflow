@@ -2,9 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { nanoid } from 'nanoid';
 import { sendEmail } from '@/lib/email';
+import { authRateLimiters } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting (3 requests per IP per hour)
+    const clientId = authRateLimiters.forgotPassword.getClientId(request);
+    const rateLimit = authRateLimiters.forgotPassword.check(clientId);
+
+    if (!rateLimit.allowed) {
+      const remainingSeconds = Math.ceil((rateLimit.resetAt! - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: 'Too many password reset requests. Please try again later.',
+          retryAfter: remainingSeconds
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': remainingSeconds.toString(),
+            'X-RateLimit-Limit': '3',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimit.resetAt!).toISOString(),
+          }
+        }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 

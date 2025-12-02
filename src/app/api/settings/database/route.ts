@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import fs from 'fs';
-import path from 'path';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,7 +9,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Read current configuration
+        // Read current configuration (read-only, safe)
         const databaseUrl = process.env.DATABASE_URL || '';
 
         let config: any = {
@@ -38,56 +36,25 @@ export async function GET(request: NextRequest) {
     }
 }
 
+// SECURITY FIX: POST endpoint disabled - writing database credentials to .env is insecure
+// Database configuration should be managed via:
+// 1. Deployment platform environment variables (Vercel, Railway, etc.)
+// 2. Encrypted secrets manager (AWS Secrets Manager, Vault, etc.)
+// 3. Manual .env file configuration (not accessible to the application)
+//
+// Writing passwords to plaintext files accessible by the application creates security risks:
+// - Credentials visible in filesystem
+// - No encryption of sensitive data
+// - Potential file permission issues
+// - Credentials may be logged or backed up
+
 export async function POST(request: NextRequest) {
-    try {
-        const session = await auth();
-
-        if (!session || session.user.role !== 'ADMIN') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const config = await request.json();
-
-        let newDatabaseUrl = '';
-
-        if (config.type === 'sqlite') {
-            // Use default SQLite configuration
-            newDatabaseUrl = 'file:./prisma/dev.db';
-        } else if (config.type === 'mysql') {
-            // Build MySQL URL
-            const { host, port, database, user, password } = config;
-            newDatabaseUrl = `mysql://${user}:${password}@${host}:${port}/${database}`;
-        }
-
-        // Update the .env file
-        const envPath = path.join(process.cwd(), '.env');
-        let envContent = '';
-
-        if (fs.existsSync(envPath)) {
-            envContent = fs.readFileSync(envPath, 'utf-8');
-        }
-
-        // Update DATABASE_URL in .env
-        const lines = envContent.split('\n');
-        let found = false;
-
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith('DATABASE_URL=')) {
-                lines[i] = `DATABASE_URL="${newDatabaseUrl}"`;
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            lines.push(`DATABASE_URL="${newDatabaseUrl}"`);
-        }
-
-        fs.writeFileSync(envPath, lines.join('\n'));
-
-        return NextResponse.json({ success: true, message: 'Configuration saved. Please restart the application.' });
-    } catch (error) {
-        console.error('Error saving database config:', error);
-        return NextResponse.json({ error: 'Failed to save configuration' }, { status: 500 });
-    }
+    return NextResponse.json(
+        {
+            error: 'Database configuration via API is disabled for security reasons.',
+            message: 'Please configure DATABASE_URL via environment variables in your deployment platform or .env file manually.',
+            documentation: 'https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables'
+        },
+        { status: 403 }
+    );
 }
