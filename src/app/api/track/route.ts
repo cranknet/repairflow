@@ -116,6 +116,7 @@ export async function GET(request: NextRequest) {
           select: {
             name: true,
             email: true,
+            phone: true,
           },
         },
         statusHistory: {
@@ -181,8 +182,9 @@ export async function GET(request: NextRequest) {
         createdAt: history.createdAt,
       })),
       customer: {
-        name: maskName(ticket.customer.name),
-        email: maskEmail(ticket.customer.email),
+        name: ticket.customer.name, // Unmasked since they authenticated with tracking code
+        email: ticket.customer.email, // Unmasked since they authenticated with tracking code
+        phone: ticket.customer.phone || null,
       },
     });
   } catch (error) {

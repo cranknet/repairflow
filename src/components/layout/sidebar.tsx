@@ -121,9 +121,15 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     }
   };
 
-  const filteredNavigation = navigationKeys.filter(
-    (item) => !item.adminOnly || session?.user?.role === 'ADMIN'
-  );
+  const filteredNavigation = navigationKeys.filter((item) => {
+    if (item.adminOnly && session?.user?.role !== 'ADMIN') {
+      return false;
+    }
+    if ('roles' in item && Array.isArray(item.roles) && !item.roles.includes(session?.user?.role || '')) {
+      return false;
+    }
+    return true;
+  });
 
   // Don't render until mounted to avoid hydration issues
   if (!isMounted) {
@@ -243,7 +249,11 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               </span>
 
               {/* Label */}
-              {!isCollapsed && <span className="flex-1 truncate">{translatedName}</span>}
+              {!isCollapsed && (
+                <span className="flex-1 truncate">
+                  {translatedName}
+                </span>
+              )}
 
               {/* State layer for hover/press */}
               <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />

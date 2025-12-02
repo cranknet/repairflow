@@ -26,12 +26,12 @@ import {
   EnvelopeIcon,
   HomeIcon,
   WrenchScrewdriverIcon,
-  LockClosedIcon,
   PhotoIcon,
   ClockIcon,
   CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { ContactSupportModal } from '@/components/track/contact-support-modal';
 
 interface TicketData {
   ticketNumber: string;
@@ -60,6 +60,7 @@ interface TicketData {
   customer: {
     name: string;
     email: string;
+    phone: string | null;
   };
 }
 
@@ -158,6 +159,7 @@ export function TrackContent() {
   });
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Fetch public settings
   useEffect(() => {
@@ -353,15 +355,11 @@ export function TrackContent() {
                 }}
               />
               <span className="text-2xl font-bold text-primary hidden sm:inline">{companyInfo.storeName}</span>
-              <LockClosedIcon className="h-5 w-5 text-gray-500" title={t('secureTracking')} />
             </Link>
             <div className="flex items-center gap-4">
               <nav className="hidden md:flex items-center gap-4">
                 <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                   {t('home')}
-                </Link>
-                <Link href="/login" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-                  {t('contactSupport')}
                 </Link>
               </nav>
               <LanguageSwitcher />
@@ -374,7 +372,7 @@ export function TrackContent() {
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {!ticket ? (
           /* Tracking Form */
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-8">
             <div className="text-center mb-8">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                 {t('trackYourRepairStatus')}
@@ -451,6 +449,20 @@ export function TrackContent() {
                 </p>
               </CardContent>
             </Card>
+
+            <div className="text-center space-y-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t('contact.form.description')}
+              </p>
+              <Button
+                variant="outlined"
+                className="gap-2 w-full md:w-auto justify-center"
+                onClick={() => setIsContactModalOpen(true)}
+              >
+                <EnvelopeIcon className="h-4 w-4" />
+                {t('contactSupport')}
+              </Button>
+            </div>
           </div>
         ) : (
           /* Ticket Details */
@@ -464,7 +476,7 @@ export function TrackContent() {
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
                       <div className={`p-3 rounded-full ${statusConfig.bgColor}`} style={{ backgroundColor: `${statusConfig.color}20` }}>
-                        <StatusIcon className={`h-8 w-8 ${statusConfig.textColor}`} style={{ color: statusConfig.color }} />
+                        <StatusIcon className={`h-8 w-8 ${statusConfig.textColor}`} />
                       </div>
                       <div className="flex-1">
                         <h2 className="text-2xl font-bold mb-1" style={{ color: statusConfig.color }}>
@@ -566,17 +578,25 @@ export function TrackContent() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
-                  <Button variant="outline" onClick={handlePrint} className="gap-2">
+                  <Button variant="outlined" onClick={handlePrint} className="gap-2">
                     <PrinterIcon className="h-4 w-4" />
                     {t('printSummary')}
                   </Button>
                   {ticket.status === 'COMPLETED' && (
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outlined" className="gap-2">
                       <ArrowDownTrayIcon className="h-4 w-4" />
                       {t('downloadInvoice')}
                     </Button>
                   )}
-                  <Button variant="outline" onClick={() => setShowQR(!showQR)} className="gap-2">
+                  <Button
+                    variant="outlined"
+                    className="gap-2"
+                    onClick={() => setIsContactModalOpen(true)}
+                  >
+                    <EnvelopeIcon className="h-4 w-4" />
+                    {t('contactSupport')}
+                  </Button>
+                  <Button variant="outlined" onClick={() => setShowQR(!showQR)} className="gap-2">
                     <QrCodeIcon className="h-4 w-4" />
                     {t('shareTracking')}
                   </Button>
@@ -717,7 +737,6 @@ export function TrackContent() {
                                   className={`h-4 w-4 ${
                                     isCurrent ? 'text-white' : statusConfig.textColor
                                   }`}
-                                  style={isCurrent ? {} : { color: statusConfig.color }}
                                 />
                               </div>
                             </div>
@@ -747,6 +766,17 @@ export function TrackContent() {
                 </CardContent>
               </Card>
             )}
+
+            <div className="flex justify-center">
+              <Button
+                variant="outlined"
+                className="gap-2"
+                onClick={() => setIsContactModalOpen(true)}
+              >
+                <EnvelopeIcon className="h-4 w-4" />
+                {t('contactSupport')}
+              </Button>
+            </div>
           </div>
         )}
       </main>
@@ -846,6 +876,15 @@ export function TrackContent() {
         </div>
       )}
 
+      <ContactSupportModal
+        open={isContactModalOpen}
+        onOpenChange={setIsContactModalOpen}
+        customerData={ticket ? {
+          name: ticket.customer.name,
+          email: ticket.customer.email,
+          phone: ticket.customer.phone,
+        } : undefined}
+      />
     </div>
   );
 }

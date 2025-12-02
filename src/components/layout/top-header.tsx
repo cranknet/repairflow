@@ -2,6 +2,7 @@
 
 import { SearchBars } from './search-bars';
 import { NotificationsBell } from '@/components/notifications/notifications-bell';
+import { InboxIcon } from '@/components/contact/inbox-icon';
 import { LanguageSwitcher } from './language-switcher';
 import { UserProfileDropdown } from './user-profile-dropdown';
 
@@ -45,6 +46,7 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
         {/* Right Side Actions - Properly sized touch targets (min 44px) */}
         <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label="App actions">
           <LanguageSwitcher />
+          <InboxIcon />
           <NotificationsBell />
           <div className="hidden sm:block h-8 w-px bg-outline-variant mx-1" aria-hidden="true" />
           <UserProfileDropdown />

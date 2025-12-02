@@ -27,6 +27,7 @@ model User {
   returnsHandled        Return[]                @relation("ReturnHandledBy")
   paymentsCreated       Payment[]               @relation("PaymentCreatedBy")
   notificationPreferences NotificationPreference[]
+  contactMessagesAssigned ContactMessage[]
 }
 
 model Customer {
@@ -71,6 +72,7 @@ model Ticket {
   notifications        Notification[]
   returns              Return[]
   payments             Payment[]
+  contactMessages      ContactMessage[]
 }
 
 model TicketStatusHistory {
@@ -242,5 +244,23 @@ model Payment {
   performedByUser User @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
   createdAt   DateTime @default(now())
 
+  @@index([ticketId])
+}
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  ticketId    String?
+  ticket      Ticket?  @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  name        String
+  email       String
+  phone       String?
+  message     String
+  status      String   @default("NEW") // NEW, READ, ARCHIVED
+  assignedToId String?
+  assignedTo  User?    @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@index([status])
+  @@index([assignedToId])
   @@index([ticketId])
 }

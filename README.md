@@ -33,6 +33,7 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 - **Public Tracking**: Customer-facing tracking page with status history and social media links
 
 ### Advanced Features
+- **Contact System**: Public contact form on track page and admin inbox for managing customer messages
 - **User Management**: Role-based access control (Admin, Staff) with login logs
 - **Notifications System**: In-app notifications for status changes, price adjustments, and user actions
 - **Status Tracking**: Complete status history with notes and timestamps
