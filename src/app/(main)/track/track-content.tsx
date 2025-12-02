@@ -213,8 +213,34 @@ export function TrackContent() {
         setUnsplashEnabled(isUnsplashEnabled);
 
         if (isUnsplashEnabled) {
+          // Check sessionStorage for cached image to avoid flickering on re-mounts
+          const cachedImage = sessionStorage.getItem('track_bg_url');
+          const cachedPhotographer = sessionStorage.getItem('track_bg_photographer');
+          
+          if (cachedImage && cachedPhotographer) {
+            try {
+              const photographerData = JSON.parse(cachedPhotographer);
+              setBackgroundImage(cachedImage);
+              setPhotographer(photographerData);
+              return; // Use cached image, skip API call
+            } catch (e) {
+              // Invalid cache, clear it and fetch new
+              sessionStorage.removeItem('track_bg_url');
+              sessionStorage.removeItem('track_bg_photographer');
+            }
+          }
+
+          // Determine if we should use goal-based random or explicit query
+          const useRandom = data.unsplash_random_enabled === 'true';
+          const goal = data.unsplash_default_goal || 'repairflow_default';
+          
+          // Build API URL
+          const apiUrl = useRandom
+            ? `/api/unsplash/search?goal=${encodeURIComponent(goal)}`
+            : '/api/unsplash/search?query=repair workshop tools';
+
           // Try to fetch Unsplash image
-          fetch('/api/unsplash/search?query=repair workshop tools')
+          fetch(apiUrl)
             .then((res) => res.json())
             .then((unsplashData) => {
               if (unsplashData.ok && unsplashData.data) {
@@ -224,6 +250,13 @@ export function TrackContent() {
                   username: unsplashData.data.photographer.username,
                   profileUrl: unsplashData.data.photographer.profileUrl,
                 });
+                // Cache in sessionStorage for this session
+                sessionStorage.setItem('track_bg_url', unsplashData.data.url);
+                sessionStorage.setItem('track_bg_photographer', JSON.stringify({
+                  name: unsplashData.data.photographer.name,
+                  username: unsplashData.data.photographer.username,
+                  profileUrl: unsplashData.data.photographer.profileUrl,
+                }));
               } else {
                 // Fallback to default track image
                 const defaultImage = data.default_track_image || '/default-track-bg.png';

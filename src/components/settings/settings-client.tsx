@@ -1085,6 +1085,96 @@ export function SettingsClient({
                 </div>
               </CardContent>
             </Card>
+
+            {/* Unsplash Random Background Settings */}
+            {settings.UNSPLASH_ENABLED === 'true' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.unsplash.randomTitle')}</CardTitle>
+                  <CardDescription>{t('settings.unsplash.randomDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Random Enable Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <Label htmlFor="unsplash-random-enabled" className="text-base font-medium">
+                        {t('settings.unsplash.randomEnabled')}
+                      </Label>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {t('settings.unsplash.randomHelp')}
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id="unsplash-random-enabled"
+                        checked={settings.unsplash_random_enabled === 'true'}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            unsplash_random_enabled: e.target.checked ? 'true' : 'false',
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {/* Default Goal and Keywords - Only show when random is enabled */}
+                  {settings.unsplash_random_enabled === 'true' && (
+                    <>
+                      {/* Default Goal Input */}
+                      <div className="space-y-2">
+                        <Label htmlFor="unsplash-default-goal">{t('settings.unsplash.defaultGoal')}</Label>
+                        <Input
+                          id="unsplash-default-goal"
+                          value={settings.unsplash_default_goal || ''}
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              unsplash_default_goal: e.target.value,
+                            })
+                          }
+                          placeholder="repairflow_default"
+                        />
+                        <p className="text-xs text-gray-500">
+                          {t('settings.unsplash.defaultGoalHelp')}
+                        </p>
+                      </div>
+
+                      {/* Goals/Keywords Textarea */}
+                      <div className="space-y-2">
+                        <Label htmlFor="unsplash-goals">{t('settings.unsplash.goals')}</Label>
+                        <textarea
+                          id="unsplash-goals"
+                          rows={3}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                          placeholder={t('settings.unsplash.goalsPlaceholder')}
+                          value={settings.unsplash_goals || ''}
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              unsplash_goals: e.target.value,
+                            })
+                          }
+                        />
+                        <p className="text-xs text-gray-500">
+                          {t('settings.unsplash.goalsHelp')}
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Visual Note */}
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-xs text-blue-800">
+                      {t('settings.unsplash.randomNote')}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
