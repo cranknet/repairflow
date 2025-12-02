@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface StoreProfileProps {
@@ -13,7 +14,7 @@ export function StoreProfile({ companyName, companyLogo }: StoreProfileProps) {
       <CardHeader>
         <div className="flex items-center gap-3">
           {companyLogo && (
-            <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain rounded-lg" />
+            <Image src={companyLogo} alt="Company Logo" width={40} height={40} className="object-contain rounded-lg" unoptimized />
           )}
           <CardTitle className="text-base font-semibold text-gray-900">Store Profile</CardTitle>
         </div>
