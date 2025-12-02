@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Performance optimization
+  experimental: {
+    optimizePackageImports: ['@heroicons/react', 'lucide-react'],
+  },
   async headers() {
     return [
       {
@@ -21,6 +25,10 @@ const nextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: http://localhost https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },
@@ -53,5 +61,10 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// Wrap with bundle analyzer if ANALYZE env var is set
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = withBundleAnalyzer(nextConfig)
 
