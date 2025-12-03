@@ -185,7 +185,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               {companyLogo ? (
                 <Image
                   src={companyLogo}
-                  alt="Company Logo"
+                  alt={t('sidebar.companyLogoAlt')}
                   width={40}
                   height={40}
                   className="object-contain flex-shrink-0 rounded-lg"
@@ -194,7 +194,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               ) : (
                 <Image
                   src="/default-logo.png"
-                  alt="RepairFlow Logo"
+                  alt={t('sidebar.logoAlt')}
                   width={40}
                   height={40}
                   className="object-contain flex-shrink-0 rounded-lg"
