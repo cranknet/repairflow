@@ -11,13 +11,18 @@ export type FeatureName = typeof FEATURES[keyof typeof FEATURES];
 
 /**
  * Check if a feature is enabled based on environment variable
+ * Note: In Next.js, NEXT_PUBLIC_ env vars are embedded at build time
+ * and must be accessed directly, not dynamically
  */
 export function isFeatureEnabledInEnv(feature: FeatureName): boolean {
-    // Check environment variable
-    const envVar = `NEXT_PUBLIC_FEATURE_${feature.toUpperCase()}`;
-    const envValue = process.env[envVar];
-
-    return envValue === 'true' || envValue === '1';
+    // Check environment variable - must access directly for client-side code
+    if (feature === FEATURES.FINANCE_MODULE) {
+        const envValue = process.env.NEXT_PUBLIC_FEATURE_FINANCE_MODULE;
+        return envValue === 'true' || envValue === '1';
+    }
+    
+    // Default to false for unknown features
+    return false;
 }
 
 /**
