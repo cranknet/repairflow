@@ -72,6 +72,13 @@ export default function PaymentsPage() {
     return (
         <div className="p-6">
             <div className="mb-6">
+                <Link
+                    href="/finance"
+                    className="flex items-center gap-2 text-primary hover:underline mb-4"
+                >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                    <span className="text-label-large">Back to Finance</span>
+                </Link>
                 <h1 className="text-display-small font-bold text-on-surface mb-2">
                     {t('finance.payments') || 'Payment History'}
                 </h1>
