@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/language-context';
 
 interface ExpenseFormModalProps {
     onClose: () => void;
@@ -8,6 +9,7 @@ interface ExpenseFormModalProps {
 }
 
 export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: '',
         amount: '',
@@ -50,7 +52,7 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
         <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <div className="sticky top-0 bg-surface border-b border-outline-variant px-6 py-4 flex items-center justify-between">
-                    <h2 className="text-headline-small font-bold text-on-surface">Add Expense</h2>
+                    <h2 className="text-headline-small font-bold text-on-surface">{t('finance.expenseForm.title')}</h2>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-full hover:bg-on-surface/8 transition-colors"
@@ -69,21 +71,21 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Expense Name <span className="text-error">*</span>
+                            {t('finance.expenseForm.expenseName')} <span className="text-error">*</span>
                         </label>
                         <input
                             type="text"
                             required
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            placeholder="e.g., Office Supplies"
+                            placeholder={t('finance.expenseForm.expenseNamePlaceholder')}
                             className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Amount <span className="text-error">*</span>
+                            {t('finance.amount')} <span className="text-error">*</span>
                         </label>
                         <div className="relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
@@ -94,7 +96,7 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
                                 min="0.01"
                                 value={formData.amount}
                                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                placeholder="0.00"
+                                placeholder={t('finance.expenseForm.amountPlaceholder')}
                                 className="w-full pl-8 pr-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
@@ -102,28 +104,28 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Type <span className="text-error">*</span>
+                            {t('finance.type')} <span className="text-error">*</span>
                         </label>
                         <select
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                            <option value="PURCHASE">Purchase</option>
-                            <option value="SHOP">Shop Expense</option>
-                            <option value="PART_LOSS">Part Loss</option>
-                            <option value="MISC">Miscellaneous</option>
+                            <option value="PURCHASE">{t('finance.expenseTypes.PURCHASE')}</option>
+                            <option value="SHOP">{t('finance.expenseTypes.SHOP')}</option>
+                            <option value="PART_LOSS">{t('finance.expenseTypes.PART_LOSS')}</option>
+                            <option value="MISC">{t('finance.expenseTypes.MISC')}</option>
                         </select>
                     </div>
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Notes
+                            {t('finance.notes')}
                         </label>
                         <textarea
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            placeholder="Additional details about this expense..."
+                            placeholder={t('finance.expenseForm.notesPlaceholder')}
                             rows={4}
                             className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
@@ -135,7 +137,7 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
                             onClick={onClose}
                             className="flex-1 px-6 py-3 border border-outline text-on-surface rounded-full hover:bg-on-surface/8 transition-colors"
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -145,10 +147,10 @@ export function ExpenseFormModal({ onClose, onSuccess }: ExpenseFormModalProps) 
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
                                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                    Creating...
+                                    {t('finance.expenseForm.creating')}
                                 </span>
                             ) : (
-                                'Create Expense'
+                                t('finance.expenseForm.createExpense')
                             )}
                         </button>
                     </div>

@@ -39,29 +39,29 @@ export default function FinancePage() {
 
     const cards = [
         {
-            title: 'Payments',
-            description: 'View all payment transactions',
+            title: t('finance.payments'),
+            description: t('finance.payments.description'),
             icon: 'payments',
             href: '/finance/payments',
             color: 'bg-primary-container text-on-primary-container',
         },
         {
-            title: 'Refunds & Returns',
-            description: 'Manage return requests and refunds',
+            title: t('finance.refunds'),
+            description: t('finance.refunds.description'),
             icon: 'receipt_long',
             href: '/finance/refunds',
             color: 'bg-secondary-container text-on-secondary-container',
         },
         {
-            title: 'Expenses',
-            description: 'Track business expenses',
+            title: t('finance.expenses'),
+            description: t('finance.expenses.description'),
             icon: 'shopping_cart',
             href: '/finance/expenses',
             color: 'bg-tertiary-container text-on-tertiary-container',
         },
         {
-            title: 'Inventory Adjustments',
-            description: 'Monitor inventory changes',
+            title: t('finance.inventory'),
+            description: t('finance.inventory.description'),
             icon: 'inventory',
             href: '/finance/inventory-adjustments',
             color: 'bg-error-container text-on-error-container',
@@ -76,7 +76,7 @@ export default function FinancePage() {
                         {t('finance') || 'Finance'}
                     </h1>
                     <p className="text-body-large text-on-surface-variant">
-                        Manage payments, expenses, and financial transactions
+                        {t('finance.description')}
                     </p>
                 </div>
 
@@ -86,15 +86,15 @@ export default function FinancePage() {
                         <span className="material-symbols-outlined animate-spin text-4xl text-on-surface-variant">
                             progress_activity
                         </span>
-                        <p className="mt-2 text-body-medium text-on-surface-variant">Loading financial summary...</p>
+                        <p className="mt-2 text-body-medium text-on-surface-variant">{t('finance.loadingSummary')}</p>
                     </div>
                 ) : summary ? (
                     <div className="mb-8">
-                        <h2 className="text-headline-medium font-bold text-on-surface mb-4">Today's Summary</h2>
+                        <h2 className="text-headline-medium font-bold text-on-surface mb-4">{t('finance.todaysSummary')}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Revenue</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.revenue')}</span>
                                     <span className="material-symbols-outlined text-primary">trending_up</span>
                                 </div>
                                 <p className="text-display-small font-bold text-primary">
@@ -104,7 +104,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Refunds</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.refundsShort')}</span>
                                     <span className="material-symbols-outlined text-error">trending_down</span>
                                 </div>
                                 <p className="text-display-small font-bold text-error">
@@ -114,7 +114,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Expenses</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.expenses')}</span>
                                     <span className="material-symbols-outlined text-on-surface-variant">shopping_cart</span>
                                 </div>
                                 <p className="text-display-small font-bold text-on-surface">
@@ -124,7 +124,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Net Profit</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.netProfit')}</span>
                                     <span className={`material-symbols-outlined ${summary.netProfit >= 0 ? 'text-primary' : 'text-error'}`}>
                                         {summary.netProfit >= 0 ? 'arrow_upward' : 'arrow_downward'}
                                     </span>
@@ -136,7 +136,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Gross Margin</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.grossMargin')}</span>
                                     <span className="material-symbols-outlined text-tertiary">percent</span>
                                 </div>
                                 <p className="text-display-small font-bold text-tertiary">
@@ -146,7 +146,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Parts Used</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.partsUsed')}</span>
                                     <span className="material-symbols-outlined text-secondary">inventory_2</span>
                                 </div>
                                 <p className="text-display-small font-bold text-secondary">
@@ -156,7 +156,7 @@ export default function FinancePage() {
 
                             <div className="bg-surface rounded-lg shadow-md-level1 p-6">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-label-large text-on-surface-variant">Pending Returns</span>
+                                    <span className="text-label-large text-on-surface-variant">{t('finance.returnsPending')}</span>
                                     <span className="material-symbols-outlined text-tertiary">pending</span>
                                 </div>
                                 <p className="text-display-small font-bold text-tertiary">
@@ -169,7 +169,7 @@ export default function FinancePage() {
 
                 {/* Quick Access Cards */}
                 <div>
-                    <h2 className="text-headline-medium font-bold text-on-surface mb-4">Quick Access</h2>
+                    <h2 className="text-headline-medium font-bold text-on-surface mb-4">{t('finance.quickAccess')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {cards.map((card) => (
                             <Link
@@ -190,7 +190,7 @@ export default function FinancePage() {
                                         {card.description}
                                     </p>
                                     <div className="mt-4 flex items-center gap-2 text-primary">
-                                        <span className="text-label-large">View details</span>
+                                        <span className="text-label-large">{t('finance.viewDetails')}</span>
                                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                                             arrow_forward
                                         </span>
