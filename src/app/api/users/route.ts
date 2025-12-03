@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...data,
         password: hashedPassword,
-        email: data.email || undefined,
+        email: data.email || '',
       },
       select: {
         id: true,
