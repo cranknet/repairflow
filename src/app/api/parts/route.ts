@@ -21,14 +21,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search');
+    const supplierId = searchParams.get('supplierId');
+
+    const where: any = {};
+    
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { sku: { contains: search } },
+        { description: { contains: search } },
+      ];
+    }
+
+    if (supplierId) {
+      where.supplierId = supplierId;
+    }
+
     const parts = await prisma.part.findMany({
-      orderBy: { name: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        sku: true,
-        unitPrice: true,
+      where,
+      include: {
+        supplier: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
+      orderBy: { name: 'asc' },
     });
 
     return NextResponse.json(parts);
@@ -101,17 +122,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Create part
+    const createData: any = {
+      name: data.name,
+      sku: data.sku,
+      description: data.description,
+      quantity: data.quantity,
+      reorderLevel: data.reorderLevel,
+      unitPrice: data.unitPrice,
+      supplierId: supplierId || undefined,
+    };
+    
+    // Set supplierName for backwards compatibility (mapped from "supplier" column)
+    if (supplierName) {
+      createData.supplierName = supplierName;
+    }
+
     const part = await prisma.part.create({
-      data: {
-        name: data.name,
-        sku: data.sku,
-        description: data.description,
-        quantity: data.quantity,
-        reorderLevel: data.reorderLevel,
-        unitPrice: data.unitPrice,
-        supplierId: supplierId,
-        supplierName: supplierName, // Set supplier name for backwards compatibility
-      },
+      data: createData,
       include: {
         supplier: {
           select: {
