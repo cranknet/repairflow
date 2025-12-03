@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { ExpenseFormModal } from '@/components/finance/ExpenseFormModal';
+import Link from 'next/link';
 
 interface Expense {
     id: string;
@@ -90,22 +91,31 @@ export default function ExpensesPage() {
 
     return (
         <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-display-small font-bold text-on-surface mb-2">
-                        {t('finance.expenses') || 'Business Expenses'}
-                    </h1>
-                    <p className="text-body-medium text-on-surface-variant">
-                        Track and manage all business expenses
-                    </p>
-                </div>
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow"
+            <div className="mb-6">
+                <Link
+                    href="/finance"
+                    className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
-                    <span className="material-symbols-outlined">add</span>
-                    Add Expense
-                </button>
+                    <span className="material-symbols-outlined">arrow_back</span>
+                    <span className="text-label-large">Back to Finance</span>
+                </Link>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-display-small font-bold text-on-surface mb-2">
+                            {t('finance.expenses') || 'Business Expenses'}
+                        </h1>
+                        <p className="text-body-medium text-on-surface-variant">
+                            Track and manage all business expenses
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                        Add Expense
+                    </button>
+                </div>
             </div>
 
             {/* Filters */}

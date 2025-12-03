@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
+import Link from 'next/link';
 
 interface InventoryAdjustment {
     id: string;
