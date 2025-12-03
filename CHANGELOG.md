@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Contact Messages Dashboard**: Admin/Staff section to view, filter, and manage customer contact messages
 - **Contact Message Management**: Mark messages as read, assign to users, and archive functionality
 
+## [1.0.0] - 2025-12-03
+
+### Changed
+- **Version Reset**: Reset project version to 1.0.0 for stable release
+- **Version Consistency**: Synchronized all version references across codebase (package.json, version.ts, VERSIONING.md)
+
+### Added
+- **VERSION File**: Added VERSION file as single source of truth for version number
+
 ## [1.0.0-beta.1] - 2025-11-29
 
 ### Added
