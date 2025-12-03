@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 import { AppVersion } from './app-version';
 import { useLanguage } from '@/contexts/language-context';
 import { useSettings } from '@/contexts/settings-context';
+import { useFeatureFlag } from '@/lib/hooks/useFeatureFlag';
+import { FEATURES } from '@/lib/features';
 
 /**
  * Material Design 3 Navigation Rail/Drawer Component
@@ -100,6 +102,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const { data: session } = useSession();
   const { t } = useLanguage();
   const { companyLogo, companyName } = useSettings();
+  const isFinanceModuleEnabled = useFeatureFlag(FEATURES.FINANCE_MODULE);
   // Initialize collapsed state from localStorage
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
@@ -158,6 +161,16 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     }
     if ('roles' in item && Array.isArray(item.roles) && !item.roles.includes(session?.user?.role || '')) {
       return false;
+    }
+    // Check feature flag requirement
+    if ('requiresFeature' in item && item.requiresFeature) {
+      // For finance module, check the feature flag
+      if (item.requiresFeature === FEATURES.FINANCE_MODULE) {
+        if (!isFinanceModuleEnabled) {
+          return false;
+        }
+      }
+      // Future feature flags can be added here
     }
     return true;
   });

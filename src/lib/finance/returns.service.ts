@@ -251,24 +251,8 @@ export async function rejectReturnV2(options: RejectReturnV2Options): Promise<an
         },
     });
 
-    // Create journal entry for audit
-    await prisma.journalEntry.create({
-        data: {
-            type: 'REFUND',
-            amount: 0,
-            description: `Return rejected`,
-            referenceType: 'RETURN',
-            referenceId: returnId,
-            ticketId: returnRecord.ticketId,
-            notes: `Rejection reason: ${reason}`,
-            metadata: JSON.stringify({
-                returnId: returnId,
-                status: 'REJECTED',
-            }),
-            createdById: userId,
-            createdAt: new Date(),
-        },
-    });
+    // Note: No journal entry is created for rejected returns since no financial transaction occurs.
+    // The return record itself serves as the audit trail for the rejection.
 
     return updatedReturn;
 }
