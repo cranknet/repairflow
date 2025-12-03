@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/language-context';
 
 interface ApproveReturnModalProps {
     returnData: {
@@ -14,6 +15,7 @@ interface ApproveReturnModalProps {
 }
 
 export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveReturnModalProps) {
+    const { t } = useLanguage();
     const [partialAmount, setPartialAmount] = useState<string>(returnData.refundAmount.toString());
     const [notes, setNotes] = useState('');
     const [createInventoryAdj, setCreateInventoryAdj] = useState(false);
@@ -62,7 +64,7 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
         <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md">
                 <div className="bg-primary-container px-6 py-4 rounded-t-xl">
-                    <h2 className="text-headline-small font-bold text-on-primary-container">Approve Return & Process Refund</h2>
+                    <h2 className="text-headline-small font-bold text-on-primary-container">{t('finance.approveReturn.title')}</h2>
                 </div>
 
                 <div className="p-6 space-y-4">
@@ -74,13 +76,13 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                     )}
 
                     <div className="bg-surface-variant/50 rounded-lg p-4">
-                        <div className="text-label-small text-on-surface-variant mb-1">Return Reason</div>
+                        <div className="text-label-small text-on-surface-variant mb-1">{t('finance.approveReturn.returnReason')}</div>
                         <div className="text-body-medium text-on-surface">{returnData.reason}</div>
                     </div>
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Refund Amount <span className="text-error">*</span>
+                            {t('finance.refundAmount')} <span className="text-error">*</span>
                         </label>
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
@@ -102,19 +104,19 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                         {parseFloat(partialAmount) < returnData.refundAmount && (
                             <div className="mt-2 text-body-small text-tertiary flex items-center gap-1">
                                 <span className="material-symbols-outlined text-sm">info</span>
-                                Partial refund will be processed
+                                {t('finance.approveReturn.partialRefund')}
                             </div>
                         )}
                     </div>
 
                     <div>
                         <label className="block text-label-large text-on-surface mb-2">
-                            Notes
+                            {t('finance.notes')}
                         </label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Add any notes about this refund..."
+                            placeholder={t('finance.approveReturn.notesPlaceholder')}
                             rows={3}
                             className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
@@ -129,9 +131,9 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             className="mt-1"
                         />
                         <label htmlFor="inventory-adj" className="flex-1 cursor-pointer">
-                            <div className="text-body-medium text-on-surface font-medium">Return parts to inventory</div>
+                            <div className="text-body-medium text-on-surface font-medium">{t('finance.approveReturn.returnParts')}</div>
                             <div className="text-body-small text-on-surface-variant mt-1">
-                                Creates inventory adjustment to add parts back to stock
+                                {t('finance.approveReturn.returnPartsDesc')}
                             </div>
                         </label>
                     </div>
@@ -139,14 +141,14 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                     <div className="bg-tertiary-container/30 rounded-lg p-4">
                         <h3 className="text-label-large text-on-surface font-medium mb-2 flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">check_circle</span>
-                            What will happen:
+                            {t('finance.approveReturn.whatWillHappen')}
                         </h3>
                         <ul className="text-body-small text-on-surface-variant space-y-1 ml-6 list-disc">
-                            <li>Refund payment of ${parseFloat(partialAmount || '0').toFixed(2)} will be recorded</li>
-                            <li>Return status will be set to APPROVED</li>
-                            <li>Ticket status will change to RETURNED</li>
-                            <li>Journal entry will be created for audit</li>
-                            {createInventoryAdj && <li>Inventory adjustment will be created</li>}
+                            <li>{t('finance.approveReturn.refundRecorded', { amount: parseFloat(partialAmount || '0').toFixed(2) })}</li>
+                            <li>{t('finance.approveReturn.statusApproved')}</li>
+                            <li>{t('finance.approveReturn.ticketReturned')}</li>
+                            <li>{t('finance.approveReturn.journalEntry')}</li>
+                            {createInventoryAdj && <li>{t('finance.approveReturn.inventoryAdjustment')}</li>}
                         </ul>
                     </div>
 
@@ -157,7 +159,7 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             disabled={loading}
                             className="flex-1 px-6 py-3 border border-outline text-on-surface rounded-full hover:bg-on-surface/8 transition-colors disabled:opacity-50"
                         >
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button
                             onClick={handleApprove}
@@ -167,10 +169,10 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
                                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                    Processing...
+                                    {t('finance.approveReturn.processing')}
                                 </span>
                             ) : (
-                                'Approve & Refund'
+                                t('finance.approveReturn.approveRefund')
                             )}
                         </button>
                     </div>

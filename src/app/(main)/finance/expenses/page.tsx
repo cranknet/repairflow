@@ -62,7 +62,7 @@ export default function ExpensesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this expense?')) return;
+        if (!confirm(t('finance.messages.deleteExpenseConfirm'))) return;
 
         try {
             const response = await fetch(`/api/v2/expenses/${id}`, {
@@ -75,7 +75,7 @@ export default function ExpensesPage() {
             fetchExpenses();
         } catch (error) {
             console.error('Error deleting expense:', error);
-            alert('Failed to delete expense');
+            alert(t('finance.messages.deleteExpenseConfirm'));
         }
     };
 
@@ -97,7 +97,7 @@ export default function ExpensesPage() {
                     className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
-                    <span className="text-label-large">Back to Finance</span>
+                    <span className="text-label-large">{t('finance.backToFinance')}</span>
                 </Link>
                 <div className="flex items-center justify-between">
                     <div>
@@ -105,7 +105,7 @@ export default function ExpensesPage() {
                             {t('finance.expenses') || 'Business Expenses'}
                         </h1>
                         <p className="text-body-medium text-on-surface-variant">
-                            Track and manage all business expenses
+                            {t('finance.expenses.pageDescription')}
                         </p>
                     </div>
                     <button
@@ -113,7 +113,7 @@ export default function ExpensesPage() {
                         className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow"
                     >
                         <span className="material-symbols-outlined">add</span>
-                        Add Expense
+                        {t('finance.expenses.addExpense')}
                     </button>
                 </div>
             </div>
@@ -123,31 +123,31 @@ export default function ExpensesPage() {
                 <div className="flex gap-4 flex-wrap items-end">
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-label-medium text-on-surface-variant mb-1">
-                            Search
+                            {t('finance.payments.search')}
                         </label>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Name, notes..."
+                            placeholder={t('finance.expenses.searchPlaceholder')}
                             className="w-full px-3 py-2 border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
 
                     <div className="min-w-[150px]">
                         <label className="block text-label-medium text-on-surface-variant mb-1">
-                            Type
+                            {t('finance.type')}
                         </label>
                         <select
                             value={typeFilter}
                             onChange={(e) => setTypeFilter(e.target.value)}
                             className="w-full px-3 py-2 border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                            <option value="">All Types</option>
-                            <option value="PURCHASE">Purchase</option>
-                            <option value="SHOP">Shop</option>
-                            <option value="PART_LOSS">Part Loss</option>
-                            <option value="MISC">Miscellaneous</option>
+                            <option value="">{t('finance.expenses.allTypes')}</option>
+                            <option value="PURCHASE">{t('finance.expenseTypes.PURCHASE')}</option>
+                            <option value="SHOP">{t('finance.expenseTypes.SHOP')}</option>
+                            <option value="PART_LOSS">{t('finance.expenseTypes.PART_LOSS')}</option>
+                            <option value="MISC">{t('finance.expenseTypes.MISC')}</option>
                         </select>
                     </div>
                 </div>
@@ -160,25 +160,25 @@ export default function ExpensesPage() {
                         <thead className="bg-surface-variant">
                             <tr>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Name
+                                    {t('finance.expenseName')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Amount
+                                    {t('finance.amount')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Type
+                                    {t('finance.type')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Part
+                                    {t('finance.expenses.part')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Date
+                                    {t('finance.date')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Created By
+                                    {t('finance.expenses.createdBy')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Actions
+                                    {t('finance.actions')}
                                 </th>
                             </tr>
                         </thead>
@@ -187,15 +187,15 @@ export default function ExpensesPage() {
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-body-medium text-on-surface-variant">
                                         <span className="material-symbols-outlined animate-spin text-4xl">progress_activity</span>
-                                        <p className="mt-2">Loading expenses...</p>
+                                        <p className="mt-2">{t('finance.expenses.loading')}</p>
                                     </td>
                                 </tr>
                             ) : expenses.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center">
                                         <span className="material-symbols-outlined text-6xl text-on-surface-variant">shopping_cart</span>
-                                        <p className="mt-2 text-body-large text-on-surface-variant">No expenses found</p>
-                                        <p className="text-body-small text-on-surface-variant">Click "Add Expense" to create one</p>
+                                        <p className="mt-2 text-body-large text-on-surface-variant">{t('finance.expenses.noExpenses')}</p>
+                                        <p className="text-body-small text-on-surface-variant">{t('finance.expenses.createOne')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -226,7 +226,7 @@ export default function ExpensesPage() {
                                                     <div className="text-body-small text-on-surface-variant">{expense.part.sku}</div>
                                                 </div>
                                             ) : (
-                                                'N/A'
+                                                t('finance.common.na')
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-body-medium text-on-surface">
@@ -239,7 +239,7 @@ export default function ExpensesPage() {
                                             <button
                                                 onClick={() => handleDelete(expense.id)}
                                                 className="p-2 rounded-full text-error hover:bg-error-container transition-colors"
-                                                title="Delete expense"
+                                                title={t('finance.expenses.deleteTitle')}
                                             >
                                                 <span className="material-symbols-outlined">delete</span>
                                             </button>
@@ -255,7 +255,7 @@ export default function ExpensesPage() {
                 {total > 0 && (
                     <div className="px-6 py-4 border-t border-outline-variant flex items-center justify-between">
                         <div className="text-body-medium text-on-surface-variant">
-                            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} expenses
+                            {t('finance.expenses.showing', { from: (page - 1) * limit + 1, to: Math.min(page * limit, total), total })}
                         </div>
                         <div className="flex gap-2">
                             <button
@@ -266,7 +266,7 @@ export default function ExpensesPage() {
                                 <span className="material-symbols-outlined">chevron_left</span>
                             </button>
                             <span className="px-4 py-2 text-body-medium text-on-surface flex items-center">
-                                Page {page} of {Math.ceil(total / limit)}
+                                {t('finance.payments.page', { current: page, total: Math.ceil(total / limit) })}
                             </span>
                             <button
                                 onClick={() => setPage(p => p + 1)}

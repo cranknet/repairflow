@@ -65,13 +65,13 @@ export default function InventoryAdjustmentsPage() {
                     className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
-                    <span className="text-label-large">Back to Finance</span>
+                    <span className="text-label-large">{t('finance.backToFinance')}</span>
                 </Link>
                 <h1 className="text-display-small font-bold text-on-surface mb-2">
                     {t('finance.inventory') || 'Inventory Adjustments'}
                 </h1>
                 <p className="text-body-medium text-on-surface-variant">
-                    Track inventory changes and associated costs
+                    {t('finance.inventory.pageDescription')}
                 </p>
             </div>
 
@@ -82,31 +82,31 @@ export default function InventoryAdjustmentsPage() {
                         <thead className="bg-surface-variant">
                             <tr>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Part
+                                    {t('finance.expenses.part')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    SKU
+                                    {t('finance.inventory.sku')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Qty Change
+                                    {t('finance.qtyChange')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Total Cost
+                                    {t('finance.inventory.totalCost')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Cost/Unit
+                                    {t('finance.costPerUnit')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Current Stock
+                                    {t('finance.currentStock')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Reason
+                                    {t('finance.reason')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Date
+                                    {t('finance.date')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Created By
+                                    {t('finance.expenses.createdBy')}
                                 </th>
                             </tr>
                         </thead>
@@ -115,14 +115,14 @@ export default function InventoryAdjustmentsPage() {
                                 <tr>
                                     <td colSpan={9} className="px-6 py-12 text-center text-body-medium text-on-surface-variant">
                                         <span className="material-symbols-outlined animate-spin text-4xl">progress_activity</span>
-                                        <p className="mt-2">Loading adjustments...</p>
+                                        <p className="mt-2">{t('finance.inventory.loading')}</p>
                                     </td>
                                 </tr>
                             ) : adjustments.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="px-6 py-12 text-center">
                                         <span className="material-symbols-outlined text-6xl text-on-surface-variant">inventory</span>
-                                        <p className="mt-2 text-body-large text-on-surface-variant">No inventory adjustments found</p>
+                                        <p className="mt-2 text-body-large text-on-surface-variant">{t('finance.inventory.noAdjustments')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -158,7 +158,7 @@ export default function InventoryAdjustmentsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="px-3 py-1 bg-secondary-container text-on-secondary-container text-label-medium rounded-full">
-                                                {adjustment.part.quantity} units
+                                                {adjustment.part.quantity} {t('finance.inventory.units')}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 max-w-xs">
@@ -168,7 +168,7 @@ export default function InventoryAdjustmentsPage() {
                                             {adjustment.relatedReturnId && (
                                                 <div className="mt-1 flex items-center gap-1 text-label-small text-primary">
                                                     <span className="material-symbols-outlined text-sm">link</span>
-                                                    Linked to return
+                                                    {t('finance.linkedToReturn')}
                                                 </div>
                                             )}
                                         </td>
@@ -192,7 +192,7 @@ export default function InventoryAdjustmentsPage() {
                 {total > 0 && (
                     <div className="px-6 py-4 border-t border-outline-variant flex items-center justify-between">
                         <div className="text-body-medium text-on-surface-variant">
-                            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} adjustments
+                            {t('finance.inventory.showing', { from: (page - 1) * limit + 1, to: Math.min(page * limit, total), total })}
                         </div>
                         <div className="flex gap-2">
                             <button
@@ -203,7 +203,7 @@ export default function InventoryAdjustmentsPage() {
                                 <span className="material-symbols-outlined">chevron_left</span>
                             </button>
                             <span className="px-4 py-2 text-body-medium text-on-surface flex items-center">
-                                Page {page} of {Math.ceil(total / limit)}
+                                {t('finance.payments.page', { current: page, total: Math.ceil(total / limit) })}
                             </span>
                             <button
                                 onClick={() => setPage(p => p + 1)}

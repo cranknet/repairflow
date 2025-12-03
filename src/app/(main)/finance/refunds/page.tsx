@@ -69,7 +69,7 @@ export default function RefundsPage() {
     };
 
     const handleReject = async (returnId: string) => {
-        const reason = prompt('Please enter rejection reason:');
+        const reason = prompt(t('finance.refunds.rejectReasonPrompt'));
         if (!reason) return;
 
         try {
@@ -84,7 +84,7 @@ export default function RefundsPage() {
             fetchReturns();
         } catch (error) {
             console.error('Error rejecting return:', error);
-            alert('Failed to reject return');
+            alert(t('finance.refunds.rejectFailed'));
         }
     };
 
@@ -104,13 +104,13 @@ export default function RefundsPage() {
                     className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
-                    <span className="text-label-large">Back to Finance</span>
+                    <span className="text-label-large">{t('finance.backToFinance')}</span>
                 </Link>
                 <h1 className="text-display-small font-bold text-on-surface mb-2">
                     {t('finance.refunds') || 'Refunds & Returns'}
                 </h1>
                 <p className="text-body-medium text-on-surface-variant">
-                    Manage return requests and process refunds
+                    {t('finance.refunds.pageDescription')}
                 </p>
             </div>
 
@@ -119,17 +119,17 @@ export default function RefundsPage() {
                 <div className="flex gap-4 items-end">
                     <div className="min-w-[200px]">
                         <label className="block text-label-medium text-on-surface-variant mb-1">
-                            Status
+                            {t('finance.status')}
                         </label>
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="w-full px-3 py-2 border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                            <option value="">All Status</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="APPROVED">Approved</option>
-                            <option value="REJECTED">Rejected</option>
+                            <option value="">{t('finance.refunds.allStatus')}</option>
+                            <option value="PENDING">{t('finance.statuses.PENDING')}</option>
+                            <option value="APPROVED">{t('finance.statuses.APPROVED')}</option>
+                            <option value="REJECTED">{t('finance.statuses.REJECTED')}</option>
                         </select>
                     </div>
                 </div>
@@ -142,25 +142,25 @@ export default function RefundsPage() {
                         <thead className="bg-surface-variant">
                             <tr>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Ticket
+                                    {t('finance.ticket')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Customer
+                                    {t('finance.customer')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Refund Amount
+                                    {t('finance.refundAmount')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Status
+                                    {t('finance.status')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Handled By
+                                    {t('finance.handledBy')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Date
+                                    {t('finance.date')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Actions
+                                    {t('finance.actions')}
                                 </th>
                             </tr>
                         </thead>
@@ -169,14 +169,14 @@ export default function RefundsPage() {
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-body-medium text-on-surface-variant">
                                         <span className="material-symbols-outlined animate-spin text-4xl">progress_activity</span>
-                                        <p className="mt-2">Loading returns...</p>
+                                        <p className="mt-2">{t('finance.refunds.loading')}</p>
                                     </td>
                                 </tr>
                             ) : returns.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center">
                                         <span className="material-symbols-outlined text-6xl text-on-surface-variant">receipt_long</span>
-                                        <p className="mt-2 text-body-large text-on-surface-variant">No returns found</p>
+                                        <p className="mt-2 text-body-large text-on-surface-variant">{t('finance.refunds.noReturns')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -205,7 +205,7 @@ export default function RefundsPage() {
                                             {returnItem.isRefunded && (
                                                 <div className="text-label-small text-primary mt-1">
                                                     <span className="material-symbols-outlined text-sm align-middle">check_circle</span>
-                                                    Refunded
+                                                    {t('finance.refunds.refunded')}
                                                 </div>
                                             )}
                                         </td>
@@ -215,7 +215,7 @@ export default function RefundsPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-body-medium text-on-surface">
-                                            {returnItem.handledByUser?.name || returnItem.handledByUser?.username || 'N/A'}
+                                            {returnItem.handledByUser?.name || returnItem.handledByUser?.username || t('finance.common.na')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-body-medium text-on-surface">
@@ -223,7 +223,7 @@ export default function RefundsPage() {
                                             </div>
                                             {returnItem.handledAt && (
                                                 <div className="text-body-small text-on-surface-variant">
-                                                    Handled: {new Date(returnItem.handledAt).toLocaleDateString()}
+                                                    {t('finance.refunds.handled', { date: new Date(returnItem.handledAt).toLocaleDateString() })}
                                                 </div>
                                             )}
                                         </td>
@@ -235,25 +235,25 @@ export default function RefundsPage() {
                                                         className="flex items-center gap-1 px-3 py-1.5 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow text-label-medium"
                                                     >
                                                         <span className="material-symbols-outlined text-sm">check</span>
-                                                        Approve
+                                                        {t('finance.approveReturn')}
                                                     </button>
                                                     <button
                                                         onClick={() => handleReject(returnItem.id)}
                                                         className="flex items-center gap-1 px-3 py-1.5 bg-error text-on-error rounded-full hover:shadow-md-level2 transition-shadow text-label-medium"
                                                     >
                                                         <span className="material-symbols-outlined text-sm">close</span>
-                                                        Reject
+                                                        {t('finance.rejectReturn')}
                                                     </button>
                                                 </div>
                                             )}
                                             {returnItem.status === 'APPROVED' && returnItem.isRefunded && (
                                                 <span className="text-label-small text-primary flex items-center gap-1">
                                                     <span className="material-symbols-outlined text-sm">verified</span>
-                                                    Complete
+                                                    {t('finance.refunds.complete')}
                                                 </span>
                                             )}
                                             {returnItem.status === 'REJECTED' && (
-                                                <span className="text-label-small text-error">Rejected</span>
+                                                <span className="text-label-small text-error">{t('finance.refunds.rejected')}</span>
                                             )}
                                         </td>
                                     </tr>

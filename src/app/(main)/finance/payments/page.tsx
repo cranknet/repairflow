@@ -77,13 +77,13 @@ export default function PaymentsPage() {
                     className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
-                    <span className="text-label-large">Back to Finance</span>
+                    <span className="text-label-large">{t('finance.backToFinance')}</span>
                 </Link>
                 <h1 className="text-display-small font-bold text-on-surface mb-2">
                     {t('finance.payments') || 'Payment History'}
                 </h1>
                 <p className="text-body-medium text-on-surface-variant">
-                    View and manage all payment transactions
+                    {t('finance.payments.pageDescription')}
                 </p>
             </div>
 
@@ -92,31 +92,31 @@ export default function PaymentsPage() {
                 <form onSubmit={handleSearch} className="flex gap-4 flex-wrap items-end">
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-label-medium text-on-surface-variant mb-1">
-                            Search
+                            {t('finance.payments.search')}
                         </label>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Payment ID, Ticket, Reference..."
+                            placeholder={t('finance.payments.searchPlaceholder')}
                             className="w-full px-3 py-2 border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
 
                     <div className="min-w-[150px]">
                         <label className="block text-label-medium text-on-surface-variant mb-1">
-                            Payment Method
+                            {t('finance.payments.paymentMethod')}
                         </label>
                         <select
                             value={methodFilter}
                             onChange={(e) => setMethodFilter(e.target.value)}
                             className="w-full px-3 py-2 border border-outline rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                            <option value="">All Methods</option>
-                            <option value="CASH">Cash</option>
-                            <option value="CARD">Card</option>
-                            <option value="MOBILE">Mobile</option>
-                            <option value="OTHER">Other</option>
+                            <option value="">{t('finance.payments.allMethods')}</option>
+                            <option value="CASH">{t('finance.paymentMethods.CASH')}</option>
+                            <option value="CARD">{t('finance.paymentMethods.CARD')}</option>
+                            <option value="MOBILE">{t('finance.paymentMethods.MOBILE')}</option>
+                            <option value="OTHER">{t('finance.paymentMethods.OTHER')}</option>
                         </select>
                     </div>
 
@@ -124,7 +124,7 @@ export default function PaymentsPage() {
                         type="submit"
                         className="px-6 py-2 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow"
                     >
-                        Search
+                        {t('finance.payments.search')}
                     </button>
                 </form>
             </div>
@@ -136,25 +136,25 @@ export default function PaymentsPage() {
                         <thead className="bg-surface-variant">
                             <tr>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Payment ID
+                                    {t('finance.payments.paymentId')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Ticket
+                                    {t('finance.ticket')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Customer
+                                    {t('finance.customer')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Amount
+                                    {t('finance.amount')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Method
+                                    {t('finance.method')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Date
+                                    {t('finance.date')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-label-small text-on-surface-variant uppercase tracking-wider">
-                                    Performed By
+                                    {t('finance.performedBy')}
                                 </th>
                             </tr>
                         </thead>
@@ -163,15 +163,15 @@ export default function PaymentsPage() {
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-body-medium text-on-surface-variant">
                                         <span className="material-symbols-outlined animate-spin text-4xl">progress_activity</span>
-                                        <p className="mt-2">Loading payments...</p>
+                                        <p className="mt-2">{t('finance.payments.loading')}</p>
                                     </td>
                                 </tr>
                             ) : payments.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center">
                                         <span className="material-symbols-outlined text-6xl text-on-surface-variant">receipt_long</span>
-                                        <p className="mt-2 text-body-large text-on-surface-variant">No payments found</p>
-                                        <p className="text-body-small text-on-surface-variant">Try adjusting your filters</p>
+                                        <p className="mt-2 text-body-large text-on-surface-variant">{t('finance.payments.noPayments')}</p>
+                                        <p className="text-body-small text-on-surface-variant">{t('finance.payments.adjustFilters')}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -191,7 +191,7 @@ export default function PaymentsPage() {
                                                     {payment.ticket.ticketNumber}
                                                 </Link>
                                             ) : (
-                                                <span className="text-body-medium text-on-surface-variant">N/A</span>
+                                                <span className="text-body-medium text-on-surface-variant">{t('finance.common.na')}</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
@@ -211,7 +211,7 @@ export default function PaymentsPage() {
                                             </span>
                                             {payment.amount < 0 && (
                                                 <span className="ml-2 px-2 py-1 bg-error-container text-on-error-container text-label-small rounded-full">
-                                                    Refund
+                                                    {t('finance.payments.refund')}
                                                 </span>
                                             )}
                                         </td>
@@ -237,7 +237,7 @@ export default function PaymentsPage() {
                 {total > 0 && (
                     <div className="px-6 py-4 border-t border-outline-variant flex items-center justify-between">
                         <div className="text-body-medium text-on-surface-variant">
-                            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} payments
+                            {t('finance.payments.showing', { from: (page - 1) * limit + 1, to: Math.min(page * limit, total), total })}
                         </div>
                         <div className="flex gap-2">
                             <button
@@ -248,7 +248,7 @@ export default function PaymentsPage() {
                                 <span className="material-symbols-outlined">chevron_left</span>
                             </button>
                             <span className="px-4 py-2 text-body-medium text-on-surface flex items-center">
-                                Page {page} of {Math.ceil(total / limit)}
+                                {t('finance.payments.page', { current: page, total: Math.ceil(total / limit) })}
                             </span>
                             <button
                                 onClick={() => setPage(p => p + 1)}
