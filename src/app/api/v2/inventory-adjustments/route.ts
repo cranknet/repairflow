@@ -83,6 +83,12 @@ export async function GET(request: NextRequest) {
                         name: true,
                         sku: true,
                         quantity: true,
+                        supplier: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
                     },
                 },
                 createdByUser: {
