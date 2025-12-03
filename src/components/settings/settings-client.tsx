@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ThemeCustomizer } from './theme-customizer';
 import { NotificationPreferences } from './notification-preferences';
+import { EmailSettingsTab } from './email-settings-tab';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AppVersion } from '@/components/layout/app-version';
 import {
@@ -44,6 +45,7 @@ export function SettingsClient({
     { id: 'general', label: t('generalSettings') },
     { id: 'appearance', label: t('appearance') },
     { id: 'branding', label: t('branding') },
+    { id: 'email', label: t('email') || 'Email' },
     { id: 'social', label: t('socialMedia') },
     { id: 'sms', label: t('smsTemplates') },
     { id: 'notifications', label: 'Notification Preferences' },
@@ -446,6 +448,18 @@ export function SettingsClient({
 
       if (!response.ok) {
         const error = await response.json();
+
+        // Handle validation errors with specific details
+        if (error.details && Array.isArray(error.details)) {
+          const errorMessages = error.details.map((err: any) => {
+            if (err.path && err.message) {
+              return `${err.path.join('.')}: ${err.message}`;
+            }
+            return err.message || 'Validation error';
+          }).join('\n');
+          throw new Error(errorMessages);
+        }
+
         throw new Error(error.error || 'Failed to create user');
       }
 
@@ -509,6 +523,18 @@ export function SettingsClient({
 
       if (!response.ok) {
         const error = await response.json();
+
+        // Handle validation errors with specific details
+        if (error.details && Array.isArray(error.details)) {
+          const errorMessages = error.details.map((err: any) => {
+            if (err.path && err.message) {
+              return `${err.path.join('.')}: ${err.message}`;
+            }
+            return err.message || 'Validation error';
+          }).join('\n');
+          throw new Error(errorMessages);
+        }
+
         throw new Error(error.error || 'Failed to update user');
       }
 
@@ -739,18 +765,16 @@ export function SettingsClient({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setSettings({ 
-                        ...settings, 
-                        auto_mark_tickets_as_paid: settings.auto_mark_tickets_as_paid === 'true' ? 'false' : 'true' 
+                      onClick={() => setSettings({
+                        ...settings,
+                        auto_mark_tickets_as_paid: settings.auto_mark_tickets_as_paid === 'true' ? 'false' : 'true'
                       })}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
-                        settings.auto_mark_tickets_as_paid !== 'false' ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${settings.auto_mark_tickets_as_paid !== 'false' ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          settings.auto_mark_tickets_as_paid !== 'false' ? 'translate-x-5' : 'translate-x-0'
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.auto_mark_tickets_as_paid !== 'false' ? 'translate-x-5' : 'translate-x-0'
+                          }`}
                       />
                     </button>
                   </div>
@@ -1226,6 +1250,11 @@ export function SettingsClient({
           </Card>
         )}
 
+        {/* Email Settings Tab */}
+        {activeTab === 'email' && (
+          <EmailSettingsTab />
+        )}
+
         {/* SMS Templates Tab */}
         {activeTab === 'sms' && (
           <SMSTemplatesManager />
@@ -1342,8 +1371,10 @@ export function SettingsClient({
                         type="password"
                         value={newUser.password}
                         onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        placeholder={t('minimumCharacters')}
+                        placeholder="Minimum 10 characters"
+                        minLength={10}
                       />
+                      <p className="text-xs text-gray-500">Password must be at least 10 characters long</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="new_name">{t('customerName')}</Label>
@@ -1417,8 +1448,10 @@ export function SettingsClient({
                         type="password"
                         value={editUserData.password}
                         onChange={(e) => setEditUserData({ ...editUserData, password: e.target.value })}
-                        placeholder={t('enterNewPassword')}
+                        placeholder="Leave blank to keep current password"
+                        minLength={10}
                       />
+                      <p className="text-xs text-gray-500">If changing, password must be at least 10 characters long</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="edit_name">{t('customerName')}</Label>

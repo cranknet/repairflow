@@ -288,3 +288,30 @@ model SatisfactionRating {
   @@index([ticketId])
   @@index([verifiedBy])
 }
+
+model EmailSettings {
+  id                String   @id @default(cuid())
+
+  // SMTP Configuration
+  smtpHost          String
+  smtpPort          Int      @default(587)
+  smtpSecure        Boolean  @default(true)  // Use TLS
+  smtpUser          String
+  smtpPassword      String   // Encrypted in application layer
+
+  // Email Defaults
+  fromEmail         String
+  fromName          String
+  replyToEmail      String?
+
+  // Settings
+  isActive          Boolean  @default(true)
+  isVerified        Boolean  @default(false)
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastTestedAt      DateTime?
+
+  @@map("email_settings")
+}
