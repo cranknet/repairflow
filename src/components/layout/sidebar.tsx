@@ -42,6 +42,40 @@ const navigationKeys = [
     iconFilled: 'sync_alt'
   },
   {
+    key: 'finance',
+    href: '/finance',
+    icon: 'account_balance_wallet',
+    iconFilled: 'account_balance_wallet',
+    adminOnly: true,
+    requiresFeature: 'finance_module', // Feature flag
+    children: [
+      {
+        key: 'finance.payments',
+        href: '/finance/payments',
+        icon: 'payments',
+        iconFilled: 'payments'
+      },
+      {
+        key: 'finance.refunds',
+        href: '/finance/refunds',
+        icon: 'receipt_long',
+        iconFilled: 'receipt_long'
+      },
+      {
+        key: 'finance.expenses',
+        href: '/finance/expenses',
+        icon: 'shopping_cart',
+        iconFilled: 'shopping_cart'
+      },
+      {
+        key: 'finance.inventory',
+        href: '/finance/inventory-adjustments',
+        icon: 'inventory',
+        iconFilled: 'inventory'
+      }
+    ]
+  },
+  {
     key: 'customers',
     href: '/customers',
     icon: 'group',
