@@ -3,11 +3,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '@/contexts/language-context';
 
 type SearchType = 'all' | 'customer' | 'ticket';
 
 export function SearchBars() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [searchValue, setSearchValue] = useState('');
   const [searchType, setSearchType] = useState<SearchType>('all');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -15,9 +17,9 @@ export function SearchBars() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const searchTypes: { value: SearchType; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'customer', label: 'Customer' },
-    { value: 'ticket', label: 'Ticket #' },
+    { value: 'all', label: t('search.type.all') },
+    { value: 'customer', label: t('search.type.customer') },
+    { value: 'ticket', label: t('search.type.ticket') },
   ];
 
   const handleSearch = () => {
@@ -53,12 +55,12 @@ export function SearchBars() {
   const getPlaceholder = () => {
     switch (searchType) {
       case 'customer':
-        return 'Search customers...';
+        return t('search.placeholder.customer');
       case 'ticket':
-        return 'Search tickets...';
+        return t('search.placeholder.ticket');
       case 'all':
       default:
-        return 'Search customers or tickets...';
+        return t('search.placeholder.all');
     }
   };
 

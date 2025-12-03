@@ -798,6 +798,52 @@ export const translations: Record<Language, Record<string, string>> = {
     'notifications.part.used.body': 'Part {partName} was used in ticket {ticketId}',
     'notifications.part.removed.title': 'Part Removed',
     'notifications.part.removed.body': 'Part {partName} was removed from ticket {ticketId} by {actorName}',
+
+    // Sidebar & Navigation
+    'sidebar.toggle': 'Toggle sidebar',
+    'sidebar.close': 'Close menu',
+    'sidebar.appActive': 'App active',
+    'header.openMenu': 'Open menu',
+    'header.appActions': 'App actions',
+    'search.type.all': 'All',
+    'search.type.customer': 'Customer',
+    'search.type.ticket': 'Ticket #',
+    'search.placeholder.customer': 'Search customers...',
+    'search.placeholder.ticket': 'Search tickets...',
+    'search.placeholder.all': 'Search customers or tickets...',
+    'app.built': 'Built {date}',
+
+    // Email Settings
+    'settings.email.title': 'Email (SMTP) Settings',
+    'settings.email.description': 'Configure SMTP settings for sending emails from RepairFlow',
+    'settings.email.smtpServer': 'SMTP Server',
+    'settings.email.host': 'SMTP Host',
+    'settings.email.port': 'SMTP Port',
+    'settings.email.useTls': 'Use TLS/SSL (Recommended)',
+    'settings.email.authentication': 'Authentication',
+    'settings.email.username': 'SMTP Username',
+    'settings.email.password': 'SMTP Password',
+    'settings.email.defaults': 'Email Defaults',
+    'settings.email.fromEmail': 'From Email',
+    'settings.email.fromName': 'From Name',
+    'settings.email.replyTo': 'Reply-To Email (Optional)',
+    'settings.email.update': 'Update Settings',
+    'settings.email.save': 'Save Settings',
+    'settings.email.sendTest': 'Send Test Email',
+    'settings.email.providers.title': 'Common SMTP Providers',
+    'settings.email.providers.gmail': 'Gmail: smtp.gmail.com:587 (Use App Password)',
+    'settings.email.providers.outlook': 'Outlook: smtp-mail.outlook.com:587',
+    'settings.email.providers.sendgrid': 'SendGrid: smtp.sendgrid.net:587',
+    'settings.email.providers.mailgun': 'Mailgun: smtp.mailgun.org:587',
+    'settings.email.success': 'Email settings saved successfully',
+    'settings.email.error': 'Failed to save settings',
+    'settings.email.loadError': 'Failed to load email settings',
+    'settings.email.testSuccess': 'Test email sent successfully!',
+    'settings.email.testError': 'Failed to send test email',
+    'settings.email.validation.host': 'SMTP host is required',
+    'settings.email.validation.email': 'Valid email required',
+    'settings.email.validation.password': 'Password is required',
+    'settings.email.validation.fromName': 'From name is required',
     'notifications.supplier.created.title': 'New Supplier Created',
     'notifications.supplier.created.body': 'Supplier {supplierName} was created by {actorName}',
     'notifications.supplier.updated.title': 'Supplier Updated',
@@ -1601,6 +1647,52 @@ export const translations: Record<Language, Record<string, string>> = {
     'notifications.supplier.updated.body': 'تم تحديث المورد {supplierName} بواسطة {actorName}',
     'notifications.supplier.deleted.title': 'تم حذف المورد',
     'notifications.supplier.deleted.body': 'تم حذف المورد {supplierName} بواسطة {actorName}',
+
+    // Sidebar & Navigation
+    'sidebar.toggle': 'تبديل الشريط الجانبي',
+    'sidebar.close': 'إغلاق القائمة',
+    'sidebar.appActive': 'التطبيق نشط',
+    'header.openMenu': 'فتح القائمة',
+    'header.appActions': 'إجراءات التطبيق',
+    'search.type.all': 'الكل',
+    'search.type.customer': 'عميل',
+    'search.type.ticket': 'رقم التذكرة',
+    'search.placeholder.customer': 'البحث عن العملاء...',
+    'search.placeholder.ticket': 'البحث عن التذاكر...',
+    'search.placeholder.all': 'البحث عن العملاء أو التذاكر...',
+    'app.built': 'تم البناء {date}',
+
+    // Email Settings
+    'settings.email.title': 'Email (SMTP) Settings', // TODO_TRANSLATE
+    'settings.email.description': 'Configure SMTP settings for sending emails from RepairFlow', // TODO_TRANSLATE
+    'settings.email.smtpServer': 'SMTP Server', // TODO_TRANSLATE
+    'settings.email.host': 'SMTP Host', // TODO_TRANSLATE
+    'settings.email.port': 'SMTP Port', // TODO_TRANSLATE
+    'settings.email.useTls': 'Use TLS/SSL (Recommended)', // TODO_TRANSLATE
+    'settings.email.authentication': 'Authentication', // TODO_TRANSLATE
+    'settings.email.username': 'SMTP Username', // TODO_TRANSLATE
+    'settings.email.password': 'SMTP Password', // TODO_TRANSLATE
+    'settings.email.defaults': 'Email Defaults', // TODO_TRANSLATE
+    'settings.email.fromEmail': 'From Email', // TODO_TRANSLATE
+    'settings.email.fromName': 'From Name', // TODO_TRANSLATE
+    'settings.email.replyTo': 'Reply-To Email (Optional)', // TODO_TRANSLATE
+    'settings.email.update': 'Update Settings', // TODO_TRANSLATE
+    'settings.email.save': 'Save Settings', // TODO_TRANSLATE
+    'settings.email.sendTest': 'Send Test Email', // TODO_TRANSLATE
+    'settings.email.providers.title': 'Common SMTP Providers', // TODO_TRANSLATE
+    'settings.email.providers.gmail': 'Gmail: smtp.gmail.com:587 (Use App Password)', // TODO_TRANSLATE
+    'settings.email.providers.outlook': 'Outlook: smtp-mail.outlook.com:587', // TODO_TRANSLATE
+    'settings.email.providers.sendgrid': 'SendGrid: smtp.sendgrid.net:587', // TODO_TRANSLATE
+    'settings.email.providers.mailgun': 'Mailgun: smtp.mailgun.org:587', // TODO_TRANSLATE
+    'settings.email.success': 'Email settings saved successfully', // TODO_TRANSLATE
+    'settings.email.error': 'Failed to save settings', // TODO_TRANSLATE
+    'settings.email.loadError': 'Failed to load email settings', // TODO_TRANSLATE
+    'settings.email.testSuccess': 'Test email sent successfully!', // TODO_TRANSLATE
+    'settings.email.testError': 'Failed to send test email', // TODO_TRANSLATE
+    'settings.email.validation.host': 'SMTP host is required', // TODO_TRANSLATE
+    'settings.email.validation.email': 'Valid email required', // TODO_TRANSLATE
+    'settings.email.validation.password': 'Password is required', // TODO_TRANSLATE
+    'settings.email.validation.fromName': 'From name is required', // TODO_TRANSLATE
   },
   fr: {
     // Navigation
@@ -1612,6 +1704,19 @@ export const translations: Record<Language, Record<string, string>> = {
     logout: 'Déconnexion',
     profile: 'Profil',
     profileSettings: 'Paramètres du profil',
+    // Sidebar & Navigation
+    'sidebar.toggle': 'Basculer la barre latérale',
+    'sidebar.close': 'Fermer le menu',
+    'sidebar.appActive': 'Application active',
+    'header.openMenu': 'Ouvrir le menu',
+    'header.appActions': 'Actions de l\'application',
+    'search.type.all': 'Tout',
+    'search.type.customer': 'Client',
+    'search.type.ticket': 'Ticket #',
+    'search.placeholder.customer': 'Rechercher des clients...',
+    'search.placeholder.ticket': 'Rechercher des tickets...',
+    'search.placeholder.all': 'Rechercher des clients ou des tickets...',
+    'app.built': 'Construit le {date}',
     // Common
     save: 'Enregistrer',
     cancel: 'Annuler',
@@ -2359,6 +2464,40 @@ export const translations: Record<Language, Record<string, string>> = {
     'notifications.repairjob.completed.body': 'La tâche de réparation {ticketId} a été terminée',
     'notifications.repairjob.updated.title': 'Tâche de réparation mise à jour',
     'notifications.repairjob.updated.body': 'La tâche de réparation {ticketId} a été mise à jour par {actorName}',
+
+
+
+    // Email Settings
+    'settings.email.title': 'Email (SMTP) Settings', // TODO_TRANSLATE
+    'settings.email.description': 'Configure SMTP settings for sending emails from RepairFlow', // TODO_TRANSLATE
+    'settings.email.smtpServer': 'SMTP Server', // TODO_TRANSLATE
+    'settings.email.host': 'SMTP Host', // TODO_TRANSLATE
+    'settings.email.port': 'SMTP Port', // TODO_TRANSLATE
+    'settings.email.useTls': 'Use TLS/SSL (Recommended)', // TODO_TRANSLATE
+    'settings.email.authentication': 'Authentication', // TODO_TRANSLATE
+    'settings.email.username': 'SMTP Username', // TODO_TRANSLATE
+    'settings.email.password': 'SMTP Password', // TODO_TRANSLATE
+    'settings.email.defaults': 'Email Defaults', // TODO_TRANSLATE
+    'settings.email.fromEmail': 'From Email', // TODO_TRANSLATE
+    'settings.email.fromName': 'From Name', // TODO_TRANSLATE
+    'settings.email.replyTo': 'Reply-To Email (Optional)', // TODO_TRANSLATE
+    'settings.email.update': 'Update Settings', // TODO_TRANSLATE
+    'settings.email.save': 'Save Settings', // TODO_TRANSLATE
+    'settings.email.sendTest': 'Send Test Email', // TODO_TRANSLATE
+    'settings.email.providers.title': 'Common SMTP Providers', // TODO_TRANSLATE
+    'settings.email.providers.gmail': 'Gmail: smtp.gmail.com:587 (Use App Password)', // TODO_TRANSLATE
+    'settings.email.providers.outlook': 'Outlook: smtp-mail.outlook.com:587', // TODO_TRANSLATE
+    'settings.email.providers.sendgrid': 'SendGrid: smtp.sendgrid.net:587', // TODO_TRANSLATE
+    'settings.email.providers.mailgun': 'Mailgun: smtp.mailgun.org:587', // TODO_TRANSLATE
+    'settings.email.success': 'Email settings saved successfully', // TODO_TRANSLATE
+    'settings.email.error': 'Failed to save settings', // TODO_TRANSLATE
+    'settings.email.loadError': 'Failed to load email settings', // TODO_TRANSLATE
+    'settings.email.testSuccess': 'Test email sent successfully!', // TODO_TRANSLATE
+    'settings.email.testError': 'Failed to send test email', // TODO_TRANSLATE
+    'settings.email.validation.host': 'SMTP host is required', // TODO_TRANSLATE
+    'settings.email.validation.email': 'Valid email required', // TODO_TRANSLATE
+    'settings.email.validation.password': 'Password is required', // TODO_TRANSLATE
+    'settings.email.validation.fromName': 'From name is required', // TODO_TRANSLATE
     'notifications.part.used.title': 'Pièce utilisée',
     'notifications.part.used.body': 'La pièce {partName} a été utilisée dans le ticket {ticketId}',
     'notifications.part.removed.title': 'Pièce supprimée',

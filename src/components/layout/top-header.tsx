@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguage } from '@/contexts/language-context';
 import { SearchBars } from './search-bars';
 import { NotificationsBell } from '@/components/notifications/notifications-bell';
 import { InboxIcon } from '@/components/contact/inbox-icon';
@@ -20,6 +21,8 @@ interface TopHeaderProps {
 }
 
 export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
+  const { t } = useLanguage();
+
   return (
     <header
       className="bg-surface border-b border-outline-variant shadow-md-level0 sticky top-0 z-40 transition-all duration-short2 ease-standard"
@@ -30,7 +33,7 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
         <button
           onClick={onMobileMenuToggle}
           className="md:hidden p-2 rounded-full text-on-surface-variant hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary transition-all duration-short2 ease-standard md-state-layer-hover"
-          aria-label="Open menu"
+          aria-label={t('header.openMenu')}
         >
           <span className="material-symbols-outlined text-2xl">menu</span>
         </button>
@@ -44,7 +47,7 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
         <div className="hidden sm:flex flex-1" />
 
         {/* Right Side Actions - Properly sized touch targets (min 44px) */}
-        <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label="App actions">
+        <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label={t('header.appActions')}>
           <LanguageSwitcher />
           <InboxIcon />
           <NotificationsBell />
