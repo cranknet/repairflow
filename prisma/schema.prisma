@@ -124,6 +124,7 @@ model Part {
   unitPrice             Float                  @default(0)
   supplierId            String?
   supplier              Supplier?              @relation(fields: [supplierId], references: [id])
+  supplierName          String?                @map("supplier") // Backwards-compatible supplier name field
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   ticketParts           TicketPart[]
