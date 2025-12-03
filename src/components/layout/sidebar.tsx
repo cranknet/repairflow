@@ -179,7 +179,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               'hidden md:block',
               isCollapsed && 'mx-auto'
             )}
-            aria-label="Toggle sidebar"
+            aria-label={t('sidebar.toggle')}
             aria-expanded={!isCollapsed}
           >
             <span className="material-symbols-outlined text-2xl">
@@ -194,7 +194,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
               'md:hidden'
             )}
-            aria-label="Close menu"
+            aria-label={t('sidebar.close')}
           >
             <span className="material-symbols-outlined text-2xl">close</span>
           </button>
@@ -269,7 +269,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       {/* Collapsed version indicator */}
       {isCollapsed && (
         <div className="px-2 py-3 border-t border-outline-variant flex justify-center">
-          <div className="h-2 w-2 rounded-full bg-primary" title="App active" />
+          <div className="h-2 w-2 rounded-full bg-primary" title={t('sidebar.appActive')} />
         </div>
       )}
     </div>
