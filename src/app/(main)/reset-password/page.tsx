@@ -46,7 +46,7 @@ function ResetPasswordForm() {
   // Calculate password strength
   const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
     if (!password) return { strength: 0, label: '', color: '' };
-    
+
     let strength = 0;
     if (password.length >= 8) strength++;
     if (password.length >= 12) strength++;
@@ -117,7 +117,7 @@ function ResetPasswordForm() {
     const hasUpperCase = /[A-Z]/.test(formData.password);
     const hasLowerCase = /[a-z]/.test(formData.password);
     const hasNumber = /[0-9]/.test(formData.password);
-    
+
     if (!hasUpperCase || !hasLowerCase || !hasNumber) {
       toast({
         title: t('resetPassword.errorTitle') || 'Error',
@@ -238,7 +238,7 @@ function ResetPasswordForm() {
                   {t('resetPassword.requestNewLink') || 'Request New Reset Link'}
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="outlined"
                   onClick={() => router.push('/login')}
                   className="w-full h-12 border-white/20 text-white hover:bg-white/10"
                 >
