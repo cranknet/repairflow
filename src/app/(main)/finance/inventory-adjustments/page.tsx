@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
+import { InventoryAdjustmentFormModal } from '@/components/finance/InventoryAdjustmentFormModal';
 
 interface InventoryAdjustment {
     id: string;
@@ -17,6 +18,10 @@ interface InventoryAdjustment {
         name: string;
         sku: string;
         quantity: number;
+        supplier: {
+            id: string;
+            name: string;
+        } | null;
     };
     createdByUser: {
         name: string | null;
@@ -30,6 +35,7 @@ export default function InventoryAdjustmentsPage() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
+    const [showAddModal, setShowAddModal] = useState(false);
     const limit = 25;
 
     useEffect(() => {
@@ -67,12 +73,23 @@ export default function InventoryAdjustmentsPage() {
                     <span className="material-symbols-outlined">arrow_back</span>
                     <span className="text-label-large">{t('finance.backToFinance')}</span>
                 </Link>
-                <h1 className="text-display-small font-bold text-on-surface mb-2">
-                    {t('finance.inventory') || 'Inventory Adjustments'}
-                </h1>
-                <p className="text-body-medium text-on-surface-variant">
-                    {t('finance.inventory.pageDescription')}
-                </p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-display-small font-bold text-on-surface mb-2">
+                            {t('finance.inventory') || 'Inventory Adjustments'}
+                        </h1>
+                        <p className="text-body-medium text-on-surface-variant">
+                            {t('finance.inventory.pageDescription')}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full hover:shadow-md-level2 transition-shadow"
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                        {t('finance.inventory.addAdjustment')}
+                    </button>
+                </div>
             </div>
 
             {/* Adjustments Table */}
@@ -216,6 +233,17 @@ export default function InventoryAdjustmentsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Add Adjustment Modal */}
+            {showAddModal && (
+                <InventoryAdjustmentFormModal
+                    onClose={() => setShowAddModal(false)}
+                    onSuccess={() => {
+                        setShowAddModal(false);
+                        fetchAdjustments();
+                    }}
+                />
+            )}
         </div>
     );
 }
