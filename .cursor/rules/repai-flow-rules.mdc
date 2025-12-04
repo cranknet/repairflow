@@ -1,0 +1,86 @@
+---
+description: "RepairFlow — Cursor MDC rules (auto-generated from repo analysis)"
+alwaysApply: true
+priority: 100
+tags: ["repairflow","nextjs","typescript","prisma","tailwind","i18n","performance"]
+source: "auto-generated from repo README and file list"
+---
+
+# Detected stack & repo signals (used to shape rules)
+# - Next.js (App Router) + TypeScript (repo top-level). See README & code layout. :contentReference[oaicite:1]{index=1}
+# - Prisma ORM and DB schema usage (prisma/ folder). :contentReference[oaicite:2]{index=2}
+# - Tailwind CSS + Tailwind config present. :contentReference[oaicite:3]{index=3}
+# - NextAuth / auth env usage referenced in README. :contentReference[oaicite:4]{index=4}
+# - Multilanguage / i18n (en, fr, ar) and public tracking features. :contentReference[oaicite:5]{index=5}
+# - Image upload, SMS/print features mentioned in README. :contentReference[oaicite:6]{index=6}
+
+# Coding rules (applies to all codegen by Cursor)
+- Project conventions:
+  - Use Next.js App Router patterns (app/ directory): server components by default, client where explicitly needed.
+  - TypeScript everywhere. Prefer `interface` for public props/types where practical.
+  - Use Prisma client for DB access. Always use parameterized queries through Prisma (no string-built SQL).
+  - Follow existing project namespaces and file layout (src/app, src/components, prisma).
+
+- Components & UI:
+  - Prefer React Server Components (RSC) for data fetching and page-level logic.
+  - Mark components `use client` only when they require browser-only APIs, interactivity, or state.
+  - Wrap client components used in server contexts with `<Suspense fallback={...}>`.
+  - Use Tailwind utility classes and project tailwind config for styling (mobile-first).
+  - Prefer composition with small components; export named components.
+  - Follow accessibility best practices: semantic HTML, aria-labels for icon-only buttons, focus management on modals.
+
+- Forms & Validation:
+  - Prefer typed form libs consistent with repo patterns. If a form is required, use React Hook Form + Zod (keep schemas small, export Zod schema).
+  - Keep client-only form components minimal; validation can be mirrored server-side with the same Zod schema.
+
+- TypeScript & code style:
+  - Use `function` keyword for pure helpers and small utilities.
+  - Prefer explicit interfaces, avoid `any`.
+  - Avoid enums for runtime maps — use `const` objects or maps.
+  - Use clear boolean-prefixed variable names (isLoading, hasError, canDelete).
+  - Keep files organized: exported component → subcomponents → helpers → constants → types.
+
+- Data fetching & server logic:
+  - Use Next.js server actions or async server functions for mutations when appropriate.
+  - Never fetch secrets or env values in client components. Use server actions or API routes.
+  - Keep Prisma usage in server code (route handlers, server actions). Avoid Prisma calls from client bundles.
+
+- API routes & error handling:
+  - Follow existing API conventions: use try/catch, return structured JSON with status codes and helpful messages.
+  - Enforce role-based checks on server routes (Admin vs Staff) per repo patterns.
+
+- Images & media:
+  - Optimize images: prefer WebP where possible, include width/height, lazy-load on client components.
+  - If storing device photos as Base64, keep uploads in server actions and limit in-memory sizes; stream/validate on server.
+
+- i18n & copy:
+  - All user-facing strings must be translatable. Add i18n keys for new labels and update en/fr/ar locales.
+  - Keep copy changes minimal and add locale keys in the same commit as UI changes.
+
+- Performance & bundling:
+  - Minimize client bundle size: dynamic-import heavy UI pieces, do not import large libs into top-level client components.
+  - Avoid unnecessary `useEffect` and local state; prefer server rendering and derived props.
+  - Optimize Web Vitals (LCP, CLS, FID) — avoid layout-shifting images without dimensions, lazy-load below-the-fold.
+
+- Security & infra:
+  - Keep NEXTAUTH_SECRET and other secrets only in env and server code.
+  - Validate and sanitize any external input (file uploads, SMS templates).
+  - For any new API that sends SMS or emails, ensure templates live in localization files and output safe, parameterized values.
+
+- Tests & docs:
+  - Add or update tests for critical flows (auth, ticket status transitions, returns workflow).
+  - Update README / API docs when introducing new endpoints or workflows (project README references many user flows).
+
+# Commit/Codegen behavior for Cursor
+- When generating code, produce:
+  - A single-file change unless the task explicitly requires adding new files.
+  - A concise header comment listing rationale and required locale/doc updates.
+  - Unit tests or TODOs when behavior touches business-critical flows (returns, payments, delete).
+- Always include a short "Run these commands" snippet when schema/prisma changes are produced (npx prisma generate && npx prisma db push).
+
+# Strict rules (hard stop)
+- Do NOT invent database models/fields. Any DB change must map to prisma/schema.prisma and include prisma commands.
+- Do NOT leak secrets in generated code or logs.
+- Do NOT change i18n keys without updating at least `locales/en.json`.
+
+--- 
