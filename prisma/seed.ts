@@ -908,18 +908,27 @@ async function main() {
 
   // Create payments for completed tickets
   const completedTickets = tickets.filter(t => t.status === 'COMPLETED' && t.paid);
+  
+  // Generate payment numbers for seed data
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+  
   const payments = await Promise.all(
-    completedTickets.map(ticket =>
-      prisma.payment.create({
+    completedTickets.map((ticket, index) => {
+      const sequence = (index + 1).toString().padStart(4, '0');
+      const paymentNumber = `PAY-${dateStr}-${sequence}`;
+      
+      return prisma.payment.create({
         data: {
+          paymentNumber,
           ticketId: ticket.id,
           amount: ticket.finalPrice || ticket.estimatedPrice,
           method: 'CASH',
           currency: 'USD',
           performedBy: admin.id,
         },
-      })
-    )
+      });
+    })
   );
 
   console.log(`✅ Payments created (${payments.length})`);

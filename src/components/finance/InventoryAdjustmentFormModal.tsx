@@ -11,6 +11,14 @@ interface Part {
     unitPrice: number;
 }
 
+interface Ticket {
+    id: string;
+    ticketNumber: string;
+    customer: {
+        name: string;
+    };
+}
+
 interface InventoryAdjustmentFormModalProps {
     onClose: () => void;
     onSuccess: () => void;
@@ -24,7 +32,11 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
         cost: '',
         costPerUnit: '',
         reason: '',
+        ticketId: '',
+        addToTicket: false,
     });
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [loadingTickets, setLoadingTickets] = useState(false);
     const [parts, setParts] = useState<Part[]>([]);
     const [loadingParts, setLoadingParts] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -33,7 +45,23 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
 
     useEffect(() => {
         fetchParts();
+        fetchTickets();
     }, []);
+
+    const fetchTickets = async () => {
+        setLoadingTickets(true);
+        try {
+            const response = await fetch('/api/tickets?limit=100&status=REPAIRED,IN_PROGRESS');
+            if (response.ok) {
+                const data = await response.json();
+                setTickets(data.tickets || data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching tickets:', error);
+        } finally {
+            setLoadingTickets(false);
+        }
+    };
 
     const fetchParts = async () => {
         try {
@@ -95,6 +123,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                     cost: parseFloat(formData.cost) || 0,
                     costPerUnit: formData.costPerUnit ? parseFloat(formData.costPerUnit) : undefined,
                     reason: formData.reason.trim(),
+                    ticketId: formData.addToTicket && formData.ticketId ? formData.ticketId : undefined,
                 }),
             });
 
@@ -239,6 +268,39 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                             </div>
                             <div className="mt-1 text-body-small text-on-surface-variant">
                                 {t('finance.inventoryAdjustmentForm.costPerUnitHint')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="flex items-center gap-2 mb-2">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.addToTicket}
+                                    onChange={(e) => setFormData({ ...formData, addToTicket: e.target.checked, ticketId: e.target.checked ? formData.ticketId : '' })}
+                                    className="w-4 h-4 rounded border-outline text-primary focus:ring-primary"
+                                />
+                                <span className="text-label-large text-on-surface">
+                                    {t('finance.addPartToTicket') || 'Add part to ticket'}
+                                </span>
+                            </label>
+                            {formData.addToTicket && (
+                                <select
+                                    required={formData.addToTicket}
+                                    value={formData.ticketId}
+                                    onChange={(e) => setFormData({ ...formData, ticketId: e.target.value })}
+                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary mt-2"
+                                    disabled={loadingTickets}
+                                >
+                                    <option value="">{t('finance.selectTicket') || 'Select a ticket...'}</option>
+                                    {tickets.map((ticket) => (
+                                        <option key={ticket.id} value={ticket.id}>
+                                            {ticket.ticketNumber} - {ticket.customer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+                            <div className="mt-1 text-body-small text-on-surface-variant">
+                                {t('finance.addPartToTicketHint') || 'When enabled, the part will be added to the selected ticket'}
                             </div>
                         </div>
 

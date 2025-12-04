@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CompletionSMSPrompt } from './completion-sms-prompt';
 import { CreateReturnModal } from '@/components/returns/create-return-modal';
+import { AddPartsModal } from './add-parts-modal';
 import { useLanguage } from '@/contexts/language-context';
 
 
@@ -20,6 +21,7 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusNotes, setStatusNotes] = useState('');
   const [paid, setPaid] = useState(ticket.paid || false);
+  const [showPartsModal, setShowPartsModal] = useState(false);
   const [showSMSPrompt, setShowSMSPrompt] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [isValidatingReturn, setIsValidatingReturn] = useState(false);
@@ -55,9 +57,9 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
       });
       setStatusNotes('');
 
-      // Show SMS prompt if status changed to REPAIRED
+      // Show parts modal first, then SMS prompt if status changed to REPAIRED
       if (newStatus === 'REPAIRED' && ticket.status !== 'REPAIRED') {
-        setShowSMSPrompt(true);
+        setShowPartsModal(true);
       }
 
       router.refresh();
@@ -209,6 +211,23 @@ export function TicketDetailsClient({ ticket, userRole }: { ticket: any; userRol
           </div>
         </div>
       </div>
+
+      {/* Add Parts Modal */}
+      <AddPartsModal
+        isOpen={showPartsModal}
+        onClose={() => {
+          setShowPartsModal(false);
+          // After closing parts modal, show SMS prompt
+          if (ticket.status === 'REPAIRED') {
+            setShowSMSPrompt(true);
+          }
+        }}
+        ticketId={ticket.id}
+        onSuccess={() => {
+          router.refresh();
+        }}
+        existingParts={ticket.parts || []}
+      />
 
       {/* SMS Prompt Modal */}
       <CompletionSMSPrompt

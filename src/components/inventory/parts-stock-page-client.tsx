@@ -20,6 +20,7 @@ interface Part {
   quantity: number;
   reorderLevel: number;
   unitPrice: number;
+  supplierId: string | null;
   supplier: {
     id: string;
     name: string;
@@ -55,6 +56,40 @@ export function PartsStockPageClient({
     setIsModalOpen(false);
   };
 
+  const handleRefresh = () => {
+    router.refresh();
+  };
+
+  const handleExport = () => {
+    // Create CSV content
+    const headers = ['Name', 'SKU', 'Description', 'Quantity', 'Reorder Level', 'Unit Price', 'Supplier'];
+    const rows = parts.map(part => [
+      part.name,
+      part.sku,
+      part.description || '',
+      part.quantity.toString(),
+      part.reorderLevel.toString(),
+      part.unitPrice.toFixed(2),
+      part.supplier?.name || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `parts-stock-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const lowStockCount = parts.filter(p => p.quantity <= p.reorderLevel).length;
 
   return (
@@ -70,9 +105,6 @@ export function PartsStockPageClient({
               </p>
             )}
           </div>
-          {userRole === 'ADMIN' && (
-            <Button onClick={() => setIsModalOpen(true)}>{t('addPart')}</Button>
-          )}
         </div>
 
         {/* Search Filter */}
@@ -92,6 +124,10 @@ export function PartsStockPageClient({
               lowStockCount={lowStockCount}
               searchQuery={search}
               supplierId={supplierId}
+              userRole={userRole}
+              onCreate={() => setIsModalOpen(true)}
+              onRefresh={handleRefresh}
+              onExport={handleExport}
             />
           </CardHeader>
           <CardContent>

@@ -17,6 +17,7 @@ const createAdjustmentSchema = z.object({
     cost: z.number().nonnegative('Cost must be non-negative'),
     costPerUnit: z.number().positive().optional(),
     reason: z.string().min(3, 'Reason must be at least 3 characters'),
+    ticketId: z.string().optional(), // Optional ticket ID to link part to ticket
 });
 
 export async function GET(request: NextRequest) {
@@ -148,6 +149,16 @@ export async function POST(request: NextRequest) {
         // Calculate cost per unit if not provided
         const costPerUnit = validated.costPerUnit || (validated.cost / Math.abs(validated.qtyChange));
 
+        // Validate ticket if provided
+        if (validated.ticketId) {
+            const ticket = await prisma.ticket.findUnique({
+                where: { id: validated.ticketId },
+            });
+            if (!ticket) {
+                return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+            }
+        }
+
         // Use transaction to ensure atomicity
         const result = await prisma.$transaction(async (tx) => {
             // Create adjustment
@@ -158,6 +169,7 @@ export async function POST(request: NextRequest) {
                     cost: validated.cost,
                     costPerUnit,
                     reason: validated.reason,
+                    ticketId: validated.ticketId || undefined,
                     createdById: session.user.id,
                 },
                 include: {
@@ -185,6 +197,38 @@ export async function POST(request: NextRequest) {
                     },
                 },
             });
+
+            // If ticketId is provided and qtyChange is negative (removal), add part to ticket
+            if (validated.ticketId && validated.qtyChange < 0) {
+                const quantityToAdd = Math.abs(validated.qtyChange);
+                
+                // Check if part is already in ticket
+                const existingTicketPart = await tx.ticketPart.findFirst({
+                    where: {
+                        ticketId: validated.ticketId,
+                        partId: validated.partId,
+                    },
+                });
+
+                if (existingTicketPart) {
+                    // Update quantity
+                    await tx.ticketPart.update({
+                        where: { id: existingTicketPart.id },
+                        data: {
+                            quantity: existingTicketPart.quantity + quantityToAdd,
+                        },
+                    });
+                } else {
+                    // Create new ticket part
+                    await tx.ticketPart.create({
+                        data: {
+                            ticketId: validated.ticketId,
+                            partId: validated.partId,
+                            quantity: quantityToAdd,
+                        },
+                    });
+                }
+            }
 
             // Create journal entry
             await tx.journalEntry.create({
