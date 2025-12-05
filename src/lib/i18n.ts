@@ -145,7 +145,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.nav.back': 'Back',
     'install.nav.skip': 'Skip',
 
-    // Installer - Errors
     'install.error.envCheck': 'Failed to check environment',
     'install.error.dbConnection': 'Database connection failed',
     'install.error.saveCompany': 'Failed to save company information',
@@ -154,6 +153,27 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.error.savePreferences': 'Failed to save preferences',
     'install.error.loadSampleData': 'Failed to load sample data',
     'install.error.finalize': 'Failed to complete installation',
+
+    // Installer - Sidebar
+    'install.sidebar.progress': 'Installation Progress',
+    'install.sidebar.stepOf': 'Step',
+    'install.sidebar.tipTitle': 'Quick Tip',
+    'install.sidebar.tip.welcome': 'We\'ll check your environment to ensure everything is configured correctly.',
+    'install.sidebar.tip.database': 'Make sure your database connection is properly configured in .env file.',
+    'install.sidebar.tip.company': 'This information will appear on invoices and customer communications.',
+    'install.sidebar.tip.branding': 'Upload your logo to personalize the system. You can skip this step.',
+    'install.sidebar.tip.admin': 'Choose a strong password. This account will have full system access.',
+    'install.sidebar.tip.preferences': 'Configure your timezone and notification preferences.',
+    'install.sidebar.tip.sampleData': 'Sample data helps you explore the system before adding real data.',
+    'install.sidebar.tip.finalize': 'Review your settings before completing the installation.',
+    'install.sidebar.logoPreview': 'Your Logo',
+    'install.sidebar.companySummary': 'Company',
+    'install.sidebar.needHelp': 'Need help?',
+    'install.sidebar.visitDocs': 'Visit Documentation',
+
+    // Installer - Company extra
+    'install.company.localeSettings': 'Regional Settings',
+
     // Factory Reset
     factoryReset: 'Factory Reset',
     resetSettings: 'Reset Settings',
