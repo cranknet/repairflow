@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '@/contexts/language-context';
 import { DEVICE_ISSUES } from '@/lib/device-issues';
 import { getAllIssues, addCustomIssue } from '@/lib/device-storage';
 
@@ -17,6 +18,7 @@ export function DeviceIssueAutocomplete({
   onChange,
   error,
 }: DeviceIssueAutocompleteProps) {
+  const { t } = useLanguage();
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredIssues, setFilteredIssues] = useState<string[]>([]);
   const [showAddIssue, setShowAddIssue] = useState(false);
@@ -95,7 +97,7 @@ export function DeviceIssueAutocomplete({
 
   return (
     <div className="space-y-2 relative" ref={dropdownRef}>
-      <Label htmlFor="deviceIssue">Device Issue *</Label>
+      <Label htmlFor="deviceIssue">{t('deviceIssue')} *</Label>
       <div className="relative">
         <textarea
           id="deviceIssue"
@@ -105,7 +107,7 @@ export function DeviceIssueAutocomplete({
           onFocus={handleFocus}
           rows={3}
           className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-          placeholder="Describe the device issue..."
+          placeholder={t('deviceIssuePlaceholder')}
         />
         {showDropdown && (filteredIssues.length > 0 || showAddIssue) && (
           <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
@@ -128,7 +130,7 @@ export function DeviceIssueAutocomplete({
                 className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
               >
                 <PlusIcon className="h-4 w-4" />
-                Add &quot;{value}&quot; to common issues
+                {t('addAsCommonIssue', { value })}
               </button>
             )}
           </div>

@@ -146,14 +146,14 @@ export function AddPartsModal({
       for (const selectedPart of selectedParts) {
         const existing = existingParts.find(ep => ep.partId === selectedPart.partId);
         const existingSelected = existingParts.find(ep => ep.partId === selectedPart.partId);
-        
+
         if (existingSelected && existingSelected.quantity !== selectedPart.quantity) {
           // Update quantity - delete old and create new
           await fetch(`/api/tickets/${ticketId}/parts?ticketPartId=${existingSelected.id}`, {
             method: 'DELETE',
           });
         }
-        
+
         if (!existingSelected || existingSelected.quantity !== selectedPart.quantity) {
           // Add new part or update quantity
           const response = await fetch(`/api/tickets/${ticketId}/parts`, {
@@ -221,7 +221,7 @@ export function AddPartsModal({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('searchParts') || 'Search parts...'}
-                className="w-full px-4 py-2 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -240,29 +240,29 @@ export function AddPartsModal({
                     {t('add')}
                   </Button>
                 </div>
-                <div className="border border-outline rounded-lg max-h-[400px] overflow-y-auto">
+                <div className="border border-border rounded-lg max-h-[400px] overflow-y-auto">
                   {loadingParts ? (
-                    <div className="p-4 text-center text-on-surface-variant">
+                    <div className="p-4 text-center text-muted-foreground">
                       {t('loading') || 'Loading...'}
                     </div>
                   ) : filteredParts.length === 0 ? (
-                    <div className="p-4 text-center text-on-surface-variant">
+                    <div className="p-4 text-center text-muted-foreground">
                       {t('noPartsFound') || 'No parts found'}
                     </div>
                   ) : (
-                    <div className="divide-y divide-outline-variant">
+                    <div className="divide-y divide-border">
                       {filteredParts.map(part => (
                         <div
                           key={part.id}
-                          className="p-3 hover:bg-on-surface/4 cursor-pointer flex items-center justify-between"
+                          className="p-3 hover:bg-muted/50 cursor-pointer flex items-center justify-between"
                           onClick={() => addPart(part)}
                         >
                           <div className="flex-1">
                             <p className="font-medium text-sm">{part.name}</p>
-                            <p className="text-xs text-on-surface-variant font-mono">
+                            <p className="text-xs text-muted-foreground font-mono">
                               {part.sku} {part.supplier && `• ${part.supplier.name}`}
                             </p>
-                            <p className="text-xs text-on-surface-variant">
+                            <p className="text-xs text-muted-foreground">
                               {t('stock')}: {part.quantity} • ${part.unitPrice.toFixed(2)}
                             </p>
                           </div>
@@ -278,14 +278,16 @@ export function AddPartsModal({
 
               {/* Selected Parts */}
               <div>
-                <h3 className="font-medium mb-2">{t('selectedParts') || 'Selected Parts'}</h3>
-                <div className="border border-outline rounded-lg max-h-[400px] overflow-y-auto">
+                <div className="flex items-center mb-2 h-9">
+                  <h3 className="font-medium">{t('selectedParts') || 'Selected Parts'}</h3>
+                </div>
+                <div className="border border-border rounded-lg max-h-[400px] overflow-y-auto">
                   {selectedParts.length === 0 ? (
-                    <div className="p-4 text-center text-on-surface-variant">
+                    <div className="p-4 text-center text-muted-foreground">
                       {t('noPartsSelected') || 'No parts selected'}
                     </div>
                   ) : (
-                    <div className="divide-y divide-outline-variant">
+                    <div className="divide-y divide-border">
                       {selectedParts.map(selectedPart => {
                         const part = selectedPart.part;
                         return (
@@ -293,7 +295,7 @@ export function AddPartsModal({
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1">
                                 <p className="font-medium text-sm">{part.name}</p>
-                                <p className="text-xs text-on-surface-variant font-mono">
+                                <p className="text-xs text-muted-foreground font-mono">
                                   {part.sku}
                                 </p>
                               </div>
@@ -306,7 +308,7 @@ export function AddPartsModal({
                               </button>
                             </div>
                             <div className="flex items-center gap-2">
-                              <label className="text-xs text-on-surface-variant">
+                              <label className="text-xs text-muted-foreground">
                                 {t('quantity')}:
                               </label>
                               <input
@@ -314,9 +316,9 @@ export function AddPartsModal({
                                 min="1"
                                 value={selectedPart.quantity}
                                 onChange={(e) => updateQuantity(selectedPart.partId, parseInt(e.target.value) || 1)}
-                                className="w-20 px-2 py-1 border border-outline rounded text-sm"
+                                className="w-20 px-2 py-1 border border-input rounded text-sm bg-background text-foreground"
                               />
-                              <span className="text-xs text-on-surface-variant ml-auto">
+                              <span className="text-xs text-muted-foreground ml-auto">
                                 ${(part.unitPrice * selectedPart.quantity).toFixed(2)}
                               </span>
                             </div>
@@ -327,7 +329,7 @@ export function AddPartsModal({
                   )}
                 </div>
                 {selectedParts.length > 0 && (
-                  <div className="mt-2 p-2 bg-primary-container rounded-lg">
+                  <div className="mt-2 p-2 bg-muted rounded-lg">
                     <div className="flex justify-between items-center">
                       <span className="font-medium text-sm">{t('total')}:</span>
                       <span className="font-bold">${totalCost.toFixed(2)}</span>

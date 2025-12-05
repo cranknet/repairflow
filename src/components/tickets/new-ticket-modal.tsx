@@ -87,7 +87,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
       .then((data) => {
         setCustomers(data);
         // Set walking-customer as default if it exists
-        const walkingCustomer = data.find((c: any) => 
+        const walkingCustomer = data.find((c: any) =>
           c.id === 'walking-customer' ||
           c.name.toLowerCase() === 'walking-customer' ||
           c.name === 'walking-customer'
@@ -168,7 +168,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to create ticket' }));
-        const errorMessage = errorData.details 
+        const errorMessage = errorData.details
           ? errorData.details.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')
           : errorData.error || 'Failed to create ticket';
         throw new Error(errorMessage);
@@ -202,8 +202,8 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Ticket</DialogTitle>
-            <DialogDescription>Create a new repair ticket</DialogDescription>
+            <DialogTitle>{t('createNewTicket')}</DialogTitle>
+            <DialogDescription>{t('createNewRepairTicket')}</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -213,7 +213,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                   <Controller
                     name="customerId"
                     control={control}
-                    rules={{ required: 'Customer is required' }}
+                    rules={{ required: t('customerRequired') }}
                     render={({ field, fieldState }) => (
                       <CustomerSelect
                         customers={customers}
@@ -230,7 +230,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                   onClick={() => setShowNewCustomerModal(true)}
                   className="mt-0"
                 >
-                  New Customer
+                  {t('newCustomer')}
                 </Button>
               </div>
 
@@ -246,7 +246,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
               <Controller
                 name="deviceIssue"
                 control={control}
-                rules={{ required: 'Device issue is required' }}
+                rules={{ required: t('deviceIssueRequired') }}
                 render={({ field, fieldState }) => (
                   <DeviceIssueAutocomplete
                     value={field.value || ''}
@@ -258,13 +258,13 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
 
               <div className="grid grid-cols-2 gap-4">
                 <ImageUpload
-                  label="Device Front Photo"
+                  label={t('deviceFrontPhoto')}
                   value={frontImage}
                   onChange={setFrontImage}
                   onRemove={() => setFrontImage('')}
                 />
                 <ImageUpload
-                  label="Device Back Photo"
+                  label={t('deviceBackPhoto')}
                   value={backImage}
                   onChange={setBackImage}
                   onRemove={() => setBackImage('')}
@@ -277,18 +277,18 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                   control={control}
                   render={({ field, fieldState }) => (
                     <Select value={field.value || 'MEDIUM'} onValueChange={field.onChange}>
-                      <SelectTrigger 
-                        label="Priority" 
+                      <SelectTrigger
+                        label={t('priority')}
                         error={!!fieldState.error}
                         id="modal-ticket-priority"
                       >
-                        <SelectValue placeholder="Select priority" />
+                        <SelectValue placeholder={t('selectPriority')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="LOW">Low</SelectItem>
-                        <SelectItem value="MEDIUM">Medium</SelectItem>
-                        <SelectItem value="HIGH">High</SelectItem>
-                        <SelectItem value="URGENT">Urgent</SelectItem>
+                        <SelectItem value="LOW">{t('low')}</SelectItem>
+                        <SelectItem value="MEDIUM">{t('medium')}</SelectItem>
+                        <SelectItem value="HIGH">{t('high')}</SelectItem>
+                        <SelectItem value="URGENT">{t('urgent')}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -296,7 +296,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
 
                 <Input
                   id="modal-ticket-estimatedPrice"
-                  label={`Estimated Price (${currencySymbol})`}
+                  label={`${t('estimatedPrice')} (${currencySymbol})`}
                   errorText={errors.estimatedPrice?.message}
                   type="number"
                   step="0.01"
@@ -310,21 +310,21 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                 name="assignedToId"
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Select 
-                    value={field.value || undefined} 
+                  <Select
+                    value={field.value || undefined}
                     onValueChange={(value) => {
                       field.onChange(value === 'unassigned' ? undefined : value);
                     }}
                   >
-                    <SelectTrigger 
-                      label="Assign To (Optional)" 
+                    <SelectTrigger
+                      label={t('assignToOptional')}
                       error={!!fieldState.error}
                       id="modal-ticket-assignedToId"
                     >
-                      <SelectValue placeholder="Unassigned" />
+                      <SelectValue placeholder={t('unassigned')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      <SelectItem value="unassigned">{t('unassigned')}</SelectItem>
                       {staffUsers.map((user) => (
                         <SelectItem key={user.id} value={user.id}>
                           {user.name || user.username} ({user.role})
@@ -357,20 +357,20 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
 
               <Textarea
                 id="modal-ticket-notes"
-                label="Notes"
+                label={t('notes')}
                 errorText={errors.notes?.message}
                 rows={3}
                 {...register('notes')}
-                placeholder="Additional notes..."
+                placeholder={t('customers.placeholder.notes')}
               />
             </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Ticket'}
+                {isLoading ? t('creating') : t('createTicket')}
               </Button>
             </DialogFooter>
           </form>

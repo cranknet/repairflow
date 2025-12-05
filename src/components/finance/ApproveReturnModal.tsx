@@ -61,10 +61,10 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
     };
 
     return (
-        <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md">
-                <div className="bg-primary-container px-6 py-4 rounded-t-xl">
-                    <h2 className="text-headline-small font-bold text-on-primary-container">{t('finance.approveReturn.title')}</h2>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-background rounded-xl shadow-lg w-full max-w-md">
+                <div className="bg-accent px-6 py-4 rounded-t-xl">
+                    <h2 className="text-lg font-semibold text-foreground">{t('finance.approveReturn.title')}</h2>
                 </div>
 
                 <div className="p-6 space-y-4">
@@ -75,18 +75,18 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                         </div>
                     )}
 
-                    <div className="bg-surface-variant/50 rounded-lg p-4">
-                        <div className="text-label-small text-on-surface-variant mb-1">{t('finance.approveReturn.returnReason')}</div>
-                        <div className="text-body-medium text-on-surface">{returnData.reason}</div>
+                    <div className="bg-muted/50 rounded-lg p-4">
+                        <div className="text-xs text-muted-foreground mb-1">{t('finance.approveReturn.returnReason')}</div>
+                        <div className="text-sm text-foreground">{returnData.reason}</div>
                     </div>
 
                     <div>
-                        <label className="block text-label-large text-on-surface mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                             {t('finance.refundAmount')} <span className="text-error">*</span>
                         </label>
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -94,10 +94,10 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                                     max={returnData.refundAmount}
                                     value={partialAmount}
                                     onChange={(e) => setPartialAmount(e.target.value)}
-                                    className="w-full pl-8 pr-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full pl-8 pr-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
-                            <div className="text-body-small text-on-surface-variant">
+                            <div className="text-sm text-muted-foreground">
                                 / ${returnData.refundAmount.toFixed(2)}
                             </div>
                         </div>
@@ -110,7 +110,7 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                     </div>
 
                     <div>
-                        <label className="block text-label-large text-on-surface mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                             {t('finance.notes')}
                         </label>
                         <textarea
@@ -118,11 +118,11 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder={t('finance.approveReturn.notesPlaceholder')}
                             rows={3}
-                            className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                            className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-secondary-container/30 rounded-lg">
+                    <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
                         <input
                             type="checkbox"
                             checked={createInventoryAdj}
@@ -131,19 +131,19 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             className="mt-1"
                         />
                         <label htmlFor="inventory-adj" className="flex-1 cursor-pointer">
-                            <div className="text-body-medium text-on-surface font-medium">{t('finance.approveReturn.returnParts')}</div>
-                            <div className="text-body-small text-on-surface-variant mt-1">
+                            <div className="text-sm font-medium text-foreground">{t('finance.approveReturn.returnParts')}</div>
+                            <div className="text-xs text-muted-foreground mt-1">
                                 {t('finance.approveReturn.returnPartsDesc')}
                             </div>
                         </label>
                     </div>
 
-                    <div className="bg-tertiary-container/30 rounded-lg p-4">
-                        <h3 className="text-label-large text-on-surface font-medium mb-2 flex items-center gap-2">
+                    <div className="bg-muted/30 rounded-lg p-4">
+                        <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">check_circle</span>
                             {t('finance.approveReturn.whatWillHappen')}
                         </h3>
-                        <ul className="text-body-small text-on-surface-variant space-y-1 ml-6 list-disc">
+                        <ul className="text-xs text-muted-foreground space-y-1 ml-6 list-disc">
                             <li>{t('finance.approveReturn.refundRecorded', { amount: parseFloat(partialAmount || '0').toFixed(2) })}</li>
                             <li>{t('finance.approveReturn.statusApproved')}</li>
                             <li>{t('finance.approveReturn.ticketReturned')}</li>
@@ -157,7 +157,7 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             type="button"
                             onClick={onClose}
                             disabled={loading}
-                            className="flex-1 px-6 py-3 border border-outline text-on-surface rounded-full hover:bg-on-surface/8 transition-colors disabled:opacity-50"
+                            className="flex-1 px-6 py-3 border border-input text-foreground rounded-full hover:bg-muted/50 transition-colors disabled:opacity-50"
                         >
                             {t('cancel')}
                         </button>

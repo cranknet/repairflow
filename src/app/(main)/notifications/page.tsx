@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { NotificationsList } from '@/components/notifications/notifications-list';
 
 export default async function NotificationsPage({
@@ -52,11 +51,9 @@ export default async function NotificationsPage({
   }));
 
   return (
-    <MainLayout>
-      <div className="space-y-6 pt-6">
-        <NotificationsList notifications={serializedNotifications} />
-      </div>
-    </MainLayout>
+    <div className="space-y-6 pt-6">
+      <NotificationsList notifications={serializedNotifications} />
+    </div>
   );
 }
 

@@ -249,7 +249,7 @@ export default function PaymentsPage() {
                             </button>
                             <span className="px-4 py-2 text-body-medium text-on-surface flex items-center">
                                 {t('finance.payments.page', { current: page, total: Math.ceil(total / limit) })}
-                            </span>
+                            </span >
                             <button
                                 onClick={() => setPage(p => p + 1)}
                                 disabled={page * limit >= total}

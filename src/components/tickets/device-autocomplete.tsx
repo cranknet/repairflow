@@ -11,6 +11,7 @@ import {
   addCustomModel,
 } from '@/lib/device-storage';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '@/contexts/language-context';
 
 interface DeviceAutocompleteProps {
   brand: string;
@@ -29,6 +30,7 @@ export function DeviceAutocomplete({
   brandError,
   modelError,
 }: DeviceAutocompleteProps) {
+  const { t } = useLanguage();
   const [showBrandDropdown, setShowBrandDropdown] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
 
@@ -164,7 +166,7 @@ export function DeviceAutocomplete({
   return (
     <div className="grid grid-cols-2 gap-4" ref={dropdownRef}>
       <div className="space-y-2 relative">
-        <Label htmlFor="deviceBrand">Device Brand *</Label>
+        <Label htmlFor="deviceBrand">{t('deviceBrand')} *</Label>
         <div className="relative">
           <Input
             id="deviceBrand"
@@ -178,7 +180,7 @@ export function DeviceAutocomplete({
                 setShowBrandDropdown(true);
               }
             }}
-            placeholder="e.g., Apple, Samsung"
+            placeholder={t('deviceBrandPlaceholder')}
             autoComplete="off"
           />
           {showBrandDropdown && (filteredBrands.length > 0 || showAddBrand) && (
@@ -200,7 +202,7 @@ export function DeviceAutocomplete({
                   className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  Add &quot;{brand}&quot; as new brand
+                  {t('addAsNewBrand', { brand })}
                 </button>
               )}
             </div>
@@ -210,7 +212,7 @@ export function DeviceAutocomplete({
       </div>
 
       <div className="space-y-2 relative">
-        <Label htmlFor="deviceModel">Device Model *</Label>
+        <Label htmlFor="deviceModel">{t('deviceModel')} *</Label>
         <div className="relative">
           <Input
             id="deviceModel"
@@ -222,7 +224,7 @@ export function DeviceAutocomplete({
                 handleModelInput(model);
               }
             }}
-            placeholder="e.g., iPhone 13, Galaxy S21"
+            placeholder={t('deviceModelPlaceholder')}
             disabled={!brand}
             autoComplete="off"
           />
@@ -245,7 +247,7 @@ export function DeviceAutocomplete({
                   className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  Add &quot;{model}&quot; as new model
+                  {t('addAsNewModel', { model })}
                 </button>
               )}
             </div>

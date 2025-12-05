@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { ContactMessagesClient } from '@/components/contact/contact-messages-client';
 
 export default async function ContactMessagesPage() {
@@ -45,22 +44,20 @@ export default async function ContactMessagesPage() {
   }));
 
   return (
-    <MainLayout>
-      <div className="space-y-6 pt-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {session.user.role === 'ADMIN' ? 'Contact Messages' : 'Contact Messages'}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage customer contact messages
-          </p>
-        </div>
-        <ContactMessagesClient
-          initialMessages={serializedMessages}
-          canDelete={session.user.role === 'ADMIN'}
-        />
+    <div className="space-y-6 pt-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          {session.user.role === 'ADMIN' ? 'Contact Messages' : 'Contact Messages'}
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+          Manage customer contact messages
+        </p>
       </div>
-    </MainLayout>
+      <ContactMessagesClient
+        initialMessages={serializedMessages}
+        canDelete={session.user.role === 'ADMIN'}
+      />
+    </div>
   );
 }
 

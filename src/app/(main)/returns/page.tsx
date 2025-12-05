@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { ReturnsClient } from '@/components/returns/returns-client';
 import { ReturnsListHeader } from '@/components/returns/returns-list-header';
 
@@ -46,17 +45,15 @@ export default async function ReturnsPage() {
   }));
 
   return (
-    <MainLayout>
-      <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-        <div className="space-y-6">
-          <ReturnsListHeader />
-          <ReturnsClient
-            returns={serializedReturns}
-            userRole={session.user.role}
-          />
-        </div>
-      </Suspense>
-    </MainLayout>
+    <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
+      <div className="space-y-6">
+        <ReturnsListHeader />
+        <ReturnsClient
+          returns={serializedReturns}
+          userRole={session.user.role}
+        />
+      </div>
+    </Suspense>
   );
 }
 

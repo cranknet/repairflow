@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,78 +71,76 @@ export default function NewCustomerPage() {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6 pt-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('addNewCustomer')}</h1>
-          <p className="text-gray-600 dark:text-gray-400">{t('createNewCustomerProfile')}</p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('customerInformation')}</CardTitle>
-              <CardDescription>{t('enterCustomerDetails')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('customerName')} *</Label>
-                  <Input id="name" {...register('name')} placeholder="John Doe" />
-                  {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">{t('customerPhone')} *</Label>
-                  <Input id="phone" {...register('phone')} placeholder="+1 (555) 123-4567" />
-                  {errors.phone && (
-                    <p className="text-sm text-red-600">{errors.phone.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">{t('customerEmail')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  placeholder="john@example.com"
-                />
-                {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">{t('customerAddress')}</Label>
-                <Input id="address" {...register('address')} placeholder="123 Main St" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">{t('notes')}</Label>
-                <textarea
-                  id="notes"
-                  {...register('notes')}
-                  rows={3}
-                  className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                  placeholder="Additional notes..."
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-2 mt-6">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('creating') : t('createCustomer')}
-            </Button>
-            <Link href="/customers">
-              <Button type="button" variant="outline">
-                {t('cancel')}
-              </Button>
-            </Link>
-          </div>
-        </form>
+    <div className="space-y-6 pt-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('addNewCustomer')}</h1>
+        <p className="text-gray-600 dark:text-gray-400">{t('createNewCustomerProfile')}</p>
       </div>
-    </MainLayout>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('customerInformation')}</CardTitle>
+            <CardDescription>{t('enterCustomerDetails')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">{t('customerName')} *</Label>
+                <Input id="name" {...register('name')} placeholder="John Doe" />
+                {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">{t('customerPhone')} *</Label>
+                <Input id="phone" {...register('phone')} placeholder="+1 (555) 123-4567" />
+                {errors.phone && (
+                  <p className="text-sm text-red-600">{errors.phone.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">{t('customerEmail')}</Label>
+              <Input
+                id="email"
+                type="email"
+                {...register('email')}
+                placeholder="john@example.com"
+              />
+              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">{t('customerAddress')}</Label>
+              <Input id="address" {...register('address')} placeholder="123 Main St" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">{t('notes')}</Label>
+              <textarea
+                id="notes"
+                {...register('notes')}
+                rows={3}
+                className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+                placeholder="Additional notes..."
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-2 mt-6">
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? t('creating') : t('createCustomer')}
+          </Button>
+          <Link href="/customers">
+            <Button type="button" variant="outline">
+              {t('cancel')}
+            </Button>
+          </Link>
+        </div>
+      </form>
+    </div>
   );
 }
 

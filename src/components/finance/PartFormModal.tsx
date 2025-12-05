@@ -108,7 +108,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
         try {
             const url = isEditing ? `/api/parts/${part.id}` : '/api/parts';
             const method = isEditing ? 'PATCH' : 'POST';
-            
+
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
@@ -128,7 +128,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                 const data = await response.json();
                 if (data.details) {
                     // Zod validation errors
-                    const errorMessages = data.details.map((err: any) => 
+                    const errorMessages = data.details.map((err: any) =>
                         `${err.path.join('.')}: ${err.message}`
                     ).join(', ');
                     throw new Error(errorMessages);
@@ -148,10 +148,10 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
 
     return (
         <>
-            <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                    <div className="sticky top-0 bg-surface border-b border-outline-variant px-6 py-4 flex items-center justify-between">
-                        <h2 className="text-headline-small font-bold text-on-surface">
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+                <div className="bg-background rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-foreground">
                             {isEditing ? (t('finance.partForm.editTitle') || 'Edit Part') : t('finance.partForm.title')}
                         </h2>
                         <button
@@ -159,7 +159,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                             className="p-2 rounded-full hover:bg-on-surface/8 transition-colors"
                             aria-label="Close"
                         >
-                            <span className="material-symbols-outlined text-on-surface-variant">close</span>
+                            <span className="material-symbols-outlined text-muted-foreground">close</span>
                         </button>
                     </div>
 
@@ -171,7 +171,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                         )}
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.partForm.name')} <span className="text-error">*</span>
                             </label>
                             <input
@@ -180,13 +180,13 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder={t('finance.partForm.namePlaceholder')}
-                                className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
 
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-label-large text-on-surface">
+                                <label className="block text-sm font-medium text-foreground">
                                     {t('finance.partForm.sku')} <span className="text-error">*</span>
                                 </label>
                                 {!isEditing && (
@@ -208,12 +208,12 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                 value={formData.sku}
                                 onChange={(e) => setFormData({ ...formData, sku: e.target.value.toUpperCase().slice(0, 8) })}
                                 placeholder={t('finance.partForm.skuPlaceholder')}
-                                className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+                                className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.partForm.description')}
                             </label>
                             <textarea
@@ -221,13 +221,13 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder={t('finance.partForm.descriptionPlaceholder')}
                                 rows={3}
-                                className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                                className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-label-large text-on-surface mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     {t('finance.partForm.quantity')} <span className="text-error">*</span>
                                 </label>
                                 <input
@@ -236,12 +236,12 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                     min="0"
                                     value={formData.quantity}
                                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-label-large text-on-surface mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     {t('finance.partForm.reorderLevel')} <span className="text-error">*</span>
                                 </label>
                                 <input
@@ -250,17 +250,17 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                     min="0"
                                     value={formData.reorderLevel}
                                     onChange={(e) => setFormData({ ...formData, reorderLevel: e.target.value })}
-                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.partForm.unitPrice')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                                 <input
                                     type="number"
                                     required
@@ -269,14 +269,14 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                     value={formData.unitPrice}
                                     onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
                                     placeholder="0.00"
-                                    className="w-full pl-8 pr-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full pl-8 pr-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                         </div>
 
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-label-large text-on-surface">
+                                <label className="block text-sm font-medium text-foreground">
                                     {t('finance.partForm.supplier')}
                                 </label>
                                 <button
@@ -289,7 +289,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                 </button>
                             </div>
                             {loadingSuppliers ? (
-                                <div className="px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface-variant text-center">
+                                <div className="px-4 py-3 border border-input rounded-lg bg-background text-muted-foreground text-center">
                                     {t('finance.partForm.loadingSuppliers')}
                                 </div>
                             ) : (
@@ -299,7 +299,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                         onChange={(e) => {
                                             setFormData({ ...formData, supplierId: e.target.value, supplier: '' });
                                         }}
-                                        className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                     >
                                         <option value="">{t('finance.partForm.noSupplier')}</option>
                                         {suppliers.map((supplier) => (
@@ -308,7 +308,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                             </option>
                                         ))}
                                     </select>
-                                    <div className="mt-2 text-body-small text-on-surface-variant">
+                                    <div className="mt-2 text-sm text-muted-foreground">
                                         {t('finance.partForm.supplierFallback')}
                                     </div>
                                     <input
@@ -318,7 +318,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                                             setFormData({ ...formData, supplier: e.target.value, supplierId: '' });
                                         }}
                                         placeholder={t('finance.partForm.supplierNamePlaceholder')}
-                                        className="w-full px-4 py-3 mt-2 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-3 mt-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                         disabled={!!formData.supplierId}
                                     />
                                 </>
@@ -329,7 +329,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-6 py-3 border border-outline text-on-surface rounded-full hover:bg-on-surface/8 transition-colors"
+                                className="flex-1 px-6 py-3 border border-input text-foreground rounded-full hover:bg-muted/50 transition-colors"
                             >
                                 {t('cancel')}
                             </button>
@@ -353,7 +353,7 @@ export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) 
             </div>
 
             {showSupplierModal && (
-                <div className="fixed inset-0 z-[60]">
+                <div className="fixed inset-0 z-[70]">
                     <SupplierFormModal
                         onClose={() => setShowSupplierModal(false)}
                         onSuccess={handleSupplierCreated}

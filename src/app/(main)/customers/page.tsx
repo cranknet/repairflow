@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { CustomersPageClient } from '@/components/customers/customers-page-client';
 
 export default async function CustomersPage({
@@ -36,11 +35,9 @@ export default async function CustomersPage({
   });
 
   return (
-    <MainLayout>
-      <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-        <CustomersPageClient customers={customers} search={params.search} userRole={session.user.role} />
-      </Suspense>
-    </MainLayout>
+    <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
+      <CustomersPageClient customers={customers} search={params.search} userRole={session.user.role} />
+    </Suspense>
   );
 }
 

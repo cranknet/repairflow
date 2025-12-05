@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SettingsClient } from '@/components/settings/settings-client';
 import { PageHeader } from '@/components/layout/page-header';
@@ -43,16 +42,14 @@ export default async function SettingsPage() {
   }, {} as Record<string, string>);
 
   return (
-    <MainLayout>
-      <div className="space-y-6 pt-6">
-        <PageHeader
-          titleKey="settings"
-          descriptionKey="manageSystemSettings"
-        />
+    <div className="space-y-6 pt-6">
+      <PageHeader
+        titleKey="settings"
+        descriptionKey="manageSystemSettings"
+      />
 
-        <SettingsClient initialSettings={settingsMap} initialUsers={serializedUsers} />
-      </div>
-    </MainLayout>
+      <SettingsClient initialSettings={settingsMap} initialUsers={serializedUsers} />
+    </div>
   );
 }
 

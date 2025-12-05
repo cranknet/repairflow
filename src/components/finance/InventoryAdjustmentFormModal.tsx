@@ -131,7 +131,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                 const data = await response.json();
                 if (data.details) {
                     // Zod validation errors
-                    const errorMessages = data.details.map((err: any) => 
+                    const errorMessages = data.details.map((err: any) =>
                         `${err.path.join('.')}: ${err.message}`
                     ).join(', ');
                     throw new Error(errorMessages);
@@ -152,16 +152,16 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
 
     return (
         <>
-            <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                    <div className="sticky top-0 bg-surface border-b border-outline-variant px-6 py-4 flex items-center justify-between">
-                        <h2 className="text-headline-small font-bold text-on-surface">{t('finance.inventoryAdjustmentForm.title')}</h2>
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                <div className="bg-background rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-foreground">{t('finance.inventoryAdjustmentForm.title')}</h2>
                         <button
                             onClick={onClose}
                             className="p-2 rounded-full hover:bg-on-surface/8 transition-colors"
                             aria-label="Close"
                         >
-                            <span className="material-symbols-outlined text-on-surface-variant">close</span>
+                            <span className="material-symbols-outlined text-muted-foreground">close</span>
                         </button>
                     </div>
 
@@ -174,7 +174,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
 
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-label-large text-on-surface">
+                                <label className="block text-sm font-medium text-foreground">
                                     {t('finance.inventoryAdjustmentForm.part')} <span className="text-error">*</span>
                                 </label>
                                 <button
@@ -187,7 +187,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                 </button>
                             </div>
                             {loadingParts ? (
-                                <div className="px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface-variant text-center">
+                                <div className="px-4 py-3 border border-input rounded-lg bg-background text-muted-foreground text-center">
                                     {t('finance.inventoryAdjustmentForm.loadingParts')}
                                 </div>
                             ) : (
@@ -195,7 +195,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     required
                                     value={formData.partId}
                                     onChange={(e) => setFormData({ ...formData, partId: e.target.value })}
-                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="">{t('finance.inventoryAdjustmentForm.selectPart')}</option>
                                     {parts.map((part) => (
@@ -206,14 +206,14 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                 </select>
                             )}
                             {selectedPart && (
-                                <div className="mt-2 text-body-small text-on-surface-variant">
+                                <div className="mt-2 text-sm text-muted-foreground">
                                     {t('finance.currentStock')}: {selectedPart.unitPrice > 0 && `$${selectedPart.unitPrice.toFixed(2)} per unit`}
                                 </div>
                             )}
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.qtyChange')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
@@ -223,20 +223,20 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     value={formData.qtyChange}
                                     onChange={(e) => handleQtyChange(e.target.value)}
                                     placeholder={t('finance.inventoryAdjustmentForm.qtyChangePlaceholder')}
-                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
-                                <div className="mt-1 text-body-small text-on-surface-variant">
+                                <div className="mt-1 text-sm text-muted-foreground">
                                     {t('finance.inventoryAdjustmentForm.qtyChangeHint')}
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.inventory.totalCost')} <span className="text-error">*</span>
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                                 <input
                                     type="number"
                                     required
@@ -245,17 +245,17 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     value={formData.cost}
                                     onChange={(e) => handleCostChange(e.target.value)}
                                     placeholder="0.00"
-                                    className="w-full pl-8 pr-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full pl-8 pr-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.costPerUnit')}
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">$</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -263,10 +263,10 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     value={formData.costPerUnit}
                                     onChange={(e) => setFormData({ ...formData, costPerUnit: e.target.value })}
                                     placeholder={t('finance.inventoryAdjustmentForm.costPerUnitPlaceholder')}
-                                    className="w-full pl-8 pr-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full pl-8 pr-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
-                            <div className="mt-1 text-body-small text-on-surface-variant">
+                            <div className="mt-1 text-sm text-muted-foreground">
                                 {t('finance.inventoryAdjustmentForm.costPerUnitHint')}
                             </div>
                         </div>
@@ -277,9 +277,9 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     type="checkbox"
                                     checked={formData.addToTicket}
                                     onChange={(e) => setFormData({ ...formData, addToTicket: e.target.checked, ticketId: e.target.checked ? formData.ticketId : '' })}
-                                    className="w-4 h-4 rounded border-outline text-primary focus:ring-primary"
+                                    className="w-4 h-4 rounded border-input text-primary focus:ring-primary"
                                 />
-                                <span className="text-label-large text-on-surface">
+                                <span className="text-sm font-medium text-foreground">
                                     {t('finance.addPartToTicket') || 'Add part to ticket'}
                                 </span>
                             </label>
@@ -288,7 +288,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     required={formData.addToTicket}
                                     value={formData.ticketId}
                                     onChange={(e) => setFormData({ ...formData, ticketId: e.target.value })}
-                                    className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary mt-2"
+                                    className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-2"
                                     disabled={loadingTickets}
                                 >
                                     <option value="">{t('finance.selectTicket') || 'Select a ticket...'}</option>
@@ -299,13 +299,13 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                     ))}
                                 </select>
                             )}
-                            <div className="mt-1 text-body-small text-on-surface-variant">
+                            <div className="mt-1 text-sm text-muted-foreground">
                                 {t('finance.addPartToTicketHint') || 'When enabled, the part will be added to the selected ticket'}
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 {t('finance.reason')} <span className="text-error">*</span>
                             </label>
                             <textarea
@@ -315,7 +315,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                                 placeholder={t('finance.inventoryAdjustmentForm.reasonPlaceholder')}
                                 rows={3}
-                                className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                                className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                             />
                         </div>
 
@@ -323,7 +323,7 @@ export function InventoryAdjustmentFormModal({ onClose, onSuccess }: InventoryAd
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-6 py-3 border border-outline text-on-surface rounded-full hover:bg-on-surface/8 transition-colors"
+                                className="flex-1 px-6 py-3 border border-input text-foreground rounded-full hover:bg-muted/50 transition-colors"
                             >
                                 {t('cancel')}
                             </button>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
+
 import { InventoryAdjustmentFormModal } from '@/components/finance/InventoryAdjustmentFormModal';
 
 interface InventoryAdjustment {
@@ -64,14 +65,15 @@ export default function InventoryAdjustmentsPage() {
     };
 
     return (
+
         <div className="p-6">
             <div className="mb-6">
                 <Link
-                    href="/finance"
+                    href="/inventory/stock"
                     className="flex items-center gap-2 text-primary hover:underline mb-4"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
-                    <span className="text-label-large">{t('finance.backToFinance')}</span>
+                    <span className="text-label-large">{t('inventory.backToInventory')}</span>
                 </Link>
                 <div className="flex items-center justify-between">
                     <div>
@@ -245,5 +247,6 @@ export default function InventoryAdjustmentsPage() {
                 />
             )}
         </div>
+
     );
 }

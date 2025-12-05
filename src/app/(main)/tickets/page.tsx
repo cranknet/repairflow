@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { MainLayout } from '@/components/layout/main-layout';
 import { TicketsPageClient } from '@/components/tickets/tickets-page-client';
 
 const TICKETS_PER_PAGE = 10;
@@ -126,19 +125,17 @@ export default async function TicketsPage({
   });
 
   return (
-    <MainLayout>
-      <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-        <TicketsPageClient
-          tickets={serializedTickets}
-          totalCount={totalCount}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          status={params.status}
-          search={params.search}
-          userRole={session.user.role}
-        />
-      </Suspense>
-    </MainLayout>
+    <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
+      <TicketsPageClient
+        tickets={serializedTickets}
+        totalCount={totalCount}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        status={params.status}
+        search={params.search}
+        userRole={session.user.role}
+      />
+    </Suspense>
   );
 }
 

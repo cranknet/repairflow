@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -184,7 +183,7 @@ export default function NewTicketPage() {
 
 
   return (
-    <MainLayout>
+    <>
       <div className="space-y-6 pt-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Ticket</h1>
@@ -366,7 +365,7 @@ export default function NewTicketPage() {
         onClose={() => setShowNewCustomerModal(false)}
         onSuccess={handleCustomerCreated}
       />
-    </MainLayout>
+    </>
   );
 }
 

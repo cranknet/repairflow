@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { MainLayout as MainLayoutComponent } from "@/components/layout/main-layout";
 
 export default async function MainLayout({
     children,
@@ -14,5 +15,9 @@ export default async function MainLayout({
         redirect("/install");
     }
 
-    return <>{children}</>;
+    return (
+        <MainLayoutComponent>
+            {children}
+        </MainLayoutComponent>
+    );
 }
