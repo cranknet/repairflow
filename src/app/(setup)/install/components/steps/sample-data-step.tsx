@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BeakerIcon, UserGroupIcon, TruckIcon, CubeIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { BeakerIcon, UserGroupIcon, TruckIcon, CubeIcon, CheckIcon, ArrowLeftIcon, ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import type { InstallState } from '../../lib/validation';
 
 interface SampleDataStepProps {
@@ -63,52 +62,63 @@ export function SampleDataStep({
     ];
 
     return (
-        <Card>
-            <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
-                    <BeakerIcon className="h-16 w-16 text-primary" />
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden animate-fadeIn">
+            {/* Header */}
+            <div className="px-6 sm:px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-800">
+                <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <BeakerIcon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                            {t('install.sampleData.title') || 'Sample Data'}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                            {t('install.sampleData.description') || 'Choose whether to load sample data.'}
+                        </p>
+                    </div>
                 </div>
-                <CardTitle>{t('install.sampleData.title') || 'Sample Data'}</CardTitle>
-                <CardDescription>
-                    {t('install.sampleData.description') || 'Choose whether to load sample data.'}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </div>
+
+            {/* Content */}
+            <div className="p-6 sm:p-8 space-y-6">
                 {/* Toggle Options */}
                 <div className="space-y-4">
                     {/* Load Sample Data Option */}
                     <button
                         type="button"
                         onClick={() => setLoadSampleData(true)}
-                        className={`w-full p-4 border-2 rounded-lg text-left transition-colors ${loadSampleData
-                                ? 'border-primary bg-primary/10'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+                        className={`w-full p-5 border-2 rounded-xl text-left transition-all ${loadSampleData
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-gray-200 dark:border-slate-600 hover:border-primary/50'
                             }`}
                     >
                         <div className="flex items-start gap-4">
-                            <div className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${loadSampleData ? 'border-primary bg-primary' : 'border-gray-300'
+                            <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${loadSampleData ? 'border-primary bg-primary' : 'border-gray-300 dark:border-slate-500'
                                 }`}>
-                                {loadSampleData && <CheckIcon className="h-3 w-3 text-white" />}
+                                {loadSampleData && <CheckIcon className="h-3.5 w-3.5 text-white" />}
                             </div>
-                            <div>
-                                <p className="font-medium">{t('install.sampleData.loadLabel') || 'Load sample customers and parts'}</p>
-                                <p className="text-sm text-gray-500 mt-1">
+                            <div className="flex-1">
+                                <p className="font-medium text-gray-800 dark:text-gray-200">{t('install.sampleData.loadLabel') || 'Load sample customers and parts'}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     {t('install.sampleData.loadHelp') || 'This will create example customers, suppliers, and parts to help you explore RepairFlow.'}
                                 </p>
 
                                 {/* Sample data details */}
-                                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                    <p className="text-sm font-medium mb-2">
+                                <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl border border-gray-100 dark:border-slate-600">
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                                         {t('install.sampleData.includes') || 'Sample data includes:'}
                                     </p>
-                                    <ul className="space-y-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         {sampleDataItems.map((item, index) => (
-                                            <li key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                                <item.icon className="h-4 w-4" />
-                                                {item.label}
-                                            </li>
+                                            <div key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center shadow-sm">
+                                                    <item.icon className="h-4 w-4 text-primary" />
+                                                </div>
+                                                <span>{item.label}</span>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -118,19 +128,19 @@ export function SampleDataStep({
                     <button
                         type="button"
                         onClick={() => setLoadSampleData(false)}
-                        className={`w-full p-4 border-2 rounded-lg text-left transition-colors ${!loadSampleData
-                                ? 'border-primary bg-primary/10'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+                        className={`w-full p-5 border-2 rounded-xl text-left transition-all ${!loadSampleData
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-gray-200 dark:border-slate-600 hover:border-primary/50'
                             }`}
                     >
                         <div className="flex items-start gap-4">
-                            <div className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${!loadSampleData ? 'border-primary bg-primary' : 'border-gray-300'
+                            <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${!loadSampleData ? 'border-primary bg-primary' : 'border-gray-300 dark:border-slate-500'
                                 }`}>
-                                {!loadSampleData && <CheckIcon className="h-3 w-3 text-white" />}
+                                {!loadSampleData && <XMarkIcon className="h-3.5 w-3.5 text-white" />}
                             </div>
                             <div>
-                                <p className="font-medium">{t('install.sampleData.skip') || 'Start with empty database'}</p>
-                                <p className="text-sm text-gray-500 mt-1">
+                                <p className="font-medium text-gray-800 dark:text-gray-200">{t('install.sampleData.skip') || 'Start with empty database'}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     You can always add your own customers, suppliers, and parts later.
                                 </p>
                             </div>
@@ -139,22 +149,37 @@ export function SampleDataStep({
                 </div>
 
                 {/* Navigation */}
-                <div className="flex justify-between pt-6">
-                    <Button type="button" variant="outlined" onClick={onBack} disabled={isLoading}>
+                <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-slate-700">
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        onClick={onBack}
+                        disabled={isLoading}
+                        className="gap-2"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" />
                         {t('install.nav.back') || 'Back'}
                     </Button>
-                    <Button onClick={handleSubmit} disabled={isLoading}>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="gap-2 min-w-[120px]"
+                    >
                         {isLoading ? (
                             <span className="flex items-center gap-2">
-                                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                                <span className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></span>
                                 {loadSampleData ? (t('loading') || 'Loading...') : (t('saving') || 'Saving...')}
                             </span>
                         ) : (
-                            t('install.nav.next') || 'Next'
+                            <>
+                                {t('install.nav.next') || 'Next'}
+                                <ArrowRightIcon className="h-4 w-4" />
+                            </>
                         )}
                     </Button>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
+
