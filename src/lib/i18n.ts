@@ -48,6 +48,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.welcome.notConfigured': 'Not configured',
     'install.welcome.optional': 'Optional',
     'install.welcome.required': 'Required',
+    'install.welcome.getStarted': 'Get Started',
 
     // Installer - Database Step
     'install.database.title': 'Database Connection',
@@ -1240,6 +1241,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.welcome.notConfigured': 'غير مُعد',
     'install.welcome.optional': 'اختياري',
     'install.welcome.required': 'مطلوب',
+    'install.welcome.getStarted': 'ابدأ الآن',
 
     // Installer - Database Step
     'install.database.title': 'اتصال قاعدة البيانات',
@@ -1346,6 +1348,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.error.savePreferences': 'فشل حفظ التفضيلات',
     'install.error.loadSampleData': 'فشل تحميل البيانات التجريبية',
     'install.error.finalize': 'فشل إكمال التثبيت',
+
+    // Installer - Sidebar
+    'install.sidebar.progress': 'تقدم التثبيت',
+    'install.sidebar.stepOf': 'خطوة',
+    'install.sidebar.tipTitle': 'نصيحة سريعة',
+    'install.sidebar.tip.welcome': 'سنقوم بالتحقق من بيئتك للتأكد من أن كل شيء تم تكوينه بشكل صحيح.',
+    'install.sidebar.tip.database': 'تأكد من تكوين اتصال قاعدة البيانات بشكل صحيح في ملف .env.',
+    'install.sidebar.tip.company': 'ستظهر هذه المعلومات في الفواتير والمراسلات مع العملاء.',
+    'install.sidebar.tip.branding': 'قم بتحميل شعارك لتخصيص النظام. يمكنك تخطي هذه الخطوة.',
+    'install.sidebar.tip.admin': 'اختر كلمة مرور قوية. سيكون لهذا الحساب حق الوصول الكامل للنظام.',
+    'install.sidebar.tip.preferences': 'قم بتكوين منطقتك الزمنية وتفضيلات الإشعارات.',
+    'install.sidebar.tip.sampleData': 'تساعدك البيانات النموذجية على استكشاف النظام قبل إضافة بيانات حقيقية.',
+    'install.sidebar.tip.finalize': 'راجع إعداداتك قبل إكمال التثبيت.',
+    'install.sidebar.logoPreview': 'شعارك',
+    'install.sidebar.companySummary': 'الشركة',
+    'install.sidebar.needHelp': 'تحتاج مساعدة؟',
+    'install.sidebar.visitDocs': 'زيارة الوثائق',
+
+    // Installer - Company extra
+    'install.company.localeSettings': 'الإعدادات الإقليمية',
 
     // Navigation
     dashboard: 'لوحة التحكم',
@@ -2431,6 +2453,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.welcome.notConfigured': 'Non configuré',
     'install.welcome.optional': 'Optionnel',
     'install.welcome.required': 'Requis',
+    'install.welcome.getStarted': 'Commencer',
 
     // Installer - Database Step
     'install.database.title': 'Connexion à la base de données',
@@ -2537,6 +2560,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.error.savePreferences': 'Échec de l\'enregistrement des préférences',
     'install.error.loadSampleData': 'Échec du chargement des données exemple',
     'install.error.finalize': 'Échec de l\'installation',
+
+    // Installer - Sidebar
+    'install.sidebar.progress': 'Progression de l\'installation',
+    'install.sidebar.stepOf': 'Étape',
+    'install.sidebar.tipTitle': 'Astuce rapide',
+    'install.sidebar.tip.welcome': 'Nous vérifierons votre environnement pour nous assurer que tout est configuré correctement.',
+    'install.sidebar.tip.database': 'Assurez-vous que votre connexion à la base de données est correctement configurée dans le fichier .env.',
+    'install.sidebar.tip.company': 'Ces informations apparaîtront sur les factures et les communications avec les clients.',
+    'install.sidebar.tip.branding': 'Téléchargez votre logo pour personnaliser le système. Vous pouvez passer cette étape.',
+    'install.sidebar.tip.admin': 'Choisissez un mot de passe fort. Ce compte aura un accès complet au système.',
+    'install.sidebar.tip.preferences': 'Configurez votre fuseau horaire et vos préférences de notification.',
+    'install.sidebar.tip.sampleData': 'Les données exemples vous aident à explorer le système avant d\'ajouter des données réelles.',
+    'install.sidebar.tip.finalize': 'Vérifiez vos paramètres avant de terminer l\'installation.',
+    'install.sidebar.logoPreview': 'Votre Logo',
+    'install.sidebar.companySummary': 'Entreprise',
+    'install.sidebar.needHelp': 'Besoin d\'aide ?',
+    'install.sidebar.visitDocs': 'Consulter la documentation',
+
+    // Installer - Company extra
+    'install.company.localeSettings': 'Paramètres régionaux',
 
     // Finance
     'finance.title': 'Finance',
