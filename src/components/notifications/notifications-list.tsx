@@ -197,13 +197,13 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
-            <Button onClick={markAllAsRead} variant="outlined" size="sm">
+            <Button onClick={markAllAsRead} variant="outline" size="sm">
               <CheckIcon className="h-4 w-4 mr-1" />
               Mark all as read
             </Button>
           )}
           {notifications.filter((n) => n.read).length > 0 && (
-            <Button onClick={deleteAllRead} variant="outlined" size="sm">
+            <Button onClick={deleteAllRead} variant="outline" size="sm">
               <TrashIcon className="h-4 w-4 mr-1" />
               Delete read
             </Button>
@@ -214,14 +214,14 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <Button
-          variant={filter === 'all' ? 'filled' : 'outlined'}
+          variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setFilter('all')}
         >
           All ({notifications.length})
         </Button>
         <Button
-          variant={filter === 'unread' ? 'filled' : 'outlined'}
+          variant={filter === 'unread' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setFilter('unread')}
         >
@@ -230,7 +230,7 @@ export function NotificationsList({ notifications: initialNotifications }: Notif
         {uniqueTypes.map((type) => (
           <Button
             key={type}
-            variant={filter === type ? 'filled' : 'outlined'}
+            variant={filter === type ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter(type)}
           >

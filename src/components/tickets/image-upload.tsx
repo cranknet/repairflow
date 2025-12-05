@@ -172,7 +172,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
         />
         <Button
           type="button"
-          variant="outlined"
+          variant="outline"
           size="sm"
           onClick={handleMainClick}
         >
@@ -181,7 +181,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
         </Button>
         <Button
           type="button"
-          variant="outlined"
+          variant="outline"
           size="sm"
           onClick={() => fileInputRef.current?.click()}
         >
@@ -252,7 +252,7 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
                 </Button>
                 <Button
                   type="button"
-                  variant="outlined"
+                  variant="outline"
                   onClick={stopCamera}
                   size="lg"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"

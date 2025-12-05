@@ -104,7 +104,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
 
   return (
     <>
-      <Button onClick={() => setIsDialogOpen(true)} variant="outlined" size="sm">
+      <Button onClick={() => setIsDialogOpen(true)} variant="outline" size="sm">
         <PrinterIcon className="h-4 w-4 mr-2" />
         {t('print')}
       </Button>
@@ -129,7 +129,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
               <div className="space-y-3 py-4">
                 <Button
                   onClick={() => handleSelectFormat('40x20')}
-                  variant="outlined"
+                  variant="outline"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="flex flex-col items-start">
@@ -141,7 +141,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </Button>
                 <Button
                   onClick={() => handleSelectFormat('80x80')}
-                  variant="outlined"
+                  variant="outline"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                   disabled={!canPrintInvoice}
                   title={!canPrintInvoice ? 'Invoice can only be printed when ticket status is Completed or Repaired' : undefined}
@@ -157,7 +157,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </Button>
               </div>
               <DialogFooter>
-                <Button variant="outlined" onClick={() => setIsDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   {t('cancel')}
                 </Button>
               </DialogFooter>
@@ -205,7 +205,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outlined" onClick={() => setSelectedFormat(null)}>
+                <Button variant="outline" onClick={() => setSelectedFormat(null)}>
                   {t('back')}
                 </Button>
                 <Button onClick={handlePrint}>

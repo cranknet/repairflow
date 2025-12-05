@@ -232,7 +232,7 @@ export function AddPartsModal({
                   <h3 className="font-medium">{t('availableParts') || 'Available Parts'}</h3>
                   <Button
                     type="button"
-                    variant="outlined"
+                    variant="outline"
                     size="sm"
                     onClick={() => setShowPartModal(true)}
                   >
@@ -339,7 +339,7 @@ export function AddPartsModal({
           </div>
 
           <DialogFooter>
-            <Button variant="outlined" onClick={onClose} disabled={isSaving}>
+            <Button variant="outline" onClick={onClose} disabled={isSaving}>
               {t('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={isSaving || selectedParts.length === 0}>

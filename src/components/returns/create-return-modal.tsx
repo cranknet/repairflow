@@ -306,7 +306,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
               <Button
                 onClick={handleRetryFetch}
                 size="sm"
-                variant="outlined"
+                variant="outline"
                 type="button"
               >
                 {t('retry')}
@@ -392,7 +392,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
                   <Button
                     onClick={handleClearSelection}
                     size="sm"
-                    variant="outlined"
+                    variant="outline"
                     type="button"
                   >
                     {t('clearSelection')}
@@ -450,7 +450,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
                   <Button 
                     onClick={handleUseFullAmount} 
                     size="sm" 
-                    variant="outlined" 
+                    variant="outline" 
                     type="button"
                   >
                     {t('useFullAmount')}
@@ -477,7 +477,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
         </div>
 
         <DialogFooter>
-          <Button variant="outlined" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             {t('cancel')}
           </Button>
           {selectedTicket && (

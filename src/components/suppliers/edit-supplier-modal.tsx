@@ -179,7 +179,7 @@ export function EditSupplierModal({
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outlined" onClick={onClose} disabled={isLoading}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>

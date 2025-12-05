@@ -190,7 +190,7 @@ export function FinalizeStep({
                 <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-slate-700">
                     <Button
                         type="button"
-                        variant="outlined"
+                        variant="outline"
                         onClick={onBack}
                         disabled={isLoading}
                         className="gap-2"

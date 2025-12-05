@@ -212,7 +212,7 @@ function ResetPasswordForm() {
                   {t('resetPassword.requestNewLink') || 'Request New Reset Link'}
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="outline"
                   onClick={() => router.push('/login')}
                   className="w-full h-11 gap-2"
                 >

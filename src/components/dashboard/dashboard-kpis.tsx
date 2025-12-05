@@ -50,7 +50,7 @@ export function DashboardKPIs({
         title={t('totalRevenue')}
         value={`$${weeklyRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
         change={revenueChange}
-        color="tertiary"
+        color="success"
       />
     </div>
   );

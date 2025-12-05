@@ -226,7 +226,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                 </div>
                 <Button
                   type="button"
-                  variant="outlined"
+                  variant="outline"
                   onClick={() => setShowNewCustomerModal(true)}
                   className="mt-0"
                 >
@@ -366,7 +366,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outlined" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>

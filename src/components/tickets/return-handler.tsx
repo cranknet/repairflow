@@ -83,7 +83,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{t('returns')}</h3>
           <Link href="/returns">
-            <Button size="sm" variant="outlined">
+            <Button size="sm" variant="outline">
               {t('createReturn')}
             </Button>
           </Link>
@@ -104,7 +104,7 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{t('returns')}</h3>
         <Link href="/returns">
-          <Button size="sm" variant="outlined">
+          <Button size="sm" variant="outline">
             {t('createReturn')}
           </Button>
         </Link>
@@ -149,14 +149,14 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                     <Button
                       onClick={() => handleApproveReturn(returnRecord.id)}
                       size="sm"
-                      variant="outlined"
+                      variant="outline"
                     >
                       {t('approve')}
                     </Button>
                     <Button
                       onClick={() => handleRejectReturn(returnRecord.id)}
                       size="sm"
-                      variant="outlined"
+                      variant="outline"
                     >
                       {t('reject')}
                     </Button>

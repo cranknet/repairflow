@@ -362,7 +362,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="outlined"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleView(message)}
                       >
@@ -371,7 +371,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                       </Button>
                       {message.status === 'NEW' && (
                         <Button
-                          variant="tonal"
+                          variant="secondary"
                           size="sm"
                           onClick={() => handleStatusUpdate(message.id, 'READ')}
                         >
@@ -380,7 +380,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                       )}
                       {message.status !== 'ARCHIVED' && (
                         <Button
-                          variant="outlined"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleStatusUpdate(message.id, 'ARCHIVED')}
                         >

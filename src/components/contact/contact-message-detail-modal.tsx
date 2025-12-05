@@ -295,7 +295,7 @@ export function ContactMessageDetailModal({
                 <Button
                   onClick={() => handleStatusUpdate('READ')}
                   disabled={isUpdating}
-                  variant="tonal"
+                  variant="secondary"
                   size="sm"
                 >
                   {t('contact.admin.mark_read')}
@@ -305,7 +305,7 @@ export function ContactMessageDetailModal({
                 <Button
                   onClick={() => handleStatusUpdate('ARCHIVED')}
                   disabled={isUpdating}
-                  variant="outlined"
+                  variant="outline"
                   size="sm"
                 >
                   {t('contact.admin.archive')}

@@ -216,7 +216,7 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                 <div className="flex items-center gap-2">
                   <Link href={`/tickets/${ticket.id}`}>
                     <Button
-                      variant="outlined"
+                      variant="outline"
                       size="sm"
                       icon={<EyeIcon className="h-4 w-4" />}
                       aria-label={`${t('tickets.action.view')} ${ticket.ticketNumber}`}
@@ -229,7 +229,7 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                     !ticket.paid &&
                     (ticket.outstandingAmount ?? (ticket.finalPrice ?? ticket.estimatedPrice) - (ticket.totalPaid ?? 0)) > 0.01 && (
                     <Button
-                      variant="outlined"
+                      variant="outline"
                       size="sm"
                       type="button"
                       onClick={(e) => {

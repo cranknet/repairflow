@@ -105,7 +105,7 @@ export function DatabaseStep({ onNext, onBack, isLoading, setIsLoading }: Databa
                                 </p>
                             )}
                             <Button
-                                variant="outlined"
+                                variant="outline"
                                 onClick={testDatabase}
                                 className="mt-2 gap-2"
                             >
@@ -118,7 +118,7 @@ export function DatabaseStep({ onNext, onBack, isLoading, setIsLoading }: Databa
 
                 {/* Navigation */}
                 <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-slate-700">
-                    <Button variant="outlined" onClick={onBack} className="gap-2">
+                    <Button variant="outline" onClick={onBack} className="gap-2">
                         <ArrowLeftIcon className="h-4 w-4" />
                         {t('install.nav.back') || 'Back'}
                     </Button>

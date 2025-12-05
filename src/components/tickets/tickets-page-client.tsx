@@ -112,7 +112,7 @@ export function TicketsPageClient({
                       },
                     }}
                   >
-                    <Button variant="outlined" size="sm" disabled={currentPage === 1}>
+                    <Button variant="outline" size="sm" disabled={currentPage === 1}>
                       Previous
                     </Button>
                   </Link>
@@ -141,7 +141,7 @@ export function TicketsPageClient({
                           }}
                         >
                           <Button
-                            variant={currentPage === pageNum ? 'filled' : 'outlined'}
+                            variant={currentPage === pageNum ? 'default' : 'outline'}
                             size="sm"
                             className="min-w-[40px]"
                           >
@@ -161,7 +161,7 @@ export function TicketsPageClient({
                       },
                     }}
                   >
-                    <Button variant="outlined" size="sm" disabled={currentPage === totalPages}>
+                    <Button variant="outline" size="sm" disabled={currentPage === totalPages}>
                       Next
                     </Button>
                   </Link>

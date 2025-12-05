@@ -60,7 +60,7 @@ export function PartsStockListHeader({
       <div className="flex items-center gap-2">
         {onRefresh && (
           <Button
-            variant="outlined"
+            variant="outline"
             size="sm"
             onClick={onRefresh}
             icon={<span className="material-symbols-outlined text-sm">refresh</span>}
@@ -72,7 +72,7 @@ export function PartsStockListHeader({
         )}
         {onExport && (
           <Button
-            variant="outlined"
+            variant="outline"
             size="sm"
             onClick={handleExport}
             icon={<span className="material-symbols-outlined text-sm">download</span>}
@@ -84,7 +84,7 @@ export function PartsStockListHeader({
         )}
         {onCreate && userRole === 'ADMIN' && (
           <Button
-            variant="filled"
+            variant="default"
             size="sm"
             onClick={onCreate}
             icon={<span className="material-symbols-outlined text-sm">add</span>}

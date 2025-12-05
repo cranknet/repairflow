@@ -114,7 +114,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
         <Button
           onClick={handleTogglePaid}
           disabled={isTogglingPaid}
-          variant={isPaid ? 'filled' : 'outlined'}
+          variant={isPaid ? 'default' : 'outline'}
           size="sm"
           className={isPaid 
             ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -194,7 +194,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
         <Button
           onClick={handleTogglePaid}
           disabled={isTogglingPaid}
-          variant={isPaid ? 'filled' : 'outlined'}
+          variant={isPaid ? 'default' : 'outline'}
           size="sm"
           className={isPaid 
             ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -209,7 +209,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
       {!showForm ? (
         <Button
           onClick={() => setShowForm(true)}
-          variant="outlined"
+          variant="outline"
           size="sm"
         >
           {t('adjustPrice')}
@@ -267,7 +267,7 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
                   setReason('');
                   setNewPrice(ticket.finalPrice || ticket.estimatedPrice);
                 }}
-                variant="outlined"
+                variant="outline"
                 type="button"
               >
                 {t('cancel')}

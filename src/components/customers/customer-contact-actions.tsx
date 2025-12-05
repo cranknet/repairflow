@@ -66,7 +66,7 @@ export function CustomerContactActions({
     <div className="flex items-center gap-2">
       <Button
         onClick={handleCall}
-        variant="outlined"
+        variant="outline"
         size="sm"
         className="flex items-center gap-2"
       >
@@ -76,7 +76,7 @@ export function CustomerContactActions({
       {email && (
         <Button
           onClick={handleEmail}
-          variant="outlined"
+          variant="outline"
           size="sm"
           className="flex items-center gap-2"
         >
@@ -86,7 +86,7 @@ export function CustomerContactActions({
       )}
       <Button
         onClick={handleSMS}
-        variant="outlined"
+        variant="outline"
         size="sm"
         className="flex items-center gap-2"
       >

@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { Loader2, Mail, Send } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { ArrowPathIcon, EnvelopeIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/language-context';
 
 
 
 export function EmailSettingsTab() {
+    const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [testing, setTesting] = useState(false);
     const [configured, setConfigured] = useState(false);
@@ -71,7 +72,7 @@ export function EmailSettingsTab() {
                 });
             }
         } catch (error) {
-            toast.error(t('settings.email.loadError'));
+            toast({ title: t('error'), description: t('settings.email.loadError'), variant: 'destructive' });
         }
     };
 
@@ -89,10 +90,10 @@ export function EmailSettingsTab() {
                 throw new Error(error.error || t('settings.email.error'));
             }
 
-            toast.success(t('settings.email.success'));
+            toast({ title: t('success'), description: t('settings.email.success') });
             setConfigured(true);
         } catch (error: any) {
-            toast.error(error.message);
+            toast({ title: t('error'), description: error.message, variant: 'destructive' });
         } finally {
             setLoading(false);
         }
@@ -109,9 +110,9 @@ export function EmailSettingsTab() {
 
             if (!res.ok) throw new Error(t('settings.email.testError'));
 
-            toast.success(t('settings.email.testSuccess'));
+            toast({ title: t('success'), description: t('settings.email.testSuccess') });
         } catch (error) {
-            toast.error(t('settings.email.testError'));
+            toast({ title: t('error'), description: t('settings.email.testError'), variant: 'destructive' });
         } finally {
             setTesting(false);
         }
@@ -123,7 +124,7 @@ export function EmailSettingsTab() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Mail className="h-5 w-5" />
+                    <EnvelopeIcon className="h-5 w-5" />
                     {t('settings.email.title')}
                 </CardTitle>
                 <CardDescription>
@@ -254,21 +255,21 @@ export function EmailSettingsTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         <Button type="submit" disabled={loading}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {loading && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
                             {configured ? t('settings.email.update') : t('settings.email.save')}
                         </Button>
 
                         {configured && (
                             <Button
                                 type="button"
-                                variant="outlined"
+                                variant="outline"
                                 onClick={sendTestEmail}
                                 disabled={testing}
                             >
                                 {testing ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
                                 ) : (
-                                    <Send className="mr-2 h-4 w-4" />
+                                    <PaperAirplaneIcon className="mr-2 h-4 w-4" />
                                 )}
                                 {t('settings.email.sendTest')}
                             </Button>

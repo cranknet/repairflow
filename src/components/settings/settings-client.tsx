@@ -769,7 +769,7 @@ export function SettingsClient({
                       <h3 className="text-sm font-semibold text-red-900">{t('factoryReset')}</h3>
                       <p className="mt-1 text-sm text-red-700">{t('resetSettingsDescription')}</p>
                       <Button
-                        variant="outlined"
+                        variant="outline"
                         onClick={() => setShowResetConfirm(true)}
                         className="mt-3 border-red-600 text-red-600 hover:bg-red-50"
                       >
@@ -834,7 +834,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outlined"
+                      variant="outline"
                       onClick={() => logoInputRef.current?.click()}
                       disabled={isUploadingLogo}
                     >
@@ -883,7 +883,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outlined"
+                      variant="outline"
                       onClick={() => faviconInputRef.current?.click()}
                       disabled={isUploadingFavicon}
                     >
@@ -933,7 +933,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outlined"
+                      variant="outline"
                       onClick={() => backgroundInputRef.current?.click()}
                       disabled={isUploadingBackground}
                     >
@@ -986,7 +986,7 @@ export function SettingsClient({
                     />
                     <Button
                       type="button"
-                      variant="outlined"
+                      variant="outline"
                       onClick={() => trackImageInputRef.current?.click()}
                       disabled={isUploadingTrackImage}
                     >
@@ -1071,7 +1071,7 @@ export function SettingsClient({
                   <CardTitle>{t('userManagement')}</CardTitle>
                   <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
                 </div>
-                <Button onClick={() => setShowNewUser(true)} variant="outlined">
+                <Button onClick={() => setShowNewUser(true)} variant="outline">
                   {t('addUser')}
                 </Button>
               </div>
@@ -1100,7 +1100,7 @@ export function SettingsClient({
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Button
-                        variant="outlined"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleViewLoginLogs(user)}
                         className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
@@ -1110,7 +1110,7 @@ export function SettingsClient({
                         <span className="sm:hidden">Logs</span>
                       </Button>
                       <Button
-                        variant="outlined"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEditUser(user)}
                         className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
@@ -1119,7 +1119,7 @@ export function SettingsClient({
                         {t('edit')}
                       </Button>
                       <Button
-                        variant="outlined"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleDeleteUser(user.id)}
                         disabled={isDeleting === user.id || user.id === session?.user?.id}
@@ -1199,7 +1199,7 @@ export function SettingsClient({
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outlined" onClick={() => setShowNewUser(false)}>
+                    <Button variant="outline" onClick={() => setShowNewUser(false)}>
                       {t('cancel')}
                     </Button>
                     <Button
@@ -1275,7 +1275,7 @@ export function SettingsClient({
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outlined" onClick={() => setEditingUser(null)}>
+                    <Button variant="outline" onClick={() => setEditingUser(null)}>
                       {t('cancel')}
                     </Button>
                     <Button
@@ -1365,7 +1365,7 @@ export function SettingsClient({
               )}
             </div>
             <DialogFooter>
-              <Button onClick={() => setShowLoginLogs(false)} variant="outlined">
+              <Button onClick={() => setShowLoginLogs(false)} variant="outline">
                 {t('close')}
               </Button>
             </DialogFooter>
@@ -1395,7 +1395,7 @@ export function SettingsClient({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outlined" onClick={() => {
+              <Button variant="outline" onClick={() => {
                 setShowResetConfirm(false);
                 setResetConfirmation('');
               }}>

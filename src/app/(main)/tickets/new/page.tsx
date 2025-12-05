@@ -218,7 +218,7 @@ export default function NewTicketPage() {
                   </div>
                   <Button
                     type="button"
-                    variant="outlined"
+                    variant="outline"
                     onClick={() => setShowNewCustomerModal(true)}
                     className="mt-0"
                   >
@@ -353,7 +353,7 @@ export default function NewTicketPage() {
               {isLoading ? 'Creating...' : 'Create Ticket'}
             </Button>
             <Link href="/tickets">
-              <Button type="button" variant="outlined">
+              <Button type="button" variant="outline">
                 Cancel
               </Button>
             </Link>

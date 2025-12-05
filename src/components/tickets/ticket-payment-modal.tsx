@@ -62,7 +62,7 @@ export function TicketPaymentModal({
   }>({});
 
   // Calculate outstanding amount
-  const outstandingAmount = ticket.outstandingAmount ?? 
+  const outstandingAmount = ticket.outstandingAmount ??
     ((ticket.finalPrice ?? ticket.estimatedPrice) - (ticket.totalPaid ?? 0));
 
   // Prefill amount with outstanding when modal opens
@@ -317,11 +317,11 @@ export function TicketPaymentModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outlined" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             {t('cancel')}
           </Button>
           <Button
-            variant="filled"
+            variant="default"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >

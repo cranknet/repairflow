@@ -309,7 +309,7 @@ export function SatisfactionRatingModal({
 
             <div className="flex justify-end gap-2">
               <Button
-                variant="outlined"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >

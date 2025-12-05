@@ -490,7 +490,7 @@ export function TrackContent() {
                 {t('contact.form.description')}
               </p>
               <Button
-                variant="outlined"
+                variant="outline"
                 className="gap-2 w-full md:w-auto justify-center"
                 onClick={() => setIsContactModalOpen(true)}
               >
@@ -613,18 +613,18 @@ export function TrackContent() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
-                  <Button variant="outlined" onClick={handlePrint} className="gap-2">
+                  <Button variant="outline" onClick={handlePrint} className="gap-2">
                     <PrinterIcon className="h-4 w-4" />
                     {t('printSummary')}
                   </Button>
                   {ticket.status === 'COMPLETED' && (
-                    <Button variant="outlined" className="gap-2">
+                    <Button variant="outline" className="gap-2">
                       <ArrowDownTrayIcon className="h-4 w-4" />
                       {t('downloadInvoice')}
                     </Button>
                   )}
                   <Button
-                    variant="outlined"
+                    variant="outline"
                     className="gap-2"
                     onClick={() => setIsContactModalOpen(true)}
                   >
@@ -633,7 +633,7 @@ export function TrackContent() {
                   </Button>
                   {(ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') && (
                     <Button
-                      variant="outlined"
+                      variant="outline"
                       className="gap-2"
                       onClick={() => setIsSatisfactionModalOpen(true)}
                     >
@@ -641,7 +641,7 @@ export function TrackContent() {
                       {t('satisfaction.rating_label')}
                     </Button>
                   )}
-                  <Button variant="outlined" onClick={() => setShowQR(!showQR)} className="gap-2">
+                  <Button variant="outline" onClick={() => setShowQR(!showQR)} className="gap-2">
                     <QrCodeIcon className="h-4 w-4" />
                     {t('shareTracking')}
                   </Button>
@@ -812,7 +812,7 @@ export function TrackContent() {
 
             <div className="flex justify-center">
               <Button
-                variant="outlined"
+                variant="outline"
                 className="gap-2"
                 onClick={() => setIsContactModalOpen(true)}
               >

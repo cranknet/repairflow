@@ -14,30 +14,30 @@ export function TicketFilters({ currentStatus }: TicketFiltersProps) {
   return (
     <div className="flex gap-2 flex-wrap">
       <Link href="/tickets">
-        <Button variant={!currentStatus ? 'filled' : 'outlined'}>{t('all')}</Button>
+        <Button variant={!currentStatus ? 'default' : 'outline'}>{t('all')}</Button>
       </Link>
       <Link href="/tickets?status=active">
-        <Button variant={currentStatus === 'active' ? 'filled' : 'outlined'}>
+        <Button variant={currentStatus === 'active' ? 'default' : 'outline'}>
           {t('active')}
         </Button>
       </Link>
       <Link href="/tickets?status=IN_PROGRESS">
-        <Button variant={currentStatus === 'IN_PROGRESS' ? 'filled' : 'outlined'}>
+        <Button variant={currentStatus === 'IN_PROGRESS' ? 'default' : 'outline'}>
           {t('inProgress')}
         </Button>
       </Link>
       <Link href="/tickets?status=REPAIRED">
-        <Button variant={currentStatus === 'REPAIRED' ? 'filled' : 'outlined'}>
+        <Button variant={currentStatus === 'REPAIRED' ? 'default' : 'outline'}>
           {t('repaired')}
         </Button>
       </Link>
       <Link href="/tickets?status=RETURNED">
-        <Button variant={currentStatus === 'RETURNED' ? 'filled' : 'outlined'}>
+        <Button variant={currentStatus === 'RETURNED' ? 'default' : 'outline'}>
           {t('returned') || 'Returned'}
         </Button>
       </Link>
       <Link href="/tickets?status=CANCELLED">
-        <Button variant={currentStatus === 'CANCELLED' ? 'filled' : 'outlined'}>
+        <Button variant={currentStatus === 'CANCELLED' ? 'default' : 'outline'}>
           {t('cancelled')}
         </Button>
       </Link>

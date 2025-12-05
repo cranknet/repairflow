@@ -141,7 +141,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outlined" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose}>
               {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>

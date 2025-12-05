@@ -32,7 +32,7 @@ export function CustomerProfileButton({ customer }: CustomerProfileButtonProps) 
 
   return (
     <>
-      <Button variant="outlined" size="sm" onClick={() => setIsModalOpen(true)}>
+      <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
         View Customer Profile
       </Button>
       <CustomerProfileModal

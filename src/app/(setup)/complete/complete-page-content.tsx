@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/language-context";
 import { SetupLanguageSwitcher } from "@/components/setup/setup-language-switcher";
@@ -30,7 +30,7 @@ export function CompletePageContent({ dashboardUrl }: { dashboardUrl: string }) 
                         <Image src="/default-logo.png" alt="RepairFlow Logo" width={128} height={128} unoptimized />
                     </div>
                     <div className="flex justify-center mb-4">
-                        <CheckCircle2 className="h-16 w-16 text-green-500" />
+                        <CheckCircleIcon className="h-16 w-16 text-green-500" />
                     </div>
                     <CardTitle className="text-center">{t('installationComplete')}</CardTitle>
                     <CardDescription className="text-center">

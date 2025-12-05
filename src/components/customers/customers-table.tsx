@@ -125,7 +125,7 @@ export function CustomersTable({ customers, userRole }: CustomersTableProps) {
                 <div className="flex items-center gap-2">
                   <Link href={`/customers/${customer.id}`}>
                     <Button
-                      variant="outlined"
+                      variant="outline"
                       size="sm"
                       icon={<EyeIcon className="h-4 w-4" />}
                       aria-label={`${t('customers.action.view')} ${customer.name}`}
