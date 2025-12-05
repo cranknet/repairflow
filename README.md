@@ -203,11 +203,26 @@ A comprehensive, open-source repair shop management system built with Next.js, d
 
 ### Setup Wizard
 
-Upon first launch, the application will automatically redirect you to the setup wizard. Follow the on-screen instructions to:
-1. Create your administrator account
-2. Configure company details
-3. Set up initial preferences
+Upon first launch, the application will automatically redirect you to the **8-step installation wizard**:
 
+| Step | Description |
+|------|-------------|
+| 1. Welcome | Environment checks (DATABASE_URL, AUTH_SECRET validation) |
+| 2. Database | Test database connectivity and write access |
+| 3. Company | Configure company name, email, phone, address, country, language, currency |
+| 4. Branding | Upload company logo, favicon, and login background (optional) |
+| 5. Admin | Create your administrator account |
+| 6. Preferences | Set timezone, theme, SMS toggle, and social media links |
+| 7. Sample Data | Optionally load demo customers, suppliers, and parts |
+| 8. Finalize | Review settings and complete installation |
+
+After completing the wizard, you'll be redirected to the login page.
+
+> **Fresh Install:** To reset and run the wizard again:
+> ```bash
+> npx prisma db push --force-reset
+> npm run dev
+> ```
 
 
 ## 🛠️ Tech Stack
