@@ -6,14 +6,12 @@ import { NotificationsBell } from '@/components/notifications/notifications-bell
 import { InboxIcon } from '@/components/contact/inbox-icon';
 import { LanguageSwitcher } from './language-switcher';
 import { UserProfileDropdown } from './user-profile-dropdown';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 
 /**
- * Material Design 3 Top App Bar Component
+ * Top Header Component
  * 
- * Implements MD3 top app bar with surface tint, proper elevation,
- * accessibility features, and responsive mobile menu.
- * 
- * @see https://m3.material.io/components/top-app-bar/overview
+ * Responsive top app bar with search, notifications, and user actions.
  */
 
 interface TopHeaderProps {
@@ -25,17 +23,17 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
 
   return (
     <header
-      className="bg-surface border-b border-outline-variant shadow-md-level0 sticky top-0 z-40 transition-all duration-short2 ease-standard"
+      className="bg-background border-b border-border sticky top-0 z-40 transition-all"
       role="banner"
     >
       <div className="flex items-center gap-2 sm:gap-4 h-16 px-3 sm:px-4">
         {/* Hamburger Menu - Mobile only */}
         <button
           onClick={onMobileMenuToggle}
-          className="md:hidden p-2 rounded-full text-on-surface-variant hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary transition-all duration-short2 ease-standard md-state-layer-hover"
+          className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
           aria-label={t('header.openMenu')}
         >
-          <span className="material-symbols-outlined text-2xl">menu</span>
+          <Bars3Icon className="h-6 w-6" />
         </button>
 
         {/* Search Bar - Left aligned */}
@@ -46,12 +44,12 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
         {/* Spacer - hidden on mobile */}
         <div className="hidden sm:flex flex-1" />
 
-        {/* Right Side Actions - Properly sized touch targets (min 44px) */}
+        {/* Right Side Actions */}
         <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label={t('header.appActions')}>
           <LanguageSwitcher />
           <InboxIcon />
           <NotificationsBell />
-          <div className="hidden sm:block h-8 w-px bg-outline-variant mx-1" aria-hidden="true" />
+          <div className="hidden sm:block h-8 w-px bg-border mx-1" aria-hidden="true" />
           <UserProfileDropdown />
         </div>
       </div>

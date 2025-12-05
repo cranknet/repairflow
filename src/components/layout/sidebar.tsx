@@ -13,14 +13,11 @@ import { useFeatureFlag } from '@/lib/hooks/useFeatureFlag';
 import { FEATURES } from '@/lib/features';
 
 /**
- * Material Design 3 Navigation Rail/Drawer Component
+ * Navigation Sidebar Component
  * 
- * Implements MD3 navigation patterns with proper state layers,
+ * Responsive navigation with proper state layers,
  * active indicators, and accessibility features.
  * Fully responsive with mobile overlay and tablet auto-collapse.
- * 
- * @see https://m3.material.io/components/navigation-rail/overview
- * @see https://m3.material.io/components/navigation-drawer/overview
  */
 
 interface NavigationChild {
@@ -272,7 +269,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const sidebarContent = (
     <div
       className={cn(
-        'flex flex-col bg-surface border-r border-outline-variant h-full transition-all duration-medium2 ease-emphasized shadow-md-level0 flex-shrink-0',
+        'flex flex-col bg-background border-r border-border h-full transition-all duration-300 flex-shrink-0',
         // Mobile: full width when open, hidden when closed
         'md:relative',
         // Tablet/Desktop: responsive width
@@ -280,7 +277,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       )}
     >
       {/* Logo and Toggle */}
-      <div className="border-b border-outline-variant">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between px-4 h-16">
           {!isCollapsed && (
             <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
@@ -303,15 +300,15 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   unoptimized
                 />
               )}
-              <span className="text-title-large text-on-surface truncate">{companyName}</span>
+              <span className="text-lg font-medium text-foreground truncate">{companyName}</span>
             </Link>
           )}
           {/* Only show toggle on tablet/desktop */}
           <button
             onClick={toggleCollapse}
             className={cn(
-              'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
-              'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+              'p-2 rounded-lg text-muted-foreground transition-colors',
+              'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'hidden md:block',
               isCollapsed && 'mx-auto'
             )}
@@ -326,8 +323,8 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
           <button
             onClick={onMobileMenuClose}
             className={cn(
-              'p-2 rounded-full text-on-surface-variant transition-all duration-short2 ease-standard md-state-layer-hover',
-              'hover:bg-on-surface/8 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary',
+              'p-2 rounded-lg text-muted-foreground transition-colors',
+              'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'md:hidden'
             )}
             aria-label={t('sidebar.close')}
@@ -343,8 +340,8 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
           const hasChildren = item.children && item.children.length > 0;
           const hasActiveChild = hasChildren
             ? item.children!.some(
-                (child) => pathname === child.href || pathname.startsWith(child.href + '/')
-              )
+              (child) => pathname === child.href || pathname.startsWith(child.href + '/')
+            )
             : false;
           const isActive =
             pathname === item.href ||
@@ -360,13 +357,13 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                 <button
                   onClick={(e) => toggleExpand(item.key, e)}
                   className={cn(
-                    'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden w-full',
-                    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                    'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden w-full',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-4 py-3',
                     isActive
-                      ? 'bg-secondary-container text-on-secondary-container'
-                      : 'text-on-surface-variant hover:bg-on-surface/8'
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                   title={isCollapsed ? translatedName : undefined}
                   aria-expanded={isExpanded}
@@ -374,7 +371,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                 >
                   {/* Active indicator */}
                   {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                   )}
 
                   {/* Icon */}
@@ -407,27 +404,27 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   )}
 
                   {/* State layer for hover/press */}
-                  <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+
                 </button>
               ) : (
                 <Link
                   href={item.href}
                   onClick={handleNavClick}
                   className={cn(
-                    'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden',
-                    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                    'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-4 py-3',
                     isActive
-                      ? 'bg-secondary-container text-on-secondary-container'
-                      : 'text-on-surface-variant hover:bg-on-surface/8'
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                   title={isCollapsed ? translatedName : undefined}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {/* Active indicator */}
                   {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                   )}
 
                   {/* Icon */}
@@ -453,7 +450,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   )}
 
                   {/* State layer for hover/press */}
-                  <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+
                 </Link>
               )}
 
@@ -476,18 +473,18 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                         href={child.href}
                         onClick={handleNavClick}
                         className={cn(
-                          'relative flex items-center gap-3 rounded-full text-label-medium font-medium transition-all duration-short2 ease-standard group overflow-hidden',
-                          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
-                          'min-h-[40px] px-6 py-3',
+                          'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          'min-h-[40px] px-4 py-2',
                           isChildActive
-                            ? 'bg-secondary-container text-on-secondary-container'
-                            : 'text-on-surface-variant hover:bg-on-surface/8'
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                         )}
                         aria-current={isChildActive ? 'page' : undefined}
                       >
                         {/* Active indicator */}
                         {isChildActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-on-secondary-container rounded-r-full" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                         )}
 
                         {/* Icon */}
@@ -511,7 +508,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                         <span className="flex-1 truncate">{translatedChildName}</span>
 
                         {/* State layer for hover/press */}
-                        <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+
                       </Link>
                     );
                   })}
@@ -524,14 +521,14 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
 
       {/* Version Info */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-outline-variant">
+        <div className="px-4 py-3 border-t border-border">
           <AppVersion />
         </div>
       )}
 
       {/* Collapsed version indicator */}
       {isCollapsed && (
-        <div className="px-2 py-3 border-t border-outline-variant flex justify-center">
+        <div className="px-2 py-3 border-t border-border flex justify-center">
           <div className="h-2 w-2 rounded-full bg-primary" title={t('sidebar.appActive')} />
         </div>
       )}
@@ -547,14 +544,14 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       )}>
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-scrim/50 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onMobileMenuClose}
           aria-hidden="true"
         />
 
         {/* Sidebar */}
         <div className={cn(
-          'absolute left-0 top-0 bottom-0 w-72 transform transition-transform duration-medium2 ease-emphasized',
+          'absolute left-0 top-0 bottom-0 w-72 transform transition-transform duration-300',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}>
           {sidebarContent}
