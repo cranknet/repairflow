@@ -63,3 +63,7 @@ logs
 *.log
 .cursor/audit-report.txt
 .cursor/commit-split-report.txt
+
+# Uploads
+/public/uploads/*
+!/public/uploads/.gitkeep

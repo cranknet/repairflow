@@ -19,118 +19,57 @@ function generateTicketNumber(): string {
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const admin = await prisma.user.upsert({
-    where: { username: 'admin' },
-    update: {},
-    create: {
-      username: 'admin',
-      email: 'admin@repairshop.com',
-      password: adminPassword,
-      role: 'ADMIN',
-      name: 'Administrator',
-    },
-  });
-
-  // Create staff user
-  const staffPassword = await bcrypt.hash('staff123', 10);
-  const staff = await prisma.user.upsert({
-    where: { username: 'staff' },
-    update: {},
-    create: {
-      username: 'staff',
-      email: 'staff@repairshop.com',
-      password: staffPassword,
-      role: 'STAFF',
-      name: 'Staff Member',
-    },
-  });
-
-  console.log('✅ Users created');
-
-  // Create default settings
-  await prisma.settings.upsert({
-    where: { key: 'company_name' },
-    update: {},
-    create: {
-      key: 'company_name',
-      value: 'RepairShop',
-      description: 'Company name',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'company_email' },
-    update: {},
-    create: {
-      key: 'company_email',
-      value: 'info@repairshop.com',
-      description: 'Company email',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'company_phone' },
-    update: {},
-    create: {
-      key: 'company_phone',
-      value: '+1 (555) 123-4567',
-      description: 'Company phone',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'company_address' },
-    update: {},
-    create: {
-      key: 'company_address',
-      value: '123 Main St, City, State 12345',
-      description: 'Company address',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'currency' },
-    update: {},
-    create: {
-      key: 'currency',
-      value: 'USD',
-      description: 'Default currency',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'country' },
-    update: {},
-    create: {
-      key: 'country',
-      value: 'US',
-      description: 'Default country',
-    },
-  });
-
-  await prisma.settings.upsert({
-    where: { key: 'language' },
-    update: {},
-    create: {
-      key: 'language',
-      value: 'en',
-      description: 'Default language',
-    },
-  });
-
-  await prisma.settings.upsert({
+  // Check if already installed - skip seeding sample data if not installed yet
+  // The installer wizard will handle initial setup
+  const isInstalled = await prisma.settings.findUnique({
     where: { key: 'is_installed' },
-    update: {},
-    create: {
-      key: 'is_installed',
-      value: 'true',
-      description: 'Installation status',
-    },
   });
 
-  console.log('✅ Settings created');
+  if (!isInstalled || isInstalled.value !== 'true') {
+    console.log('⚠️  Application not installed yet. Run the installer wizard first.');
+    console.log('   Skipping sample data seeding...');
+    return;
+  }
+
+  // Get admin and staff users (created by installer)
+  const admin = await prisma.user.findFirst({
+    where: { role: 'ADMIN' },
+  });
+
+  const staff = await prisma.user.findFirst({
+    where: { role: 'STAFF' },
+  });
+
+  if (!admin) {
+    console.log('⚠️  No admin user found. Please run the installer wizard first.');
+    return;
+  }
+
+  // Use admin as fallback if no staff exists
+  const assignee = staff || admin;
+
+  console.log('✅ Found existing users');
+
+  // Create default settings if missing (installer should have created these)
+  const defaultSettings = [
+    { key: 'company_name', value: 'RepairShop', description: 'Company name' },
+    { key: 'company_email', value: 'info@repairshop.com', description: 'Company email' },
+    { key: 'company_phone', value: '+1 (555) 123-4567', description: 'Company phone' },
+    { key: 'company_address', value: '123 Main St, City, State 12345', description: 'Company address' },
+    { key: 'currency', value: 'USD', description: 'Default currency' },
+    { key: 'country', value: 'US', description: 'Default country' },
+    { key: 'language', value: 'en', description: 'Default language' },
+  ];
+
+  for (const setting of defaultSettings) {
+    await prisma.settings.upsert({
+      where: { key: setting.key },
+      update: {},
+      create: setting,
+    });
+  }
+
+  console.log('✅ Settings verified');
 
   // Create mock customers
   const customers = await Promise.all([
@@ -359,7 +298,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[0].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Apple',
         deviceModel: 'iPhone 14',
         deviceIssue: 'Screen cracked, needs replacement',
@@ -393,7 +332,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[1].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Samsung',
         deviceModel: 'Galaxy S23',
         deviceIssue: 'Battery draining quickly',
@@ -461,7 +400,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[0].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Apple',
         deviceModel: 'iPhone 12',
         deviceIssue: 'Camera not working',
@@ -491,7 +430,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[3].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Samsung',
         deviceModel: 'Galaxy S21',
         deviceIssue: 'Charging port damaged',
@@ -560,7 +499,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[2].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Samsung',
         deviceModel: 'Galaxy S22',
         deviceIssue: 'Screen replacement',
@@ -595,7 +534,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[4].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Apple',
         deviceModel: 'iPhone 12',
         deviceIssue: 'Charging port repair',
@@ -663,7 +602,7 @@ async function main() {
       data: {
         ticketNumber: generateTicketNumber(),
         customerId: customers[3].id,
-        assignedToId: staff.id,
+        assignedToId: assignee.id,
         deviceBrand: 'Samsung',
         deviceModel: 'Galaxy A52',
         deviceIssue: 'Screen replacement',
@@ -765,13 +704,12 @@ async function main() {
   const repairedPaidTickets = tickets.filter(t => t.status === 'REPAIRED' && t.paid === true);
 
   const returns = [];
-  
   // Create an approved return for the first REPAIRED and paid ticket
   // This ticket was created specifically for returns testing
   if (repairedPaidTickets.length > 0) {
     const ticketForApprovedReturn = repairedPaidTickets[0];
     const refundAmount = ticketForApprovedReturn.finalPrice || ticketForApprovedReturn.estimatedPrice;
-    
+
     const returnRecord = await prisma.return.create({
       data: {
         ticketId: ticketForApprovedReturn.id,
@@ -784,7 +722,7 @@ async function main() {
       },
     });
     returns.push(returnRecord);
-    
+
     // Add status history note (ticket stays REPAIRED per API behavior)
     await prisma.ticketStatusHistory.create({
       data: {
@@ -800,7 +738,7 @@ async function main() {
   if (repairedPaidTickets.length > 1) {
     const ticketForPendingReturn = repairedPaidTickets[1];
     const refundAmount = (ticketForPendingReturn.finalPrice || ticketForPendingReturn.estimatedPrice) * 0.8; // 80% refund
-    
+
     const returnRecord = await prisma.return.create({
       data: {
         ticketId: ticketForPendingReturn.id,
@@ -811,7 +749,7 @@ async function main() {
       },
     });
     returns.push(returnRecord);
-    
+
     // Add status history note (ticket stays REPAIRED per API behavior)
     await prisma.ticketStatusHistory.create({
       data: {
@@ -868,7 +806,7 @@ async function main() {
   await Promise.all([
     prisma.notification.create({
       data: {
-        userId: staff.id,
+        userId: assignee.id,
         ticketId: tickets[3].id,
         type: 'STATUS_CHANGE',
         message: `Ticket ${tickets[3].ticketNumber} status changed to IN_PROGRESS`,
@@ -886,7 +824,7 @@ async function main() {
     }),
     prisma.notification.create({
       data: {
-        userId: staff.id,
+        userId: assignee.id,
         ticketId: tickets[0].id,
         type: 'STATUS_CHANGE',
         message: `Ticket ${tickets[0].ticketNumber} has been completed`,
@@ -914,16 +852,16 @@ async function main() {
 
   // Create payments for completed tickets
   const completedTickets = tickets.filter(t => t.status === 'COMPLETED' && t.paid);
-  
+
   // Generate payment numbers for seed data
   const today = new Date();
   const dateStr = today.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
-  
+
   const payments = await Promise.all(
     completedTickets.map((ticket, index) => {
       const sequence = (index + 1).toString().padStart(4, '0');
       const paymentNumber = `PAY-${dateStr}-${sequence}`;
-      
+
       return prisma.payment.create({
         data: {
           paymentNumber,
@@ -970,7 +908,7 @@ async function main() {
         category: 'Inventory Loss',
         partId: parts[1].id,
         notes: 'Battery damaged during handling',
-        createdById: staff.id,
+        createdById: assignee.id,
       },
     }),
     prisma.expense.create({
@@ -1006,7 +944,7 @@ async function main() {
         cost: 14.40,
         costPerUnit: 7.20,
         reason: 'Damaged items removed from inventory',
-        createdById: staff.id,
+        createdById: assignee.id,
       },
     }),
   ]);

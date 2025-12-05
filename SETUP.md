@@ -41,12 +41,56 @@ SMTP_FROM="noreply@repairshop.com"
 
 ## Setup Wizard
 
-The application includes a setup wizard that runs on first launch. Follow the instructions to:
-1. Create your administrator account
-2. Configure company details
-3. Set up initial preferences
+The application includes an **8-step installation wizard** that runs on first launch:
 
-After completing the setup wizard, you'll be redirected to the main dashboard.
+### Wizard Steps
+
+1. **Welcome** - Environment validation
+   - Checks required variables: `DATABASE_URL`, `AUTH_SECRET`/`NEXTAUTH_SECRET`
+   - Warns about optional variables: `SMTP_*`, `EMAIL_ENCRYPTION_KEY`
+
+2. **Database** - Connection test
+   - Tests database connectivity
+   - Verifies read/write access
+
+3. **Company** - Business information
+   - Company name, email, phone, address
+   - Default country, language, and currency
+
+4. **Branding** - Visual customization (optional)
+   - Upload company logo (recommended: 200x200px)
+   - Upload favicon (recommended: 32x32px)
+   - Upload login background (recommended: 1920x1080px)
+
+5. **Admin** - Administrator account
+   - Create username, email, password
+   - Password strength indicator included
+
+6. **Preferences** - System settings
+   - Timezone selection
+   - Enable/disable SMS notifications
+   - Social media links (Facebook, YouTube, Instagram)
+   - Default theme (light/dark/system)
+
+7. **Sample Data** - Demo content (optional)
+   - Load 5 sample customers
+   - Load 3 sample suppliers
+   - Load 5 sample parts
+
+8. **Finalize** - Complete installation
+   - Review configuration summary
+   - Complete installation and redirect to login
+
+### Re-running the Wizard
+
+To reset the database and run the wizard again:
+
+```bash
+npx prisma db push --force-reset
+npm run dev
+```
+
+Then navigate to `http://localhost:3000/` - you'll be redirected to `/install`.
 
 ## Initial Configuration
 

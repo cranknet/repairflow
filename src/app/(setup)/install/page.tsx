@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { InstallPageContent } from "./install-page-content";
+import { InstallWizard } from "./components/install-wizard";
 
 export default async function InstallPage() {
-    // Double check if already installed
+    // Check if already installed - redirect to dashboard
     const isInstalled = await prisma.settings.findUnique({
         where: { key: "is_installed" },
     });
@@ -12,5 +12,9 @@ export default async function InstallPage() {
         redirect("/dashboard");
     }
 
-    return <InstallPageContent />;
+    return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <InstallWizard />
+        </div>
+    );
 }

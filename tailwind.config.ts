@@ -165,6 +165,41 @@ const config: Config = {
         'extra-long3': '900ms',
         'extra-long4': '1000ms',
       },
+      // Custom Animations for Wizard
+      animation: {
+        'fadeIn': 'fadeIn 0.3s ease-out',
+        'scaleIn': 'scaleIn 0.2s ease-out',
+        'slideInLeft': 'slideInLeft 0.3s ease-out',
+        'slideInRight': 'slideInRight 0.3s ease-out',
+        'slideOutLeft': 'slideOutLeft 0.2s ease-out',
+        'slideOutRight': 'slideOutRight 0.2s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.8)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        slideInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideOutLeft: {
+          '0%': { opacity: '1', transform: 'translateX(0)' },
+          '100%': { opacity: '0', transform: 'translateX(-20px)' },
+        },
+        slideOutRight: {
+          '0%': { opacity: '1', transform: 'translateX(0)' },
+          '100%': { opacity: '0', transform: 'translateX(20px)' },
+        },
+      },
     },
   },
   plugins: [],
