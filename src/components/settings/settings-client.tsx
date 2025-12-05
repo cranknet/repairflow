@@ -51,7 +51,12 @@ export function SettingsClient({
     { id: 'notifications', label: 'Notification Preferences' },
     { id: 'users', label: t('userManagement') },
   ];
-  const [settings, setSettings] = useState(initialSettings);
+  // Initialize settings with defaults for missing values
+  const [settings, setSettings] = useState<Record<string, string>>({
+    ...initialSettings,
+    // Default auto_mark_tickets_as_paid to 'false' if not set
+    auto_mark_tickets_as_paid: initialSettings.auto_mark_tickets_as_paid ?? 'false',
+  });
   const [users, setUsers] = useState(initialUsers);
   const [isSaving, setIsSaving] = useState(false);
   const [showNewUser, setShowNewUser] = useState(false);

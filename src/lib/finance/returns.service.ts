@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { generatePaymentNumber } from '@/lib/utils/payment-number';
 
 export interface ApproveReturnV2Options {
     returnId: string;
@@ -43,6 +44,9 @@ export async function approveReturnV2(
         notes,
         createInventoryAdjustment = false,
     } = options;
+
+    // Generate payment number before transaction (to avoid potential deadlocks)
+    const paymentNumber = await generatePaymentNumber();
 
     // Use Prisma transaction to ensure atomicity
     return await prisma.$transaction(async (tx) => {
@@ -102,6 +106,7 @@ export async function approveReturnV2(
         // 6. Create Payment record for refund
         const payment = await tx.payment.create({
             data: {
+                paymentNumber,
                 ticketId: returnRecord.ticketId,
                 amount: -refundAmount, // Negative for refund
                 method: paymentMethod,

@@ -26,33 +26,45 @@ export async function POST(request: NextRequest) {
         }
 
         // Delete all data in the correct order (respecting foreign keys)
-        // Start with dependent tables first
+        // Start with most dependent models first, then work up to parent models
         await prisma.$transaction([
-            // Delete login logs
-            prisma.loginLog.deleteMany({}),
-
-            // Delete returns
+            // 1. Finance module - most dependent models first
+            prisma.journalEntry.deleteMany({}),
             prisma.return.deleteMany({}),
+            prisma.payment.deleteMany({}),
+            prisma.expense.deleteMany({}),
+            prisma.inventoryAdjustment.deleteMany({}),
 
-            // Delete ticket parts
+            // 2. User-dependent models
+            prisma.notificationPreference.deleteMany({}),
+            prisma.loginLog.deleteMany({}),
+            prisma.passwordResetToken.deleteMany({}),
+
+            // 3. Ticket-dependent models
+            prisma.ticketPriceAdjustment.deleteMany({}),
             prisma.ticketPart.deleteMany({}),
+            prisma.ticketStatusHistory.deleteMany({}),
+            prisma.satisfactionRating.deleteMany({}),
+            prisma.contactMessage.deleteMany({}),
+            prisma.notification.deleteMany({}),
 
-            // Delete SMS templates
-            prisma.sMSTemplate.deleteMany({}),
-
-            // Delete tickets
+            // 4. Ticket and inventory transactions
+            prisma.inventoryTransaction.deleteMany({}),
             prisma.ticket.deleteMany({}),
 
-            // Delete customers
+            // 5. Customer and parts
             prisma.customer.deleteMany({}),
-
-            // Delete inventory parts
             prisma.part.deleteMany({}),
+            prisma.supplier.deleteMany({}),
 
-            // Delete all users
+            // 6. Settings and templates
+            prisma.sMSTemplate.deleteMany({}),
+            prisma.emailSettings.deleteMany({}),
+
+            // 7. Delete all users (after all dependent records)
             prisma.user.deleteMany({}),
 
-            // Delete all settings
+            // 8. Delete all settings (last)
             prisma.settings.deleteMany({}),
         ]);
 

@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { generatePaymentNumber } from '@/lib/utils/payment-number';
 
 export interface RecordCashPaymentOptions {
     ticketId: string;
@@ -47,9 +48,13 @@ export async function recordCashPayment(options: RecordCashPaymentOptions) {
     });
     const currency = currencySetting?.value || 'USD';
 
+    // Generate payment number
+    const paymentNumber = await generatePaymentNumber();
+
     // Create payment record
     const payment = await prisma.payment.create({
         data: {
+            paymentNumber,
             ticketId,
             amount,
             method: 'CASH',
@@ -118,9 +123,13 @@ export async function recordCashRefund(options: RecordCashRefundOptions) {
     });
     const currency = currencySetting?.value || 'USD';
 
+    // Generate payment number
+    const paymentNumber = await generatePaymentNumber();
+
     // Create refund payment record (negative amount)
     const payment = await prisma.payment.create({
         data: {
+            paymentNumber,
             ticketId: returnRecord.ticketId,
             amount: -amount, // Negative for refund
             method: 'CASH',

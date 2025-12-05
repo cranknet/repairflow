@@ -9,21 +9,38 @@ interface Supplier {
     name: string;
 }
 
+interface Part {
+    id: string;
+    name: string;
+    sku: string;
+    description: string | null;
+    quantity: number;
+    reorderLevel: number;
+    unitPrice: number;
+    supplierId: string | null;
+    supplier: {
+        id: string;
+        name: string;
+    } | null;
+}
+
 interface PartFormModalProps {
+    part?: Part | null;
     onClose: () => void;
     onSuccess: (part?: { id: string; name: string; sku: string }) => void;
 }
 
-export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
+export function PartFormModal({ part, onClose, onSuccess }: PartFormModalProps) {
     const { t } = useLanguage();
+    const isEditing = !!part;
     const [formData, setFormData] = useState({
-        name: '',
-        sku: '',
-        description: '',
-        quantity: '0',
-        reorderLevel: '5',
-        unitPrice: '0',
-        supplierId: '',
+        name: part?.name || '',
+        sku: part?.sku || '',
+        description: part?.description || '',
+        quantity: part?.quantity.toString() || '0',
+        reorderLevel: part?.reorderLevel.toString() || '1',
+        unitPrice: part?.unitPrice.toString() || '0',
+        supplierId: part?.supplierId || part?.supplier?.id || '',
         supplier: '', // Fallback supplier name
     });
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -32,9 +49,34 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
     const [error, setError] = useState('');
     const [showSupplierModal, setShowSupplierModal] = useState(false);
 
+    const generateSKU = (): string => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let sku = '';
+        for (let i = 0; i < 8; i++) {
+            sku += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return sku;
+    };
+
     useEffect(() => {
         fetchSuppliers();
-    }, []);
+        // Initialize form data when part changes
+        if (part) {
+            setFormData({
+                name: part.name,
+                sku: part.sku,
+                description: part.description || '',
+                quantity: part.quantity.toString(),
+                reorderLevel: part.reorderLevel.toString(),
+                unitPrice: part.unitPrice.toString(),
+                supplierId: part.supplierId || part.supplier?.id || '',
+                supplier: '',
+            });
+        } else {
+            // Generate SKU on component mount only if creating new part
+            setFormData(prev => ({ ...prev, sku: generateSKU() }));
+        }
+    }, [part]);
 
     const fetchSuppliers = async () => {
         try {
@@ -64,15 +106,18 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/parts', {
-                method: 'POST',
+            const url = isEditing ? `/api/parts/${part.id}` : '/api/parts';
+            const method = isEditing ? 'PATCH' : 'POST';
+            
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: formData.name.trim(),
                     sku: formData.sku.trim(),
                     description: formData.description.trim() || undefined,
                     quantity: parseInt(formData.quantity) || 0,
-                    reorderLevel: parseInt(formData.reorderLevel) || 5,
+                    reorderLevel: parseInt(formData.reorderLevel) || 1,
                     unitPrice: parseFloat(formData.unitPrice) || 0,
                     supplierId: formData.supplierId || undefined,
                     supplier: formData.supplier.trim() || undefined,
@@ -88,13 +133,13 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
                     ).join(', ');
                     throw new Error(errorMessages);
                 }
-                throw new Error(data.error || 'Failed to create part');
+                throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'create'} part`);
             }
 
-            const part = await response.json();
-            onSuccess(part);
+            const updatedPart = await response.json();
+            onSuccess(updatedPart);
         } catch (error: any) {
-            console.error('Error creating part:', error);
+            console.error(`Error ${isEditing ? 'updating' : 'creating'} part:`, error);
             setError(error.message || 'An error occurred');
         } finally {
             setLoading(false);
@@ -106,7 +151,9 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
             <div className="fixed inset-0 bg-scrim/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                 <div className="bg-surface rounded-xl shadow-md-level3 w-full max-w-md max-h-[90vh] overflow-y-auto">
                     <div className="sticky top-0 bg-surface border-b border-outline-variant px-6 py-4 flex items-center justify-between">
-                        <h2 className="text-headline-small font-bold text-on-surface">{t('finance.partForm.title')}</h2>
+                        <h2 className="text-headline-small font-bold text-on-surface">
+                            {isEditing ? (t('finance.partForm.editTitle') || 'Edit Part') : t('finance.partForm.title')}
+                        </h2>
                         <button
                             onClick={onClose}
                             className="p-2 rounded-full hover:bg-on-surface/8 transition-colors"
@@ -138,14 +185,28 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
                         </div>
 
                         <div>
-                            <label className="block text-label-large text-on-surface mb-2">
-                                {t('finance.partForm.sku')} <span className="text-error">*</span>
-                            </label>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-label-large text-on-surface">
+                                    {t('finance.partForm.sku')} <span className="text-error">*</span>
+                                </label>
+                                {!isEditing && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, sku: generateSKU() })}
+                                        className="text-primary text-label-medium hover:underline flex items-center gap-1"
+                                        title={t('finance.partForm.regenerateSKU')}
+                                    >
+                                        <span className="material-symbols-outlined text-sm">refresh</span>
+                                        {t('finance.partForm.regenerateSKU')}
+                                    </button>
+                                )}
+                            </div>
                             <input
                                 type="text"
                                 required
+                                maxLength={8}
                                 value={formData.sku}
-                                onChange={(e) => setFormData({ ...formData, sku: e.target.value.toUpperCase() })}
+                                onChange={(e) => setFormData({ ...formData, sku: e.target.value.toUpperCase().slice(0, 8) })}
                                 placeholder={t('finance.partForm.skuPlaceholder')}
                                 className="w-full px-4 py-3 border border-outline rounded-lg bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary font-mono"
                             />
@@ -280,10 +341,10 @@ export function PartFormModal({ onClose, onSuccess }: PartFormModalProps) {
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                        {t('finance.partForm.creating')}
+                                        {isEditing ? (t('finance.partForm.updating') || 'Updating...') : t('finance.partForm.creating')}
                                     </span>
                                 ) : (
-                                    t('finance.partForm.createPart')
+                                    isEditing ? (t('finance.partForm.updatePart') || 'Update Part') : t('finance.partForm.createPart')
                                 )}
                             </button>
                         </div>

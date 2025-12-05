@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { emitEvent } from '@/lib/events/emitter';
 import { nanoid } from 'nanoid';
+import { generatePaymentNumber } from '@/lib/utils/payment-number';
 
 const createPaymentSchema = z.object({
   amount: z.number().positive('Amount must be greater than 0'),
@@ -101,11 +102,15 @@ export async function POST(
     const newTotalPaid = totalPaid + data.amount;
     const isFullyPaid = newTotalPaid >= finalPrice - 0.01; // Small tolerance for rounding
 
+    // Generate payment number
+    const paymentNumber = await generatePaymentNumber();
+
     // Use a transaction to ensure both payment creation and ticket update succeed together
     const result = await prisma.$transaction(async (tx) => {
       // Create payment record
       const payment = await tx.payment.create({
         data: {
+          paymentNumber,
           ticketId: ticket.id,
           amount: data.amount,
           method: data.method,

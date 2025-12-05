@@ -81,6 +81,7 @@ model Ticket {
   payments             Payment[]
   contactMessages      ContactMessage[]
   satisfactionRatings  SatisfactionRating[]
+  inventoryAdjustments InventoryAdjustment[]
 }
 
 model TicketStatusHistory {
@@ -258,6 +259,7 @@ model SMSTemplate {
 
 model Payment {
   id              String   @id @default(cuid())
+  paymentNumber   String   @unique // Human-readable payment ID (e.g., PAY-20240101-0001)
   ticketId        String?  // Nullable for refund-only payments
   ticket          Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   amount          Float
@@ -276,6 +278,7 @@ model Payment {
   @@index([ticketId])
   @@index([performedBy])
   @@index([createdAt])
+  @@index([paymentNumber])
 }
 
 model ContactMessage {
@@ -383,6 +386,8 @@ model InventoryAdjustment {
   costPerUnit      Float?    // Cost per unit (calculated or manual)
   reason           String
   relatedReturnId  String?   // Link to return if applicable
+  ticketId         String?   // Link to ticket if part is added to a ticket
+  ticket           Ticket?   @relation(fields: [ticketId], references: [id], onDelete: SetNull)
   createdById      String
   createdByUser    User      @relation("InventoryAdjustmentCreatedBy", fields: [createdById], references: [id])
   createdAt        DateTime  @default(now())
@@ -395,6 +400,7 @@ model InventoryAdjustment {
   @@index([createdById])
   @@index([createdAt])
   @@index([relatedReturnId])
+  @@index([ticketId])
 }
 
 model JournalEntry {

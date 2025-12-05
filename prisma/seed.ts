@@ -563,7 +563,7 @@ async function main() {
         },
       },
     }),
-    // RETURNED ticket (has a return)
+    // REPAIRED ticket with return (has a return)
     prisma.ticket.create({
       data: {
         ticketNumber: generateTicketNumber(),
@@ -575,7 +575,7 @@ async function main() {
         priority: 'LOW',
         estimatedPrice: 55.00,
         finalPrice: 50.00,
-        status: 'RETURNED',
+        status: 'REPAIRED',
         paid: true,
         trackingCode: generateTrackingCode(),
         completedAt: dates.completedWeekAgo,
@@ -585,7 +585,6 @@ async function main() {
             { status: 'RECEIVED', notes: 'Device received' },
             { status: 'IN_PROGRESS', notes: 'Replacing back glass' },
             { status: 'REPAIRED', notes: 'Back glass replaced' },
-            { status: 'RETURNED', notes: 'Ticket returned. Refund amount: 50.00' },
           ],
         },
         parts: {
@@ -702,18 +701,20 @@ async function main() {
 
   // Create returns for testing returns page
   // Find tickets by their characteristics
-  const returnedTicket = tickets.find(t => t.status === 'RETURNED');
   const repairedPaidTickets = tickets.filter(t => t.status === 'REPAIRED' && t.paid === true);
 
   const returns = [];
+  // Create an approved return for the first REPAIRED and paid ticket
+  // This ticket was created specifically for returns testing
+  if (repairedPaidTickets.length > 0) {
+    const ticketForApprovedReturn = repairedPaidTickets[0];
+    const refundAmount = ticketForApprovedReturn.finalPrice || ticketForApprovedReturn.estimatedPrice;
 
-  // Create a return for the RETURNED ticket (this ticket was created with RETURNED status)
-  if (returnedTicket) {
     const returnRecord = await prisma.return.create({
       data: {
-        ticketId: returnedTicket.id,
+        ticketId: ticketForApprovedReturn.id,
         reason: 'Customer requested full refund due to dissatisfaction with repair quality',
-        refundAmount: returnedTicket.finalPrice || returnedTicket.estimatedPrice,
+        refundAmount: refundAmount,
         createdBy: admin.id,
         status: 'APPROVED',
         handledAt: new Date(),
@@ -721,17 +722,26 @@ async function main() {
       },
     });
     returns.push(returnRecord);
+
+    // Add status history note (ticket stays REPAIRED per API behavior)
+    await prisma.ticketStatusHistory.create({
+      data: {
+        ticketId: ticketForApprovedReturn.id,
+        status: ticketForApprovedReturn.status, // Keep REPAIRED
+        notes: `Return request created. Refund amount: ${refundAmount}. Ticket remains REPAIRED.`,
+      },
+    });
   }
 
-  // Create a pending return for a REPAIRED and paid ticket
+  // Create a pending return for another REPAIRED and paid ticket
   // This will test the returns creation flow
-  if (repairedPaidTickets.length > 0) {
-    const ticketForReturn = repairedPaidTickets[0];
-    const refundAmount = (ticketForReturn.finalPrice || ticketForReturn.estimatedPrice) * 0.8; // 80% refund
+  if (repairedPaidTickets.length > 1) {
+    const ticketForPendingReturn = repairedPaidTickets[1];
+    const refundAmount = (ticketForPendingReturn.finalPrice || ticketForPendingReturn.estimatedPrice) * 0.8; // 80% refund
 
     const returnRecord = await prisma.return.create({
       data: {
-        ticketId: ticketForReturn.id,
+        ticketId: ticketForPendingReturn.id,
         reason: 'Customer wants to return device, partial refund requested',
         refundAmount: refundAmount,
         createdBy: admin.id,
@@ -740,17 +750,12 @@ async function main() {
     });
     returns.push(returnRecord);
 
-    // Update ticket status to RETURNED (matching the API behavior)
-    await prisma.ticket.update({
-      where: { id: ticketForReturn.id },
+    // Add status history note (ticket stays REPAIRED per API behavior)
+    await prisma.ticketStatusHistory.create({
       data: {
-        status: 'RETURNED',
-        statusHistory: {
-          create: {
-            status: 'RETURNED',
-            notes: `Ticket returned. Refund amount: ${refundAmount}`,
-          },
-        },
+        ticketId: ticketForPendingReturn.id,
+        status: ticketForPendingReturn.status, // Keep REPAIRED
+        notes: `Return request created. Refund amount: ${refundAmount}. Awaiting approval.`,
       },
     });
   }
@@ -847,18 +852,27 @@ async function main() {
 
   // Create payments for completed tickets
   const completedTickets = tickets.filter(t => t.status === 'COMPLETED' && t.paid);
+
+  // Generate payment numbers for seed data
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+
   const payments = await Promise.all(
-    completedTickets.map(ticket =>
-      prisma.payment.create({
+    completedTickets.map((ticket, index) => {
+      const sequence = (index + 1).toString().padStart(4, '0');
+      const paymentNumber = `PAY-${dateStr}-${sequence}`;
+
+      return prisma.payment.create({
         data: {
+          paymentNumber,
           ticketId: ticket.id,
           amount: ticket.finalPrice || ticket.estimatedPrice,
           method: 'CASH',
           currency: 'USD',
           performedBy: admin.id,
         },
-      })
-    )
+      });
+    })
   );
 
   console.log(`✅ Payments created (${payments.length})`);
