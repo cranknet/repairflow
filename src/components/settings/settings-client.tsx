@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { PhotoIcon, XMarkIcon, SparklesIcon, PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, XMarkIcon, PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ThemeCustomizer } from './theme-customizer';
@@ -64,7 +64,7 @@ export function SettingsClient({
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [isUploadingTrackImage, setIsUploadingTrackImage] = useState(false);
-  const [backgroundImageUrl, setBackgroundImageUrl] = useState(settings.login_background_image_url || '');
+
   const logoInputRef = useRef<HTMLInputElement>(null);
   const faviconInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
@@ -289,7 +289,6 @@ export function SettingsClient({
       // Update settings immediately
       const updatedSettings = { ...settings, login_background_image: data.url };
       setSettings(updatedSettings);
-      setBackgroundImageUrl(data.url);
 
       toast({
         title: t('success'),
@@ -308,39 +307,7 @@ export function SettingsClient({
     }
   };
 
-  const handleBackgroundUrlChange = async () => {
-    if (!backgroundImageUrl.trim()) return;
 
-    setIsSaving(true);
-    try {
-      // Update settings immediately
-      const updatedSettings = { ...settings, login_background_image_url: backgroundImageUrl };
-      setSettings(updatedSettings);
-
-      // Save to database
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedSettings),
-      });
-
-      if (!response.ok) throw new Error('Failed to save settings');
-
-      toast({
-        title: t('success'),
-        description: t('backgroundImageUrlSaved'),
-      });
-      // Refresh in background to sync
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: t('error'),
-        description: t('failedToSaveBackgroundImageUrl'),
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleTrackImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -439,7 +406,6 @@ export function SettingsClient({
 
   const handleRemoveBackground = async () => {
     setSettings({ ...settings, login_background_image: '', login_background_image_url: '' });
-    setBackgroundImageUrl('');
     await handleSaveSettings();
   };
 
@@ -977,233 +943,60 @@ export function SettingsClient({
                   </div>
                 </div>
 
-                {/* Or use free API */}
-                <div className="space-y-2">
-                  <Label htmlFor="background-url">{t('orUseFreeImageUrl')}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="background-url"
-                      type="url"
-                      placeholder="https://source.unsplash.com/1920x1080/?technology"
-                      value={backgroundImageUrl}
-                      onChange={(e) => setBackgroundImageUrl(e.target.value)}
-                    />
-                    <Button
-                      type="button"
-                      variant="outlined"
-                      onClick={handleBackgroundUrlChange}
-                      disabled={isSaving || !backgroundImageUrl.trim()}
-                    >
-                      <SparklesIcon className="h-4 w-4 mr-2" />
-                      {t('useUrl')}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Example: https://source.unsplash.com/1920x1080/?technology,repair,workshop
-                  </p>
-                </div>
+
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('settings.unsplash.title')}</CardTitle>
-                <CardDescription>{t('settings.unsplash.description')}</CardDescription>
+                <CardTitle>{t('settings.branding.defaultTrackImage')}</CardTitle>
+                <CardDescription>
+                  Upload a background image for the public tracking page.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Unsplash Enabled Toggle */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <Label htmlFor="unsplash-enabled" className="text-base font-medium">
-                      {t('settings.unsplash.enabled')}
-                    </Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {t('settings.unsplash.help')}
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      id="unsplash-enabled"
-                      checked={settings.UNSPLASH_ENABLED === 'true'}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          UNSPLASH_ENABLED: e.target.checked ? 'true' : 'false',
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                {/* Unsplash API Key */}
-                {settings.UNSPLASH_ENABLED === 'true' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="unsplash-api-key">{t('settings.unsplash.apiKey')}</Label>
-                    <Input
-                      id="unsplash-api-key"
-                      type="password"
-                      placeholder="Your Unsplash Access Key"
-                      value={settings.UNSPLASH_ACCESS_KEY || ''}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          UNSPLASH_ACCESS_KEY: e.target.value,
-                        })
-                      }
-                    />
-                    <p className="text-xs text-gray-500">
-                      {t('settings.unsplash.apiKeyHelp')}
-                      <a
-                        href="https://unsplash.com/developers"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline ml-1"
-                      >
-                        {t('settings.unsplash.getApiKey')}
-                      </a>
-                    </p>
-                  </div>
-                )}
-
-                {/* Default Track Image */}
-                <div className="space-y-2">
-                  <Label>{t('settings.unsplash.defaultTrackImage')}</Label>
-                  <div className="flex items-center gap-4">
-                    {settings.default_track_image ? (
-                      <div className="relative">
-                        <img
-                          src={settings.default_track_image}
-                          alt="Default Track Background"
-                          className="h-32 w-48 object-cover border border-gray-300 rounded"
-                        />
-                        <button
-                          onClick={handleRemoveTrackImage}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <XMarkIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="h-32 w-48 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
-                        <PhotoIcon className="h-8 w-8 text-gray-400" />
-                      </div>
-                    )}
-                    <div>
-                      <input
-                        ref={trackImageInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleTrackImageUpload}
-                        className="hidden"
-                        id="track-image-upload"
+                <div className="flex items-center gap-4">
+                  {settings.default_track_image ? (
+                    <div className="relative">
+                      <img
+                        src={settings.default_track_image}
+                        alt="Default Track Background"
+                        className="h-32 w-48 object-cover border border-gray-300 rounded"
                       />
-                      <Button
-                        type="button"
-                        variant="outlined"
-                        onClick={() => trackImageInputRef.current?.click()}
-                        disabled={isUploadingTrackImage}
+                      <button
+                        onClick={handleRemoveTrackImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                       >
-                        {isUploadingTrackImage ? t('uploading') : settings.default_track_image ? t('changeImage') : t('uploadImage')}
-                      </Button>
-                      <p className="text-xs text-gray-500 mt-1">Max 5MB. Used as fallback when Unsplash is disabled or unavailable.</p>
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
                     </div>
+                  ) : (
+                    <div className="h-32 w-48 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                      <PhotoIcon className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      ref={trackImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleTrackImageUpload}
+                      className="hidden"
+                      id="track-image-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      onClick={() => trackImageInputRef.current?.click()}
+                      disabled={isUploadingTrackImage}
+                    >
+                      {isUploadingTrackImage ? t('uploading') : settings.default_track_image ? t('changeImage') : t('uploadImage')}
+                    </Button>
+                    <p className="text-xs text-gray-500 mt-1">Max 5MB.</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Unsplash Random Background Settings */}
-            {settings.UNSPLASH_ENABLED === 'true' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('settings.unsplash.randomTitle')}</CardTitle>
-                  <CardDescription>{t('settings.unsplash.randomDescription')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Random Enable Toggle */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <Label htmlFor="unsplash-random-enabled" className="text-base font-medium">
-                        {t('settings.unsplash.randomEnabled')}
-                      </Label>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {t('settings.unsplash.randomHelp')}
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        id="unsplash-random-enabled"
-                        checked={settings.unsplash_random_enabled === 'true'}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            unsplash_random_enabled: e.target.checked ? 'true' : 'false',
-                          })
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-
-                  {/* Default Goal and Keywords - Only show when random is enabled */}
-                  {settings.unsplash_random_enabled === 'true' && (
-                    <>
-                      {/* Default Goal Input */}
-                      <div className="space-y-2">
-                        <Label htmlFor="unsplash-default-goal">{t('settings.unsplash.defaultGoal')}</Label>
-                        <Input
-                          id="unsplash-default-goal"
-                          value={settings.unsplash_default_goal || ''}
-                          onChange={(e) =>
-                            setSettings({
-                              ...settings,
-                              unsplash_default_goal: e.target.value,
-                            })
-                          }
-                          placeholder="repairflow_default"
-                        />
-                        <p className="text-xs text-gray-500">
-                          {t('settings.unsplash.defaultGoalHelp')}
-                        </p>
-                      </div>
-
-                      {/* Goals/Keywords Textarea */}
-                      <div className="space-y-2">
-                        <Label htmlFor="unsplash-goals">{t('settings.unsplash.goals')}</Label>
-                        <textarea
-                          id="unsplash-goals"
-                          rows={3}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                          placeholder={t('settings.unsplash.goalsPlaceholder')}
-                          value={settings.unsplash_goals || ''}
-                          onChange={(e) =>
-                            setSettings({
-                              ...settings,
-                              unsplash_goals: e.target.value,
-                            })
-                          }
-                        />
-                        <p className="text-xs text-gray-500">
-                          {t('settings.unsplash.goalsHelp')}
-                        </p>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Visual Note */}
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <p className="text-xs text-blue-800">
-                      {t('settings.unsplash.randomNote')}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         )}
 

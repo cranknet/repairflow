@@ -91,7 +91,7 @@ export default function LoginPage() {
         <div className="lg:col-span-3">
           <div
             className={cn(
-              "bg-white dark:bg-slate-800 rounded-2xl lg:rounded-r-none",
+              "h-full flex flex-col bg-white dark:bg-slate-800 rounded-2xl lg:rounded-r-none",
               "shadow-sm border border-gray-100 dark:border-slate-700",
               "overflow-hidden"
             )}
@@ -238,6 +238,6 @@ export default function LoginPage() {
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-gray-400 text-xs">
         © {new Date().getFullYear()} {companyName || 'RepairFlow'}
       </div>
-    </div>
+    </div >
   );
 }

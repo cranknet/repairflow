@@ -5,66 +5,66 @@
 /* Material Design 3 Color System Variables */
 :root {
   /* Primary Colors - Light Mode */
-  --md-sys-color-primary: 103 80 164;
+  --md-sys-color-primary: 64 126 201;
   --md-sys-color-on-primary: 255 255 255;
-  --md-sys-color-primary-container: 234 221 255;
-  --md-sys-color-on-primary-container: 33 0 94;
-  --md-sys-color-primary-fixed: 234 221 255;
-  --md-sys-color-primary-fixed-dim: 208 188 255;
-  --md-sys-color-on-primary-fixed: 33 0 94;
-  --md-sys-color-on-primary-fixed-variant: 79 55 139;
+  --md-sys-color-primary-container: 213 227 247;
+  --md-sys-color-on-primary-container: 0 28 58;
+  --md-sys-color-primary-fixed: 213 227 247;
+  --md-sys-color-primary-fixed-dim: 165 200 234;
+  --md-sys-color-on-primary-fixed: 0 28 58;
+  --md-sys-color-on-primary-fixed-variant: 40 98 155;
 
   /* Secondary Colors - Light Mode */
-  --md-sys-color-secondary: 98 91 113;
+  --md-sys-color-secondary: 88 94 113;
   --md-sys-color-on-secondary: 255 255 255;
-  --md-sys-color-secondary-container: 232 222 248;
-  --md-sys-color-on-secondary-container: 30 25 43;
-  --md-sys-color-secondary-fixed: 232 222 248;
-  --md-sys-color-secondary-fixed-dim: 204 194 220;
-  --md-sys-color-on-secondary-fixed: 30 25 43;
-  --md-sys-color-on-secondary-fixed-variant: 74 68 88;
+  --md-sys-color-secondary-container: 220 226 249;
+  --md-sys-color-on-secondary-container: 21 27 44;
+  --md-sys-color-secondary-fixed: 220 226 249;
+  --md-sys-color-secondary-fixed-dim: 192 198 220;
+  --md-sys-color-on-secondary-fixed: 21 27 44;
+  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
 
   /* Tertiary Colors - Light Mode */
-  --md-sys-color-tertiary: 125 82 96;
+  --md-sys-color-tertiary: 112 85 127;
   --md-sys-color-on-tertiary: 255 255 255;
-  --md-sys-color-tertiary-container: 255 216 228;
-  --md-sys-color-on-tertiary-container: 55 11 30;
-  --md-sys-color-tertiary-fixed: 255 216 228;
-  --md-sys-color-tertiary-fixed-dim: 239 184 200;
-  --md-sys-color-on-tertiary-fixed: 55 11 30;
-  --md-sys-color-on-tertiary-fixed-variant: 99 59 72;
+  --md-sys-color-tertiary-container: 241 219 255;
+  --md-sys-color-on-tertiary-container: 39 16 53;
+  --md-sys-color-tertiary-fixed: 241 219 255;
+  --md-sys-color-tertiary-fixed-dim: 213 188 229;
+  --md-sys-color-on-tertiary-fixed: 39 16 53;
+  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
 
   /* Error Colors - Light Mode */
-  --md-sys-color-error: 179 38 30;
+  --md-sys-color-error: 186 26 26;
   --md-sys-color-on-error: 255 255 255;
-  --md-sys-color-error-container: 249 222 220;
-  --md-sys-color-on-error-container: 65 14 11;
+  --md-sys-color-error-container: 255 218 214;
+  --md-sys-color-on-error-container: 65 0 2;
 
   /* Surface Colors - Light Mode */
-  --md-sys-color-surface: 254 247 255;
-  --md-sys-color-surface-dim: 222 216 225;
-  --md-sys-color-surface-bright: 254 247 255;
+  --md-sys-color-surface: 250 249 253;
+  --md-sys-color-surface-dim: 218 217 221;
+  --md-sys-color-surface-bright: 250 249 253;
   --md-sys-color-surface-container-lowest: 255 255 255;
-  --md-sys-color-surface-container-low: 247 242 250;
-  --md-sys-color-surface-container: 243 237 247;
-  --md-sys-color-surface-container-high: 236 230 240;
-  --md-sys-color-surface-container-highest: 230 224 233;
-  --md-sys-color-on-surface: 28 27 31;
-  --md-sys-color-surface-variant: 231 224 236;
-  --md-sys-color-on-surface-variant: 73 69 79;
+  --md-sys-color-surface-container-low: 244 243 247;
+  --md-sys-color-surface-container: 238 238 242;
+  --md-sys-color-surface-container-high: 232 232 236;
+  --md-sys-color-surface-container-highest: 227 227 230;
+  --md-sys-color-on-surface: 26 28 30;
+  --md-sys-color-surface-variant: 224 226 236;
+  --md-sys-color-on-surface-variant: 67 71 78;
 
   /* Outline Colors - Light Mode */
-  --md-sys-color-outline: 121 116 126;
-  --md-sys-color-outline-variant: 202 196 208;
+  --md-sys-color-outline: 116 119 127;
+  --md-sys-color-outline-variant: 196 199 208;
 
   /* Background Colors - Light Mode */
-  --md-sys-color-background: 254 247 255;
-  --md-sys-color-on-background: 28 27 31;
+  --md-sys-color-background: 250 249 253;
+  --md-sys-color-on-background: 26 28 30;
 
   /* Inverse Colors - Light Mode */
-  --md-sys-color-inverse-surface: 49 48 51;
-  --md-sys-color-inverse-on-surface: 244 239 244;
-  --md-sys-color-inverse-primary: 208 188 255;
+  --md-sys-color-inverse-surface: 47 48 51;
+  --md-sys-color-inverse-on-surface: 241 240 244;
+  --md-sys-color-inverse-primary: 165 200 234;
 
   /* Additional Colors */
   --md-sys-color-shadow: 0 0 0;
@@ -74,66 +74,66 @@
 /* Dark Mode Color Overrides */
 .dark {
   /* Primary Colors - Dark Mode */
-  --md-sys-color-primary: 208 188 255;
-  --md-sys-color-on-primary: 55 30 115;
-  --md-sys-color-primary-container: 79 55 139;
-  --md-sys-color-on-primary-container: 234 221 255;
-  --md-sys-color-primary-fixed: 234 221 255;
-  --md-sys-color-primary-fixed-dim: 208 188 255;
-  --md-sys-color-on-primary-fixed: 33 0 94;
-  --md-sys-color-on-primary-fixed-variant: 79 55 139;
+  --md-sys-color-primary: 165 200 234;
+  --md-sys-color-on-primary: 11 54 90;
+  --md-sys-color-primary-container: 40 98 155;
+  --md-sys-color-on-primary-container: 213 227 247;
+  --md-sys-color-primary-fixed: 213 227 247;
+  --md-sys-color-primary-fixed-dim: 165 200 234;
+  --md-sys-color-on-primary-fixed: 0 28 58;
+  --md-sys-color-on-primary-fixed-variant: 40 98 155;
 
   /* Secondary Colors - Dark Mode */
-  --md-sys-color-secondary: 204 194 220;
-  --md-sys-color-on-secondary: 51 45 65;
-  --md-sys-color-secondary-container: 74 68 88;
-  --md-sys-color-on-secondary-container: 232 222 248;
-  --md-sys-color-secondary-fixed: 232 222 248;
-  --md-sys-color-secondary-fixed-dim: 204 194 220;
-  --md-sys-color-on-secondary-fixed: 30 25 43;
-  --md-sys-color-on-secondary-fixed-variant: 74 68 88;
+  --md-sys-color-secondary: 192 198 220;
+  --md-sys-color-on-secondary: 42 48 65;
+  --md-sys-color-secondary-container: 64 70 89;
+  --md-sys-color-on-secondary-container: 220 226 249;
+  --md-sys-color-secondary-fixed: 220 226 249;
+  --md-sys-color-secondary-fixed-dim: 192 198 220;
+  --md-sys-color-on-secondary-fixed: 21 27 44;
+  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
 
   /* Tertiary Colors - Dark Mode */
-  --md-sys-color-tertiary: 239 184 200;
-  --md-sys-color-on-tertiary: 73 37 50;
-  --md-sys-color-tertiary-container: 99 59 72;
-  --md-sys-color-on-tertiary-container: 255 216 228;
-  --md-sys-color-tertiary-fixed: 255 216 228;
-  --md-sys-color-tertiary-fixed-dim: 239 184 200;
-  --md-sys-color-on-tertiary-fixed: 55 11 30;
-  --md-sys-color-on-tertiary-fixed-variant: 99 59 72;
+  --md-sys-color-tertiary: 213 188 229;
+  --md-sys-color-on-tertiary: 60 37 76;
+  --md-sys-color-tertiary-container: 86 61 101;
+  --md-sys-color-on-tertiary-container: 241 219 255;
+  --md-sys-color-tertiary-fixed: 241 219 255;
+  --md-sys-color-tertiary-fixed-dim: 213 188 229;
+  --md-sys-color-on-tertiary-fixed: 39 16 53;
+  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
 
   /* Error Colors - Dark Mode */
-  --md-sys-color-error: 242 184 181;
+  --md-sys-color-error: 255 180 171;
   --md-sys-color-on-error: 105 0 5;
   --md-sys-color-error-container: 147 0 10;
-  --md-sys-color-on-error-container: 249 222 220;
+  --md-sys-color-on-error-container: 255 218 214;
 
   /* Surface Colors - Dark Mode */
-  --md-sys-color-surface: 28 27 31;
-  --md-sys-color-surface-dim: 28 27 31;
-  --md-sys-color-surface-bright: 66 64 69;
-  --md-sys-color-surface-container-lowest: 19 18 22;
-  --md-sys-color-surface-container-low: 32 31 38;
-  --md-sys-color-surface-container: 37 36 41;
-  --md-sys-color-surface-container-high: 47 46 51;
-  --md-sys-color-surface-container-highest: 58 56 62;
-  --md-sys-color-on-surface: 230 224 233;
-  --md-sys-color-surface-variant: 73 69 79;
-  --md-sys-color-on-surface-variant: 202 196 208;
+  --md-sys-color-surface: 26 28 30;
+  --md-sys-color-surface-dim: 26 28 30;
+  --md-sys-color-surface-bright: 54 57 60;
+  --md-sys-color-surface-container-lowest: 20 22 25;
+  --md-sys-color-surface-container-low: 34 36 39;
+  --md-sys-color-surface-container: 38 41 43;
+  --md-sys-color-surface-container-high: 49 51 54;
+  --md-sys-color-surface-container-highest: 60 62 65;
+  --md-sys-color-on-surface: 227 227 230;
+  --md-sys-color-surface-variant: 67 71 78;
+  --md-sys-color-on-surface-variant: 196 199 208;
 
   /* Outline Colors - Dark Mode */
-  --md-sys-color-outline: 147 143 153;
-  --md-sys-color-outline-variant: 73 69 79;
+  --md-sys-color-outline: 142 145 153;
+  --md-sys-color-outline-variant: 67 71 78;
 
   /* Background Colors - Dark Mode */
-  --md-sys-color-background: 28 27 31;
-  --md-sys-color-on-background: 230 224 233;
+  --md-sys-color-background: 26 28 30;
+  --md-sys-color-on-background: 227 227 230;
 
   /* Inverse Colors - Dark Mode */
-  --md-sys-color-inverse-surface: 230 224 233;
-  --md-sys-color-inverse-on-surface: 49 48 51;
-  --md-sys-color-inverse-primary: 103 80 164;
+  --md-sys-color-inverse-surface: 227 227 230;
+  --md-sys-color-inverse-on-surface: 47 48 51;
+  --md-sys-color-inverse-primary: 40 98 155;
 
   /* Additional Colors */
   --md-sys-color-shadow: 0 0 0;
