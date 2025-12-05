@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { useSettings } from '@/contexts/settings-context';
+import { ArrowLeftIcon, EnvelopeIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -19,20 +20,6 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [backgroundImage, setBackgroundImage] = useState<string>('');
-
-  useEffect(() => {
-    // Load background image similar to login page
-    fetch('/api/settings/public')
-      .then((res) => res.json())
-      .then((data) => {
-        const defaultImage = data.default_login_image || '/default-login-bg.png';
-        setBackgroundImage(defaultImage);
-      })
-      .catch(() => {
-        setBackgroundImage('/default-login-bg.png');
-      });
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,10 +55,11 @@ export default function ForgotPasswordPage() {
         description: t('forgotPassword.successMessage') || 'If an account exists with this email, a password reset link has been sent.',
       });
       setIsSubmitted(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : t('forgotPassword.errorMessage') || 'An error occurred. Please try again.';
       toast({
         title: t('forgotPassword.errorTitle') || 'Error',
-        description: error.message || t('forgotPassword.errorMessage') || 'An error occurred. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -79,46 +67,49 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  // Success state
   if (isSubmitted) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-        style={{
-          backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/80 backdrop-blur-sm" />
-        <Card
-          className={cn(
-            "w-full max-w-md relative z-10 shadow-2xl border-0 ring-1 ring-white/10",
-            "bg-black/40 backdrop-blur-xl text-white overflow-hidden"
-          )}
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50" />
-          <CardHeader className="space-y-6 pb-2 pt-8">
-            <div className="flex flex-col items-center gap-4">
-              <div className="text-center space-y-1.5">
-                <CardTitle className="text-3xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
-                  {t('forgotPassword.checkEmailTitle') || 'Check Your Email'}
-                </CardTitle>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center px-4 py-8">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-green-50 via-gray-50 to-gray-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-900" />
+
+        <div className="relative z-10 w-full max-w-md animate-fadeIn">
+          <div
+            className={cn(
+              "bg-white dark:bg-slate-800 rounded-2xl",
+              "shadow-sm border border-gray-100 dark:border-slate-700",
+              "overflow-hidden"
+            )}
+          >
+            {/* Header */}
+            <div className="px-6 sm:px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-green-50 to-white dark:from-slate-800 dark:to-slate-800">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <CheckCircleIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    {t('forgotPassword.checkEmailTitle') || 'Check Your Email'}
+                  </h1>
+                </div>
               </div>
             </div>
-            <CardDescription className="text-center text-gray-400 text-base pt-2">
-              {t('forgotPassword.checkEmailDescription', { email }) || `We've sent a password reset link to ${email}`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 pb-8 px-8">
-            <div className="space-y-4">
-              <p className="text-sm text-gray-300 text-center">
+
+            {/* Content */}
+            <div className="p-6 sm:p-8 space-y-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t('forgotPassword.checkEmailDescription', { email }) || `We've sent a password reset link to ${email}`}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
                 {t('forgotPassword.checkEmailInstructions') || 'Please check your email and click the link to reset your password. The link will expire in 1 hour.'}
               </p>
-              <div className="flex flex-col gap-2">
+
+              <div className="flex flex-col gap-3 pt-2">
                 <Button
                   onClick={() => router.push('/login')}
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-lg shadow-lg shadow-blue-900/30 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl"
+                  className="w-full h-11 gap-2"
                 >
+                  <ArrowLeftIcon className="h-4 w-4" />
                   {t('forgotPassword.backToLogin') || 'Back to Login'}
                 </Button>
                 <Button
@@ -127,101 +118,111 @@ export default function ForgotPasswordPage() {
                     setIsSubmitted(false);
                     setEmail('');
                   }}
-                  className="w-full h-12 border-white/20 text-white hover:bg-white/10"
+                  className="w-full h-11"
                 >
                   {t('forgotPassword.sendAnotherEmail') || 'Send Another Email'}
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-gray-400 text-xs">
+          © {new Date().getFullYear()} {companyName || 'RepairFlow'}
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{
-        backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/80 backdrop-blur-sm" />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent" />
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent" />
-      </div>
-      <Card
-        className={cn(
-          "w-full max-w-md relative z-10 shadow-2xl border-0 ring-1 ring-white/10",
-          "bg-black/40 backdrop-blur-xl text-white overflow-hidden"
-        )}
-      >
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
-        <CardHeader className="space-y-6 pb-2 pt-8">
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-center space-y-1.5">
-              <CardTitle className="text-3xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
-                {t('forgotPassword.title') || 'Forgot Password'}
-              </CardTitle>
-              <p className="text-blue-200/70 text-sm font-medium tracking-widest uppercase">
-                {companyName || 'REPAIR FLOW'}
-              </p>
-            </div>
-          </div>
-          <CardDescription className="text-center text-gray-400 text-base pt-2">
-            {t('forgotPassword.description') || 'Enter your email address and we\'ll send you a link to reset your password'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6 pb-8 px-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-400 ml-1 uppercase tracking-wider">
-                {t('forgotPassword.emailLabel') || 'Email Address'}
-              </label>
-              <div className="relative group">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('forgotPassword.emailPlaceholder') || 'Enter your email'}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="w-full bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-blue-500/50 focus:ring-blue-500/20 h-12 pl-11 transition-all duration-300 rounded-xl group-hover:bg-white/10"
-                />
-                <span className="material-symbols-outlined absolute left-3.5 top-3 text-gray-500 group-focus-within:text-blue-400 transition-colors">email</span>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center px-4 py-8">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-gray-50 to-gray-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-900" />
+
+      {/* Main content */}
+      <div className="relative z-10 w-full max-w-md animate-fadeIn">
+        <div
+          className={cn(
+            "bg-white dark:bg-slate-800 rounded-2xl",
+            "shadow-sm border border-gray-100 dark:border-slate-700",
+            "overflow-hidden"
+          )}
+        >
+          {/* Header */}
+          <div className="px-6 sm:px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-800">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <EnvelopeIcon className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {t('forgotPassword.title') || 'Forgot Password'}
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  {t('forgotPassword.description') || 'Enter your email address and we\'ll send you a link to reset your password'}
+                </p>
               </div>
             </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                {t('forgotPassword.emailLabel') || 'Email Address'}
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder={t('forgotPassword.emailPlaceholder') || 'Enter your email'}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+                className="h-11"
+              />
+            </div>
+
+            {/* Submit button */}
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-lg shadow-lg shadow-blue-900/30 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl mt-2"
               disabled={isLoading}
+              className="w-full h-11 gap-2"
+              aria-busy={isLoading}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                  <span className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
                   {t('forgotPassword.sending') || 'Sending...'}
                 </span>
               ) : (
-                t('forgotPassword.submitButton') || 'Send Reset Link'
+                <>
+                  <PaperAirplaneIcon className="h-4 w-4" />
+                  {t('forgotPassword.submitButton') || 'Send Reset Link'}
+                </>
               )}
             </Button>
+
+            {/* Back to login */}
+            <div className="text-center pt-2">
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                <ArrowLeftIcon className="h-4 w-4" />
+                {t('forgotPassword.backToLogin') || 'Back to Login'}
+              </Link>
+            </div>
           </form>
-          <div className="mt-4 text-center">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors hover:underline underline-offset-4"
-            >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
-              {t('forgotPassword.backToLogin') || 'Back to Login'}
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-gray-400 text-xs">
+        © {new Date().getFullYear()} {companyName || 'RepairFlow'}
+      </div>
     </div>
   );
 }
-
