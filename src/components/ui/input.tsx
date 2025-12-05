@@ -4,17 +4,14 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 /**
- * Material Design 3 Text Field Component
+ * Input Component
  * 
- * Implements MD3 text field specifications with filled and outlined variants,
- * floating labels, leading/trailing icons, and proper accessibility.
- * 
- * @see https://m3.material.io/components/text-fields/overview
+ * Clean text field with filled and outlined variants.
  */
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  variant?: 'filled' | 'outlined'
+  variant?: 'default' | 'outline'
   label?: string
   helperText?: string
   errorText?: string
@@ -28,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     {
       className,
       type = "text",
-      variant = 'outlined',
+      variant = 'outline',
       label,
       helperText,
       errorText,
@@ -65,73 +62,73 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     // Filled variant styles
     const filledContainerClasses = cn(
-      "relative flex items-center w-full rounded-t-md bg-surface-container-highest transition-colors duration-short2 ease-standard",
-      isFocused && "bg-surface-container-high",
-      hasError && "bg-error-container/10",
-      disabled && "opacity-38 pointer-events-none"
+      "relative flex items-center w-full rounded-t-lg bg-muted transition-colors",
+      isFocused && "bg-muted/80",
+      hasError && "bg-destructive/10",
+      disabled && "opacity-50 pointer-events-none"
     )
 
     const filledInputClasses = cn(
-      "w-full flex-1 bg-transparent px-4 text-body-large text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none disabled:cursor-not-allowed",
+      "w-full flex-1 bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed",
       label ? (inputSize === 'small' ? 'pt-5 pb-1' : 'pt-6 pb-2') : (inputSize === 'small' ? 'py-2' : 'py-3'),
       leadingIcon && "pl-0",
       trailingIcon && "pr-0"
     )
 
     const filledIndicatorClasses = cn(
-      "absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-short2 ease-standard",
+      "absolute bottom-0 left-0 right-0 transition-all",
       isFocused ? "h-0.5" : "h-px",
-      hasError ? "bg-error" : isFocused ? "bg-primary" : "bg-on-surface-variant"
+      hasError ? "bg-destructive" : isFocused ? "bg-primary" : "bg-muted-foreground/30"
     )
 
     // Outlined variant styles
     const outlinedContainerClasses = cn(
-      "relative flex items-center w-full rounded-md border-2 transition-colors duration-short2 ease-standard",
+      "relative flex items-center w-full rounded-lg border-2 transition-colors",
       isFocused
         ? hasError
-          ? "border-error"
+          ? "border-destructive"
           : "border-primary"
         : hasError
-          ? "border-error"
-          : "border-outline",
-      disabled && "opacity-38 pointer-events-none"
+          ? "border-destructive"
+          : "border-input",
+      disabled && "opacity-50 pointer-events-none"
     )
 
     const outlinedInputClasses = cn(
-      "w-full flex-1 bg-transparent px-4 text-body-large text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none disabled:cursor-not-allowed",
+      "w-full flex-1 bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed",
       inputSize === 'small' ? 'py-2' : 'py-3',
       leadingIcon && "pl-0",
       trailingIcon && "pr-0"
     )
 
     const labelClasses = cn(
-      "absolute left-0 px-4 text-body-large pointer-events-none transition-all duration-short2 ease-standard origin-left",
+      "absolute left-0 px-4 text-base pointer-events-none transition-all origin-left",
       leadingIcon && "left-12",
       isLabelFloating
-        ? variant === 'outlined'
-          ? "top-0 -translate-y-1/2 scale-75 bg-surface px-1 text-label-small"
-          : "top-2 scale-75 text-label-small"
+        ? variant === 'outline'
+          ? "top-0 -translate-y-1/2 scale-75 bg-background px-1 text-xs"
+          : "top-2 scale-75 text-xs"
         : inputSize === 'small'
           ? "top-2"
           : "top-1/2 -translate-y-1/2",
       isFocused
         ? hasError
-          ? "text-error"
+          ? "text-destructive"
           : "text-primary"
         : hasError
-          ? "text-error"
-          : "text-on-surface-variant",
-      disabled && "opacity-38"
+          ? "text-destructive"
+          : "text-muted-foreground",
+      disabled && "opacity-50"
     )
 
-    const iconClasses = "flex items-center justify-center w-12 text-on-surface-variant"
+    const iconClasses = "flex items-center justify-center w-12 text-muted-foreground"
 
     const supportTextClasses = cn(
-      "mt-1 px-4 text-body-small transition-colors duration-short2 ease-standard",
-      hasError ? "text-error" : "text-on-surface-variant"
+      "mt-1 px-4 text-xs transition-colors",
+      hasError ? "text-destructive" : "text-muted-foreground"
     )
 
-    if (variant === 'filled') {
+    if (variant === 'default') {
       return (
         <div className="w-full">
           <div className={filledContainerClasses}>
@@ -155,7 +152,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {label && (
                 <label className={labelClasses}>
                   {label}
-                  {required && <span className="text-error ml-0.5">*</span>}
+                  {required && <span className="text-destructive ml-0.5">*</span>}
                 </label>
               )}
             </div>
@@ -202,7 +199,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label && (
               <label className={labelClasses}>
                 {label}
-                {required && <span className="text-error ml-0.5">*</span>}
+                {required && <span className="text-destructive ml-0.5">*</span>}
               </label>
             )}
           </div>
@@ -227,11 +224,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = "Input"
 
 /**
- * Textarea Component with MD3 styling
+ * Textarea Component
  */
 export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  variant?: 'filled' | 'outlined'
+  variant?: 'default' | 'outline'
   label?: string
   helperText?: string
   errorText?: string
@@ -241,7 +238,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       className,
-      variant = 'outlined',
+      variant = 'outline',
       label,
       helperText,
       errorText,
@@ -274,43 +271,43 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const isLabelFloating = isFocused || hasValue || props.placeholder
 
     const containerClasses = cn(
-      "relative w-full rounded-md transition-colors duration-short2 ease-standard",
-      variant === 'filled'
+      "relative w-full rounded-lg transition-colors",
+      variant === 'default'
         ? cn(
-          "bg-surface-container-highest rounded-t-md rounded-b-none",
-          isFocused && "bg-surface-container-high",
-          hasError && "bg-error-container/10"
+          "bg-muted rounded-t-lg rounded-b-none",
+          isFocused && "bg-muted/80",
+          hasError && "bg-destructive/10"
         )
         : cn(
           "border-2",
           isFocused
-            ? hasError ? "border-error" : "border-primary"
-            : hasError ? "border-error" : "border-outline"
+            ? hasError ? "border-destructive" : "border-primary"
+            : hasError ? "border-destructive" : "border-input"
         ),
-      disabled && "opacity-38 pointer-events-none"
+      disabled && "opacity-50 pointer-events-none"
     )
 
     const textareaClasses = cn(
-      "w-full bg-transparent px-4 pt-6 pb-2 text-body-large text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none disabled:cursor-not-allowed resize-y min-h-[100px]",
-      variant === 'outlined' && "rounded-md",
+      "w-full bg-transparent px-4 pt-6 pb-2 text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed resize-y min-h-[100px]",
+      variant === 'outline' && "rounded-lg",
       className
     )
 
     const labelClasses = cn(
-      "absolute left-4 top-4 text-body-large pointer-events-none transition-all duration-short2 ease-standard origin-left",
+      "absolute left-4 top-4 text-base pointer-events-none transition-all origin-left",
       isLabelFloating
-        ? variant === 'outlined'
-          ? "top-0 -translate-y-1/2 scale-75 bg-surface px-1 text-label-small"
-          : "top-2 scale-75 text-label-small"
+        ? variant === 'outline'
+          ? "top-0 -translate-y-1/2 scale-75 bg-background px-1 text-xs"
+          : "top-2 scale-75 text-xs"
         : "",
       isFocused
-        ? hasError ? "text-error" : "text-primary"
-        : hasError ? "text-error" : "text-on-surface-variant"
+        ? hasError ? "text-destructive" : "text-primary"
+        : hasError ? "text-destructive" : "text-muted-foreground"
     )
 
     const supportTextClasses = cn(
-      "mt-1 px-4 text-body-small transition-colors duration-short2 ease-standard",
-      hasError ? "text-error" : "text-on-surface-variant"
+      "mt-1 px-4 text-xs transition-colors",
+      hasError ? "text-destructive" : "text-muted-foreground"
     )
 
     return (
@@ -332,16 +329,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           {label && (
             <label className={labelClasses}>
               {label}
-              {required && <span className="text-error ml-0.5">*</span>}
+              {required && <span className="text-destructive ml-0.5">*</span>}
             </label>
           )}
 
-          {variant === 'filled' && (
+          {variant === 'default' && (
             <div
               className={cn(
-                "absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-short2 ease-standard",
+                "absolute bottom-0 left-0 right-0 transition-all",
                 isFocused ? "h-0.5" : "h-px",
-                hasError ? "bg-error" : isFocused ? "bg-primary" : "bg-on-surface-variant"
+                hasError ? "bg-destructive" : isFocused ? "bg-primary" : "bg-muted-foreground/30"
               )}
             />
           )}

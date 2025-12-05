@@ -3,35 +3,32 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 /**
- * Material Design 3 Card Component
+ * Card Component
  * 
- * Implements MD3 card specifications with filled, elevated, and outlined variants,
- * proper elevation, state layers, and accessibility.
- * 
- * @see https://m3.material.io/components/cards/overview
+ * Clean card with filled, elevated, and outlined variants.
  */
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'filled' | 'elevated' | 'outlined'
+  variant?: 'default' | 'elevated' | 'outline'
   interactive?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'elevated', interactive = false, ...props }, ref) => {
-    const baseClasses = "rounded-xl transition-all duration-short2 ease-standard"
+    const baseClasses = "rounded-xl transition-all"
 
     const variantClasses = {
-      filled: cn(
-        "bg-surface-container-highest text-on-surface",
-        interactive && "hover:shadow-md-level1 cursor-pointer md-state-layer-hover"
+      default: cn(
+        "bg-muted text-foreground",
+        interactive && "hover:bg-muted/80 cursor-pointer"
       ),
       elevated: cn(
-        "bg-surface-container-low text-on-surface shadow-md-level1",
-        interactive && "hover:shadow-md-level2 cursor-pointer md-state-layer-hover"
+        "bg-card text-card-foreground shadow-sm",
+        interactive && "hover:shadow-md cursor-pointer"
       ),
-      outlined: cn(
-        "bg-surface text-on-surface border border-outline-variant",
-        interactive && "hover:shadow-md-level1 hover:border-outline cursor-pointer md-state-layer-hover"
+      outline: cn(
+        "bg-background text-foreground border border-border",
+        interactive && "hover:shadow-sm hover:border-foreground/20 cursor-pointer"
       ),
     }
 
@@ -71,7 +68,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-title-large font-medium leading-tight tracking-tight text-on-surface",
+      "text-xl font-semibold leading-tight tracking-tight text-foreground",
       className
     )}
     {...props}
@@ -85,7 +82,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-body-medium text-on-surface-variant", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))
@@ -127,8 +124,8 @@ const CardActionArea = React.forwardRef<
     ref={ref}
     className={cn(
       "w-full text-left p-0 border-none bg-transparent cursor-pointer",
-      "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary rounded-xl",
-      "md-state-layer-hover",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl",
+      "hover:bg-accent/50",
       className
     )}
     {...props}
@@ -153,7 +150,7 @@ const CardMedia = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "w-full bg-surface-container-highest overflow-hidden",
+      "w-full bg-muted overflow-hidden",
       aspectRatio !== 'auto' && "relative",
       className
     )}

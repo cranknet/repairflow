@@ -1,44 +1,33 @@
 import * as React from "react"
 import Image from "next/image"
 import { cva, type VariantProps } from "class-variance-authority"
+import { XMarkIcon, CheckIcon } from "@heroicons/react/24/outline"
 import { cn } from "@/lib/utils"
 
 /**
- * Material Design 3 Chip Component
+ * Chip Component
  * 
- * Implements MD3 chip specifications with assist, filter, input, and suggestion variants.
- * Includes proper state layers, elevation, and accessibility.
- * 
- * @see https://m3.material.io/components/chips/overview
+ * Clean chip with multiple variants for various use cases.
  */
 
 const chipVariants = cva(
-  "inline-flex items-center gap-2 text-label-large font-medium transition-all duration-short2 ease-standard focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-38 md-state-layer-hover",
+  "inline-flex items-center gap-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        // Assist chip - Help users take action
-        assist: "bg-transparent border border-outline text-on-surface hover:shadow-md-level1",
-
-        // Filter chip - Filter content
-        filter: "bg-transparent border border-outline text-on-surface-variant data-[selected=true]:bg-secondary-container data-[selected=true]:text-on-secondary-container data-[selected=true]:border-transparent",
-
-        // Input chip - Represent discrete information
-        input: "bg-transparent border border-outline text-on-surface-variant hover:shadow-md-level1",
-
-        // Suggestion chip - Offer dynamic recommendations
-        suggestion: "bg-transparent border border-outline text-on-surface-variant hover:shadow-md-level1",
-
-        // Elevated (alternative styling)
-        elevated: "bg-surface-container-low text-on-surface shadow-md-level1 hover:shadow-md-level2 border-none",
+        default: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       },
       size: {
-        default: "h-8 px-4 rounded-lg",
-        small: "h-6 px-3 rounded-md text-label-small",
+        default: "h-8 px-3 rounded-md",
+        sm: "h-6 px-2 rounded text-xs",
+        lg: "h-10 px-4 rounded-lg",
       },
     },
     defaultVariants: {
-      variant: "assist",
+      variant: "default",
       size: "default",
     },
   }
@@ -78,9 +67,9 @@ const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
         {...props}
       >
         {avatar && <div className="inline-flex -ml-1">{avatar}</div>}
-        {leadingIcon && !avatar && <span className="inline-flex text-[18px]">{leadingIcon}</span>}
+        {leadingIcon && !avatar && <span className="inline-flex">{leadingIcon}</span>}
         <span>{children}</span>
-        {trailingIcon && <span className="inline-flex text-[18px]">{trailingIcon}</span>}
+        {trailingIcon && <span className="inline-flex">{trailingIcon}</span>}
         {onRemove && (
           <button
             type="button"
@@ -88,10 +77,10 @@ const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
               e.stopPropagation()
               onRemove()
             }}
-            className="inline-flex -mr-1 p-0.5 rounded-full hover:bg-on-surface/12 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="inline-flex -mr-1 p-0.5 rounded-full hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-ring"
             aria-label="Remove"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <XMarkIcon className="h-3.5 w-3.5" />
           </button>
         )}
       </button>
@@ -102,7 +91,6 @@ Chip.displayName = "Chip"
 
 /**
  * Chip Avatar Component
- * For displaying avatars in chips
  */
 export interface ChipAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string
@@ -116,7 +104,7 @@ const ChipAvatar = React.forwardRef<HTMLDivElement, ChipAvatarProps>(
       <div
         ref={ref}
         className={cn(
-          "relative inline-flex h-6 w-6 items-center justify-center rounded-full overflow-hidden bg-secondary-container text-on-secondary-container text-label-small",
+          "relative inline-flex h-6 w-6 items-center justify-center rounded-full overflow-hidden bg-muted text-muted-foreground text-xs",
           className
         )}
         {...props}
@@ -140,7 +128,6 @@ ChipAvatar.displayName = "ChipAvatar"
 
 /**
  * Filter Chip Component
- * Specialized chip for filtering content with selected state
  */
 export interface FilterChipProps extends Omit<ChipProps, 'variant'> {
   selected: boolean
@@ -148,7 +135,7 @@ export interface FilterChipProps extends Omit<ChipProps, 'variant'> {
 }
 
 const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
-  ({ selected, onSelectedChange, leadingIcon, children, ...props }, ref) => {
+  ({ selected, onSelectedChange, leadingIcon, children, className, ...props }, ref) => {
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       onSelectedChange?.(!selected)
       props.onClick?.(e)
@@ -157,16 +144,16 @@ const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
     return (
       <Chip
         ref={ref}
-        variant="filter"
-        selected={selected}
+        variant={selected ? "primary" : "outline"}
         leadingIcon={
           selected ? (
-            <span className="material-symbols-outlined">check</span>
+            <CheckIcon className="h-4 w-4" />
           ) : (
             leadingIcon
           )
         }
         onClick={handleClick}
+        className={className}
         {...props}
       >
         {children}
@@ -178,7 +165,6 @@ FilterChip.displayName = "FilterChip"
 
 /**
  * Input Chip Component
- * Specialized chip for representing discrete information with remove capability
  */
 export interface InputChipProps extends Omit<ChipProps, 'variant'> {
   onRemove: () => void
@@ -189,7 +175,7 @@ const InputChip = React.forwardRef<HTMLButtonElement, InputChipProps>(
     return (
       <Chip
         ref={ref}
-        variant="input"
+        variant="outline"
         onRemove={onRemove}
         {...props}
       />
@@ -200,7 +186,6 @@ InputChip.displayName = "InputChip"
 
 /**
  * Chip Group Component
- * Container for multiple chips with proper spacing
  */
 export interface ChipGroupProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'horizontal' | 'vertical'

@@ -3,52 +3,32 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 /**
- * Material Design 3 Badge Component
+ * Badge Component
  * 
- * Implements MD3 badge specifications for displaying small amounts of information
- * or status indicators.
- * 
- * @see https://m3.material.io/components/badges/overview
+ * Clean badge for displaying small amounts of information or status indicators.
  */
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+  "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        // Small badge (dot only, no text)
-        small: "h-1.5 w-1.5 rounded-full bg-error",
-
-        // Default badge (with number)
-        default: "h-4 min-w-[16px] px-1 rounded-full bg-error text-on-error text-[11px] leading-none",
-
-        // Large badge (with text)
-        large: "h-5 px-1.5 rounded-full bg-error text-on-error text-label-small",
-
-        // Primary colored
-        primary: "h-5 px-1.5 rounded-full bg-primary text-on-primary text-label-small",
-
-        // Secondary colored
-        secondary: "h-5 px-1.5 rounded-full bg-secondary-container text-on-secondary-container text-label-small",
-
-        // Tertiary colored  
-        tertiary: "h-5 px-1.5 rounded-full bg-tertiary-container text-on-tertiary-container text-label-small",
-
-        // Success (using tertiary)
-        success: "h-5 px-1.5 rounded-full bg-tertiary-container text-on-tertiary-container text-label-small",
-
-        // Warning (using error)
-        warning: "h-5 px-1.5 rounded-full bg-error-container text-on-error-container text-label-small",
-
-        // Info (using primary)
-        info: "h-5 px-1.5 rounded-full bg-primary-container text-on-primary-container text-label-small",
-
-        // Outline variant
-        outline: "h-5 px-1.5 rounded-full border-2 border-outline text-on-surface text-label-small bg-transparent",
+        default: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
+        outline: "border border-input bg-background text-foreground",
+        success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+        warning: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
+      },
+      size: {
+        sm: "h-4 min-w-[16px] px-1 text-[10px] rounded",
+        default: "h-5 px-2 text-xs rounded-md",
+        lg: "h-6 px-2.5 text-sm rounded-md",
       },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )
@@ -58,9 +38,9 @@ export interface BadgeProps
   VariantProps<typeof badgeVariants> { }
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, ...props }, ref) => {
+  ({ className, variant, size, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />
+      <div ref={ref} className={cn(badgeVariants({ variant, size }), className)} {...props} />
     )
   }
 )
@@ -108,7 +88,7 @@ const BadgeContainer = React.forwardRef<HTMLDivElement, BadgeContainerProps>(
         {shouldShowBadge && (
           <div className={cn("absolute z-10", positionClasses[badgePosition])}>
             {count !== undefined ? (
-              <Badge variant={count > 0 ? "default" : "default"}>
+              <Badge variant="destructive" size="sm">
                 {displayCount}
               </Badge>
             ) : (
@@ -124,7 +104,6 @@ BadgeContainer.displayName = "BadgeContainer"
 
 /**
  * Status Badge Component
- * For displaying status with text and optional dot indicator
  */
 export interface StatusBadgeProps extends Omit<BadgeProps, 'variant'> {
   status: 'success' | 'warning' | 'error' | 'info' | 'default'
@@ -136,24 +115,24 @@ const StatusBadge = React.forwardRef<HTMLDivElement, StatusBadgeProps>(
     const statusVariants = {
       success: 'success',
       warning: 'warning',
-      error: 'default',
-      info: 'info',
+      error: 'destructive',
+      info: 'default',
       default: 'outline',
     } as const
 
     const dotColors = {
-      success: 'bg-tertiary',
-      warning: 'bg-error',
-      error: 'bg-error',
+      success: 'bg-green-500',
+      warning: 'bg-yellow-500',
+      error: 'bg-destructive',
       info: 'bg-primary',
-      default: 'bg-on-surface-variant',
+      default: 'bg-muted-foreground',
     }
 
     return (
       <Badge
         ref={ref}
         variant={statusVariants[status]}
-        className={cn("gap-1.5 pl-1", className)}
+        className={cn("gap-1.5 pl-1.5", className)}
         {...props}
       >
         {showDot && (
