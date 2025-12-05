@@ -21,9 +21,10 @@ interface CreateReturnModalProps {
   isOpen: boolean;
   onClose: () => void;
   ticketId?: string; // Optional ticket ID to prefill modal
+  onSuccess?: () => void;
 }
 
-export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnModalProps) {
+export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: CreateReturnModalProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const router = useRouter();
@@ -66,7 +67,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
           return;
         }
         const ticket = await response.json();
-        
+
         // Transform ticket data to match expected format
         const ticketData = {
           id: ticket.id,
@@ -82,7 +83,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
             phone: ticket.customer.phone,
           },
         };
-        
+
         setSelectedTicket(ticketData);
       } catch (error) {
         console.error('Error fetching ticket:', error);
@@ -144,8 +145,8 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
     if (selectedTicket) {
       // Reset form when ticket is selected
       const maxRefund = selectedTicket.finalPrice || selectedTicket.estimatedPrice || 0;
-      setReturnData({ 
-        reason: '', 
+      setReturnData({
+        reason: '',
         refundAmount: maxRefund,
         returnedTo: '',
         notes: '',
@@ -261,6 +262,11 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
       setSelectedTicket(null);
       setSearchQuery('');
       setSearchResults([]);
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
       onClose();
       router.refresh();
     } catch (error) {
@@ -282,7 +288,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
         <DialogHeader>
           <DialogTitle>{t('createReturn')}</DialogTitle>
           <DialogDescription>
-            {selectedTicket 
+            {selectedTicket
               ? t('createReturnFor') + ' ' + selectedTicket.ticketNumber
               : t('searchTicketsForReturn')
             }
@@ -447,10 +453,10 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label htmlFor="refund-amount">{t('refundAmount')} *</Label>
-                  <Button 
-                    onClick={handleUseFullAmount} 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    onClick={handleUseFullAmount}
+                    size="sm"
+                    variant="outline"
                     type="button"
                   >
                     {t('useFullAmount')}
@@ -481,8 +487,8 @@ export function CreateReturnModal({ isOpen, onClose, ticketId }: CreateReturnMod
             {t('cancel')}
           </Button>
           {selectedTicket && (
-            <Button 
-              onClick={handleSubmitReturn} 
+            <Button
+              onClick={handleSubmitReturn}
               disabled={isSubmitting || selectedTicket.status !== 'REPAIRED'}
             >
               {isSubmitting ? t('loading') : t('submitReturn')}

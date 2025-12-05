@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { ApproveReturnModal } from '@/components/finance/ApproveReturnModal';
 import Link from 'next/link';
+import { CreateReturnModal } from '@/components/returns/create-return-modal';
+import { Button } from '@/components/ui/button';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface Return {
     id: string;
@@ -40,6 +43,7 @@ export default function RefundsPage() {
     const [statusFilter, setStatusFilter] = useState('');
     const [selectedReturn, setSelectedReturn] = useState<Return | null>(null);
     const [showApproveModal, setShowApproveModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         fetchReturns();
@@ -112,6 +116,12 @@ export default function RefundsPage() {
                 <p className="text-body-medium text-on-surface-variant">
                     {t('finance.refunds.pageDescription')}
                 </p>
+                <div className="mt-4 flex justify-end">
+                    <Button onClick={() => setShowCreateModal(true)}>
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        {t('createReturn')}
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
@@ -280,10 +290,16 @@ export default function RefundsPage() {
                     onSuccess={() => {
                         setShowApproveModal(false);
                         setSelectedReturn(null);
-                        fetchReturns();
                     }}
                 />
             )}
+
+            {/* Create Return Modal */}
+            <CreateReturnModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={fetchReturns}
+            />
         </div>
     );
 }

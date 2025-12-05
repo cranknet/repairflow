@@ -205,6 +205,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'inventory.transactions': 'Transactions',
     'inventory.lowStock': 'Low Stock',
     'inventory.inStock': 'In Stock',
+    'inventory.backToInventory': 'Back to inventory',
     // Common
     save: 'Save',
     cancel: 'Cancel',
@@ -232,6 +233,14 @@ export const translations: Record<Language, Record<string, string>> = {
     loginLogs: 'Login Logs',
     submit: 'Submit',
     rememberMe: 'Remember me',
+
+    // Autocomplete
+    addAsNewBrand: 'Add "{brand}" as new brand',
+    addAsNewModel: 'Add "{model}" as new model',
+    addAsCommonIssue: 'Add "{value}" to common issues',
+    deviceIssuePlaceholder: 'Describe the device issue...',
+    deviceBrandPlaceholder: 'e.g., Apple, Samsung',
+    deviceModelPlaceholder: 'e.g., iPhone 13, Galaxy S21',
 
     // Login Page
     'auth.login.title': 'Welcome Back',
@@ -1419,6 +1428,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'inventory.transactions': 'المعاملات',
     'inventory.lowStock': 'مخزون منخفض',
     'inventory.inStock': 'في المخزون',
+    'inventory.backToInventory': 'العودة إلى المخزون',
     // Common
     save: 'حفظ',
     cancel: 'إلغاء',
@@ -2855,6 +2865,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'inventory.transactions': 'Transactions',
     'inventory.lowStock': 'Stock faible',
     'inventory.inStock': 'En stock',
+    'inventory.backToInventory': 'Retour à l\'inventaire',
     // Sidebar & Navigation
     'sidebar.toggle': 'Basculer la barre latérale',
     'sidebar.close': 'Fermer la barre latérale',

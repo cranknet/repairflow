@@ -52,12 +52,7 @@ const navigationKeys: NavigationItem[] = [
     icon: 'confirmation_number',
     iconFilled: 'confirmation_number'
   },
-  {
-    key: 'returns',
-    href: '/returns',
-    icon: 'sync_alt',
-    iconFilled: 'sync_alt'
-  },
+
   {
     key: 'finance',
     href: '/finance',
@@ -84,12 +79,7 @@ const navigationKeys: NavigationItem[] = [
         icon: 'shopping_cart',
         iconFilled: 'shopping_cart'
       },
-      {
-        key: 'finance.inventory',
-        href: '/finance/inventory-adjustments',
-        icon: 'inventory',
-        iconFilled: 'inventory'
-      }
+
     ]
   },
   {
@@ -126,7 +116,7 @@ const navigationKeys: NavigationItem[] = [
       },
       {
         key: 'inventory.adjustments',
-        href: '/finance/inventory-adjustments',
+        href: '/inventory/inventory-adjustments',
         icon: 'tune',
         iconFilled: 'tune'
       }
