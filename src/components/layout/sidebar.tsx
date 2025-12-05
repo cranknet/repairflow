@@ -269,7 +269,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const sidebarContent = (
     <div
       className={cn(
-        'flex flex-col bg-background border-r border-border h-full transition-all duration-300 flex-shrink-0',
+        'flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full transition-all duration-300 flex-shrink-0',
         // Mobile: full width when open, hidden when closed
         'md:relative',
         // Tablet/Desktop: responsive width
@@ -277,7 +277,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       )}
     >
       {/* Logo and Toggle */}
-      <div className="border-b border-border">
+      <div className="border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between px-4 h-16">
           {!isCollapsed && (
             <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
@@ -300,15 +300,16 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   unoptimized
                 />
               )}
-              <span className="text-lg font-medium text-foreground truncate">{companyName}</span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white truncate">{companyName}</span>
             </Link>
           )}
           {/* Only show toggle on tablet/desktop */}
           <button
             onClick={toggleCollapse}
             className={cn(
-              'p-2 rounded-lg text-muted-foreground transition-colors',
-              'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'p-2 rounded-lg text-gray-500 dark:text-gray-400 transition-colors',
+              'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
               'hidden md:block',
               isCollapsed && 'mx-auto'
             )}
@@ -323,8 +324,9 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
           <button
             onClick={onMobileMenuClose}
             className={cn(
-              'p-2 rounded-lg text-muted-foreground transition-colors',
-              'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'p-2 rounded-lg text-gray-500 dark:text-gray-400 transition-colors',
+              'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
               'md:hidden'
             )}
             aria-label={t('sidebar.close')}
@@ -335,7 +337,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col gap-1 p-3" aria-label="Main navigation">
+      <nav className="flex-1 flex flex-col gap-1 p-4" aria-label="Main navigation">
         {filteredNavigation.map((item) => {
           const hasChildren = item.children && item.children.length > 0;
           const hasActiveChild = hasChildren
@@ -358,12 +360,12 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   onClick={(e) => toggleExpand(item.key, e)}
                   className={cn(
                     'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden w-full',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
                     'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-4 py-3',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-3 py-2.5',
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
                   )}
                   title={isCollapsed ? translatedName : undefined}
                   aria-expanded={isExpanded}
@@ -371,7 +373,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                 >
                   {/* Active indicator */}
                   {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
                   )}
 
                   {/* Icon */}
@@ -412,19 +414,19 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   onClick={handleNavClick}
                   className={cn(
                     'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
                     'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-4 py-3',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-3 py-2.5',
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
                   )}
                   title={isCollapsed ? translatedName : undefined}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {/* Active indicator */}
                   {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
                   )}
 
                   {/* Icon */}
@@ -474,17 +476,17 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                         onClick={handleNavClick}
                         className={cn(
                           'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                          'min-h-[40px] px-4 py-2',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+                          'min-h-[40px] px-3 py-2',
                           isChildActive
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
                         )}
                         aria-current={isChildActive ? 'page' : undefined}
                       >
                         {/* Active indicator */}
                         {isChildActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full" />
                         )}
 
                         {/* Icon */}
@@ -521,15 +523,15 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
 
       {/* Version Info */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-border">
+        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800">
           <AppVersion />
         </div>
       )}
 
       {/* Collapsed version indicator */}
       {isCollapsed && (
-        <div className="px-2 py-3 border-t border-border flex justify-center">
-          <div className="h-2 w-2 rounded-full bg-primary" title={t('sidebar.appActive')} />
+        <div className="px-2 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-center">
+          <div className="h-2 w-2 rounded-full bg-brand-500" title={t('sidebar.appActive')} />
         </div>
       )}
     </div>

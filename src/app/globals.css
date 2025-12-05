@@ -1,68 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Clean Tailwind Color System using HSL */
+/* TailAdmin Pro Color System */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Background & Foreground */
+  --background: 210 20% 98%;
+  --foreground: 220 26% 14%;
 
+  /* Card & Popover */
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-
+  --card-foreground: 220 26% 14%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover-foreground: 220 26% 14%;
 
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
+  /* TailAdmin Brand Blue */
+  --primary: 235 100% 64%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  /* Secondary */
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 220 26% 14%;
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  /* Muted */
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
 
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  /* Accent */
+  --accent: 235 100% 97%;
+  --accent-foreground: 235 100% 64%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  /* Destructive */
+  --destructive: 4 80% 59%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
+  /* Success */
+  --success: 152 69% 39%;
+  --success-foreground: 0 0% 100%;
 
-  --radius: 0.5rem;
+  /* Warning */
+  --warning: 36 91% 50%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Border & Input */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 235 100% 64%;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* TailAdmin Shadows */
+  --shadow-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-focus: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
+  /* Background & Foreground */
+  --background: 222 47% 11%;
   --foreground: 210 40% 98%;
 
-  --card: 222.2 84% 4.9%;
+  /* Card & Popover */
+  --card: 220 26% 14%;
   --card-foreground: 210 40% 98%;
-
-  --popover: 222.2 84% 4.9%;
+  --popover: 220 26% 14%;
   --popover-foreground: 210 40% 98%;
 
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  /* TailAdmin Brand Blue (Dark) */
+  --primary: 235 92% 66%;
+  --primary-foreground: 222 47% 11%;
 
-  --secondary: 217.2 32.6% 17.5%;
+  /* Secondary */
+  --secondary: 217 33% 17%;
   --secondary-foreground: 210 40% 98%;
 
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  /* Muted */
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
 
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  /* Accent */
+  --accent: 235 92% 15%;
+  --accent-foreground: 235 92% 66%;
 
-  --destructive: 0 62.8% 30.6%;
+  /* Destructive */
+  --destructive: 0 63% 31%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
+  /* Success */
+  --success: 152 56% 34%;
+  --success-foreground: 210 40% 98%;
+
+  /* Warning */
+  --warning: 33 78% 40%;
+  --warning-foreground: 210 40% 98%;
+
+  /* Border & Input */
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 235 92% 66%;
+
+  /* Dark Shadows */
+  --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0px 1px 3px 0px rgba(0, 0, 0, 0.25), 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0px 4px 8px -2px rgba(0, 0, 0, 0.25), 0px 2px 4px -2px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0px 12px 16px -4px rgba(0, 0, 0, 0.2), 0px 4px 6px -2px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0px 20px 24px -4px rgba(0, 0, 0, 0.2), 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0px 0px 0px 4px rgba(70, 95, 255, 0.24);
 }
 
 /* Base Styles */
@@ -72,8 +121,14 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased font-outfit;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Buttons should always be pointer */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -89,26 +144,48 @@
 
   /* Custom scrollbar styling */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted;
+    @apply bg-transparent rounded-full;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-md;
+    @apply bg-gray-200 rounded-full dark:bg-gray-700;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    @apply bg-gray-300 dark:bg-gray-600;
+  }
+}
+
+/* TailAdmin Menu Item Utilities */
+@layer components {
+  .menu-item {
+    @apply relative flex items-center w-full gap-3 px-3 py-2.5 font-medium rounded-lg text-sm transition-colors;
+  }
+
+  .menu-item-active {
+    @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  }
+
+  .menu-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+  }
+
+  .menu-item-icon {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .menu-item-icon-active {
+    @apply text-brand-500 dark:text-brand-400;
   }
 }
 
 /* Utility Classes */
 @layer utilities {
-
   /* Text overflow utilities */
   .text-truncate {
     overflow: hidden;
@@ -128,5 +205,39 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* TailAdmin Shadow utilities */
+  .shadow-theme-xs {
+    box-shadow: var(--shadow-xs);
+  }
+
+  .shadow-theme-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-theme-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-theme-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-theme-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  .shadow-focus-ring {
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Remove date icon for consistency */
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="time"]::-webkit-inner-spin-button,
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
   }
 }

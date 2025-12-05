@@ -23,14 +23,14 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
 
   return (
     <header
-      className="bg-background border-b border-border sticky top-0 z-40 transition-all"
+      className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 transition-all shadow-theme-xs"
       role="banner"
     >
       <div className="flex items-center gap-2 sm:gap-4 h-16 px-3 sm:px-4">
         {/* Hamburger Menu - Mobile only */}
         <button
           onClick={onMobileMenuToggle}
-          className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+          className="md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors"
           aria-label={t('header.openMenu')}
         >
           <Bars3Icon className="h-6 w-6" />
@@ -49,7 +49,7 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
           <LanguageSwitcher />
           <InboxIcon />
           <NotificationsBell />
-          <div className="hidden sm:block h-8 w-px bg-border mx-1" aria-hidden="true" />
+          <div className="hidden sm:block h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1" aria-hidden="true" />
           <UserProfileDropdown />
         </div>
       </div>

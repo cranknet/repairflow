@@ -19,16 +19,16 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
     const variantClasses = {
       default: cn(
-        "bg-muted text-foreground",
-        interactive && "hover:bg-muted/80 cursor-pointer"
+        "bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white",
+        interactive && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
       ),
       elevated: cn(
-        "bg-card text-card-foreground shadow-sm",
-        interactive && "hover:shadow-md cursor-pointer"
+        "bg-white text-gray-900 dark:bg-gray-900 dark:text-white shadow-theme-sm border border-gray-100 dark:border-gray-800",
+        interactive && "hover:shadow-theme-md cursor-pointer"
       ),
       outline: cn(
-        "bg-background text-foreground border border-border",
-        interactive && "hover:shadow-sm hover:border-foreground/20 cursor-pointer"
+        "bg-white text-gray-900 dark:bg-gray-900 dark:text-white border border-gray-200 dark:border-gray-700",
+        interactive && "hover:shadow-theme-sm hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer"
       ),
     }
 
@@ -68,7 +68,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-xl font-semibold leading-tight tracking-tight text-foreground",
+      "text-xl font-semibold leading-tight tracking-tight text-gray-900 dark:text-white",
       className
     )}
     {...props}
@@ -82,7 +82,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-gray-500 dark:text-gray-400", className)}
     {...props}
   />
 ))
@@ -124,8 +124,8 @@ const CardActionArea = React.forwardRef<
     ref={ref}
     className={cn(
       "w-full text-left p-0 border-none bg-transparent cursor-pointer",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl",
-      "hover:bg-accent/50",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-xl",
+      "hover:bg-gray-50 dark:hover:bg-gray-800",
       className
     )}
     {...props}
@@ -150,7 +150,7 @@ const CardMedia = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "w-full bg-muted overflow-hidden",
+      "w-full bg-gray-100 dark:bg-gray-800 overflow-hidden",
       aspectRatio !== 'auto' && "relative",
       className
     )}

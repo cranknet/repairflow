@@ -1,14 +1,13 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 /**
- * KPI Card Component
+ * KPI Card Component - TailAdmin Pro Style
  * 
- * Displays key performance indicators with proper styling
- * and color semantics.
+ * Displays key performance indicators with clean white cards,
+ * subtle shadows, and semantic color badges.
  */
 
 interface KPICardProps {
@@ -17,68 +16,90 @@ interface KPICardProps {
   change?: number;
   target?: string;
   color?: 'primary' | 'secondary' | 'success' | 'warning';
+  icon?: React.ReactNode;
 }
 
-export function KPICard({ title, value, change, target, color = 'primary' }: KPICardProps) {
+export function KPICard({ title, value, change, target, color = 'primary', icon }: KPICardProps) {
   const isPositive = change !== undefined && change >= 0;
 
   const colorConfig = {
     primary: {
-      bg: 'bg-primary/10',
-      text: 'text-primary',
-      badge: 'bg-primary text-primary-foreground',
+      badge: isPositive
+        ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400'
+        : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400',
+      iconBg: 'bg-brand-50 dark:bg-brand-500/10',
+      iconColor: 'text-brand-500 dark:text-brand-400',
     },
     secondary: {
-      bg: 'bg-secondary',
-      text: 'text-secondary-foreground',
-      badge: 'bg-secondary-foreground text-secondary',
+      badge: isPositive
+        ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400'
+        : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400',
+      iconBg: 'bg-gray-100 dark:bg-gray-800',
+      iconColor: 'text-gray-600 dark:text-gray-400',
     },
     success: {
-      bg: 'bg-green-100 dark:bg-green-900/20',
-      text: 'text-green-700 dark:text-green-400',
-      badge: 'bg-green-500 text-white',
+      badge: isPositive
+        ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400'
+        : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400',
+      iconBg: 'bg-success-50 dark:bg-success-500/10',
+      iconColor: 'text-success-500 dark:text-success-400',
     },
     warning: {
-      bg: 'bg-yellow-100 dark:bg-yellow-900/20',
-      text: 'text-yellow-700 dark:text-yellow-400',
-      badge: 'bg-yellow-500 text-white',
+      badge: isPositive
+        ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400'
+        : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400',
+      iconBg: 'bg-warning-50 dark:bg-warning-500/10',
+      iconColor: 'text-warning-500 dark:text-warning-400',
     },
   };
 
   const config = colorConfig[color];
 
   return (
-    <Card className={cn(config.bg, 'overflow-hidden transition-all hover:shadow-md')}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <p className="text-sm uppercase tracking-wide font-medium text-muted-foreground">
-            {title}
-          </p>
-          {change !== undefined && (
-            <div className={cn(
-              'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
-              config.badge
-            )}>
-              {isPositive ? (
-                <ArrowTrendingUpIcon className="h-3 w-3" />
-              ) : (
-                <ArrowTrendingDownIcon className="h-3 w-3" />
-              )}
-              <span>{Math.abs(change)}%</span>
+    <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm">
+      <div className="flex items-center justify-between">
+        {/* Icon */}
+        {icon && (
+          <div className={cn(
+            'flex items-center justify-center w-12 h-12 rounded-xl',
+            config.iconBg
+          )}>
+            <div className={cn('w-6 h-6', config.iconColor)}>
+              {icon}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <p className={cn('text-3xl font-normal mb-2', config.text)}>
+        {/* Change Badge */}
+        {change !== undefined && (
+          <div className={cn(
+            'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium',
+            config.badge
+          )}>
+            {isPositive ? (
+              <ArrowTrendingUpIcon className="h-3.5 w-3.5" />
+            ) : (
+              <ArrowTrendingDownIcon className="h-3.5 w-3.5" />
+            )}
+            <span>{Math.abs(change)}%</span>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {title}
+        </span>
+        <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
           {value}
-        </p>
-
+        </h4>
         {target && (
-          <p className="text-xs text-muted-foreground font-medium">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Target: {target}
           </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
+

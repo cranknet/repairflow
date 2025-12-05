@@ -62,14 +62,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     // Filled variant styles
     const filledContainerClasses = cn(
-      "relative flex items-center w-full rounded-t-lg bg-muted transition-colors",
-      isFocused && "bg-muted/80",
-      hasError && "bg-destructive/10",
+      "relative flex items-center w-full rounded-t-lg bg-gray-100 dark:bg-gray-800 transition-colors",
+      isFocused && "bg-gray-50 dark:bg-gray-700",
+      hasError && "bg-error-50 dark:bg-error-500/10",
       disabled && "opacity-50 pointer-events-none"
     )
 
     const filledInputClasses = cn(
-      "w-full flex-1 bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed",
+      "w-full flex-1 bg-transparent px-4 text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:cursor-not-allowed",
       label ? (inputSize === 'small' ? 'pt-5 pb-1' : 'pt-6 pb-2') : (inputSize === 'small' ? 'py-2' : 'py-3'),
       leadingIcon && "pl-0",
       trailingIcon && "pr-0"
@@ -78,24 +78,24 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const filledIndicatorClasses = cn(
       "absolute bottom-0 left-0 right-0 transition-all",
       isFocused ? "h-0.5" : "h-px",
-      hasError ? "bg-destructive" : isFocused ? "bg-primary" : "bg-muted-foreground/30"
+      hasError ? "bg-error-500" : isFocused ? "bg-brand-500" : "bg-gray-300 dark:bg-gray-600"
     )
 
     // Outlined variant styles
     const outlinedContainerClasses = cn(
-      "relative flex items-center w-full rounded-lg border-2 transition-colors",
+      "relative flex items-center w-full rounded-lg border transition-colors bg-white dark:bg-gray-900",
       isFocused
         ? hasError
-          ? "border-destructive"
-          : "border-primary"
+          ? "border-error-500 ring-2 ring-error-500/20"
+          : "border-brand-500 ring-2 ring-brand-500/20"
         : hasError
-          ? "border-destructive"
-          : "border-input",
-      disabled && "opacity-50 pointer-events-none"
+          ? "border-error-500"
+          : "border-gray-300 dark:border-gray-600",
+      disabled && "opacity-50 pointer-events-none bg-gray-50 dark:bg-gray-800"
     )
 
     const outlinedInputClasses = cn(
-      "w-full flex-1 bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed",
+      "w-full flex-1 bg-transparent px-4 text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:cursor-not-allowed",
       inputSize === 'small' ? 'py-2' : 'py-3',
       leadingIcon && "pl-0",
       trailingIcon && "pr-0"
@@ -106,26 +106,26 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       leadingIcon && "left-12",
       isLabelFloating
         ? variant === 'outline'
-          ? "top-0 -translate-y-1/2 scale-75 bg-background px-1 text-xs"
+          ? "top-0 -translate-y-1/2 scale-75 bg-white dark:bg-gray-900 px-1 text-xs"
           : "top-2 scale-75 text-xs"
         : inputSize === 'small'
           ? "top-2"
           : "top-1/2 -translate-y-1/2",
       isFocused
         ? hasError
-          ? "text-destructive"
-          : "text-primary"
+          ? "text-error-500"
+          : "text-brand-500"
         : hasError
-          ? "text-destructive"
-          : "text-muted-foreground",
+          ? "text-error-500"
+          : "text-gray-500 dark:text-gray-400",
       disabled && "opacity-50"
     )
 
-    const iconClasses = "flex items-center justify-center w-12 text-muted-foreground"
+    const iconClasses = "flex items-center justify-center w-12 text-gray-500 dark:text-gray-400"
 
     const supportTextClasses = cn(
       "mt-1 px-4 text-xs transition-colors",
-      hasError ? "text-destructive" : "text-muted-foreground"
+      hasError ? "text-error-500" : "text-gray-500 dark:text-gray-400"
     )
 
     if (variant === 'default') {

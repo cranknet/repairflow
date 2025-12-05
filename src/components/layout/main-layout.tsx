@@ -58,7 +58,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
         {/* Main Content - Scrollable area */}
         <main
-          className="flex-1 overflow-y-auto bg-background p-4 sm:p-6"
+          className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-4 sm:p-6"
           style={{ scrollbarGutter: 'stable' }}
           role="main"
         >
