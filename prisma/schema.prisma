@@ -29,6 +29,11 @@ model User {
   notificationPreferences NotificationPreference[]
   contactMessagesAssigned ContactMessage[]
   satisfactionRatingsOverridden SatisfactionRating[]
+  
+  // Finance module relations
+  expensesCreated       Expense[]               @relation("ExpenseCreatedBy")
+  inventoryAdjustmentsCreated InventoryAdjustment[] @relation("InventoryAdjustmentCreatedBy")
+  journalEntriesCreated JournalEntry[]          @relation("JournalEntryCreatedBy")
 }
 
 model Customer {
@@ -76,6 +81,7 @@ model Ticket {
   payments             Payment[]
   contactMessages      ContactMessage[]
   satisfactionRatings  SatisfactionRating[]
+  inventoryAdjustments InventoryAdjustment[]
 }
 
 model TicketStatusHistory {
@@ -119,10 +125,15 @@ model Part {
   unitPrice             Float                  @default(0)
   supplierId            String?
   supplier              Supplier?              @relation(fields: [supplierId], references: [id])
+  supplierName          String?                @map("supplier") // Backwards-compatible supplier name field
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   ticketParts           TicketPart[]
   inventoryTransactions InventoryTransaction[]
+  
+  // Finance module relations
+  expenses              Expense[]
+  inventoryAdjustments  InventoryAdjustment[]
 }
 
 model Supplier {
@@ -165,21 +176,32 @@ model InventoryTransaction {
 }
 
 model Return {
-  id           String   @id @default(cuid())
-  ticketId     String
-  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  reason       String
-  refundAmount Float
-  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  returnedTo   String?  // Optional field for return recipient
-  notes        String?  // Additional notes, separate from reason
-  createdBy    String   // userId who created the return
-  createdByUser User    @relation("ReturnCreatedBy", fields: [createdBy], references: [id])
-  handledAt    DateTime? // When admin approved/rejected
-  handledBy    String?  // userId who handled the return
-  handledByUser User?   @relation("ReturnHandledBy", fields: [handledBy], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String              @id @default(cuid())
+  ticketId          String
+  ticket            Ticket              @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reason            String
+  refundAmount      Float
+  status            String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  returnedTo        String?             // Optional field for return recipient
+  notes             String?             // Additional notes, separate from reason
+  createdBy         String              // userId who created the return
+  createdByUser     User                @relation("ReturnCreatedBy", fields: [createdBy], references: [id])
+  handledAt         DateTime?           // When admin approved/rejected
+  handledBy         String?             // userId who handled the return (already exists)
+  handledByUser     User?               @relation("ReturnHandledBy", fields: [handledBy], references: [id])
+  
+  // New finance-related fields (nullable for backward compatibility)
+  refundPaymentId   String?             // FK -> Payment (refund payment record)
+  refundPayment     Payment?            @relation("ReturnRefundPayment", fields: [refundPaymentId], references: [id])
+  inventoryAdjId    String?             // FK -> InventoryAdjustment
+  inventoryAdj      InventoryAdjustment? @relation(fields: [inventoryAdjId], references: [id])
+  expenseEntryId    String?             // FK -> Expense (if return created expense)
+  expenseEntry      Expense?            @relation(fields: [expenseEntryId], references: [id])
+  isRefunded        Boolean             @default(false) // Idempotency flag
+  refundedAt        DateTime?           // When refund was processed
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 }
 
 model Notification {
@@ -236,18 +258,27 @@ model SMSTemplate {
 }
 
 model Payment {
-  id          String   @id @default(cuid())
-  ticketId    String
-  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  amount      Float
-  method      String   // cash, card, mobile, other
-  reference   String?  // Optional transaction ID
-  reason      String?  // Required when amount differs from outstanding
-  performedBy String
-  performedByUser User @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  paymentNumber   String   @unique // Human-readable payment ID (e.g., PAY-20240101-0001)
+  ticketId        String?  // Nullable for refund-only payments
+  ticket          Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  amount          Float
+  method          String   @default("CASH") // cash, card, mobile, other
+  currency        String?  // Currency code (from settings), nullable for backward compatibility
+  reference       String?  // Optional transaction ID
+  reason          String?  // Required when amount differs from outstanding
+  metadata        String?  // JSON metadata (receipt number, gateway response, etc.)
+  performedBy     String
+  performedByUser User     @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
+  createdAt       DateTime @default(now())
+  
+  // Relation for refund payments
+  refundReturns   Return[] @relation("ReturnRefundPayment")
 
   @@index([ticketId])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@index([paymentNumber])
 }
 
 model ContactMessage {
@@ -314,4 +345,81 @@ model EmailSettings {
   lastTestedAt      DateTime?
 
   @@map("email_settings")
+}
+
+// ============================================
+// FINANCE MODULE MODELS
+// ============================================
+
+model Expense {
+  id          String    @id @default(cuid())
+  name        String
+  amount      Float
+  type        String    // PURCHASE, SHOP, PART_LOSS, MISC
+  category    String?   // Additional categorization
+  partId      String?
+  part        Part?     @relation(fields: [partId], references: [id], onDelete: SetNull)
+  deviceId    String?   // Could reference a specific device/ticket
+  notes       String?
+  receiptUrl  String?   // Optional receipt image URL
+  createdById String
+  createdByUser User    @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete support
+  
+  // Relation to returns
+  returnExpenses Return[]
+  
+  @@index([type])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([partId])
+}
+
+model InventoryAdjustment {
+  id               String    @id @default(cuid())
+  partId           String
+  part             Part      @relation(fields: [partId], references: [id], onDelete: Cascade)
+  qtyChange        Int       // Positive for additions, negative for removals
+  cost             Float     // Cost of the adjustment
+  costPerUnit      Float?    // Cost per unit (calculated or manual)
+  reason           String
+  relatedReturnId  String?   // Link to return if applicable
+  ticketId         String?   // Link to ticket if part is added to a ticket
+  ticket           Ticket?   @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  createdById      String
+  createdByUser    User      @relation("InventoryAdjustmentCreatedBy", fields: [createdById], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  // Relation to returns
+  returnAdjustments Return[]
+  
+  @@index([partId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([relatedReturnId])
+  @@index([ticketId])
+}
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  type          String   // PAYMENT, REFUND, EXPENSE, INVENTORY_ADJUSTMENT, REVENUE
+  amount        Float
+  description   String?
+  referenceType String   // TICKET, RETURN, PAYMENT, EXPENSE, INVENTORY_ADJUSTMENT
+  referenceId   String   // ID of the referenced entity
+  ticketId      String?  // Optional direct link to ticket
+  notes         String?
+  metadata      String?  // JSON for additional data
+  createdById   String
+  createdByUser User     @relation("JournalEntryCreatedBy", fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+  
+  @@index([type])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@index([createdById])
+  @@index([ticketId])
 }

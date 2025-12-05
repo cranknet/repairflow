@@ -15,36 +15,52 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
 
   const handleApproveReturn = async (returnId: string) => {
     try {
-      const response = await fetch(`/api/returns/${returnId}`, {
-        method: 'PATCH',
+      // Use V2 endpoint which creates payment record, journal entry, and updates finance metrics
+      const response = await fetch(`/api/v2/returns/${returnId}/approve`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'APPROVED' }),
+        body: JSON.stringify({
+          // Using default values - full refund, cash payment
+          // For advanced options, users should go to Finance > Refunds page
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to approve return');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to approve return');
+      }
 
       toast({
         title: t('success'),
-        description: t('returnApprovedMessage'),
+        description: t('returnApprovedMessage') + ' - Payment and journal entry created.',
       });
       router.refresh();
     } catch (error) {
       toast({
         title: t('error'),
-        description: t('failedToApproveReturn'),
+        description: error instanceof Error ? error.message : t('failedToApproveReturn'),
+        variant: 'destructive',
       });
     }
   };
 
   const handleRejectReturn = async (returnId: string) => {
+    // Ask for rejection reason
+    const reason = prompt(t('enterRejectionReason') || 'Please enter rejection reason:');
+    if (!reason) return; // User cancelled
+
     try {
-      const response = await fetch(`/api/returns/${returnId}`, {
-        method: 'PATCH',
+      // Use V2 endpoint for proper audit trail
+      const response = await fetch(`/api/v2/returns/${returnId}/reject`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REJECTED' }),
+        body: JSON.stringify({ reason }),
       });
 
-      if (!response.ok) throw new Error('Failed to reject return');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to reject return');
+      }
 
       toast({
         title: t('success'),
@@ -54,7 +70,8 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
     } catch (error) {
       toast({
         title: t('error'),
-        description: t('failedToRejectReturn'),
+        description: error instanceof Error ? error.message : t('failedToRejectReturn'),
+        variant: 'destructive',
       });
     }
   };
@@ -109,13 +126,12 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      returnRecord.status === 'APPROVED'
+                    className={`px-2 py-1 text-xs font-medium rounded-full ${returnRecord.status === 'APPROVED'
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                         : returnRecord.status === 'REJECTED'
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}
                   >
                     {returnRecord.status}
                   </span>

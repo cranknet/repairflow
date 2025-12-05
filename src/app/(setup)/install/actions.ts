@@ -21,9 +21,34 @@ export async function setupApp(formData: FormData) {
         const hashedPassword = await hash(adminPassword, 10);
 
         // 2. Clean up existing data (Users and Settings) to ensure fresh start
-        // We delete all users to remove any "old" admins like cranknet
-        await prisma.user.deleteMany({});
-        await prisma.settings.deleteMany({});
+        // Delete in correct order to respect foreign key constraints
+        await prisma.$transaction([
+            // Delete all dependent records first
+            prisma.journalEntry.deleteMany({}),
+            prisma.return.deleteMany({}),
+            prisma.payment.deleteMany({}),
+            prisma.expense.deleteMany({}),
+            prisma.inventoryAdjustment.deleteMany({}),
+            prisma.notificationPreference.deleteMany({}),
+            prisma.loginLog.deleteMany({}),
+            prisma.passwordResetToken.deleteMany({}),
+            prisma.ticketPriceAdjustment.deleteMany({}),
+            prisma.ticketPart.deleteMany({}),
+            prisma.ticketStatusHistory.deleteMany({}),
+            prisma.satisfactionRating.deleteMany({}),
+            prisma.contactMessage.deleteMany({}),
+            prisma.notification.deleteMany({}),
+            prisma.inventoryTransaction.deleteMany({}),
+            prisma.ticket.deleteMany({}),
+            prisma.customer.deleteMany({}),
+            prisma.part.deleteMany({}),
+            prisma.supplier.deleteMany({}),
+            prisma.sMSTemplate.deleteMany({}),
+            prisma.emailSettings.deleteMany({}),
+            // Then delete users and settings
+            prisma.user.deleteMany({}),
+            prisma.settings.deleteMany({}),
+        ]);
 
         // 3. Create Settings and Admin User
         await prisma.$transaction([

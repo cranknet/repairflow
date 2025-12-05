@@ -207,51 +207,47 @@ async function main() {
   console.log('✅ Customers created');
 
   // Create suppliers first (using findFirst + create pattern since name is not unique)
-  let supplier1 = await prisma.supplier.findFirst({
+  let techParts = await prisma.supplier.findFirst({
     where: { name: 'TechParts Inc.' },
   });
-  if (!supplier1) {
-    supplier1 = await prisma.supplier.create({
+  if (!techParts) {
+    techParts = await prisma.supplier.create({
       data: {
         name: 'TechParts Inc.',
-        contactPerson: 'John Smith',
-        email: 'orders@techparts.com',
-        phone: '+1 (555) 123-4567',
+        phone: '+000000000',
+        email: 'sales@techparts.example',
+        notes: 'Primary screen supplier.',
       },
     });
   }
 
-  let supplier2 = await prisma.supplier.findFirst({
-    where: { name: 'Samsung Parts Direct' },
+  let mobileSource = await prisma.supplier.findFirst({
+    where: { name: 'MobileSource' },
   });
-  if (!supplier2) {
-    supplier2 = await prisma.supplier.create({
+  if (!mobileSource) {
+    mobileSource = await prisma.supplier.create({
       data: {
-        name: 'Samsung Parts Direct',
-        contactPerson: 'Sarah Johnson',
-        email: 'parts@samsungdirect.com',
-        phone: '+1 (555) 234-5678',
+        name: 'MobileSource',
+        phone: null,
+        email: null,
       },
     });
   }
 
-  let supplier3 = await prisma.supplier.findFirst({
-    where: { name: 'ElectroParts Co.' },
+  let unifiedParts = await prisma.supplier.findFirst({
+    where: { name: 'UnifiedParts' },
   });
-  if (!supplier3) {
-    supplier3 = await prisma.supplier.create({
+  if (!unifiedParts) {
+    unifiedParts = await prisma.supplier.create({
       data: {
-        name: 'ElectroParts Co.',
-        contactPerson: 'Mike Davis',
-        email: 'sales@electroparts.com',
-        phone: '+1 (555) 345-6789',
+        name: 'UnifiedParts',
       },
     });
   }
 
   console.log('✅ Suppliers created');
 
-  // Create mock inventory parts
+  // Create parts referencing supplierId and supplierName for backwards compatibility
   const parts: Awaited<ReturnType<typeof prisma.part.upsert>>[] = await Promise.all([
     prisma.part.upsert({
       where: { sku: 'IPH14-SCR-001' },
@@ -263,33 +259,32 @@ async function main() {
         quantity: 15,
         reorderLevel: 5,
         unitPrice: 89.99,
-        supplierId: supplier1.id,
+        supplierId: techParts.id,
+        supplierName: techParts.name, // Keep supplier string for backwards compatibility
       },
     }),
     prisma.part.upsert({
-      where: { sku: 'SGS23-BAT-001' },
+      where: { sku: 'SMG-SCR-A52' },
       update: {},
       create: {
-        name: 'Samsung Galaxy S23 Battery',
-        sku: 'SGS23-BAT-001',
-        description: 'Genuine Samsung battery for Galaxy S23',
+        name: 'Samsung A52 Screen',
+        sku: 'SMG-SCR-A52',
         quantity: 8,
-        reorderLevel: 5,
-        unitPrice: 45.00,
-        supplierId: supplier2.id,
+        unitPrice: 49.5,
+        supplierId: mobileSource.id,
+        supplierName: mobileSource.name,
       },
     }),
     prisma.part.upsert({
-      where: { sku: 'USBC-PORT-001' },
+      where: { sku: 'GEN-BAT-18650' },
       update: {},
       create: {
-        name: 'USB-C Charging Port',
-        sku: 'USBC-PORT-001',
-        description: 'Universal USB-C charging port replacement',
-        quantity: 3,
-        reorderLevel: 5,
-        unitPrice: 12.50,
-        supplierId: supplier3.id,
+        name: 'Generic Battery 18650',
+        sku: 'GEN-BAT-18650',
+        quantity: 40,
+        unitPrice: 7.2,
+        supplierId: unifiedParts.id,
+        supplierName: unifiedParts.name,
       },
     }),
     prisma.part.upsert({
@@ -302,7 +297,8 @@ async function main() {
         quantity: 20,
         reorderLevel: 5,
         unitPrice: 35.00,
-        supplierId: supplier1.id,
+        supplierId: techParts.id,
+        supplierName: techParts.name,
       },
     }),
     prisma.part.upsert({
@@ -315,7 +311,8 @@ async function main() {
         quantity: 2,
         reorderLevel: 5,
         unitPrice: 75.00,
-        supplierId: supplier1.id,
+        supplierId: techParts.id,
+        supplierName: techParts.name,
       },
     }),
   ]);
@@ -334,6 +331,10 @@ async function main() {
   await prisma.ticketPart.deleteMany({});
   await prisma.ticketPriceAdjustment.deleteMany({});
   await prisma.return.deleteMany({});
+  await prisma.payment.deleteMany({});
+  await prisma.journalEntry.deleteMany({});
+  await prisma.inventoryAdjustment.deleteMany({});
+  await prisma.expense.deleteMany({});
   await prisma.ticket.deleteMany({});
   await prisma.inventoryTransaction.deleteMany({});
   // Note: Parts are not deleted here as they are upserted above and should persist
@@ -623,7 +624,7 @@ async function main() {
         },
       },
     }),
-    // RETURNED ticket (has a return)
+    // REPAIRED ticket with return (has a return)
     prisma.ticket.create({
       data: {
         ticketNumber: generateTicketNumber(),
@@ -635,7 +636,7 @@ async function main() {
         priority: 'LOW',
         estimatedPrice: 55.00,
         finalPrice: 50.00,
-        status: 'RETURNED',
+        status: 'REPAIRED',
         paid: true,
         trackingCode: generateTrackingCode(),
         completedAt: dates.completedWeekAgo,
@@ -645,7 +646,6 @@ async function main() {
             { status: 'RECEIVED', notes: 'Device received' },
             { status: 'IN_PROGRESS', notes: 'Replacing back glass' },
             { status: 'REPAIRED', notes: 'Back glass replaced' },
-            { status: 'RETURNED', notes: 'Ticket returned. Refund amount: 50.00' },
           ],
         },
         parts: {
@@ -762,18 +762,21 @@ async function main() {
 
   // Create returns for testing returns page
   // Find tickets by their characteristics
-  const returnedTicket = tickets.find(t => t.status === 'RETURNED');
   const repairedPaidTickets = tickets.filter(t => t.status === 'REPAIRED' && t.paid === true);
 
   const returns = [];
   
-  // Create a return for the RETURNED ticket (this ticket was created with RETURNED status)
-  if (returnedTicket) {
+  // Create an approved return for the first REPAIRED and paid ticket
+  // This ticket was created specifically for returns testing
+  if (repairedPaidTickets.length > 0) {
+    const ticketForApprovedReturn = repairedPaidTickets[0];
+    const refundAmount = ticketForApprovedReturn.finalPrice || ticketForApprovedReturn.estimatedPrice;
+    
     const returnRecord = await prisma.return.create({
       data: {
-        ticketId: returnedTicket.id,
+        ticketId: ticketForApprovedReturn.id,
         reason: 'Customer requested full refund due to dissatisfaction with repair quality',
-        refundAmount: returnedTicket.finalPrice || returnedTicket.estimatedPrice,
+        refundAmount: refundAmount,
         createdBy: admin.id,
         status: 'APPROVED',
         handledAt: new Date(),
@@ -781,17 +784,26 @@ async function main() {
       },
     });
     returns.push(returnRecord);
+    
+    // Add status history note (ticket stays REPAIRED per API behavior)
+    await prisma.ticketStatusHistory.create({
+      data: {
+        ticketId: ticketForApprovedReturn.id,
+        status: ticketForApprovedReturn.status, // Keep REPAIRED
+        notes: `Return request created. Refund amount: ${refundAmount}. Ticket remains REPAIRED.`,
+      },
+    });
   }
 
-  // Create a pending return for a REPAIRED and paid ticket
+  // Create a pending return for another REPAIRED and paid ticket
   // This will test the returns creation flow
-  if (repairedPaidTickets.length > 0) {
-    const ticketForReturn = repairedPaidTickets[0];
-    const refundAmount = (ticketForReturn.finalPrice || ticketForReturn.estimatedPrice) * 0.8; // 80% refund
+  if (repairedPaidTickets.length > 1) {
+    const ticketForPendingReturn = repairedPaidTickets[1];
+    const refundAmount = (ticketForPendingReturn.finalPrice || ticketForPendingReturn.estimatedPrice) * 0.8; // 80% refund
     
     const returnRecord = await prisma.return.create({
       data: {
-        ticketId: ticketForReturn.id,
+        ticketId: ticketForPendingReturn.id,
         reason: 'Customer wants to return device, partial refund requested',
         refundAmount: refundAmount,
         createdBy: admin.id,
@@ -800,17 +812,12 @@ async function main() {
     });
     returns.push(returnRecord);
     
-    // Update ticket status to RETURNED (matching the API behavior)
-    await prisma.ticket.update({
-      where: { id: ticketForReturn.id },
+    // Add status history note (ticket stays REPAIRED per API behavior)
+    await prisma.ticketStatusHistory.create({
       data: {
-        status: 'RETURNED',
-        statusHistory: {
-          create: {
-            status: 'RETURNED',
-            notes: `Ticket returned. Refund amount: ${refundAmount}`,
-          },
-        },
+        ticketId: ticketForPendingReturn.id,
+        status: ticketForPendingReturn.status, // Keep REPAIRED
+        notes: `Return request created. Refund amount: ${refundAmount}. Awaiting approval.`,
       },
     });
   }
@@ -905,11 +912,172 @@ async function main() {
 
   console.log('✅ Price adjustments created');
 
+  // Create payments for completed tickets
+  const completedTickets = tickets.filter(t => t.status === 'COMPLETED' && t.paid);
+  
+  // Generate payment numbers for seed data
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+  
+  const payments = await Promise.all(
+    completedTickets.map((ticket, index) => {
+      const sequence = (index + 1).toString().padStart(4, '0');
+      const paymentNumber = `PAY-${dateStr}-${sequence}`;
+      
+      return prisma.payment.create({
+        data: {
+          paymentNumber,
+          ticketId: ticket.id,
+          amount: ticket.finalPrice || ticket.estimatedPrice,
+          method: 'CASH',
+          currency: 'USD',
+          performedBy: admin.id,
+        },
+      });
+    })
+  );
+
+  console.log(`✅ Payments created (${payments.length})`);
+
+  // Create finance module: Expenses
+  const expenses = await Promise.all([
+    prisma.expense.create({
+      data: {
+        name: 'Office Supplies Purchase',
+        amount: 150.00,
+        type: 'SHOP',
+        category: 'Office Supplies',
+        notes: 'Monthly office supplies restock',
+        createdById: admin.id,
+      },
+    }),
+    prisma.expense.create({
+      data: {
+        name: 'Part Purchase - iPhone Screens',
+        amount: 500.00,
+        type: 'PURCHASE',
+        category: 'Parts',
+        partId: parts[0].id,
+        notes: 'Bulk purchase of iPhone 14 screens',
+        createdById: admin.id,
+      },
+    }),
+    prisma.expense.create({
+      data: {
+        name: 'Lost Part - Battery',
+        amount: 45.00,
+        type: 'PART_LOSS',
+        category: 'Inventory Loss',
+        partId: parts[1].id,
+        notes: 'Battery damaged during handling',
+        createdById: staff.id,
+      },
+    }),
+    prisma.expense.create({
+      data: {
+        name: 'Miscellaneous Expense',
+        amount: 75.50,
+        type: 'MISC',
+        category: 'Other',
+        notes: 'General maintenance',
+        createdById: admin.id,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Expenses created (${expenses.length})`);
+
+  // Create finance module: Inventory Adjustments
+  const inventoryAdjustments = await Promise.all([
+    prisma.inventoryAdjustment.create({
+      data: {
+        partId: parts[0].id,
+        qtyChange: 10,
+        cost: 899.90,
+        costPerUnit: 89.99,
+        reason: 'Bulk purchase from supplier',
+        createdById: admin.id,
+      },
+    }),
+    prisma.inventoryAdjustment.create({
+      data: {
+        partId: parts[2].id,
+        qtyChange: -2,
+        cost: 14.40,
+        costPerUnit: 7.20,
+        reason: 'Damaged items removed from inventory',
+        createdById: staff.id,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Inventory adjustments created (${inventoryAdjustments.length})`);
+
+  // Create finance module: Journal Entries
+  const journalEntries = await Promise.all([
+    // Revenue entries for completed tickets
+    ...completedTickets.slice(0, 3).map(ticket =>
+      prisma.journalEntry.create({
+        data: {
+          type: 'REVENUE',
+          amount: ticket.finalPrice || ticket.estimatedPrice,
+          description: `Revenue from ticket ${ticket.ticketNumber}`,
+          referenceType: 'TICKET',
+          referenceId: ticket.id,
+          ticketId: ticket.id,
+          createdById: admin.id,
+        },
+      })
+    ),
+    // Expense entries
+    prisma.journalEntry.create({
+      data: {
+        type: 'EXPENSE',
+        amount: expenses[1].amount,
+        description: expenses[1].name,
+        referenceType: 'EXPENSE',
+        referenceId: expenses[1].id,
+        createdById: admin.id,
+      },
+    }),
+    // Inventory adjustment entry
+    prisma.journalEntry.create({
+      data: {
+        type: 'INVENTORY_ADJUSTMENT',
+        amount: inventoryAdjustments[0].cost,
+        description: inventoryAdjustments[0].reason,
+        referenceType: 'INVENTORY_ADJUSTMENT',
+        referenceId: inventoryAdjustments[0].id,
+        createdById: admin.id,
+      },
+    }),
+    // Payment entries
+    ...payments.slice(0, 2).map(payment =>
+      prisma.journalEntry.create({
+        data: {
+          type: 'PAYMENT',
+          amount: payment.amount,
+          description: `Payment for ticket ${payment.ticketId}`,
+          referenceType: 'PAYMENT',
+          referenceId: payment.id,
+          ticketId: payment.ticketId,
+          createdById: admin.id,
+        },
+      })
+    ),
+  ]);
+
+  console.log(`✅ Journal entries created (${journalEntries.length})`);
+
   console.log('🎉 Seed data created successfully!');
   console.log(`   - ${customers.length} customers`);
   console.log(`   - ${parts.length} parts`);
   console.log(`   - ${tickets.length} tickets`);
   console.log(`   - ${returns.length} returns`);
+  console.log(`   - ${payments.length} payments`);
+  console.log(`   - ${expenses.length} expenses`);
+  console.log(`   - ${inventoryAdjustments.length} inventory adjustments`);
+  console.log(`   - ${journalEntries.length} journal entries`);
   console.log(`   - Login credentials:`);
   console.log(`     Admin: username=admin, password=admin123`);
   console.log(`     Staff: username=staff, password=staff123`);

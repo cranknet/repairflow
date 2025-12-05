@@ -6,9 +6,28 @@ async function resetData() {
     console.log('🗑️  Starting data reset...');
 
     try {
-        // 1. Delete all transactional and operational data
-        console.log('Deleting Notifications...');
-        await prisma.notification.deleteMany({});
+        // Delete all data in the correct order (respecting foreign key constraints)
+        // Start with most dependent models first, then work up to parent models
+
+        // 1. Finance module - most dependent models first
+        console.log('Deleting JournalEntries...');
+        await prisma.journalEntry.deleteMany({});
+
+        console.log('Deleting Returns...');
+        await prisma.return.deleteMany({});
+
+        console.log('Deleting Payments...');
+        await prisma.payment.deleteMany({});
+
+        console.log('Deleting Expenses...');
+        await prisma.expense.deleteMany({});
+
+        console.log('Deleting InventoryAdjustments...');
+        await prisma.inventoryAdjustment.deleteMany({});
+
+        // 2. User-dependent models
+        console.log('Deleting NotificationPreferences...');
+        await prisma.notificationPreference.deleteMany({});
 
         console.log('Deleting LoginLogs...');
         await prisma.loginLog.deleteMany({});
@@ -16,8 +35,9 @@ async function resetData() {
         console.log('Deleting PasswordResetTokens...');
         await prisma.passwordResetToken.deleteMany({});
 
-        console.log('Deleting InventoryTransactions...');
-        await prisma.inventoryTransaction.deleteMany({});
+        // 3. Ticket-dependent models
+        console.log('Deleting TicketPriceAdjustments...');
+        await prisma.ticketPriceAdjustment.deleteMany({});
 
         console.log('Deleting TicketParts...');
         await prisma.ticketPart.deleteMany({});
@@ -25,38 +45,49 @@ async function resetData() {
         console.log('Deleting TicketStatusHistory...');
         await prisma.ticketStatusHistory.deleteMany({});
 
-        console.log('Deleting TicketPriceAdjustments...');
-        await prisma.ticketPriceAdjustment.deleteMany({});
+        console.log('Deleting SatisfactionRatings...');
+        await prisma.satisfactionRating.deleteMany({});
 
-        console.log('Deleting Returns...');
-        await prisma.return.deleteMany({});
+        console.log('Deleting ContactMessages...');
+        await prisma.contactMessage.deleteMany({});
+
+        console.log('Deleting Notifications...');
+        await prisma.notification.deleteMany({});
+
+        // 4. Ticket and inventory transactions
+        console.log('Deleting InventoryTransactions...');
+        await prisma.inventoryTransaction.deleteMany({});
 
         console.log('Deleting Tickets...');
         await prisma.ticket.deleteMany({});
 
+        // 5. Customer-dependent models
         console.log('Deleting Customers...');
         await prisma.customer.deleteMany({});
 
+        // 6. Part-dependent models (already deleted above, but Parts reference Suppliers)
         console.log('Deleting Parts...');
         await prisma.part.deleteMany({});
 
+        console.log('Deleting Suppliers...');
+        await prisma.supplier.deleteMany({});
+
+        // 7. Configuration and templates
         console.log('Deleting SMS Templates...');
         await prisma.sMSTemplate.deleteMany({});
 
-        console.log('Deleting Settings...');
-        await prisma.settings.deleteMany({});
+        console.log('Deleting EmailSettings...');
+        await prisma.emailSettings.deleteMany({});
 
-        // 2. Delete ALL users (including ADMIN) for fresh install simulation
+        // 8. Delete ALL users (including ADMIN) for fresh install simulation
+        // Must be deleted after all dependent models
         console.log('Deleting ALL Users...');
-        // Delete all users except potentially system users if any (but for fresh install we want NONE)
         const deletedUsers = await prisma.user.deleteMany({});
         console.log(`Deleted ${deletedUsers.count} users.`);
 
-        // Ensure is_installed setting is removed or set to false
-        console.log('Ensuring is_installed setting is removed...');
-        await prisma.settings.deleteMany({
-            where: { key: 'is_installed' }
-        });
+        // 9. Settings (delete last, after users)
+        console.log('Deleting Settings...');
+        await prisma.settings.deleteMany({});
 
         // 3. Create Default Walking Customer
         console.log('👤 Creating default walking customer...');

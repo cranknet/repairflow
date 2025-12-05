@@ -53,37 +53,52 @@ export function ReturnsTable({ returns, userRole }: ReturnsTableProps) {
 
   const handleApprove = async (returnId: string) => {
     try {
-      const response = await fetch(`/api/returns/${returnId}`, {
-        method: 'PATCH',
+      // Use V2 endpoint which creates payment record, journal entry, and updates finance metrics
+      const response = await fetch(`/api/v2/returns/${returnId}/approve`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'APPROVED' }),
+        body: JSON.stringify({
+          // Using default values - full refund, cash payment, no inventory adjustment
+          // Users can go to Finance > Refunds page for advanced options
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to approve return');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to approve return');
+      }
 
       toast({
         title: t('success'),
-        description: t('returnApprovedTicketStatusChanged'),
+        description: t('returnApprovedTicketStatusChanged') + ' - Payment and journal entry created.',
       });
       router.refresh();
     } catch (error) {
       toast({
         title: t('error'),
-        description: t('failedToApproveReturn'),
+        description: error instanceof Error ? error.message : t('failedToApproveReturn'),
         variant: 'destructive',
       });
     }
   };
 
   const handleReject = async (returnId: string) => {
+    // Ask for rejection reason
+    const reason = prompt(t('enterRejectionReason') || 'Please enter rejection reason:');
+    if (!reason) return; // User cancelled
+
     try {
-      const response = await fetch(`/api/returns/${returnId}`, {
-        method: 'PATCH',
+      // Use V2 endpoint for consistency and proper audit trail
+      const response = await fetch(`/api/v2/returns/${returnId}/reject`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REJECTED' }),
+        body: JSON.stringify({ reason }),
       });
 
-      if (!response.ok) throw new Error('Failed to reject return');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to reject return');
+      }
 
       toast({
         title: t('success'),
@@ -93,7 +108,7 @@ export function ReturnsTable({ returns, userRole }: ReturnsTableProps) {
     } catch (error) {
       toast({
         title: t('error'),
-        description: t('failedToRejectReturn'),
+        description: error instanceof Error ? error.message : t('failedToRejectReturn'),
         variant: 'destructive',
       });
     }

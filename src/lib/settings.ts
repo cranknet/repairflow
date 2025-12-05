@@ -31,10 +31,10 @@ export async function getBooleanSetting(key: string, defaultValue: boolean = fal
 
 /**
  * Check if tickets should be automatically marked as paid upon creation
- * @returns true if auto-mark-as-paid is enabled (default: true)
+ * @returns true if auto-mark-as-paid is enabled (default: false)
  */
 export async function shouldAutoMarkTicketsAsPaid(): Promise<boolean> {
-  return getBooleanSetting('auto_mark_tickets_as_paid', true);
+  return getBooleanSetting('auto_mark_tickets_as_paid', false);
 }
 
 /**

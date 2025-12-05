@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 import { AppVersion } from './app-version';
 import { useLanguage } from '@/contexts/language-context';
 import { useSettings } from '@/contexts/settings-context';
+import { useFeatureFlag } from '@/lib/hooks/useFeatureFlag';
+import { FEATURES } from '@/lib/features';
 
 /**
  * Material Design 3 Navigation Rail/Drawer Component
@@ -21,8 +23,26 @@ import { useSettings } from '@/contexts/settings-context';
  * @see https://m3.material.io/components/navigation-drawer/overview
  */
 
+interface NavigationChild {
+  key: string;
+  href: string;
+  icon: string;
+  iconFilled: string;
+}
+
+interface NavigationItem {
+  key: string;
+  href: string;
+  icon: string;
+  iconFilled: string;
+  adminOnly?: boolean;
+  requiresFeature?: string;
+  roles?: string[];
+  children?: NavigationChild[];
+}
+
 // Navigation items with Material Symbols icons
-const navigationKeys = [
+const navigationKeys: NavigationItem[] = [
   {
     key: 'dashboard',
     href: '/dashboard',
@@ -42,10 +62,78 @@ const navigationKeys = [
     iconFilled: 'sync_alt'
   },
   {
-    key: 'customers',
+    key: 'finance',
+    href: '/finance',
+    icon: 'account_balance_wallet',
+    iconFilled: 'account_balance_wallet',
+    adminOnly: true,
+    requiresFeature: FEATURES.FINANCE_MODULE, // Feature flag
+    children: [
+      {
+        key: 'finance.payments',
+        href: '/finance/payments',
+        icon: 'payments',
+        iconFilled: 'payments'
+      },
+      {
+        key: 'finance.refunds',
+        href: '/finance/refunds',
+        icon: 'receipt_long',
+        iconFilled: 'receipt_long'
+      },
+      {
+        key: 'finance.expenses',
+        href: '/finance/expenses',
+        icon: 'shopping_cart',
+        iconFilled: 'shopping_cart'
+      },
+      {
+        key: 'finance.inventory',
+        href: '/finance/inventory-adjustments',
+        icon: 'inventory',
+        iconFilled: 'inventory'
+      }
+    ]
+  },
+  {
+    key: 'relations',
     href: '/customers',
-    icon: 'group',
-    iconFilled: 'group'
+    icon: 'contacts',
+    iconFilled: 'contacts',
+    children: [
+      {
+        key: 'relations.customers',
+        href: '/customers',
+        icon: 'group',
+        iconFilled: 'group'
+      },
+      {
+        key: 'relations.suppliers',
+        href: '/suppliers',
+        icon: 'local_shipping',
+        iconFilled: 'local_shipping'
+      }
+    ]
+  },
+  {
+    key: 'inventory',
+    href: '/inventory/stock',
+    icon: 'inventory_2',
+    iconFilled: 'inventory_2',
+    children: [
+      {
+        key: 'inventory.stock',
+        href: '/inventory/stock',
+        icon: 'warehouse',
+        iconFilled: 'warehouse'
+      },
+      {
+        key: 'inventory.adjustments',
+        href: '/finance/inventory-adjustments',
+        icon: 'tune',
+        iconFilled: 'tune'
+      }
+    ]
   },
   {
     key: 'settings',
@@ -66,6 +154,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const { data: session } = useSession();
   const { t } = useLanguage();
   const { companyLogo, companyName } = useSettings();
+  const isFinanceModuleEnabled = useFeatureFlag(FEATURES.FINANCE_MODULE);
   // Initialize collapsed state from localStorage
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
@@ -78,6 +167,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   });
 
   const [isMounted, setIsMounted] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // Detect screen size for auto-collapse behavior
   useEffect(() => {
@@ -100,6 +190,24 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Auto-expand parent items when child route is active
+  useEffect(() => {
+    const activeParents = new Set<string>();
+    filteredNavigation.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(
+          (child) => pathname === child.href || pathname.startsWith(child.href + '/')
+        );
+        if (hasActiveChild) {
+          activeParents.add(item.key);
+        }
+      }
+    });
+    if (activeParents.size > 0) {
+      setExpandedItems((prev) => new Set([...prev, ...activeParents]));
+    }
+  }, [pathname]);
 
   // Save collapse state to localStorage (tablet/desktop)
   const toggleCollapse = () => {
@@ -125,8 +233,36 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     if ('roles' in item && Array.isArray(item.roles) && !item.roles.includes(session?.user?.role || '')) {
       return false;
     }
+    // Check feature flag requirement
+    if ('requiresFeature' in item && item.requiresFeature) {
+      // For finance module, check the feature flag
+      if (
+        item.requiresFeature === FEATURES.FINANCE_MODULE ||
+        item.requiresFeature === 'finance_module' // Backward compatibility
+      ) {
+        if (!isFinanceModuleEnabled) {
+          return false;
+        }
+      }
+      // Future feature flags can be added here
+    }
     return true;
   });
+
+  // Toggle expand/collapse for items with children
+  const toggleExpand = (key: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  };
 
   // Don't render until mounted to avoid hydration issues
   if (!isMounted) {
@@ -151,7 +287,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               {companyLogo ? (
                 <Image
                   src={companyLogo}
-                  alt="Company Logo"
+                  alt={t('sidebar.companyLogoAlt')}
                   width={40}
                   height={40}
                   className="object-contain flex-shrink-0 rounded-lg"
@@ -160,7 +296,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               ) : (
                 <Image
                   src="/default-logo.png"
-                  alt="RepairFlow Logo"
+                  alt={t('sidebar.logoAlt')}
                   width={40}
                   height={40}
                   className="object-contain flex-shrink-0 rounded-lg"
@@ -204,57 +340,184 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-1 p-3" aria-label="Main navigation">
         {filteredNavigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const hasChildren = item.children && item.children.length > 0;
+          const hasActiveChild = hasChildren
+            ? item.children!.some(
+                (child) => pathname === child.href || pathname.startsWith(child.href + '/')
+              )
+            : false;
+          const isActive =
+            pathname === item.href ||
+            pathname.startsWith(item.href + '/') ||
+            hasActiveChild;
+          const isExpanded = expandedItems.has(item.key) || hasActiveChild;
           const translatedName = t(item.key);
 
           return (
-            <Link
-              key={item.key}
-              href={item.href}
-              onClick={handleNavClick}
-              className={cn(
-                'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden',
-                'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
-                // Ensure touch-friendly size on mobile (min 44px)
-                'min-h-[44px]',
-                isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
-                isActive
-                  ? 'bg-secondary-container text-on-secondary-container'
-                  : 'text-on-surface-variant hover:bg-on-surface/8'
-              )}
-              title={isCollapsed ? translatedName : undefined}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              {/* Active indicator */}
-              {isActive && !isCollapsed && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
+            <div key={item.key} className="flex flex-col gap-1">
+              {/* Parent item */}
+              {hasChildren ? (
+                <button
+                  onClick={(e) => toggleExpand(item.key, e)}
+                  className={cn(
+                    'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden w-full',
+                    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                    'min-h-[44px]',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
+                    isActive
+                      ? 'bg-secondary-container text-on-secondary-container'
+                      : 'text-on-surface-variant hover:bg-on-surface/8'
+                  )}
+                  title={isCollapsed ? translatedName : undefined}
+                  aria-expanded={isExpanded}
+                  aria-controls={`nav-children-${item.key}`}
+                >
+                  {/* Active indicator */}
+                  {isActive && !isCollapsed && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
+                  )}
+
+                  {/* Icon */}
+                  <span
+                    className={cn(
+                      'text-2xl flex-shrink-0',
+                      isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
+                    )}
+                    style={{
+                      fontVariationSettings: isActive
+                        ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
+                        : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+                    }}
+                  >
+                    {isActive ? item.iconFilled : item.icon}
+                  </span>
+
+                  {/* Label */}
+                  {!isCollapsed && (
+                    <span className="flex-1 truncate text-left">
+                      {translatedName}
+                    </span>
+                  )}
+
+                  {/* Chevron icon for expand/collapse */}
+                  {!isCollapsed && hasChildren && (
+                    <span className="material-symbols-outlined text-xl flex-shrink-0 transition-transform duration-short2">
+                      {isExpanded ? 'expand_more' : 'chevron_right'}
+                    </span>
+                  )}
+
+                  {/* State layer for hover/press */}
+                  <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  onClick={handleNavClick}
+                  className={cn(
+                    'relative flex items-center gap-3 rounded-full text-label-large font-medium transition-all duration-short2 ease-standard group overflow-hidden',
+                    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                    'min-h-[44px]',
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-6 py-4',
+                    isActive
+                      ? 'bg-secondary-container text-on-secondary-container'
+                      : 'text-on-surface-variant hover:bg-on-surface/8'
+                  )}
+                  title={isCollapsed ? translatedName : undefined}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {/* Active indicator */}
+                  {isActive && !isCollapsed && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-on-secondary-container rounded-r-full" />
+                  )}
+
+                  {/* Icon */}
+                  <span
+                    className={cn(
+                      'text-2xl flex-shrink-0',
+                      isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
+                    )}
+                    style={{
+                      fontVariationSettings: isActive
+                        ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
+                        : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+                    }}
+                  >
+                    {isActive ? item.iconFilled : item.icon}
+                  </span>
+
+                  {/* Label */}
+                  {!isCollapsed && (
+                    <span className="flex-1 truncate">
+                      {translatedName}
+                    </span>
+                  )}
+
+                  {/* State layer for hover/press */}
+                  <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+                </Link>
               )}
 
-              {/* Icon */}
-              <span
-                className={cn(
-                  'text-2xl flex-shrink-0',
-                  isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
-                )}
-                style={{
-                  fontVariationSettings: isActive
-                    ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                    : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                }}
-              >
-                {isActive ? item.iconFilled : item.icon}
-              </span>
+              {/* Children items */}
+              {hasChildren && isExpanded && !isCollapsed && (
+                <div
+                  id={`nav-children-${item.key}`}
+                  className="flex flex-col gap-1 pl-12"
+                  role="group"
+                  aria-label={`${translatedName} submenu`}
+                >
+                  {item.children!.map((child) => {
+                    const isChildActive =
+                      pathname === child.href || pathname.startsWith(child.href + '/');
+                    const translatedChildName = t(child.key);
 
-              {/* Label */}
-              {!isCollapsed && (
-                <span className="flex-1 truncate">
-                  {translatedName}
-                </span>
+                    return (
+                      <Link
+                        key={child.key}
+                        href={child.href}
+                        onClick={handleNavClick}
+                        className={cn(
+                          'relative flex items-center gap-3 rounded-full text-label-medium font-medium transition-all duration-short2 ease-standard group overflow-hidden',
+                          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2',
+                          'min-h-[40px] px-6 py-3',
+                          isChildActive
+                            ? 'bg-secondary-container text-on-secondary-container'
+                            : 'text-on-surface-variant hover:bg-on-surface/8'
+                        )}
+                        aria-current={isChildActive ? 'page' : undefined}
+                      >
+                        {/* Active indicator */}
+                        {isChildActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-on-secondary-container rounded-r-full" />
+                        )}
+
+                        {/* Icon */}
+                        <span
+                          className={cn(
+                            'text-xl flex-shrink-0',
+                            isChildActive
+                              ? 'material-symbols-rounded font-bold'
+                              : 'material-symbols-outlined'
+                          )}
+                          style={{
+                            fontVariationSettings: isChildActive
+                              ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
+                              : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+                          }}
+                        >
+                          {isChildActive ? child.iconFilled : child.icon}
+                        </span>
+
+                        {/* Label */}
+                        <span className="flex-1 truncate">{translatedChildName}</span>
+
+                        {/* State layer for hover/press */}
+                        <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
-
-              {/* State layer for hover/press */}
-              <div className="absolute inset-0 bg-on-surface opacity-0 group-hover:opacity-8 transition-opacity duration-short2 pointer-events-none rounded-full" />
-            </Link>
+            </div>
           );
         })}
       </nav>
