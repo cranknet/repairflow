@@ -2,148 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Material Design 3 Color System Variables */
+/* Clean Tailwind Color System using HSL */
 :root {
-  /* Primary Colors - Light Mode */
-  --md-sys-color-primary: 64 126 201;
-  --md-sys-color-on-primary: 255 255 255;
-  --md-sys-color-primary-container: 213 227 247;
-  --md-sys-color-on-primary-container: 0 28 58;
-  --md-sys-color-primary-fixed: 213 227 247;
-  --md-sys-color-primary-fixed-dim: 165 200 234;
-  --md-sys-color-on-primary-fixed: 0 28 58;
-  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
 
-  /* Secondary Colors - Light Mode */
-  --md-sys-color-secondary: 88 94 113;
-  --md-sys-color-on-secondary: 255 255 255;
-  --md-sys-color-secondary-container: 220 226 249;
-  --md-sys-color-on-secondary-container: 21 27 44;
-  --md-sys-color-secondary-fixed: 220 226 249;
-  --md-sys-color-secondary-fixed-dim: 192 198 220;
-  --md-sys-color-on-secondary-fixed: 21 27 44;
-  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
 
-  /* Tertiary Colors - Light Mode */
-  --md-sys-color-tertiary: 112 85 127;
-  --md-sys-color-on-tertiary: 255 255 255;
-  --md-sys-color-tertiary-container: 241 219 255;
-  --md-sys-color-on-tertiary-container: 39 16 53;
-  --md-sys-color-tertiary-fixed: 241 219 255;
-  --md-sys-color-tertiary-fixed-dim: 213 188 229;
-  --md-sys-color-on-tertiary-fixed: 39 16 53;
-  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
 
-  /* Error Colors - Light Mode */
-  --md-sys-color-error: 186 26 26;
-  --md-sys-color-on-error: 255 255 255;
-  --md-sys-color-error-container: 255 218 214;
-  --md-sys-color-on-error-container: 65 0 2;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
 
-  /* Surface Colors - Light Mode */
-  --md-sys-color-surface: 250 249 253;
-  --md-sys-color-surface-dim: 218 217 221;
-  --md-sys-color-surface-bright: 250 249 253;
-  --md-sys-color-surface-container-lowest: 255 255 255;
-  --md-sys-color-surface-container-low: 244 243 247;
-  --md-sys-color-surface-container: 238 238 242;
-  --md-sys-color-surface-container-high: 232 232 236;
-  --md-sys-color-surface-container-highest: 227 227 230;
-  --md-sys-color-on-surface: 26 28 30;
-  --md-sys-color-surface-variant: 224 226 236;
-  --md-sys-color-on-surface-variant: 67 71 78;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
 
-  /* Outline Colors - Light Mode */
-  --md-sys-color-outline: 116 119 127;
-  --md-sys-color-outline-variant: 196 199 208;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
 
-  /* Background Colors - Light Mode */
-  --md-sys-color-background: 250 249 253;
-  --md-sys-color-on-background: 26 28 30;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
 
-  /* Inverse Colors - Light Mode */
-  --md-sys-color-inverse-surface: 47 48 51;
-  --md-sys-color-inverse-on-surface: 241 240 244;
-  --md-sys-color-inverse-primary: 165 200 234;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
 
-  /* Additional Colors */
-  --md-sys-color-shadow: 0 0 0;
-  --md-sys-color-scrim: 0 0 0;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+
+  --radius: 0.5rem;
 }
 
-/* Dark Mode Color Overrides */
 .dark {
-  /* Primary Colors - Dark Mode */
-  --md-sys-color-primary: 165 200 234;
-  --md-sys-color-on-primary: 11 54 90;
-  --md-sys-color-primary-container: 40 98 155;
-  --md-sys-color-on-primary-container: 213 227 247;
-  --md-sys-color-primary-fixed: 213 227 247;
-  --md-sys-color-primary-fixed-dim: 165 200 234;
-  --md-sys-color-on-primary-fixed: 0 28 58;
-  --md-sys-color-on-primary-fixed-variant: 40 98 155;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
 
-  /* Secondary Colors - Dark Mode */
-  --md-sys-color-secondary: 192 198 220;
-  --md-sys-color-on-secondary: 42 48 65;
-  --md-sys-color-secondary-container: 64 70 89;
-  --md-sys-color-on-secondary-container: 220 226 249;
-  --md-sys-color-secondary-fixed: 220 226 249;
-  --md-sys-color-secondary-fixed-dim: 192 198 220;
-  --md-sys-color-on-secondary-fixed: 21 27 44;
-  --md-sys-color-on-secondary-fixed-variant: 64 70 89;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
 
-  /* Tertiary Colors - Dark Mode */
-  --md-sys-color-tertiary: 213 188 229;
-  --md-sys-color-on-tertiary: 60 37 76;
-  --md-sys-color-tertiary-container: 86 61 101;
-  --md-sys-color-on-tertiary-container: 241 219 255;
-  --md-sys-color-tertiary-fixed: 241 219 255;
-  --md-sys-color-tertiary-fixed-dim: 213 188 229;
-  --md-sys-color-on-tertiary-fixed: 39 16 53;
-  --md-sys-color-on-tertiary-fixed-variant: 86 61 101;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
 
-  /* Error Colors - Dark Mode */
-  --md-sys-color-error: 255 180 171;
-  --md-sys-color-on-error: 105 0 5;
-  --md-sys-color-error-container: 147 0 10;
-  --md-sys-color-on-error-container: 255 218 214;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
 
-  /* Surface Colors - Dark Mode */
-  --md-sys-color-surface: 26 28 30;
-  --md-sys-color-surface-dim: 26 28 30;
-  --md-sys-color-surface-bright: 54 57 60;
-  --md-sys-color-surface-container-lowest: 20 22 25;
-  --md-sys-color-surface-container-low: 34 36 39;
-  --md-sys-color-surface-container: 38 41 43;
-  --md-sys-color-surface-container-high: 49 51 54;
-  --md-sys-color-surface-container-highest: 60 62 65;
-  --md-sys-color-on-surface: 227 227 230;
-  --md-sys-color-surface-variant: 67 71 78;
-  --md-sys-color-on-surface-variant: 196 199 208;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
 
-  /* Outline Colors - Dark Mode */
-  --md-sys-color-outline: 142 145 153;
-  --md-sys-color-outline-variant: 67 71 78;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
 
-  /* Background Colors - Dark Mode */
-  --md-sys-color-background: 26 28 30;
-  --md-sys-color-on-background: 227 227 230;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
 
-  /* Inverse Colors - Dark Mode */
-  --md-sys-color-inverse-surface: 227 227 230;
-  --md-sys-color-inverse-on-surface: 47 48 51;
-  --md-sys-color-inverse-primary: 40 98 155;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
 
-  /* Additional Colors */
-  --md-sys-color-shadow: 0 0 0;
-  --md-sys-color-scrim: 0 0 0;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
 }
 
 /* Base Styles */
 @layer base {
+  * {
+    @apply border-border;
+  }
+
   body {
-    @apply bg-background text-on-background antialiased;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -155,9 +84,7 @@
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
   }
 
   /* Custom scrollbar styling */
@@ -167,150 +94,20 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-surface-container;
+    @apply bg-muted;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-outline-variant rounded-md;
+    @apply bg-muted-foreground/30 rounded-md;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-outline;
-  }
-
-  /* Material Symbols Font */
-  .material-symbols-outlined,
-  .material-symbols-rounded {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    font-feature-settings: 'liga';
-    -webkit-font-feature-settings: 'liga';
-    -moz-font-feature-settings: 'liga';
-    font-variant-ligatures: common-ligatures;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  .material-symbols-rounded {
-    font-family: 'Material Symbols Rounded';
+    @apply bg-muted-foreground/50;
   }
 }
 
 /* Utility Classes */
 @layer utilities {
-
-  /* Material Design 3 State Layers */
-  .state-layer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .state-layer::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1);
-    pointer-events: none;
-  }
-
-  .state-layer:hover::before {
-    opacity: 0.08;
-    background-color: rgb(var(--md-sys-color-on-surface));
-  }
-
-  .state-layer:focus-visible::before {
-    opacity: 0.12;
-    background-color: rgb(var(--md-sys-color-on-surface));
-  }
-
-  .state-layer:active::before {
-    opacity: 0.12;
-    background-color: rgb(var(--md-sys-color-on-surface));
-  }
-
-  /* MD3 State Layer Hover - Simplified version for hover effects */
-  .md-state-layer-hover {
-    position: relative;
-  }
-
-  /* MD3 Focus Ring */
-  .md-focus-ring:focus-visible {
-    outline: 3px solid rgb(var(--md-sys-color-primary));
-    outline-offset: 2px;
-  }
-
-  /* Material Design 3 Shadow Levels */
-  .shadow-md-level0 {
-    box-shadow: none;
-  }
-
-  .shadow-md-level1 {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-  }
-
-  .shadow-md-level2 {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-      0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-  }
-
-  .shadow-md-level3 {
-    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
-      0px 1px 3px 0px rgba(0, 0, 0, 0.3);
-  }
-
-  .shadow-md-level4 {
-    box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.15),
-      0px 2px 3px 0px rgba(0, 0, 0, 0.3);
-  }
-
-  .hover\:shadow-md-level1:hover {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-  }
-
-  .hover\:shadow-md-level2:hover {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-      0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-  }
-
-  .hover\:shadow-md-level3:hover {
-    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15),
-      0px 1px 3px 0px rgba(0, 0, 0, 0.3);
-  }
-
-  .hover\:shadow-md-level4:hover {
-    box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.15),
-      0px 2px 3px 0px rgba(0, 0, 0, 0.3);
-  }
-
-  .active\:shadow-md-level1:active,
-  .active\:shadow-md-level3:active {
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3),
-      0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Hover border outline */
-  .hover\:border-outline:hover {
-    border-color: rgb(var(--md-sys-color-outline));
-  }
-
-  /* Focus visible outline for accessibility */
-  .focus-visible-ring:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgb(var(--md-sys-color-primary)),
-      0 0 0 4px rgb(var(--md-sys-color-surface));
-  }
 
   /* Text overflow utilities */
   .text-truncate {
