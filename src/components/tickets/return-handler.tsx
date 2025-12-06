@@ -6,12 +6,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
-import Link from 'next/link';
+import { useState } from 'react';
+import { CreateReturnModal } from '@/components/returns/create-return-modal';
 
 export function ReturnHandler({ ticket }: { ticket: any }) {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleApproveReturn = async (returnId: string) => {
     try {
@@ -82,19 +84,26 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{t('returns')}</h3>
-          <Link href="/returns">
-            <Button size="sm" variant="outline">
-              {t('createReturn')}
-            </Button>
-          </Link>
+          <Button size="sm" variant="outline" onClick={() => setShowCreateModal(true)}>
+            {t('createReturn')}
+          </Button>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          No returns for this ticket. Create a return from the{' '}
-          <Link href="/returns" className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
-            returns page
-          </Link>
+          No returns for this ticket. Create a return{' '}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 underline underline-offset-2"
+          >
+            here
+          </button>
           .
         </p>
+
+        <CreateReturnModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          ticketId={ticket.id}
+        />
       </div>
     );
   }
@@ -103,11 +112,9 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{t('returns')}</h3>
-        <Link href="/returns">
-          <Button size="sm" variant="outline">
-            {t('createReturn')}
-          </Button>
-        </Link>
+        <Button size="sm" variant="outline" onClick={() => setShowCreateModal(true)}>
+          {t('createReturn')}
+        </Button>
       </div>
 
       {/* Existing Returns */}
@@ -167,6 +174,12 @@ export function ReturnHandler({ ticket }: { ticket: any }) {
           </Card>
         ))}
       </div>
+
+      <CreateReturnModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        ticketId={ticket.id}
+      />
     </div>
   );
 }

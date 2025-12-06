@@ -47,84 +47,23 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [newPrice, setNewPrice] = useState(
-    ticket.finalPrice !== null && ticket.finalPrice !== undefined 
-      ? ticket.finalPrice 
+    ticket.finalPrice !== null && ticket.finalPrice !== undefined
+      ? ticket.finalPrice
       : ticket.estimatedPrice
   );
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPaid, setIsPaid] = useState(ticket.paid);
-  const [isTogglingPaid, setIsTogglingPaid] = useState(false);
 
   // Permission check for admin/staff
   const canManagePrice = userRole === 'ADMIN' || userRole === 'STAFF';
-  
+
   // Only show price adjustment if repair is finished (REPAIRED)
   const canAdjustPrice = ticket.status === 'REPAIRED' && canManagePrice;
 
   // Toggle paid status handler
-  const handleTogglePaid = async () => {
-    setIsTogglingPaid(true);
-    const newPaidStatus = !isPaid;
-    
-    try {
-      const response = await fetch(`/api/tickets/${ticket.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paid: newPaidStatus }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t('failedToUpdatePaidStatus'));
-      }
-
-      setIsPaid(newPaidStatus);
-      toast({
-        title: t('success'),
-        description: `${t('paymentStatusUpdatedTo')} ${newPaidStatus ? t('paid') : t('unpaid')}`,
-      });
-      router.refresh();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : t('failedToUpdatePaidStatus');
-      toast({
-        title: t('error'),
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsTogglingPaid(false);
-    }
-  };
-
-  // If not REPAIRED, only show payment status toggle for admin/staff
+  // If not REPAIRED, don't show anything (price adjustment is only for REPAIRED tickets)
   if (!canAdjustPrice) {
-    if (!canManagePrice) {
-      return null;
-    }
-    // Show only payment status toggle for admin/staff on non-REPAIRED tickets
-    return (
-      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div>
-          <p className="text-sm font-medium">{t('paymentStatus')}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {t('togglePaymentStatus')}
-          </p>
-        </div>
-        <Button
-          onClick={handleTogglePaid}
-          disabled={isTogglingPaid}
-          variant={isPaid ? 'default' : 'outline'}
-          size="sm"
-          className={isPaid 
-            ? 'bg-green-600 hover:bg-green-700 text-white' 
-            : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300'
-          }
-        >
-          {isTogglingPaid ? t('loading') : (isPaid ? t('paid') : t('unpaid'))}
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   const handleSubmit = async () => {
@@ -183,28 +122,6 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
 
   return (
     <div className="space-y-4">
-      {/* Payment Status Toggle */}
-      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <div>
-          <p className="text-sm font-medium">{t('paymentStatus')}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {t('togglePaymentStatus')}
-          </p>
-        </div>
-        <Button
-          onClick={handleTogglePaid}
-          disabled={isTogglingPaid}
-          variant={isPaid ? 'default' : 'outline'}
-          size="sm"
-          className={isPaid 
-            ? 'bg-green-600 hover:bg-green-700 text-white' 
-            : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300'
-          }
-        >
-          {isTogglingPaid ? t('loading') : (isPaid ? t('paid') : t('unpaid'))}
-        </Button>
-      </div>
-
       {/* Price Adjustment Form */}
       {!showForm ? (
         <Button

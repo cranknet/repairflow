@@ -3510,7 +3510,7 @@ export const translations: Record<Language, Record<string, string>> = {
     priceAdjustedSuccessfully: 'Prix ajusté avec succès',
     initial: 'Initial',
     latestAdjustment: 'Dernier',
-    noPartsUsed: 'Aucune pièce utilisée dans cette réparation',
+
     devicePhotos: 'Photos de l\'appareil',
     front: 'Avant',
     deviceFront: 'Avant de l\'appareil',
