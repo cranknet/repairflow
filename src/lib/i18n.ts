@@ -141,6 +141,21 @@ export const translations: Record<Language, Record<string, string>> = {
     'install.finalize.success': 'Installation complete!',
     'install.finalize.redirecting': 'Redirecting to login...',
 
+    // Ticket Details Redesign
+    showMore: 'Show more',
+    total: 'Total',
+    quickActions: 'Quick Actions',
+    trackingCodeCopied: 'Tracking code copied',
+    manageParts: 'Manage Parts',
+    addParts: 'Add Parts',
+    collectPayment: 'Collect Payment',
+    resumeWork: 'Resume Work',
+    partsInstalledComplete: 'Parts Installed - Complete',
+    skippedNoParts: 'Skipped - no parts needed',
+    staffOnlyAction: 'Staff or Admin only',
+    due: 'due',
+    initiateReturn: 'Initiate Return',
+
     // Installer - Navigation
     'install.nav.next': 'Next',
     'install.nav.back': 'Back',
