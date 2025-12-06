@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/language-context';
@@ -12,27 +12,34 @@ export function TicketSearch() {
   const { t } = useLanguage();
   const [search, setSearch] = useState(searchParams.get('search') || '');
 
+  const pathname = usePathname();
+
   useEffect(() => {
+    const currentSearch = searchParams.get('search') || '';
+    if (search === currentSearch) {
+      return;
+    }
+
     const timer = setTimeout(() => {
       const params = new URLSearchParams();
-      
+
       // Preserve existing status filter
       const status = searchParams.get('status');
       if (status) {
         params.set('status', status);
       }
-      
+
       // Add search query
       if (search.trim()) {
         params.set('search', search.trim());
       }
-      
-      const newUrl = params.toString() ? `/tickets?${params.toString()}` : '/tickets';
-      router.push(newUrl);
+
+      const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      router.push(newUrl, { scroll: false });
     }, 500); // Debounce 500ms
 
     return () => clearTimeout(timer);
-  }, [search, router, searchParams]);
+  }, [search, router, searchParams, pathname]);
 
   const handleClear = () => {
     setSearch('');
@@ -41,8 +48,8 @@ export function TicketSearch() {
     if (status) {
       params.set('status', status);
     }
-    const newUrl = params.toString() ? `/tickets?${params.toString()}` : '/tickets';
-    router.push(newUrl);
+    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.push(newUrl, { scroll: false });
   };
 
   return (

@@ -360,7 +360,7 @@ export function TicketStatusControl({ ticket, userRole, onStatusChange }: Ticket
             {/* Status Transition Dropdown (for less common transitions) */}
             {!isTerminalState && allowedTransitions.length > 0 && (
                 <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                    <div className="relative flex-1 max-w-[200px]">
+                    <div className="relative flex-none w-[200px]">
                         <select
                             value=""
                             onChange={(e) => {
@@ -388,90 +388,92 @@ export function TicketStatusControl({ ticket, userRole, onStatusChange }: Ticket
                             })}
                         </select>
 
-                        {/* Optional transition notes */}
-                        <input
-                            type="text"
-                            value={transitionNotes}
-                            onChange={(e) => setTransitionNotes(e.target.value)}
-                            placeholder={t('transitionNotesPlaceholder') || 'Optional notes...'}
-                            className="flex-1 h-9 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-                        />
                     </div>
+
+                    {/* Optional transition notes */}
+                    <input
+                        type="text"
+                        value={transitionNotes}
+                        onChange={(e) => setTransitionNotes(e.target.value)}
+                        placeholder={t('transitionNotesPlaceholder') || 'Optional notes...'}
+                        className="flex-1 h-9 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+                    />
+                </div>
             )}
 
-                    {/* Cancellation Confirmation Modal */}
-                    <ConfirmDialog
-                        open={modalState.isOpen && modalState.targetStatus === TicketStatus.CANCELLED}
-                        onOpenChange={(open) => {
-                            if (!open) {
-                                setModalState({ ...modalState, isOpen: false });
-                                setCancelReason('');
-                            }
-                        }}
-                        title={t('confirmCancellation') || 'Confirm Cancellation'}
-                        description={t('cancelWarning') || 'Cancelled tickets cannot be reopened. Any deposits must be refunded manually.'}
-                        confirmText={t('confirmCancel') || 'Cancel Ticket'}
-                        cancelText={t('goBack') || 'Go Back'}
-                        variant="destructive"
-                        onConfirm={handleConfirmTransition}
-                        isLoading={isUpdating}
-                    />
+            {/* Cancellation Confirmation Modal */}
+            <ConfirmDialog
+                open={modalState.isOpen && modalState.targetStatus === TicketStatus.CANCELLED}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setModalState({ ...modalState, isOpen: false });
+                        setCancelReason('');
+                    }
+                }}
+                title={t('confirmCancellation') || 'Confirm Cancellation'}
+                description={t('cancelWarning') || 'Cancelled tickets cannot be reopened. Any deposits must be refunded manually.'}
+                confirmText={t('confirmCancel') || 'Cancel Ticket'}
+                cancelText={t('goBack') || 'Go Back'}
+                variant="destructive"
+                onConfirm={handleConfirmTransition}
+                isLoading={isUpdating}
+            />
 
-                    {/* Cancellation Reason Input (shown before confirmation) */}
-                    {modalState.isOpen && modalState.requiresReason && (
-                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                            <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-                                <h3 className="text-lg font-semibold mb-2">
-                                    {t('cancelTicket') || 'Cancel Ticket'}
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                    {t('cancelReasonPrompt') || 'Please provide a reason for cancelling this ticket.'}
-                                </p>
+            {/* Cancellation Reason Input (shown before confirmation) */}
+            {modalState.isOpen && modalState.requiresReason && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+                        <h3 className="text-lg font-semibold mb-2">
+                            {t('cancelTicket') || 'Cancel Ticket'}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            {t('cancelReasonPrompt') || 'Please provide a reason for cancelling this ticket.'}
+                        </p>
 
-                                <textarea
-                                    value={cancelReason}
-                                    onChange={(e) => setCancelReason(e.target.value)}
-                                    placeholder={t('cancelReasonPlaceholder') || 'Enter cancellation reason...'}
-                                    className="w-full h-24 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    autoFocus
-                                />
+                        <textarea
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder={t('cancelReasonPlaceholder') || 'Enter cancellation reason...'}
+                            className="w-full h-24 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            autoFocus
+                        />
 
-                                <div className="flex items-center gap-2 mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">info</span>
-                                    <p className="text-xs text-amber-700 dark:text-amber-300">
-                                        {t('refundWarningForCancelled') || 'Any deposits must be refunded manually.'}
-                                    </p>
-                                </div>
-
-                                <div className="flex justify-end gap-2 mt-4">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            setModalState({ ...modalState, isOpen: false });
-                                            setCancelReason('');
-                                        }}
-                                        disabled={isUpdating}
-                                    >
-                                        {t('goBack') || 'Go Back'}
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        onClick={handleConfirmTransition}
-                                        disabled={isUpdating || !cancelReason.trim()}
-                                    >
-                                        {isUpdating ? (
-                                            <>
-                                                <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
-                                                {t('cancelling') || 'Cancelling...'}
-                                            </>
-                                        ) : (
-                                            t('confirmCancel') || 'Cancel Ticket'
-                                        )}
-                                    </Button>
-                                </div>
-                            </div>
+                        <div className="flex items-center gap-2 mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">info</span>
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
+                                {t('refundWarningForCancelled') || 'Any deposits must be refunded manually.'}
+                            </p>
                         </div>
-                    )}
+
+                        <div className="flex justify-end gap-2 mt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setModalState({ ...modalState, isOpen: false });
+                                    setCancelReason('');
+                                }}
+                                disabled={isUpdating}
+                            >
+                                {t('goBack') || 'Go Back'}
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={handleConfirmTransition}
+                                disabled={isUpdating || !cancelReason.trim()}
+                            >
+                                {isUpdating ? (
+                                    <>
+                                        <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                                        {t('cancelling') || 'Cancelling...'}
+                                    </>
+                                ) : (
+                                    t('confirmCancel') || 'Cancel Ticket'
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                 </div>
-            );
+            )}
+        </div>
+    );
 }
