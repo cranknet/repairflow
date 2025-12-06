@@ -34,6 +34,7 @@ model User {
   expensesCreated       Expense[]               @relation("ExpenseCreatedBy")
   inventoryAdjustmentsCreated InventoryAdjustment[] @relation("InventoryAdjustmentCreatedBy")
   journalEntriesCreated JournalEntry[]          @relation("JournalEntryCreatedBy")
+  statusChanges         TicketStatusHistory[]   @relation("StatusChangedBy")
 }
 
 model Customer {
@@ -85,12 +86,14 @@ model Ticket {
 }
 
 model TicketStatusHistory {
-  id        String   @id @default(cuid())
-  ticketId  String
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  status    String
-  notes     String?
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  status      String
+  notes       String?
+  changedById String?
+  changedBy   User?    @relation("StatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
 }
 
 model TicketPart {

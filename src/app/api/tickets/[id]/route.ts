@@ -1,20 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { emitEvent } from '@/lib/events/emitter';
 import { nanoid } from 'nanoid';
+import {
+  TicketStatus,
+  canTransition,
+  getAllowedTransitionsForRole,
+  type TicketStatusType
+} from '@/lib/ticket-lifecycle';
 
 // Schema for ticket updates – parts field removed
 const updateTicketSchema = z.object({
-  status: z.enum(['RECEIVED', 'IN_PROGRESS', 'REPAIRED', 'CANCELLED', 'RETURNED']).optional(),
+  status: z.enum([
+    'RECEIVED',
+    'IN_PROGRESS',
+    'WAITING_FOR_PARTS',
+    'REPAIRED',
+    'COMPLETED',
+    'CANCELLED'
+  ]).optional(),
   finalPrice: z.number().optional(),
   paid: z.boolean().optional(),
   assignedToId: z.string().nullable().optional(),
   notes: z.string().optional(),
   statusNotes: z.string().optional(),
   priceAdjustmentReason: z.string().optional(),
-  returnReason: z.string().optional(), // Required when status changes to RETURNED
 });
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -83,7 +95,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   let updateData: any = {};
-  
+
   try {
     const session = await auth();
     if (!session) {
@@ -99,9 +111,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Prevent status changes for RETURNED tickets
-    if (ticket.status === 'RETURNED' && data.status && data.status !== 'RETURNED') {
-      return NextResponse.json({ error: 'Cannot change status of a returned ticket' }, { status: 400 });
+    // Prevent any updates for terminal state tickets (RETURNED, CANCELLED)
+    // The lifecycle guard handles transition validation, this blocks all updates
+    if ((ticket.status === 'RETURNED' || ticket.status === 'CANCELLED') && data.status) {
+      return NextResponse.json(
+        { error: `Cannot change status of a ${ticket.status.toLowerCase()} ticket` },
+        { status: 400 }
+      );
     }
 
     updateData = { ...data };
@@ -148,138 +164,88 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Status change handling
     if (data.status && data.status !== ticket.status) {
-      // Handle RETURNED status change - create return record instead of changing status
-      if (data.status === 'RETURNED') {
-        // Admin-only check for creating returns
-        if (session.user.role !== 'ADMIN') {
-          return NextResponse.json(
-            { error: 'Only administrators can create returns' },
-            { status: 403 }
-          );
-        }
+      // Calculate payment status for transition validation
+      const payments = await prisma.payment.findMany({
+        where: { ticketId: id },
+      });
+      const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+      const finalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
+      const outstandingAmount = Math.max(0, finalPrice - totalPaid);
 
-        // Validate ticket status is REPAIRED
-        if (ticket.status !== 'REPAIRED') {
-          return NextResponse.json(
-            { error: 'Only repaired tickets can be returned' },
-            { status: 400 }
-          );
-        }
+      // Use transition guard to validate the status change
+      const transitionResult = canTransition({
+        current: ticket.status as TicketStatusType,
+        target: data.status as TicketStatusType,
+        role: session.user.role,
+        ticketId: id,
+        paymentStatus: {
+          paid: ticket.paid,
+          outstandingAmount,
+        },
+      });
 
-        // Validate return reason is provided
-        if (!data.returnReason || data.returnReason.trim() === '') {
-          return NextResponse.json(
-            { error: 'Return reason is required when changing status to RETURNED' },
-            { status: 400 }
-          );
-        }
-
-        // Check if return already exists
-        const existingReturn = await prisma.return.findFirst({
-          where: { ticketId: ticket.id },
-        });
-
-        if (existingReturn) {
-          return NextResponse.json(
-            { error: 'Ticket already has a return' },
-            { status: 400 }
-          );
-        }
-
-        // Calculate refund amount (full amount)
-        const refundAmount = ticket.finalPrice || ticket.estimatedPrice;
-
-        // Create return record with PENDING status
-        await prisma.return.create({
-          data: {
-            ticketId: ticket.id,
-            reason: data.returnReason,
-            refundAmount: refundAmount,
-            createdBy: session.user.id,
-            status: 'PENDING',
+      if (!transitionResult.allowed) {
+        const allowedTransitions = getAllowedTransitionsForRole(ticket.status, session.user.role);
+        return NextResponse.json(
+          {
+            error: transitionResult.reason,
+            code: transitionResult.code,
+            allowedTransitions,
           },
-        });
+          { status: transitionResult.code === 'INSUFFICIENT_PERMISSIONS' ? 403 : 400 }
+        );
+      }
 
-        // Add status history note (ticket stays REPAIRED)
-        updateData.statusHistory = {
-          create: {
-            status: ticket.status, // Keep REPAIRED
-            notes: `Return request created via status change. Refund amount: ${refundAmount}. Ticket remains REPAIRED until return is approved.`,
-          },
-        };
+      // Create status history entry with changedById
+      updateData.statusHistory = {
+        create: {
+          status: data.status,
+          notes: data.statusNotes || `Status changed from ${ticket.status} to ${data.status}`,
+          changedById: session.user.id,
+        },
+      };
 
-        // Don't change ticket status - keep it as REPAIRED
-        delete updateData.status;
+      // Mark completedAt when ticket becomes COMPLETED (previously was REPAIRED)
+      if (data.status === TicketStatus.COMPLETED && !ticket.completedAt) {
+        updateData.completedAt = new Date();
+      }
 
-        // Emit ticket.status_changed event for return creation
+      // Emit ticket.status_changed event
+      emitEvent({
+        eventId: nanoid(),
+        entityType: 'ticket',
+        entityId: ticket.id,
+        action: 'status_changed',
+        actorId: session.user.id,
+        actorName: session.user.name || session.user.username,
+        timestamp: new Date(),
+        summary: `Ticket ${ticket.ticketNumber} status changed from ${ticket.status} to ${data.status}`,
+        meta: {
+          ticketNumber: ticket.ticketNumber,
+          oldStatus: ticket.status,
+          newStatus: data.status,
+        },
+        customerId: ticket.customerId,
+        ticketId: ticket.id,
+      });
+
+      // Emit repairjob.completed event when status changes to REPAIRED
+      if (data.status === TicketStatus.REPAIRED) {
         emitEvent({
           eventId: nanoid(),
-          entityType: 'ticket',
+          entityType: 'repairjob',
           entityId: ticket.id,
-          action: 'status_changed',
+          action: 'completed',
           actorId: session.user.id,
           actorName: session.user.name || session.user.username,
           timestamp: new Date(),
-          summary: `Return request created for ticket ${ticket.ticketNumber}. Awaiting approval.`,
+          summary: `Repair job ${ticket.ticketNumber} has been completed`,
           meta: {
             ticketNumber: ticket.ticketNumber,
-            oldStatus: ticket.status,
-            newStatus: ticket.status, // Stays REPAIRED
           },
           customerId: ticket.customerId,
           ticketId: ticket.id,
         });
-      } else {
-        // Normal status change handling for other statuses
-        updateData.statusHistory = {
-          create: {
-            status: data.status,
-            notes: data.statusNotes || `Status changed from ${ticket.status} to ${data.status}`,
-          },
-        };
-
-        // Mark completedAt when ticket becomes REPAIRED
-        if (data.status === 'REPAIRED' && !ticket.completedAt) {
-          updateData.completedAt = new Date();
-        }
-
-        // Emit ticket.status_changed event
-        emitEvent({
-          eventId: nanoid(),
-          entityType: 'ticket',
-          entityId: ticket.id,
-          action: 'status_changed',
-          actorId: session.user.id,
-          actorName: session.user.name || session.user.username,
-          timestamp: new Date(),
-          summary: `Ticket ${ticket.ticketNumber} status changed from ${ticket.status} to ${data.status}`,
-          meta: {
-            ticketNumber: ticket.ticketNumber,
-            oldStatus: ticket.status,
-            newStatus: data.status,
-          },
-          customerId: ticket.customerId,
-          ticketId: ticket.id,
-        });
-
-        // Emit repairjob.completed event when status changes to REPAIRED
-        if (data.status === 'REPAIRED') {
-          emitEvent({
-            eventId: nanoid(),
-            entityType: 'repairjob',
-            entityId: ticket.id,
-            action: 'completed',
-            actorId: session.user.id,
-            actorName: session.user.name || session.user.username,
-            timestamp: new Date(),
-            summary: `Repair job ${ticket.ticketNumber} has been completed`,
-            meta: {
-              ticketNumber: ticket.ticketNumber,
-            },
-            customerId: ticket.customerId,
-            ticketId: ticket.id,
-          });
-        }
       }
     }
 
@@ -290,35 +256,35 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const newFinalPrice = data.finalPrice;
         const isInitialPriceSetting = currentFinalPrice === null;
         const priceIsChanging = isInitialPriceSetting || Math.abs((currentFinalPrice || 0) - newFinalPrice) > 0.01;
-        
+
         if (priceIsChanging) {
           // For subsequent adjustments (not initial), require a reason
           if (!isInitialPriceSetting && (!data.priceAdjustmentReason || data.priceAdjustmentReason.trim() === '')) {
             return NextResponse.json({ error: 'Reason is required for price adjustment' }, { status: 400 });
           }
-          
+
           // Verify the user exists before creating price adjustment
           // This prevents foreign key constraint violations
           const user = await prisma.user.findUnique({
             where: { id: session.user.id },
             select: { id: true },
           });
-          
+
           if (!user) {
             return NextResponse.json(
-              { 
-                error: 'Authentication error', 
-                details: 'Your user account is no longer valid. Please log out and log in again.' 
+              {
+                error: 'Authentication error',
+                details: 'Your user account is no longer valid. Please log out and log in again.'
               },
               { status: 401 }
             );
           }
-          
+
           // Determine the reason for the history entry
-          const adjustmentReason = isInitialPriceSetting 
+          const adjustmentReason = isInitialPriceSetting
             ? (data.priceAdjustmentReason?.trim() || 'Initial price set upon repair completion')
             : data.priceAdjustmentReason!.trim();
-          
+
           // Always create a price adjustment history entry for any price change
           updateData.priceAdjustments = {
             create: {
@@ -328,7 +294,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
               reason: adjustmentReason,
             },
           };
-          
+
           // Emit charge.added event for price adjustment
           emitEvent({
             eventId: nanoid(),
@@ -416,7 +382,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 });
     }
-    
+
     // Handle Prisma foreign key errors
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
       const meta = (error as any).meta;
@@ -424,14 +390,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       console.error('Foreign key constraint violation - Meta:', JSON.stringify(meta, null, 2));
       console.error('Update data that caused error:', JSON.stringify(updateData, null, 2));
       return NextResponse.json(
-        { 
-          error: 'Foreign key constraint violation', 
-          details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}, Model: ${meta?.model_name || 'unknown'}, Target: ${JSON.stringify(meta?.target || 'unknown')}` 
+        {
+          error: 'Foreign key constraint violation',
+          details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}, Model: ${meta?.model_name || 'unknown'}, Target: ${JSON.stringify(meta?.target || 'unknown')}`
         },
         { status: 400 }
       );
     }
-    
+
     console.error('Error updating ticket:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ error: 'Failed to update ticket', details: errorMessage }, { status: 500 });

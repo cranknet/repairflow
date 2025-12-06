@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { DevicePhotos } from './device-photos';
 import { PriceAdjustment } from './price-adjustment';
 import { TicketAssignment } from './ticket-assignment';
+import { ReturnHandler } from './return-handler';
 import { SMSSender } from '@/components/sms/sms-sender';
 import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
@@ -89,20 +90,27 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
   const TABS = [
     { id: 'overview', label: t('overview') },
     { id: 'status', label: t('ticketStatusHistory') },
+    { id: 'parts', label: t('partsReturns') },
     { id: 'pricing', label: t('pricing') },
     { id: 'messaging', label: t('messaging') },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'RETURNED':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'IN_PROGRESS':
+      case 'RECEIVED':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'IN_PROGRESS':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'WAITING_FOR_PARTS':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       case 'REPAIRED':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'COMPLETED':
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
+      case 'RETURNED':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
@@ -346,6 +354,100 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
           </Card>
         )}
 
+        {/* Parts & Returns Tab */}
+        {activeTab === 'parts' && (
+          <div className="space-y-6">
+            {/* Parts Used with Inventory Status */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="material-symbols-outlined">inventory_2</span>
+                    {t('partsUsed')}
+                  </CardTitle>
+                  {ticket.parts && ticket.parts.length > 0 && (
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {ticket.parts.length} {ticket.parts.length === 1 ? t('part') || 'part' : t('parts')}
+                    </span>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {(!ticket.parts || ticket.parts.length === 0) ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <span className="material-symbols-outlined text-4xl mb-2">inventory</span>
+                    <p>{t('noPartsUsed')}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {ticket.parts.map((ticketPart: any) => {
+                      const stockStatus = ticketPart.part.quantity <= 0
+                        ? 'outOfStock'
+                        : ticketPart.part.quantity <= 5
+                          ? 'lowStock'
+                          : 'inStock';
+
+                      const stockColors: Record<string, string> = {
+                        inStock: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                        lowStock: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+                        outOfStock: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                      };
+
+                      return (
+                        <div
+                          key={ticketPart.id}
+                          className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium">{ticketPart.part.name}</p>
+                              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${stockColors[stockStatus]}`}>
+                                {t(stockStatus)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-mono">{ticketPart.part.sku}</span>
+                              <span>•</span>
+                              <span>{t('currentStock') || 'Stock'}: {ticketPart.part.quantity}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-lg">{ticketPart.quantity}x</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              ${(ticketPart.part.unitPrice * ticketPart.quantity).toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Parts Total */}
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <span className="font-medium">{t('total')}:</span>
+                      <span className="font-bold text-lg">
+                        ${ticket.parts.reduce((sum: number, tp: any) => sum + (tp.part.unitPrice * tp.quantity), 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Returns Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="material-symbols-outlined">undo</span>
+                  {t('returns')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReturnHandler ticket={ticket} />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Pricing Tab */}
         {activeTab === 'pricing' && (
           <div className="space-y-6">
@@ -394,24 +496,22 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
                         const isIncrease = priceDiff > 0;
                         const isDecrease = priceDiff < 0;
                         const isInitialSetting = adjustment.reason.toLowerCase().includes('initial');
-                        
+
                         return (
                           <div
                             key={adjustment.id}
-                            className={`p-4 rounded-lg border transition-colors ${
-                              isInitialSetting 
-                                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                                : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors ${isInitialSetting
+                              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                              : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                              }`}
                           >
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex items-center gap-2">
                                 {/* Price change indicator */}
-                                <div className={`flex items-center gap-1 font-semibold ${
-                                  isIncrease ? 'text-red-600 dark:text-red-400' 
+                                <div className={`flex items-center gap-1 font-semibold ${isIncrease ? 'text-red-600 dark:text-red-400'
                                   : isDecrease ? 'text-green-600 dark:text-green-400'
-                                  : 'text-gray-700 dark:text-gray-300'
-                                }`}>
+                                    : 'text-gray-700 dark:text-gray-300'
+                                  }`}>
                                   <span className="text-gray-500 dark:text-gray-400 font-normal">
                                     ${adjustment.oldPrice.toFixed(2)}
                                   </span>
@@ -420,11 +520,10 @@ export function TicketTabs({ ticket, userRole }: TicketTabsProps) {
                                 </div>
                                 {/* Price change badge */}
                                 {priceDiff !== 0 && (
-                                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                                    isIncrease 
-                                      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                      : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                  }`}>
+                                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${isIncrease
+                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                    }`}>
                                     {isIncrease ? '+' : ''}{priceDiff.toFixed(2)}
                                   </span>
                                 )}

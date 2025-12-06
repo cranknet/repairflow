@@ -5,7 +5,6 @@ import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TicketDetailsClient } from '@/components/tickets/ticket-details-client';
-import { TicketPrintButtons } from '@/components/tickets/ticket-print-buttons';
 import { TicketTabs } from '@/components/tickets/ticket-tabs';
 import { CustomerProfileButton } from '@/components/customers/customer-profile-button';
 import { CustomerContactActions } from '@/components/customers/customer-contact-actions';
@@ -109,7 +108,6 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
       {/* Action Buttons Bar */}
       <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
         <div className="ml-auto flex items-center gap-2">
-          <TicketPrintButtons ticket={ticket} />
           <TicketDetailsClient ticket={ticket} userRole={session.user.role} />
         </div>
       </div>
