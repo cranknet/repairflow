@@ -22,6 +22,7 @@ const updateTicketSchema = z.object({
     'CANCELLED'
   ]).optional(),
   finalPrice: z.number().optional(),
+  priceAdjustment: z.number().optional(), // Relative adjustment (+/- amount)
   paid: z.boolean().optional(),
   assignedToId: z.string().nullable().optional(),
   notes: z.string().optional(),
@@ -121,8 +122,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     updateData = { ...data };
-    // priceAdjustmentReason is not a column on Ticket
+    // These are not columns on Ticket model
     delete updateData.priceAdjustmentReason;
+    delete updateData.statusNotes;
+    delete updateData.priceAdjustment;
 
     // Validate assignedToId if it's being updated and not null
     // Note: assignedToId can be null (unassigned), so we only validate if it's a non-null value
@@ -250,12 +253,29 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // Price adjustment (admin / staff only)
-    if (data.finalPrice !== undefined && (session.user.role === 'ADMIN' || session.user.role === 'STAFF')) {
-      if (ticket.status === 'REPAIRED' || data.status === 'REPAIRED') {
-        const currentFinalPrice = ticket.finalPrice ?? null;
-        const newFinalPrice = data.finalPrice;
-        const isInitialPriceSetting = currentFinalPrice === null;
-        const priceIsChanging = isInitialPriceSetting || Math.abs((currentFinalPrice || 0) - newFinalPrice) > 0.01;
+    // Supports both absolute (finalPrice) and relative (priceAdjustment) modes
+    const hasAbsolutePrice = data.finalPrice !== undefined;
+    const hasRelativeAdjustment = data.priceAdjustment !== undefined && data.priceAdjustment !== 0;
+
+    if ((hasAbsolutePrice || hasRelativeAdjustment) && (session.user.role === 'ADMIN' || session.user.role === 'STAFF')) {
+      // Allow adjustments for REPAIRED or COMPLETED tickets
+      if (ticket.status === 'REPAIRED' || ticket.status === 'COMPLETED' || data.status === 'REPAIRED') {
+        const currentFinalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
+
+        // Calculate new price based on mode
+        let newFinalPrice: number;
+        if (hasRelativeAdjustment) {
+          // Relative adjustment: add/subtract from current price
+          newFinalPrice = currentFinalPrice + data.priceAdjustment!;
+          if (newFinalPrice < 0) {
+            return NextResponse.json({ error: 'Price cannot be negative' }, { status: 400 });
+          }
+        } else {
+          newFinalPrice = data.finalPrice!;
+        }
+
+        const isInitialPriceSetting = ticket.finalPrice === null;
+        const priceIsChanging = isInitialPriceSetting || Math.abs(currentFinalPrice - newFinalPrice) > 0.01;
 
         if (priceIsChanging) {
           // For subsequent adjustments (not initial), require a reason
@@ -316,6 +336,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             customerId: ticket.customerId,
             ticketId: ticket.id,
           });
+
+          // For relative adjustments, explicitly set the finalPrice
+          if (hasRelativeAdjustment) {
+            updateData.finalPrice = newFinalPrice;
+          }
         }
       } else {
         return NextResponse.json({ error: 'Price can only be adjusted after repair is finished' }, { status: 400 });

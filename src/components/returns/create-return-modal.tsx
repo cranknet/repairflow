@@ -192,8 +192,8 @@ export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: Crea
       return;
     }
 
-    // Validate ticket status is REPAIRED
-    if (selectedTicket?.status !== 'REPAIRED') {
+    // Validate ticket status is REPAIRED or COMPLETED
+    if (selectedTicket?.status !== 'REPAIRED' && selectedTicket?.status !== 'COMPLETED') {
       toast({
         title: t('error'),
         description: t('onlyRepairedTicketsCanBeReturned'),
@@ -406,7 +406,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: Crea
                 )}
               </div>
 
-              {selectedTicket.status !== 'REPAIRED' && (
+              {selectedTicket.status !== 'REPAIRED' && selectedTicket.status !== 'COMPLETED' && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <p className="text-sm text-red-800 dark:text-red-200">
                     {t('ticketCannotBeReturned').replace('{status}', selectedTicket.status)}
@@ -489,7 +489,7 @@ export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: Crea
           {selectedTicket && (
             <Button
               onClick={handleSubmitReturn}
-              disabled={isSubmitting || selectedTicket.status !== 'REPAIRED'}
+              disabled={isSubmitting || (selectedTicket.status !== 'REPAIRED' && selectedTicket.status !== 'COMPLETED')}
             >
               {isSubmitting ? t('loading') : t('submitReturn')}
             </Button>

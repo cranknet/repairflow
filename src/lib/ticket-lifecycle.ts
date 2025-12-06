@@ -23,7 +23,7 @@ export type TicketStatusType = (typeof TicketStatus)[keyof typeof TicketStatus];
 const VALID_TRANSITIONS: Record<string, string[]> = {
     [TicketStatus.RECEIVED]: [TicketStatus.IN_PROGRESS, TicketStatus.CANCELLED],
     [TicketStatus.IN_PROGRESS]: [TicketStatus.WAITING_FOR_PARTS, TicketStatus.REPAIRED, TicketStatus.CANCELLED],
-    [TicketStatus.WAITING_FOR_PARTS]: [TicketStatus.IN_PROGRESS, TicketStatus.CANCELLED],
+    [TicketStatus.WAITING_FOR_PARTS]: [TicketStatus.IN_PROGRESS, TicketStatus.REPAIRED, TicketStatus.CANCELLED],
     [TicketStatus.REPAIRED]: [TicketStatus.COMPLETED], // RETURNED only via Return flow
     [TicketStatus.COMPLETED]: [], // RETURNED only via Return flow, terminal otherwise
     [TicketStatus.RETURNED]: [], // Terminal state
@@ -41,14 +41,19 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
         `${TicketStatus.IN_PROGRESS}→${TicketStatus.REPAIRED}`,
         `${TicketStatus.IN_PROGRESS}→${TicketStatus.CANCELLED}`,
         `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.IN_PROGRESS}`,
+        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.REPAIRED}`,
         `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.CANCELLED}`,
         `${TicketStatus.REPAIRED}→${TicketStatus.COMPLETED}`,
     ],
     TECHNICIAN: [
         `${TicketStatus.RECEIVED}→${TicketStatus.IN_PROGRESS}`,
+        `${TicketStatus.RECEIVED}→${TicketStatus.CANCELLED}`,
         `${TicketStatus.IN_PROGRESS}→${TicketStatus.WAITING_FOR_PARTS}`,
         `${TicketStatus.IN_PROGRESS}→${TicketStatus.REPAIRED}`,
+        `${TicketStatus.IN_PROGRESS}→${TicketStatus.CANCELLED}`,
         `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.IN_PROGRESS}`,
+        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.REPAIRED}`,
+        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.CANCELLED}`,
     ],
 };
 

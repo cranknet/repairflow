@@ -54,7 +54,7 @@ export async function PATCH(
       // When return is approved, set handledAt and handledBy
       updateData.handledAt = new Date();
       updateData.handledBy = session.user.id;
-      
+
       // Change ticket status to RETURNED
       await prisma.ticket.update({
         where: { id: returnRecord.ticketId },
@@ -72,13 +72,13 @@ export async function PATCH(
       // When return is rejected, set handledAt and handledBy
       updateData.handledAt = new Date();
       updateData.handledBy = session.user.id;
-      
+
       // Keep ticket status unchanged (remain REPAIRED)
       await prisma.ticketStatusHistory.create({
         data: {
           ticketId: returnRecord.ticketId,
-          status: returnRecord.ticket.status, // Current status (REPAIRED)
-          notes: `Return rejected. Ticket remains REPAIRED.`,
+          status: returnRecord.ticket.status, // Current status (REPAIRED or COMPLETED)
+          notes: `Return rejected. Ticket remains ${returnRecord.ticket.status}.`,
         },
       });
     }
@@ -149,16 +149,18 @@ export async function DELETE(
       return NextResponse.json({ error: 'Return not found' }, { status: 404 });
     }
 
-    // Revert ticket status back to REPAIRED only if ticket is currently RETURNED
+    // Revert ticket status back to original if ticket is currently RETURNED
     if (returnRecord.ticket.status === 'RETURNED') {
+      // Use stored original status, fallback to REPAIRED for backward compatibility
+      const restoredStatus = returnRecord.originalTicketStatus || 'REPAIRED';
       await prisma.ticket.update({
         where: { id: returnRecord.ticketId },
         data: {
-          status: 'REPAIRED',
+          status: restoredStatus,
           statusHistory: {
             create: {
-              status: 'REPAIRED',
-              notes: `Return deleted. Ticket status reverted from RETURNED to REPAIRED.`,
+              status: restoredStatus,
+              notes: `Return deleted. Ticket status reverted from RETURNED to ${restoredStatus}.`,
             },
           },
         },

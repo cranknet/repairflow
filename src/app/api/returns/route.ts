@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Validate that ticket status is REPAIRED
-    if (ticket.status !== 'REPAIRED') {
+    // Validate that ticket status is REPAIRED or COMPLETED
+    if (ticket.status !== 'REPAIRED' && ticket.status !== 'COMPLETED') {
       return NextResponse.json(
-        { error: 'Only repaired tickets can be returned' },
+        { error: 'Only repaired or completed tickets can be returned' },
         { status: 400 }
       );
     }
@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create return record - ticket status remains REPAIRED until return is approved
+    // Create return record - ticket status remains as is until return is approved
+    // Store original status for potential restoration if return is deleted
     const returnRecord = await prisma.return.create({
       data: {
         ticketId: data.ticketId,
@@ -82,15 +83,16 @@ export async function POST(request: NextRequest) {
         notes: data.notes || null,
         createdBy: session.user.id,
         status: 'PENDING',
+        originalTicketStatus: ticket.status, // Store for restoration
       },
     });
 
-    // Add status history note that return was created (ticket stays REPAIRED)
+    // Add status history note that return was created (ticket stays in current status)
     await prisma.ticketStatusHistory.create({
       data: {
         ticketId: data.ticketId,
-        status: ticket.status, // Keep current status (REPAIRED)
-        notes: `Return request created. Refund amount: ${data.refundAmount}. Ticket remains REPAIRED until return is approved.`,
+        status: ticket.status, // Keep current status
+        notes: `Return request created. Refund amount: ${data.refundAmount}. Ticket remains ${ticket.status} until return is approved.`,
       },
     });
 

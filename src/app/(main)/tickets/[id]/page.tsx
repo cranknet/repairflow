@@ -68,6 +68,9 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
       returns: {
         orderBy: { createdAt: 'desc' },
       },
+      payments: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
   });
 
@@ -82,19 +85,28 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'WAITING_FOR_PARTS':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-    }
+  // Calculate payment amounts
+  const totalPaid = ticket.payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
+  const finalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
+  const outstandingAmount = Math.max(0, finalPrice - totalPaid);
+
+  // Prepare ticket object for client component with computed values
+  const enrichedTicket = {
+    ...ticket,
+    totalPaid,
+    outstandingAmount,
+    // Transform parts to match expected interface
+    parts: ticket.parts?.map(p => ({
+      id: p.id,
+      partId: p.partId,
+      quantity: p.quantity,
+      part: {
+        id: p.part.id,
+        name: p.part.name,
+        sku: p.part.sku,
+        unitPrice: p.part.unitPrice,
+      },
+    })),
   };
 
   return (
@@ -105,11 +117,9 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
         createdAt={ticket.createdAt}
       />
 
-      {/* Action Buttons Bar */}
-      <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-        <div className="ml-auto flex items-center gap-2">
-          <TicketDetailsClient ticket={ticket} userRole={session.user.role} />
-        </div>
+      {/* Ticket Progress Bar */}
+      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 shadow-sm">
+        <TicketDetailsClient ticket={enrichedTicket} userRole={session.user.role} />
       </div>
 
       {/* Customer Info Card */}

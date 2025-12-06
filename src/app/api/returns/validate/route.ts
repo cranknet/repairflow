@@ -31,12 +31,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check ticket status is REPAIRED
-    if (ticket.status !== 'REPAIRED') {
+    // Check ticket status is REPAIRED or COMPLETED
+    if (ticket.status !== 'REPAIRED' && ticket.status !== 'COMPLETED') {
       return NextResponse.json(
-        { 
-          valid: false, 
-          error: 'Ticket must be in REPAIRED status to create return',
+        {
+          valid: false,
+          error: 'Ticket must be in REPAIRED or COMPLETED status to create return',
           details: { currentStatus: ticket.status }
         },
         { status: 400 }
@@ -55,8 +55,8 @@ export async function GET(request: NextRequest) {
 
     if (existingReturn) {
       return NextResponse.json(
-        { 
-          valid: false, 
+        {
+          valid: false,
           error: 'A return request already exists for this ticket',
           details: { returnId: existingReturn.id, returnStatus: existingReturn.status }
         },

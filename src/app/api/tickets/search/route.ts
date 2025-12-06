@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
     // Filter: status = REPAIRED, no existing returns (PENDING or APPROVED)
     const tickets = await prisma.ticket.findMany({
       where: {
-        status: 'REPAIRED',
+        status: {
+          in: ['REPAIRED', 'COMPLETED']
+        },
         OR: [
           {
             customer: {

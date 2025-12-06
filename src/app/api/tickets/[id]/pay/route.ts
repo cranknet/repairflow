@@ -51,10 +51,10 @@ export async function POST(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Validate ticket status is REPAIRED
-    if (ticket.status !== 'REPAIRED') {
+    // Validate ticket status - allow REPAIRED or COMPLETED
+    if (ticket.status !== 'REPAIRED' && ticket.status !== 'COMPLETED') {
       return NextResponse.json(
-        { error: 'Only repaired tickets can be paid' },
+        { error: 'Only repaired or completed tickets can receive payments' },
         { status: 400 }
       );
     }
@@ -90,9 +90,9 @@ export async function POST(
 
     if (!user) {
       return NextResponse.json(
-        { 
-          error: 'Authentication error', 
-          details: 'Your user account is no longer valid. Please log out and log in again.' 
+        {
+          error: 'Authentication error',
+          details: 'Your user account is no longer valid. Please log out and log in again.'
         },
         { status: 401 }
       );
@@ -201,32 +201,32 @@ export async function POST(
       );
     }
     console.error('Error creating payment:', error);
-    
+
     // Handle Prisma foreign key errors
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
       const meta = (error as any).meta;
       console.error('Foreign key constraint violation:', meta);
-      
+
       // If it's a user foreign key issue, suggest re-login
       if (meta?.field_name === 'performedBy' || meta?.field_name?.includes('User')) {
         return NextResponse.json(
-          { 
-            error: 'Authentication error', 
-            details: 'Your session may be invalid. Please log out and log in again.' 
+          {
+            error: 'Authentication error',
+            details: 'Your session may be invalid. Please log out and log in again.'
           },
           { status: 401 }
         );
       }
-      
+
       return NextResponse.json(
-        { 
-          error: 'Foreign key constraint violation', 
-          details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}` 
+        {
+          error: 'Foreign key constraint violation',
+          details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}`
         },
         { status: 400 }
       );
     }
-    
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       { error: 'Failed to record payment', details: errorMessage },
