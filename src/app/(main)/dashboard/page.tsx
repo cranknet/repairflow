@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { DashboardKPIs } from '@/components/dashboard/dashboard-kpis';
 import { SalesChart } from '@/components/dashboard/sales-chart';
-import { SalesTarget } from '@/components/dashboard/sales-target';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { DashboardTicketTable } from '@/components/dashboard/dashboard-ticket-table';
 import { DashboardTicketHeader } from '@/components/dashboard/dashboard-ticket-header';
+import { QuickActionsBar } from '@/components/dashboard/quick-actions-bar';
+import { DashboardHero } from '@/components/dashboard/dashboard-hero';
 import { format } from 'date-fns';
 
 export default async function DashboardPage() {
@@ -36,13 +36,12 @@ export default async function DashboardPage() {
     totalCustomers,
     previousWeekCustomers,
     lowStockItems,
-    previousWeekLowStock,
     revenue,
     previousWeekRevenue,
     completedTickets,
-    previousWeekCompletedTickets,
     recentTickets,
-    settings,
+    todayCompletedCount,
+    pendingTickets,
   ] = await Promise.all([
     // Current week active tickets
     prisma.ticket.count({
@@ -78,8 +77,6 @@ export default async function DashboardPage() {
     prisma.$queryRaw<Array<{ count: bigint }>>`
       SELECT COUNT(*) as count FROM Part WHERE quantity <= reorderLevel
     `.then((result) => Number(result[0]?.count || 0)),
-    // Previous week low stock (approximate - using current count as baseline)
-    Promise.resolve(0), // We'll calculate this differently if needed
     // Current week revenue
     prisma.ticket.aggregate({
       where: {
@@ -114,16 +111,7 @@ export default async function DashboardPage() {
         },
       },
     }),
-    // Previous week completed tickets
-    prisma.ticket.count({
-      where: {
-        status: 'COMPLETED',
-        completedAt: {
-          gte: previousWeekStart,
-          lte: previousWeekEnd,
-        },
-      },
-    }),
+    // Recent active tickets
     prisma.ticket.findMany({
       take: 10,
       where: {
@@ -156,10 +144,20 @@ export default async function DashboardPage() {
         },
       },
     }),
-    prisma.settings.findMany({
+    // Today's completed tickets count
+    prisma.ticket.count({
       where: {
-        key: {
-          in: ['company_name', 'company_logo'],
+        status: 'COMPLETED',
+        completedAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
+      },
+    }),
+    // Pending tickets (awaiting parts, waiting for customer, etc.)
+    prisma.ticket.count({
+      where: {
+        status: {
+          in: ['WAITING_FOR_PARTS', 'PENDING'],
         },
       },
     }),
@@ -167,10 +165,6 @@ export default async function DashboardPage() {
 
   const weeklyRevenue = revenue._sum.finalPrice || 0;
   const previousWeekRevenueValue = previousWeekRevenue._sum.finalPrice || 0;
-  const settingsMap = settings.reduce((acc, s) => {
-    acc[s.key] = s.value;
-    return acc;
-  }, {} as Record<string, string>);
 
   // Calculate percentage changes
   const calculateChange = (current: number, previous: number): number => {
@@ -181,9 +175,8 @@ export default async function DashboardPage() {
   const revenueChange = calculateChange(weeklyRevenue, previousWeekRevenueValue);
   const activeTicketsChange = calculateChange(activeTickets, previousWeekActiveTickets);
   const customersChange = calculateChange(totalCustomers, previousWeekCustomers);
-  const lowStockChange = calculateChange(lowStockItems, previousWeekLowStock);
 
-  // Fetch sales data for last week (reuse lastWeekStart defined above)
+  // Fetch sales data for last week
   const weeklyTickets = await prisma.ticket.findMany({
     where: {
       status: 'COMPLETED',
@@ -244,10 +237,6 @@ export default async function DashboardPage() {
   const totalSales = salesData.reduce((sum, d) => sum + d.sales, 0);
   const totalCogs = salesData.reduce((sum, d) => sum + d.cogs, 0);
 
-  // Calculate sales target (use monthly revenue as base)
-  const monthlyTarget = 20000; // Can be made configurable
-  const currentMonthSales = weeklyRevenue * 4; // Approximate
-
   // Serialize recent tickets data for client component
   const serializedRecentTickets = recentTickets.map((ticket) => ({
     ...ticket,
@@ -267,58 +256,96 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Message */}
+    <div className="space-y-6">
+      {/* Welcome Header */}
       <DashboardHeader
         userName={session.user?.name || session.user?.username || ''}
       />
 
-      {/* KPI Cards */}
-      <DashboardKPIs
+      {/* Quick Actions Bar */}
+      <QuickActionsBar />
+
+      {/* Hero Section: Revenue + Business Health */}
+      <DashboardHero
+        initialWeeklyRevenue={weeklyRevenue}
+        initialRevenueChange={revenueChange}
         activeTickets={activeTickets}
         activeTicketsChange={activeTicketsChange}
         totalCustomers={totalCustomers}
         customersChange={customersChange}
         lowStockItems={lowStockItems}
-        lowStockChange={lowStockChange}
-        weeklyRevenue={weeklyRevenue}
-        revenueChange={revenueChange}
       />
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Sales vs COGS Chart */}
-        <SalesChart
-          initialData={salesData}
-          initialInvoices={completedTickets}
-          initialTotalSales={totalSales}
-          initialTotalCogs={totalCogs}
+      {/* Secondary Metrics Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <MetricCard
+          label="Completed Today"
+          value={todayCompletedCount}
+          icon="check_circle"
+          iconColor="text-success-500"
+        />
+        <MetricCard
+          label="Pending"
+          value={pendingTickets}
+          icon="hourglass_empty"
+          iconColor="text-warning-500"
+        />
+        <MetricCard
+          label="This Week"
+          value={completedTickets}
+          icon="event_available"
+          iconColor="text-brand-500"
+        />
+        <MetricCard
+          label="Weekly Sales"
+          value={`$${totalSales.toFixed(0)}`}
+          icon="payments"
+          iconColor="text-success-500"
         />
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Tickets Table */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <DashboardTicketHeader />
-            </CardHeader>
-            <CardContent>
-              <DashboardTicketTable tickets={serializedRecentTickets} />
-            </CardContent>
-          </Card>
-        </div>
+      {/* Sales Chart - Full Width */}
+      <SalesChart
+        initialData={salesData}
+        initialInvoices={completedTickets}
+        initialTotalSales={totalSales}
+        initialTotalCogs={totalCogs}
+      />
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Sales Target */}
-          <SalesTarget
-            current={currentMonthSales}
-            target={monthlyTarget}
-            storeName={settingsMap.company_name || 'RepairFlow'}
-            date={format(new Date(), 'dd MMMM yyyy')}
-          />
+      {/* Recent Tickets - Full Width */}
+      <Card>
+        <CardHeader>
+          <DashboardTicketHeader />
+        </CardHeader>
+        <CardContent>
+          <DashboardTicketTable tickets={serializedRecentTickets} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Compact metric card component
+function MetricCard({
+  label,
+  value,
+  icon,
+  iconColor = 'text-gray-500',
+}: {
+  label: string;
+  value: string | number;
+  icon: string;
+  iconColor?: string;
+}) {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-theme-xs hover:shadow-theme-sm transition-shadow">
+      <div className="flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800 ${iconColor}`}>
+          <span className="material-symbols-outlined text-xl">{icon}</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">{label}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{value}</p>
         </div>
       </div>
     </div>
