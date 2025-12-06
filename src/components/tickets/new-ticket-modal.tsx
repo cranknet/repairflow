@@ -228,7 +228,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
                   type="button"
                   variant="outline"
                   onClick={() => setShowNewCustomerModal(true)}
-                  className="mt-0"
+                  className="mt-0 h-auto py-3 text-base"
                 >
                   {t('newCustomer')}
                 </Button>
