@@ -10,7 +10,7 @@ import {
     canTransition,
     hasPermission,
 } from '@/lib/ticket-lifecycle';
-import { TicketPrintButtons } from './ticket-print-buttons';
+
 
 // Extended ticket type for full functionality
 interface TicketPart {
@@ -343,7 +343,7 @@ export function StatusProgressBar({
         if (!cancelReason.trim()) {
             toast({
                 title: t('error'),
-                description: t('cancelReasonRequired') || 'Please provide a reason for cancellation',
+                description: t('cancelReasonRequired'),
                 variant: 'destructive',
             });
             return;
@@ -355,18 +355,18 @@ export function StatusProgressBar({
     const getStepTooltip = (step: typeof PROGRESS_STEPS[0], stepState: string) => {
         if (stepState === 'completed') return `✓ ${t(step.label) || step.description}`;
         if (stepState === 'skipped') return t('skippedNoParts') || 'Skipped - no parts needed';
-        if (stepState === 'current') return t('currentStatus') || 'Current status';
-        if (stepState === 'current-warning') return t('paymentRequiredToComplete') || 'Payment due';
-        if (stepState === 'available') return t('clickToAdvance') || 'Click to advance';
+        if (stepState === 'current') return t('currentStatus');
+        if (stepState === 'current-warning') return t('paymentRequiredToComplete');
+        if (stepState === 'available') return t('clickToAdvance');
         if (stepState === 'locked') {
             // Show role-specific message for TECHNICIAN trying to access COMPLETED
             if (step.status === TicketStatus.COMPLETED && isTechnician) {
-                return t('staffOnlyAction') || 'Staff or Admin only';
+                return t('staffOnlyAction');
             }
             if (step.status === TicketStatus.COMPLETED && isPaymentDue) {
-                return t('paymentRequiredToComplete') || 'Clear payment first';
+                return t('paymentRequiredToComplete');
             }
-            return t('stepLocked') || 'Complete previous steps first';
+            return t('stepLocked');
         }
         return step.description;
     };
@@ -497,7 +497,7 @@ export function StatusProgressBar({
                                         {/* Payment due indicator on REPAIRED */}
                                         {step.status === TicketStatus.REPAIRED && stepState === 'current-warning' && (
                                             <span className="text-xs text-amber-600 dark:text-amber-400 whitespace-nowrap font-medium mt-0.5">
-                                                ${outstandingAmount.toFixed(0)} {t('due') || 'due'}
+                                                ${outstandingAmount.toFixed(0)} {t('due')}
                                             </span>
                                         )}
                                     </div>
@@ -519,24 +519,23 @@ export function StatusProgressBar({
                     <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl">payments</span>
                     <div className="flex-1">
                         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                            {t('outstandingBalance') || 'Outstanding Balance'}: ${outstandingAmount.toFixed(2)}
+                            {t('outstandingBalance')}: ${outstandingAmount.toFixed(2)}
                         </p>
                         <p className="text-xs text-amber-700 dark:text-amber-300">
-                            {t('paymentRequiredMessage') || 'Payment must be cleared before marking as completed.'}
+                            {t('paymentRequiredMessage')}
                         </p>
                     </div>
                     <button
                         onClick={() => onOpenPaymentModal?.()}
                         className="px-3 py-1.5 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors"
                     >
-                        {t('collectPayment') || 'Collect Payment'}
+                        {t('collectPayment')}
                     </button>
                 </div>
             )}
 
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                <TicketPrintButtons ticket={ticket} />
 
                 {/* Current status-specific actions */}
                 {ticket.status === TicketStatus.IN_PROGRESS && (
@@ -546,7 +545,7 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">add_circle</span>
-                            {t('addParts') || 'Add Parts'}
+                            {t('addParts')}
                         </button>
                         <button
                             onClick={handleSkipParts}
@@ -554,7 +553,7 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">check_circle</span>
-                            {t('markRepaired') || 'Mark Repaired'}
+                            {t('markRepaired')}
                         </button>
                     </>
                 )}
@@ -566,7 +565,7 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">edit</span>
-                            {t('manageParts') || 'Manage Parts'}
+                            {t('manageParts')}
                         </button>
                         <button
                             onClick={() => handleStepClick(TicketStatus.IN_PROGRESS)}
@@ -574,7 +573,7 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">play_arrow</span>
-                            {t('resumeWork') || 'Resume Work'}
+                            {t('resumeWork')}
                         </button>
                         <button
                             onClick={() => handleStepClick(TicketStatus.REPAIRED)}
@@ -582,7 +581,7 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">check_circle</span>
-                            {t('partsInstalledComplete') || 'Parts Installed - Complete'}
+                            {t('partsInstalledComplete')}
                         </button>
                     </>
                 )}
@@ -595,7 +594,7 @@ export function StatusProgressBar({
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-md transition-colors"
                             >
                                 <span className="material-symbols-outlined text-base">payments</span>
-                                {t('collectPayment') || 'Collect Payment'}
+                                {t('collectPayment')}
                             </button>
                         ) : (
                             <button
@@ -604,7 +603,7 @@ export function StatusProgressBar({
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                             >
                                 <span className="material-symbols-outlined text-base">check_circle</span>
-                                {t('markCompleted') || 'Mark Completed'}
+                                {t('markCompleted')}
                             </button>
                         )}
                     </>
@@ -617,14 +616,14 @@ export function StatusProgressBar({
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">sms</span>
-                            {t('sendSMS') || 'Send SMS'}
+                            {t('sendSms')}
                         </button>
                         <button
                             onClick={() => onOpenReturnModal?.()}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
                         >
                             <span className="material-symbols-outlined text-base">undo</span>
-                            {t('initiateReturn') || 'Initiate Return'}
+                            {t('initiateReturn')}
                         </button>
                     </>
                 )}
@@ -637,7 +636,7 @@ export function StatusProgressBar({
                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md transition-colors"
                     >
                         <span className="material-symbols-outlined text-base">close</span>
-                        {t('cancel') || 'Cancel'}
+                        {t('cancel')}
                     </button>
                 )}
             </div>
@@ -647,16 +646,16 @@ export function StatusProgressBar({
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                         <h3 className="text-lg font-semibold mb-2">
-                            {t('cancelTicket') || 'Cancel Ticket'}
+                            {t('cancelTicket')}
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                            {t('cancelReasonPrompt') || 'Please provide a reason for cancelling this ticket.'}
+                            {t('cancelReasonPrompt')}
                         </p>
 
                         <textarea
                             value={cancelReason}
                             onChange={(e) => setCancelReason(e.target.value)}
-                            placeholder={t('cancelReasonPlaceholder') || 'Enter cancellation reason...'}
+                            placeholder={t('cancelReasonPlaceholder')}
                             className="w-full h-24 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500"
                             autoFocus
                         />
@@ -664,7 +663,7 @@ export function StatusProgressBar({
                         <div className="flex items-center gap-2 mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                             <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">info</span>
                             <p className="text-xs text-amber-700 dark:text-amber-300">
-                                {t('refundWarningForCancelled') || 'Any deposits must be refunded manually.'}
+                                {t('refundWarningForCancelled')}
                             </p>
                         </div>
 
@@ -677,7 +676,7 @@ export function StatusProgressBar({
                                 disabled={isUpdating}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors"
                             >
-                                {t('goBack') || 'Go Back'}
+                                {t('goBack')}
                             </button>
                             <button
                                 onClick={handleCancelConfirm}
@@ -687,10 +686,10 @@ export function StatusProgressBar({
                                 {isUpdating ? (
                                     <>
                                         <span className="material-symbols-outlined animate-spin mr-2 text-base">progress_activity</span>
-                                        {t('cancelling') || 'Cancelling...'}
+                                        {t('cancelling')}
                                     </>
                                 ) : (
-                                    t('confirmCancel') || 'Cancel Ticket'
+                                    t('confirmCancel')
                                 )}
                             </button>
                         </div>
