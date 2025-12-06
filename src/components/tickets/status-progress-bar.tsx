@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
@@ -115,6 +115,15 @@ export function StatusProgressBar({
     const [isUpdating, setIsUpdating] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [justUpdated, setJustUpdated] = useState(false);
+
+    // Reset animation after a delay
+    useEffect(() => {
+        if (justUpdated) {
+            const timer = setTimeout(() => setJustUpdated(false), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [justUpdated]);
 
     // Calculate outstanding amount
     const outstandingAmount = useMemo(() => {
@@ -309,6 +318,7 @@ export function StatusProgressBar({
 
             setShowCancelModal(false);
             setCancelReason('');
+            setJustUpdated(true);
 
             onStatusChange?.();
             router.refresh();
@@ -385,7 +395,7 @@ export function StatusProgressBar({
             case 'current-warning':
                 return `${base} bg-amber-500 border-amber-500 text-white ring-4 ring-amber-100 dark:ring-amber-900 cursor-pointer`;
             case 'available':
-                return `${base} bg-white dark:bg-gray-800 border-primary-400 dark:border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 cursor-pointer hover:scale-110`;
+                return `${base} bg-white dark:bg-gray-800 border-primary-400 dark:border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 cursor-pointer hover:scale-110 ${justUpdated ? 'animate-pulse ring-2 ring-primary-400 ring-offset-2 dark:ring-offset-gray-900' : ''}`;
             case 'terminal':
                 return `${base} bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400`;
             default:

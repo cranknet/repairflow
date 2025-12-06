@@ -346,58 +346,115 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
             <div key={item.key} className="flex flex-col gap-1">
               {/* Parent item */}
               {hasChildren ? (
-                <button
-                  onClick={(e) => toggleExpand(item.key, e)}
+                <div
                   className={cn(
-                    'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden w-full',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+                    'relative flex items-center rounded-lg text-sm font-medium transition-colors group w-full',
+                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-500',
                     'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-3 py-2.5',
-                    isActive
-                      ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
+                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'pr-1 hover:bg-gray-100 dark:hover:bg-white/5',
+                    isActive && !isCollapsed
+                      ? 'bg-brand-50 dark:bg-brand-500/[0.12]'
+                      : ''
                   )}
-                  title={isCollapsed ? translatedName : undefined}
-                  aria-expanded={isExpanded}
-                  aria-controls={`nav-children-${item.key}`}
+                  onMouseLeave={() => {
+                    // Reset hover state if needed
+                  }}
                 >
-                  {/* Active indicator */}
-                  {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
-                  )}
-
-                  {/* Icon */}
-                  <span
+                  <Link
+                    href={item.href}
+                    onClick={handleNavClick}
                     className={cn(
-                      'text-2xl flex-shrink-0',
-                      isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
+                      'flex flex-1 items-center gap-3 rounded-lg py-2.5 transition-colors',
+                      isCollapsed ? 'justify-center px-0 w-full h-full' : 'pl-3',
+                      isActive
+                        ? 'text-brand-500 dark:text-brand-400'
+                        : 'text-gray-700 dark:text-gray-300'
                     )}
-                    style={{
-                      fontVariationSettings: isActive
-                        ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                        : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                    }}
+                    title={isCollapsed ? translatedName : undefined}
                   >
-                    {isActive ? item.iconFilled : item.icon}
-                  </span>
+                    {/* Active indicator */}
+                    {isActive && !isCollapsed && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
+                    )}
 
-                  {/* Label */}
+                    {/* Icon */}
+                    <span
+                      className={cn(
+                        'text-2xl flex-shrink-0',
+                        isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
+                      )}
+                      style={{
+                        fontVariationSettings: isActive
+                          ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
+                          : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+                      }}
+                    >
+                      {isActive ? item.iconFilled : item.icon}
+                    </span>
+
+                    {/* Label */}
+                    {!isCollapsed && (
+                      <span className="flex-1 truncate text-left">
+                        {translatedName}
+                      </span>
+                    )}
+                  </Link>
+
+                  {/* Toggle Button */}
                   {!isCollapsed && (
-                    <span className="flex-1 truncate text-left">
-                      {translatedName}
-                    </span>
+                    <button
+                      onClick={(e) => toggleExpand(item.key, e)}
+                      className={cn(
+                        'p-1.5 rounded-md transition-colors mr-1',
+                        'hover:bg-black/5 dark:hover:bg-white/10',
+                        isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-500 dark:text-gray-400'
+                      )}
+                      aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                      aria-expanded={isExpanded}
+                    >
+                      <span className="material-symbols-outlined text-xl transition-transform duration-200">
+                        {isExpanded ? 'expand_more' : 'chevron_right'}
+                      </span>
+                    </button>
                   )}
 
-                  {/* Chevron icon for expand/collapse */}
-                  {!isCollapsed && hasChildren && (
-                    <span className="material-symbols-outlined text-xl flex-shrink-0 transition-transform duration-short2">
-                      {isExpanded ? 'expand_more' : 'chevron_right'}
-                    </span>
+                  {/* Collapsed Hover Menu */}
+                  {isCollapsed && (
+                    <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-[60]">
+                      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl py-2 min-w-[200px] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-1 font-semibold text-gray-900 dark:text-white">
+                          {translatedName}
+                        </div>
+                        {item.children!.map((child) => {
+                          const isChildActive =
+                            pathname === child.href || pathname.startsWith(child.href + '/');
+                          return (
+                            <Link
+                              key={child.key}
+                              href={child.href}
+                              className={cn(
+                                'flex items-center gap-3 px-4 py-2 text-sm transition-colors',
+                                isChildActive
+                                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                                  : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  'material-symbols-outlined text-xl',
+                                  isChildActive && 'material-symbols-rounded font-bold'
+                                )}
+                              >
+                                {isChildActive ? child.iconFilled : child.icon}
+                              </span>
+                              <span>{t(child.key)}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
-
-                  {/* State layer for hover/press */}
-
-                </button>
+                </div>
               ) : (
                 <Link
                   href={item.href}

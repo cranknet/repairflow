@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
+import { formatId } from '@/lib/utils';
 
 interface Payment {
     id: string;
@@ -12,6 +13,7 @@ interface Payment {
     currency: string | null;
     reference: string | null;
     createdAt: string;
+    paymentNumber?: string;
     ticket?: {
         ticketNumber: string;
         customer: {
@@ -179,7 +181,7 @@ export default function PaymentsPage() {
                                     <tr key={payment.id} className="hover:bg-surface-variant/50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-body-medium font-mono text-on-surface">
-                                                {payment.id.substring(0, 8)}...
+                                                {payment.paymentNumber ? payment.paymentNumber : formatId(payment.id)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">

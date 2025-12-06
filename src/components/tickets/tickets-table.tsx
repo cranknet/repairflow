@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
+import { formatId } from '@/lib/utils';
 import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -57,14 +58,14 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
       if (!response.ok) {
         const error = await response.json();
         let errorMessage = error.error || t('tickets.delete.error');
-        
+
         // Handle specific error cases
         if (response.status === 403) {
           errorMessage = t('tickets.delete.errorPermission');
         } else if (response.status === 400 && error.error?.includes('returns')) {
           errorMessage = t('tickets.delete.errorWithReturns');
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -72,7 +73,7 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
         title: t('success'),
         description: t('tickets.delete.success'),
       });
-      
+
       router.refresh();
     } catch (error) {
       toast({
@@ -160,7 +161,7 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                   href={`/tickets/${ticket.id}`}
                   className="font-medium text-primary-600 hover:underline"
                 >
-                  {ticket.ticketNumber}
+                  {formatId(ticket.ticketNumber)}
                 </Link>
               </td>
               <td className="py-3 px-4">{ticket.customer.name}</td>
@@ -168,8 +169,8 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                 {ticket.deviceBrand} {ticket.deviceModel}
               </td>
               <td className="py-3 px-4">
-                <TicketStatusBadge 
-                  status={ticket.status} 
+                <TicketStatusBadge
+                  status={ticket.status}
                   hasPendingReturn={(ticket as any).hasPendingReturn || false}
                 />
               </td>
@@ -185,11 +186,10 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
               <td className="py-3 px-4">${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}</td>
               <td className="py-3 px-4">
                 <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    ticket.paid
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                  }`}
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${ticket.paid
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                    }`}
                 >
                   {ticket.paid ? t('paid') : t('unpaid')}
                 </span>
@@ -228,20 +228,20 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
                     ticket.status === 'REPAIRED' &&
                     !ticket.paid &&
                     (ticket.outstandingAmount ?? (ticket.finalPrice ?? ticket.estimatedPrice) - (ticket.totalPaid ?? 0)) > 0.01 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePay(ticket);
-                      }}
-                      icon={<BanknotesIcon className="h-4 w-4" />}
-                      aria-label={`${t('tickets.action.pay')} ${ticket.ticketNumber}`}
-                    >
-                      {t('tickets.action.pay')}
-                    </Button>
-                  )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePay(ticket);
+                        }}
+                        icon={<BanknotesIcon className="h-4 w-4" />}
+                        aria-label={`${t('tickets.action.pay')} ${ticket.ticketNumber}`}
+                      >
+                        {t('tickets.action.pay')}
+                      </Button>
+                    )}
                   {userRole === 'ADMIN' && (
                     <Button
                       variant="ghost"
@@ -270,7 +270,7 @@ export function TicketsTable({ tickets, userRole }: TicketsTableProps) {
           ))}
         </tbody>
       </table>
-      
+
       {/* Delete Confirmation Modal */}
       {ticketToDelete && (
         <ConfirmDialog

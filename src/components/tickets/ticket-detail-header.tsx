@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/language-context';
+import { formatId } from '@/lib/utils';
 
 interface TicketDetailHeaderProps {
   ticketNumber: string;
@@ -34,7 +35,7 @@ export function TicketDetailHeader({ ticketNumber, createdAt }: TicketDetailHead
         </Link>
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-            {ticketNumber}
+            {formatId(ticketNumber)}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {t('createdAt')} {formattedDate}
@@ -55,7 +56,7 @@ export function TicketDetailHeader({ ticketNumber, createdAt }: TicketDetailHead
           {t('print')}
         </Button>
       </div>
-    </div>
+    </div >
   );
 }
 
