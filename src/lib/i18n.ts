@@ -1728,9 +1728,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Settings Component Labels - Finance Settings 
     // (Consolidating duplicates)
-    'settings.currencySettings': 'Currency Settings',
-    'settings.currencySettingsDescription': 'Configure currency display and formatting',
-    'currency': 'Currency',
+
+
     'settings.symbolPosition': 'Symbol Position',
     'settings.vatSettings': 'VAT / Tax Settings',
     'settings.vatSettingsDescription': 'Configure tax calculation and display',
@@ -1738,8 +1737,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'settings.vatEnabledDescription': 'Apply VAT/tax to invoices and pricing',
     'settings.vatRate': 'VAT Rate (%)',
     'settings.vatNumber': 'VAT Number',
-    'settings.paymentMethods': 'Payment Methods',
-    'settings.paymentMethodsDescription': 'Configure available payment options',
+
     'settings.enabledPaymentMethods': 'Enabled Payment Methods',
     'settings.defaultPaymentMethod': 'Default Payment Method',
     'settings.requirePaymentReference': 'Require Payment Reference',
@@ -1751,11 +1749,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'settings.serviceFeeType': 'Fee Type',
 
     // Social Media
-    'socialMedia': 'Social Media',
-    'socialMediaDescription': 'Links to your social media profiles',
-    'facebookUrl': 'Facebook URL',
-    'instagramUrl': 'Instagram URL',
-    'youtubeUrl': 'YouTube URL',
+
 
     'notifications.supplier.created.title': 'New Supplier Created',
     'notifications.supplier.created.body': 'Supplier {supplierName} was created by {actorName}',
