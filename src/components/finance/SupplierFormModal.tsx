@@ -3,20 +3,32 @@
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 
+interface Supplier {
+    id: string;
+    name: string;
+    contactPerson?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    notes?: string | null;
+}
+
 interface SupplierFormModalProps {
     onClose: () => void;
     onSuccess: (supplier?: { id: string; name: string }) => void;
+    supplier?: Supplier;
 }
 
-export function SupplierFormModal({ onClose, onSuccess }: SupplierFormModalProps) {
+export function SupplierFormModal({ onClose, onSuccess, supplier }: SupplierFormModalProps) {
     const { t } = useLanguage();
+    const isEditing = !!supplier;
     const [formData, setFormData] = useState({
-        name: '',
-        contactPerson: '',
-        email: '',
-        phone: '',
-        address: '',
-        notes: '',
+        name: supplier?.name || '',
+        contactPerson: supplier?.contactPerson || '',
+        email: supplier?.email || '',
+        phone: supplier?.phone || '',
+        address: supplier?.address || '',
+        notes: supplier?.notes || '',
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -27,8 +39,11 @@ export function SupplierFormModal({ onClose, onSuccess }: SupplierFormModalProps
         setLoading(true);
 
         try {
-            const response = await fetch('/api/suppliers', {
-                method: 'POST',
+            const url = isEditing ? `/api/suppliers/${supplier.id}` : '/api/suppliers';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: formData.name.trim(),
@@ -49,13 +64,13 @@ export function SupplierFormModal({ onClose, onSuccess }: SupplierFormModalProps
                     ).join(', ');
                     throw new Error(errorMessages);
                 }
-                throw new Error(data.error || 'Failed to create supplier');
+                throw new Error(data.error || `Failed to ${isEditing ? 'update' : 'create'} supplier`);
             }
 
-            const supplier = await response.json();
-            onSuccess(supplier);
+            const updatedSupplier = await response.json();
+            onSuccess(updatedSupplier);
         } catch (error: any) {
-            console.error('Error creating supplier:', error);
+            console.error(`Error ${isEditing ? 'updating' : 'creating'} supplier:`, error);
             setError(error.message || 'An error occurred');
         } finally {
             setLoading(false);
@@ -66,7 +81,7 @@ export function SupplierFormModal({ onClose, onSuccess }: SupplierFormModalProps
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <div className="bg-background rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-foreground">{t('finance.supplierForm.title')}</h2>
+                    <h2 className="text-lg font-semibold text-foreground">{isEditing ? t('finance.supplierForm.editTitle') || 'Edit Supplier' : t('finance.supplierForm.title')}</h2>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-full hover:bg-on-surface/8 transition-colors"
@@ -178,10 +193,10 @@ export function SupplierFormModal({ onClose, onSuccess }: SupplierFormModalProps
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
                                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                    {t('finance.supplierForm.creating')}
+                                    {isEditing ? t('finance.supplierForm.updating') || 'Updating...' : t('finance.supplierForm.creating')}
                                 </span>
                             ) : (
-                                t('finance.supplierForm.createSupplier')
+                                isEditing ? t('finance.supplierForm.updateSupplier') || 'Update Supplier' : t('finance.supplierForm.createSupplier')
                             )}
                         </button>
                     </div>

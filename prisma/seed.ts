@@ -52,6 +52,7 @@ async function main() {
 
   // Create default settings if missing (installer should have created these)
   const defaultSettings = [
+    // Company Info
     { key: 'company_name', value: 'RepairShop', description: 'Company name' },
     { key: 'company_email', value: 'info@repairshop.com', description: 'Company email' },
     { key: 'company_phone', value: '+1 (555) 123-4567', description: 'Company phone' },
@@ -59,6 +60,82 @@ async function main() {
     { key: 'currency', value: 'USD', description: 'Default currency' },
     { key: 'country', value: 'US', description: 'Default country' },
     { key: 'language', value: 'en', description: 'Default language' },
+
+    // Ticket Settings
+    { key: 'auto_mark_tickets_as_paid', value: 'false', description: 'Auto-mark tickets as paid when completed' },
+    { key: 'require_device_photos', value: 'false', description: 'Require photos when creating tickets' },
+    { key: 'require_estimated_price', value: 'true', description: 'Require estimated price for tickets' },
+    { key: 'require_status_notes', value: 'false', description: 'Require notes when changing status' },
+    { key: 'auto_assign_creator', value: 'true', description: 'Auto-assign tickets to creator' },
+    { key: 'default_priority', value: 'MEDIUM', description: 'Default ticket priority' },
+    { key: 'ticket_prefix', value: 'T', description: 'Ticket number prefix' },
+    { key: 'enable_auto_close', value: 'false', description: 'Enable auto-close for completed tickets' },
+    { key: 'auto_close_days', value: '30', description: 'Days after which completed tickets auto-close' },
+    { key: 'allow_price_below_estimate', value: 'true', description: 'Allow final price below estimate' },
+
+    // Warranty Settings
+    { key: 'enable_warranty_tracking', value: 'true', description: 'Enable warranty tracking' },
+    { key: 'default_warranty_days', value: '30', description: 'Default warranty period in days' },
+    { key: 'default_warranty_text', value: 'Standard 30-day warranty on parts and labor', description: 'Default warranty text' },
+    { key: 'return_window_days', value: '14', description: 'Return window in days' },
+    { key: 'require_return_approval', value: 'true', description: 'Require admin approval for returns' },
+    { key: 'allow_partial_refunds', value: 'true', description: 'Allow partial refunds' },
+    { key: 'auto_restock_returns', value: 'true', description: 'Auto-restock returned parts' },
+
+    // Inventory Settings
+    { key: 'enable_inventory_tracking', value: 'true', description: 'Enable inventory tracking' },
+    { key: 'auto_deduct_parts', value: 'true', description: 'Auto-deduct parts from stock' },
+    { key: 'allow_negative_stock', value: 'false', description: 'Allow negative stock levels' },
+    { key: 'enable_low_stock_alerts', value: 'true', description: 'Enable low stock alerts' },
+    { key: 'default_low_stock_threshold', value: '5', description: 'Default low stock threshold' },
+    { key: 'default_reorder_level', value: '10', description: 'Default reorder level' },
+    { key: 'require_supplier', value: 'false', description: 'Require supplier for parts' },
+
+    // Finance Settings
+    { key: 'currency_code', value: 'USD', description: 'Currency code' },
+    { key: 'currency_symbol', value: '$', description: 'Currency symbol' },
+    { key: 'currency_position', value: 'before', description: 'Currency symbol position' },
+    { key: 'enable_tax', value: 'false', description: 'Enable tax/VAT' },
+    { key: 'tax_rate', value: '0', description: 'Tax rate percentage' },
+    { key: 'tax_label', value: 'Tax', description: 'Tax label' },
+    { key: 'prices_include_tax', value: 'false', description: 'Prices include tax' },
+    { key: 'accept_cash', value: 'true', description: 'Accept cash payments' },
+    { key: 'accept_card', value: 'true', description: 'Accept card payments' },
+    { key: 'accept_mobile', value: 'true', description: 'Accept mobile payments' },
+    { key: 'enable_diagnostic_fee', value: 'false', description: 'Enable diagnostic fee' },
+    { key: 'diagnostic_fee', value: '0', description: 'Default diagnostic fee' },
+    { key: 'enable_rush_fee', value: 'false', description: 'Enable rush fee' },
+    { key: 'rush_fee', value: '0', description: 'Default rush fee' },
+
+    // Print Settings
+    { key: 'label_size', value: '2x1', description: 'Label size for printing' },
+    { key: 'print_qr_code', value: 'true', description: 'Print QR code on labels' },
+    { key: 'print_barcode', value: 'false', description: 'Print barcode on labels' },
+    { key: 'invoice_prefix', value: 'INV-', description: 'Invoice number prefix' },
+    { key: 'show_logo_on_invoice', value: 'true', description: 'Show logo on invoices' },
+    { key: 'show_terms_on_invoice', value: 'true', description: 'Show terms on invoices' },
+    { key: 'invoice_terms', value: 'Payment is due upon receipt of device.', description: 'Invoice terms text' },
+    { key: 'invoice_footer', value: 'Thank you for your business!', description: 'Invoice footer text' },
+    { key: 'invoice_thank_you', value: 'Thank you for choosing us!', description: 'Thank you message' },
+
+    // Tracking Settings
+    { key: 'enable_public_tracking', value: 'true', description: 'Enable public tracking page' },
+    { key: 'show_price_on_tracking', value: 'false', description: 'Show price on tracking page' },
+    { key: 'show_notes_on_tracking', value: 'false', description: 'Show notes on tracking page' },
+    { key: 'show_eta_on_tracking', value: 'true', description: 'Show ETA on tracking page' },
+    { key: 'tracking_welcome_message', value: 'Track your repair status', description: 'Tracking welcome message' },
+    { key: 'tracking_completion_message', value: 'Your repair is complete! Please pick up your device.', description: 'Tracking completion message' },
+    { key: 'show_contact_form', value: 'true', description: 'Show contact form on tracking' },
+    { key: 'show_phone_on_tracking', value: 'true', description: 'Show phone on tracking page' },
+
+    // Security Settings
+    { key: 'password_min_length', value: '8', description: 'Minimum password length' },
+    { key: 'require_uppercase', value: 'true', description: 'Require uppercase in password' },
+    { key: 'require_number', value: 'true', description: 'Require number in password' },
+    { key: 'require_special_char', value: 'false', description: 'Require special character in password' },
+    { key: 'session_timeout', value: '60', description: 'Session timeout in minutes' },
+    { key: 'max_login_attempts', value: '5', description: 'Max failed login attempts' },
+    { key: 'lockout_duration', value: '15', description: 'Lockout duration in minutes' },
   ];
 
   for (const setting of defaultSettings) {

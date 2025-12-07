@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SettingsClient } from '@/components/settings/settings-client';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -52,4 +51,3 @@ export default async function SettingsPage() {
     </div>
   );
 }
-
