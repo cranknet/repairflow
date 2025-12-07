@@ -327,7 +327,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col gap-1 p-4" aria-label="Main navigation">
+      <nav className="flex-1 flex flex-col gap-1 p-4" aria-label={t('sidebar.mainNavigation')}>
         {filteredNavigation.map((item) => {
           const hasChildren = item.children && item.children.length > 0;
           const hasActiveChild = hasChildren
@@ -409,7 +409,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                         'hover:bg-black/5 dark:hover:bg-white/10',
                         isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-500 dark:text-gray-400'
                       )}
-                      aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                      aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
                       aria-expanded={isExpanded}
                     >
                       <span className="material-symbols-outlined text-xl transition-transform duration-200">

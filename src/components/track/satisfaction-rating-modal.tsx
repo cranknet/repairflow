@@ -214,7 +214,7 @@ export function SatisfactionRatingModal({
           <DialogDescription>
             {verificationState === 'locked'
               ? t('satisfaction.locked_message')
-              : 'Share your experience with us'}
+              : t('satisfaction.shareExperience')}
           </DialogDescription>
         </DialogHeader>
 

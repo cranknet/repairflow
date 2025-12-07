@@ -338,7 +338,7 @@ export function StatusProgressBar({
         // Transition directly to REPAIRED
         const result = checkTransition(TicketStatus.REPAIRED);
         if (result.allowed) {
-            await executeTransition(TicketStatus.REPAIRED, 'No parts required');
+            await executeTransition(TicketStatus.REPAIRED, t('ticket.noPartsRequired'));
         } else {
             toast({
                 title: t('error'),
@@ -364,7 +364,7 @@ export function StatusProgressBar({
     // Get tooltip for step
     const getStepTooltip = (step: typeof PROGRESS_STEPS[0], stepState: string) => {
         if (stepState === 'completed') return `✓ ${t(step.label) || step.description}`;
-        if (stepState === 'skipped') return t('skippedNoParts') || 'Skipped - no parts needed';
+        if (stepState === 'skipped') return t('ticket.skippedNoParts');
         if (stepState === 'current') return t('currentStatus');
         if (stepState === 'current-warning') return t('paymentRequiredToComplete');
         if (stepState === 'available') return t('clickToAdvance');
