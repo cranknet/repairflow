@@ -3,6 +3,7 @@
 import { useLanguage } from '@/contexts/language-context';
 import { SearchBars } from './search-bars';
 import { NotificationsBell } from '@/components/notifications/notifications-bell';
+import { ChatBell } from '@/components/chat/chat-bell';
 import { InboxIcon } from '@/components/contact/inbox-icon';
 import { LanguageSwitcher } from './language-switcher';
 import { UserProfileDropdown } from './user-profile-dropdown';
@@ -11,7 +12,7 @@ import { Bars3Icon } from '@heroicons/react/24/outline';
 /**
  * Top Header Component
  * 
- * Responsive top app bar with search, notifications, and user actions.
+ * Responsive top app bar with search, notifications, chat, and user actions.
  */
 
 interface TopHeaderProps {
@@ -48,6 +49,7 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
         <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label={t('header.appActions')}>
           <LanguageSwitcher />
           <InboxIcon />
+          <ChatBell />
           <NotificationsBell />
           <div className="hidden sm:block h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1" aria-hidden="true" />
           <UserProfileDropdown />

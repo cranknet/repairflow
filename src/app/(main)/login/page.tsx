@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { companyName } = useSettings();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,6 +27,13 @@ export default function LoginPage() {
     password: '',
   });
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.replace('/dashboard');
+    }
+  }, [status, session, router]);
 
   useEffect(() => {
     // Load remembered username from localStorage
@@ -35,6 +43,20 @@ export default function LoginPage() {
       setRememberMe(true);
     }
   }, []);
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Don't render login form if already authenticated (prevents flash)
+  if (status === 'authenticated') {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

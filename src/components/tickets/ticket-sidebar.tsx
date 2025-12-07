@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { TicketAssignment } from './ticket-assignment';
+import { TicketChatButton } from './ticket-chat-button';
 import { CustomerProfileButton } from '@/components/customers/customer-profile-button';
 import { CustomerContactActions } from '@/components/customers/customer-contact-actions';
 
@@ -196,6 +197,9 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
                 </h3>
                 <TicketAssignment ticket={ticket} userRole={userRole} />
             </div>
+
+            {/* Team Chat Card */}
+            <TicketChatButton ticketId={ticket.id} ticketNumber={ticket.ticketNumber} />
 
             {/* Created Date */}
             <div className="text-center text-xs text-gray-500 dark:text-gray-500 py-2">
