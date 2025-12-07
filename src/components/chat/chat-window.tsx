@@ -377,7 +377,7 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
     function formatMessageTime(dateString: string) {
         const date = new Date(dateString);
         if (isToday(date)) return format(date, 'HH:mm');
-        if (isYesterday(date)) return `Yesterday ${format(date, 'HH:mm')}`;
+        if (isYesterday(date)) return `${t('chat.yesterday')} ${format(date, 'HH:mm')}`;
         return format(date, 'MMM d, HH:mm');
     }
 
@@ -400,8 +400,8 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
 
     function formatDateHeader(dateString: string) {
         const date = new Date(dateString);
-        if (isToday(date)) return 'Today';
-        if (isYesterday(date)) return 'Yesterday';
+        if (isToday(date)) return t('chat.today');
+        if (isYesterday(date)) return t('chat.yesterday');
         return format(date, 'EEEE, MMMM d');
     }
 
