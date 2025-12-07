@@ -20,7 +20,9 @@ export default async function TicketsPage({
   const currentPage = parseInt(params.page || '1', 10);
   const skip = (currentPage - 1) * TICKETS_PER_PAGE;
 
-  const where: any = {};
+  const where: any = {
+    deletedAt: null, // Exclude soft-deleted tickets
+  };
   if (params.status === 'active') {
     where.status = { notIn: ['CANCELLED', 'RETURNED'] };
   } else if (params.status) {

@@ -32,7 +32,9 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const customerId = searchParams.get('customerId');
 
-    const where: any = {};
+    const where: any = {
+      deletedAt: null, // Exclude soft-deleted tickets
+    };
     if (status === 'active') {
       where.status = { notIn: ['COMPLETED', 'CANCELLED'] };
     } else if (status) {

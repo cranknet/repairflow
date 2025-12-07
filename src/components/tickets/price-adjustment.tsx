@@ -57,8 +57,9 @@ export function PriceAdjustment({ ticket, userRole }: PriceAdjustmentProps) {
   // Permission check for admin/staff
   const canManagePrice = userRole === 'ADMIN' || userRole === 'STAFF';
 
-  // Only show price adjustment if repair is finished (REPAIRED)
-  const canAdjustPrice = ticket.status === 'REPAIRED' && canManagePrice;
+  // Only show price adjustment if repair is finished (REPAIRED) AND not yet paid
+  // Once paid, price is locked to ensure financial integrity
+  const canAdjustPrice = ticket.status === 'REPAIRED' && !ticket.paid && canManagePrice;
 
   // Toggle paid status handler
   // If not REPAIRED, don't show anything (price adjustment is only for REPAIRED tickets)

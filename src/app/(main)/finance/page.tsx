@@ -13,7 +13,11 @@ interface FinanceSummary {
     netProfit: number;
     partsUsed: number;
     returnsPending: number;
+    partsCost: number;       // Cost of parts used in completed tickets
+    grossProfit: number;     // Revenue - Parts Cost
+    inventoryLoss: number;   // Loss from negative inventory adjustments
 }
+
 
 // Reusable metric card for secondary KPIs
 function MetricCard({
@@ -110,10 +114,23 @@ export default function FinancePage() {
 
     const fetchSummary = async () => {
         try {
-            const response = await fetch('/api/v2/dashboard/finance');
+            // Use unified finance metrics endpoint with daily period for today's view
+            const response = await fetch('/api/finance/metrics?period=daily');
             if (!response.ok) throw new Error('Failed to fetch summary');
             const data = await response.json();
-            setSummary(data.summary);
+            // Map the unified response to the expected interface
+            setSummary({
+                dailyRevenue: data.revenue || 0,
+                dailyRefunds: data.refunds || 0,
+                dailyExpenses: data.expenses || 0,
+                grossMargin: data.grossMargin || 0,
+                netProfit: data.netProfit || 0,
+                partsUsed: data.partsUsedCount || 0,
+                returnsPending: data.returnsPendingCount || 0,
+                partsCost: data.partsCost || 0,
+                grossProfit: data.grossProfit || 0,
+                inventoryLoss: data.inventoryLoss || 0,
+            });
         } catch (error) {
             console.error('Error fetching finance summary:', error);
         } finally {
@@ -257,7 +274,30 @@ export default function FinancePage() {
                                         <div
                                             className="h-full bg-gradient-to-r from-success-400 to-success-500 rounded-full transition-all duration-500"
                                             style={{
-                                                width: `${Math.min(100, (summary.dailyRevenue / (summary.dailyRevenue + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
+                                                width: `${Math.min(100, (summary.dailyRevenue / (summary.dailyRevenue + summary.partsCost + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Parts Cost */}
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-brand-500">build</span>
+                                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                {t('finance.partsCost') || 'Parts Cost'}
+                                            </span>
+                                        </div>
+                                        <span className="text-lg font-bold text-brand-600 dark:text-brand-400">
+                                            ${(summary.partsCost || 0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-brand-400 to-brand-500 rounded-full transition-all duration-500"
+                                            style={{
+                                                width: `${Math.min(100, ((summary.partsCost || 0) / (summary.dailyRevenue + summary.partsCost + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
                                             }}
                                         />
                                     </div>
@@ -280,7 +320,7 @@ export default function FinancePage() {
                                         <div
                                             className="h-full bg-gradient-to-r from-gray-400 to-gray-500 rounded-full transition-all duration-500"
                                             style={{
-                                                width: `${Math.min(100, (summary.dailyExpenses / (summary.dailyRevenue + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
+                                                width: `${Math.min(100, (summary.dailyExpenses / (summary.dailyRevenue + summary.partsCost + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
                                             }}
                                         />
                                     </div>
@@ -303,7 +343,7 @@ export default function FinancePage() {
                                         <div
                                             className="h-full bg-gradient-to-r from-error-400 to-error-500 rounded-full transition-all duration-500"
                                             style={{
-                                                width: `${Math.min(100, (summary.dailyRefunds / (summary.dailyRevenue + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
+                                                width: `${Math.min(100, (summary.dailyRefunds / (summary.dailyRevenue + summary.partsCost + summary.dailyExpenses + summary.dailyRefunds || 1)) * 100)}%`
                                             }}
                                         />
                                     </div>

@@ -199,6 +199,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         );
       }
 
+      // Verify the user exists before creating status history
+      // This prevents foreign key constraint violations after database reset
+      const statusUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true },
+      });
+
+      if (!statusUser) {
+        return NextResponse.json(
+          {
+            error: 'Authentication error',
+            details: 'Your user account is no longer valid. Please log out and log in again.'
+          },
+          { status: 401 }
+        );
+      }
+
       // Create status history entry with changedById
       updateData.statusHistory = {
         create: {
@@ -211,6 +228,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       // Mark completedAt when ticket becomes COMPLETED (previously was REPAIRED)
       if (data.status === TicketStatus.COMPLETED && !ticket.completedAt) {
         updateData.completedAt = new Date();
+
+        // Auto-set finalPrice from estimatedPrice if not already adjusted
+        if (ticket.finalPrice === null && ticket.estimatedPrice !== null) {
+          updateData.finalPrice = ticket.estimatedPrice;
+        }
       }
 
       // Emit ticket.status_changed event
@@ -449,14 +471,20 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Check if ticket exists and has returns
+    // Check ticket with all related financial records
     const ticket = await prisma.ticket.findUnique({
       where: { id },
       include: {
         customer: true,
+        parts: {
+          include: {
+            part: true,
+          },
+        },
         _count: {
           select: {
             returns: true,
+            payments: true,
           },
         },
       },
@@ -466,26 +494,104 @@ export async function DELETE(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Prevent deletion if ticket has returns
-    if (ticket._count.returns > 0) {
+    // Already soft-deleted
+    if (ticket.deletedAt) {
       return NextResponse.json(
-        { error: 'Cannot delete ticket with existing returns. Please delete returns first.' },
+        { error: 'Ticket is already deleted' },
         { status: 400 }
       );
     }
 
-    // Store ticket data before deletion
+    // RULE 1: Block deletion if ticket has payments (financial audit trail)
+    if (ticket._count.payments > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete ticket with payment records. Payment history must be preserved for financial audit trail.',
+          code: 'HAS_PAYMENTS'
+        },
+        { status: 403 }
+      );
+    }
+
+    // RULE 2: Block deletion if ticket has returns (financial audit trail)
+    if (ticket._count.returns > 0) {
+      return NextResponse.json(
+        {
+          error: 'Cannot delete ticket with return records. Return history must be preserved for financial audit trail.',
+          code: 'HAS_RETURNS'
+        },
+        { status: 403 }
+      );
+    }
+
+    // Store ticket data for events
     const ticketData = {
       ticketNumber: ticket.ticketNumber,
       customerId: ticket.customerId,
+      status: ticket.status,
+      paid: ticket.paid,
     };
 
-    // Delete the ticket
+    // RULE 3: Soft delete for COMPLETED or (REPAIRED + paid) tickets
+    // These have financial significance and must be preserved for audit
+    const requiresSoftDelete =
+      ticket.status === 'COMPLETED' ||
+      (ticket.status === 'REPAIRED' && ticket.paid);
+
+    if (requiresSoftDelete) {
+      // Soft delete - just mark as deleted
+      await prisma.ticket.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+
+      // Emit soft delete event
+      emitEvent({
+        eventId: nanoid(),
+        entityType: 'ticket',
+        entityId: id,
+        action: 'deleted',
+        actorId: session.user.id,
+        actorName: session.user.name || session.user.username,
+        timestamp: new Date(),
+        summary: `Ticket ${ticketData.ticketNumber} was archived (soft deleted for audit trail)`,
+        meta: {
+          ticketNumber: ticketData.ticketNumber,
+          deleteType: 'soft',
+        },
+        customerId: ticketData.customerId,
+        ticketId: id,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Ticket archived successfully (preserved for financial audit)',
+        deleteType: 'soft'
+      });
+    }
+
+    // RULE 4: Hard delete for tickets without financial significance
+    // But first, restore inventory for any parts used
+    if (ticket.parts.length > 0) {
+      for (const ticketPart of ticket.parts) {
+        // Restore part quantity to inventory
+        await prisma.part.update({
+          where: { id: ticketPart.partId },
+          data: {
+            quantity: {
+              increment: ticketPart.quantity,
+            },
+          },
+        });
+      }
+    }
+
+    // Now hard delete the ticket (cascades to parts, history, etc.)
     await prisma.ticket.delete({
       where: { id },
     });
 
-    // Emit ticket.deleted event
+    // Emit hard delete event
     emitEvent({
       eventId: nanoid(),
       entityType: 'ticket',
@@ -494,15 +600,22 @@ export async function DELETE(
       actorId: session.user.id,
       actorName: session.user.name || session.user.username,
       timestamp: new Date(),
-      summary: `Ticket ${ticketData.ticketNumber} was deleted`,
+      summary: `Ticket ${ticketData.ticketNumber} was permanently deleted${ticket.parts.length > 0 ? ' (inventory restored)' : ''}`,
       meta: {
         ticketNumber: ticketData.ticketNumber,
+        deleteType: 'hard',
+        partsRestored: ticket.parts.length,
       },
       customerId: ticketData.customerId,
       ticketId: id,
     });
 
-    return NextResponse.json({ success: true, message: 'Ticket deleted successfully' });
+    return NextResponse.json({
+      success: true,
+      message: `Ticket deleted successfully${ticket.parts.length > 0 ? '. Inventory has been restored.' : ''}`,
+      deleteType: 'hard',
+      partsRestored: ticket.parts.length
+    });
   } catch (error) {
     console.error('Error deleting ticket:', error);
     return NextResponse.json(

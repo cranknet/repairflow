@@ -50,31 +50,28 @@ export function DashboardHero({
     ];
 
     const fetchPeriodData = useCallback(async (selectedPeriod: PeriodType) => {
-        if (selectedPeriod === 'weekly') {
-            // Use initial data for weekly (already fetched server-side)
-            setData({
-                revenue: initialWeeklyRevenue,
-                revenueChange: initialRevenueChange,
-                profit: initialWeeklyRevenue, // Simplified - ideally calculate actual profit
-                profitChange: initialRevenueChange,
-            });
-            return;
-        }
-
         setLoading(true);
         try {
-            const response = await fetch(`/api/dashboard/period-stats?period=${selectedPeriod}`);
+            // Use unified finance metrics endpoint
+            const response = await fetch(`/api/finance/metrics?period=${selectedPeriod}`);
             if (response.ok) {
                 const result = await response.json();
                 setData({
                     revenue: result.revenue || 0,
                     revenueChange: result.revenueChange || 0,
-                    profit: result.profit || 0,
+                    profit: result.netProfit || 0,
                     profitChange: result.profitChange || 0,
                 });
             }
         } catch (error) {
             console.error('Error fetching period data:', error);
+            // Fallback to initial values on error
+            setData({
+                revenue: initialWeeklyRevenue,
+                revenueChange: initialRevenueChange,
+                profit: 0,
+                profitChange: 0,
+            });
         } finally {
             setLoading(false);
         }

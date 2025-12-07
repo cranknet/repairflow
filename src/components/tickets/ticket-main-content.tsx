@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
+import { useToast } from '@/components/ui/use-toast';
 import { DevicePhotos } from './device-photos';
 import { ReturnHandler } from './return-handler';
 import { PriceAdjustment } from './price-adjustment';
@@ -68,8 +70,75 @@ interface TicketMainContentProps {
 
 export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) {
     const { t } = useLanguage();
+    const { toast } = useToast();
+    const router = useRouter();
     const [showFullHistory, setShowFullHistory] = useState(false);
     const [showPriceHistory, setShowPriceHistory] = useState(false);
+    const [removingPartId, setRemovingPartId] = useState<string | null>(null);
+    const [clearingAllParts, setClearingAllParts] = useState(false);
+
+    // Check if parts can be modified (only during active repair states)
+    const canModifyParts = ['IN_PROGRESS', 'WAITING_FOR_PARTS'].includes(ticket.status) &&
+        (userRole === 'ADMIN' || userRole === 'STAFF');
+
+    // Remove a single part from the ticket
+    const handleRemovePart = async (ticketPartId: string) => {
+        setRemovingPartId(ticketPartId);
+        try {
+            const response = await fetch(`/api/tickets/${ticket.id}/parts?ticketPartId=${ticketPartId}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to remove part');
+            }
+            toast({
+                title: t('success'),
+                description: t('partRemovedFromTicket') || 'Part removed from ticket',
+            });
+            router.refresh();
+        } catch (error: any) {
+            toast({
+                title: t('error'),
+                description: error.message || t('failedToRemovePart') || 'Failed to remove part',
+                variant: 'destructive',
+            });
+        } finally {
+            setRemovingPartId(null);
+        }
+    };
+
+    // Clear all parts from the ticket
+    const handleClearAllParts = async () => {
+        if (!ticket.parts || ticket.parts.length === 0) return;
+
+        setClearingAllParts(true);
+        try {
+            // Remove all parts one by one
+            for (const part of ticket.parts) {
+                const response = await fetch(`/api/tickets/${ticket.id}/parts?ticketPartId=${part.id}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to remove part');
+                }
+            }
+            toast({
+                title: t('success'),
+                description: t('allPartsCleared') || 'All parts cleared from ticket',
+            });
+            router.refresh();
+        } catch (error: any) {
+            toast({
+                title: t('error'),
+                description: error.message || t('failedToClearParts') || 'Failed to clear parts',
+                variant: 'destructive',
+            });
+        } finally {
+            setClearingAllParts(false);
+        }
+    };
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -189,10 +258,40 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                             <span className="material-symbols-outlined text-gray-500">inventory_2</span>
                             {t('partsUsed')}
                         </span>
-                        <span className="text-sm font-normal text-gray-500">
-                            {ticket.parts.length} {ticket.parts.length === 1 ? 'item' : 'items'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-normal text-gray-500">
+                                {ticket.parts.length} {ticket.parts.length === 1 ? 'item' : 'items'}
+                            </span>
+                            {/* Clear All Parts button - only when parts can be modified */}
+                            {canModifyParts && (
+                                <button
+                                    onClick={handleClearAllParts}
+                                    disabled={clearingAllParts}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded transition-colors disabled:opacity-50"
+                                    title={t('clearAllParts') || 'Clear all parts (no parts required)'}
+                                >
+                                    {clearingAllParts ? (
+                                        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                                            <span className="hidden sm:inline">{t('clearAll') || 'Clear All'}</span>
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
                     </h2>
+
+                    {/* Message for wrongly selected parts */}
+                    {canModifyParts && (
+                        <div className="mb-3 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                            <p className="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                                <span className="material-symbols-outlined text-sm">info</span>
+                                {t('partsCanBeRemoved') || 'Parts can be removed if not required for this repair.'}
+                            </p>
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         {ticket.parts.map((tp) => (
@@ -204,11 +303,28 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                                     <p className="font-medium truncate">{tp.part.name}</p>
                                     <p className="text-xs text-gray-500 font-mono">{tp.part.sku}</p>
                                 </div>
-                                <div className="text-right flex-shrink-0 ml-4">
-                                    <p className="font-semibold">{tp.quantity}×</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        ${(tp.part.unitPrice * tp.quantity).toFixed(2)}
-                                    </p>
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right flex-shrink-0">
+                                        <p className="font-semibold">{tp.quantity}×</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            ${(tp.part.unitPrice * tp.quantity).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    {/* Remove part button */}
+                                    {canModifyParts && (
+                                        <button
+                                            onClick={() => handleRemovePart(tp.id)}
+                                            disabled={removingPartId === tp.id}
+                                            className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors disabled:opacity-50"
+                                            title={t('removePart') || 'Remove part'}
+                                        >
+                                            {removingPartId === tp.id ? (
+                                                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+                                            ) : (
+                                                <span className="material-symbols-outlined text-lg">close</span>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

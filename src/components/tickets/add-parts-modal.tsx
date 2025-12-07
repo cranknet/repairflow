@@ -559,8 +559,8 @@ export function AddPartsModal({
                           <div
                             key={part.id}
                             className={`p-3 cursor-pointer flex items-center justify-between transition-colors ${isPartSelected(part.id)
-                                ? 'bg-primary/10'
-                                : 'hover:bg-muted/50'
+                              ? 'bg-primary/10'
+                              : 'hover:bg-muted/50'
                               }`}
                             onClick={() => addPart(part)}
                           >
@@ -595,8 +595,8 @@ export function AddPartsModal({
                         <div
                           key={part.id}
                           className={`p-3 cursor-pointer flex items-center justify-between transition-colors ${isPartSelected(part.id)
-                              ? 'bg-primary/10'
-                              : 'hover:bg-muted/50'
+                            ? 'bg-primary/10'
+                            : 'hover:bg-muted/50'
                             }`}
                           onClick={() => addPart(part)}
                         >
@@ -709,7 +709,7 @@ export function AddPartsModal({
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
             {t('cancel')}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || selectedParts.length === 0}>
+          <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
                 <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
