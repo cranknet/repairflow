@@ -130,11 +130,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         }
 
         const body = await request.json();
-        const { content, replyToId } = body;
+        const { content, replyToId, attachments } = body;
 
-        if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        const hasContent = content && typeof content === 'string' && content.trim().length > 0;
+        const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
+
+        if (!hasContent && !hasAttachments) {
             return NextResponse.json(
-                { error: 'Message content is required' },
+                { error: 'Message content or attachment is required' },
                 { status: 400 }
             );
         }
@@ -144,10 +147,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         const [message] = await prisma.$transaction([
             prisma.chatMessage.create({
                 data: {
+                    content: content ? content.trim() : '',
+                    attachments: hasAttachments ? JSON.stringify(attachments) : '[]',
+                    replyToId: replyToId || null,
                     chatId: id,
                     senderId: session.user.id,
-                    content: content.trim(),
-                    replyToId: replyToId || null,
                 },
                 include: {
                     sender: {

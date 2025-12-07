@@ -13,6 +13,7 @@ import {
     LockOpenIcon,
     PencilIcon,
     ChatBubbleOvalLeftIcon,
+    PaperClipIcon,
 } from '@heroicons/react/24/outline';
 import { MentionInput } from './mention-input';
 import Link from 'next/link';
@@ -43,6 +44,7 @@ interface Message {
     };
     reactions?: Reaction[];
     replyTo?: ReplyTo | null;
+    attachments?: string; // JSON string
 }
 
 interface ChatWindowProps {
@@ -97,6 +99,54 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
             }
             return part;
         });
+    };
+
+    // Helper to render attachments
+    const renderAttachments = (attachmentsJson?: string) => {
+        if (!attachmentsJson) return null;
+        try {
+            const attachments = JSON.parse(attachmentsJson) as string[];
+            if (!Array.isArray(attachments) || attachments.length === 0) return null;
+
+            return (
+                <div className="flex flex-wrap gap-2 mt-2">
+                    {attachments.map((url, idx) => {
+                        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                        const filename = url.split('/').pop() || 'file';
+
+                        if (isImage) {
+                            return (
+                                <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block relative group">
+                                    <img
+                                        src={url}
+                                        alt={filename}
+                                        className="h-32 rounded-lg object-cover border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                                    />
+                                </a>
+                            );
+                        }
+
+                        return (
+                            <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                <PaperClipIcon className="h-4 w-4 text-gray-500" />
+                                <span className="text-xs text-blue-600 dark:text-blue-400 underline truncate max-w-[150px]">
+                                    {filename.replace(/^\d+-/, '')}
+                                </span>
+                            </a>
+                        );
+                    })}
+                </div>
+            );
+        } catch (e) {
+            console.error('Error parsing attachments:', e);
+            return null;
+        }
     };
 
     // Helper to render message content with highlighted mentions and clickable ticket IDs
@@ -203,7 +253,7 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
     }, [messages]);
 
     // Send message handler for MentionInput
-    const handleSendMessage = useCallback(async (content: string) => {
+    const handleSendMessage = useCallback(async (content: string, attachments?: string[]) => {
         try {
             if (editingMessage) {
                 // Edit existing message
@@ -221,9 +271,12 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
                 }
             } else {
                 // Send new message (optionally as reply)
-                const body: { content: string; replyToId?: string } = { content };
+                const body: { content: string; replyToId?: string; attachments?: string[] } = { content };
                 if (replyingTo) {
                     body.replyToId = replyingTo.id;
+                }
+                if (attachments && attachments.length > 0) {
+                    body.attachments = attachments;
                 }
 
                 const response = await fetch(`/api/chats/${chatId}/messages`, {
@@ -501,6 +554,7 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
                                                 <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
                                                     {renderMessageContent(message.content)}
                                                 </p>
+                                                {renderAttachments(message.attachments)}
 
                                                 {/* Reactions display */}
                                                 {Object.keys(reactions).length > 0 && (
