@@ -35,6 +35,10 @@ model User {
   inventoryAdjustmentsCreated InventoryAdjustment[] @relation("InventoryAdjustmentCreatedBy")
   journalEntriesCreated JournalEntry[]          @relation("JournalEntryCreatedBy")
   statusChanges         TicketStatusHistory[]   @relation("StatusChangedBy")
+  
+  // Chat module relations
+  chatParticipations    ChatParticipant[]
+  chatMessages          ChatMessage[]
 }
 
 model Customer {
@@ -83,6 +87,7 @@ model Ticket {
   contactMessages      ContactMessage[]
   satisfactionRatings  SatisfactionRating[]
   inventoryAdjustments InventoryAdjustment[]
+  chat                 Chat?                   // Optional linked chat for ticket collaboration
 }
 
 model TicketStatusHistory {
@@ -427,3 +432,76 @@ model JournalEntry {
   @@index([createdById])
   @@index([ticketId])
 }
+
+// ============================================
+// CHAT MODULE MODELS
+// ============================================
+
+model Chat {
+  id            String            @id @default(cuid())
+  name          String?           // Name for group chats, null for ticket chats
+  ticketId      String?           @unique // If linked to a ticket
+  ticket        Ticket?           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  isTicketChat  Boolean           @default(false)
+  status        String            @default("OPEN") // OPEN, CLOSED
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  lastMessageAt DateTime?         // For sorting chats by recent activity
+  participants  ChatParticipant[]
+  messages      ChatMessage[]
+  
+  @@index([ticketId])
+  @@index([lastMessageAt])
+  @@index([status])
+}
+
+model ChatParticipant {
+  id         String   @id @default(cuid())
+  chatId     String
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime @default(now()) // For tracking unread messages
+  
+  @@unique([chatId, userId])
+  @@index([userId])
+  @@index([chatId])
+}
+
+model ChatMessage {
+  id           String         @id @default(cuid())
+  chatId       String
+  chat         Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content      String
+  replyToId    String?        // For reply threads
+  replyTo      ChatMessage?   @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      ChatMessage[]  @relation("MessageReplies")
+  isEdited     Boolean        @default(false)
+  attachments  String?        // JSON array of attachment URLs
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?      // Soft delete support
+  reactions    ChatReaction[]
+  
+  @@index([chatId, createdAt])
+  @@index([senderId])
+  @@index([replyToId])
+}
+
+model ChatReaction {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String      // e.g., "👍", "❤️", "😂"
+  createdAt DateTime    @default(now())
+  
+  @@unique([messageId, userId, emoji]) // One reaction per emoji per user
+  @@index([messageId])
+  @@index([userId])
+}
+
