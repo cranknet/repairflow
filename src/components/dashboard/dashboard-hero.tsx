@@ -166,9 +166,24 @@ export function DashboardHero({
                             </span>
                         </div>
                     ) : (
-                        <p className="text-4xl sm:text-5xl font-bold text-brand-600 dark:text-brand-400 mb-3">
-                            ${data.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                        </p>
+                        <>
+                            <p className="text-4xl sm:text-5xl font-bold text-brand-600 dark:text-brand-400 mb-2">
+                                ${data.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                            </p>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    {t('finance.netProfit') || 'Net Profit'}:
+                                </span>
+                                <span className={cn(
+                                    'text-lg font-bold',
+                                    data.profit >= 0
+                                        ? 'text-success-600 dark:text-success-400'
+                                        : 'text-error-600 dark:text-error-400'
+                                )}>
+                                    ${Math.abs(data.profit).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
+                            </div>
+                        </>
                     )}
 
                     <div className={cn(

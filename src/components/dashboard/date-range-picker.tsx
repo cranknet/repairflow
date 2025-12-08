@@ -5,7 +5,7 @@ import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMon
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
 
-export type DateRangeType = 'lastWeek' | 'lastTwoWeeks' | 'lastMonth' | 'custom';
+export type DateRangeType = 'today' | 'thisWeek' | 'lastWeek' | 'thisMonth' | 'lastMonth' | 'custom';
 
 interface DateRangePickerProps {
   onDateRangeChange: (startDate: Date, endDate: Date, rangeType: DateRangeType) => void;
@@ -25,11 +25,20 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
     let end: Date = endOfDay(now);
 
     switch (rangeType) {
+      case 'today':
+        start = startOfDay(now);
+        end = endOfDay(now);
+        break;
+      case 'thisWeek':
+        start = startOfDay(subDays(now, 7));
+        end = endOfDay(now);
+        break;
       case 'lastWeek':
         start = startOfDay(subDays(now, 7));
         break;
-      case 'lastTwoWeeks':
-        start = startOfDay(subDays(now, 14));
+      case 'thisMonth':
+        start = startOfMonth(now);
+        end = endOfDay(now);
         break;
       case 'lastMonth':
         start = startOfMonth(subMonths(now, 1));
@@ -82,10 +91,12 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
   };
 
   const periods = [
-    { id: 'lastWeek' as DateRangeType, label: t('lastWeek').toUpperCase() },
-    { id: 'lastTwoWeeks' as DateRangeType, label: t('lastTwoWeeks').toUpperCase() },
-    { id: 'lastMonth' as DateRangeType, label: t('lastMonth').toUpperCase() },
-    { id: 'custom' as DateRangeType, label: t('custom').toUpperCase() },
+    { id: 'today' as DateRangeType, label: t('dashboard.today') || 'TODAY' },
+    { id: 'thisWeek' as DateRangeType, label: t('dashboard.thisWeek') || 'THIS WEEK' },
+    { id: 'lastWeek' as DateRangeType, label: t('lastWeek') || 'LAST WEEK' },
+    { id: 'thisMonth' as DateRangeType, label: t('dashboard.thisMonth') || 'THIS MONTH' },
+    { id: 'lastMonth' as DateRangeType, label: t('lastMonth') || 'LAST MONTH' },
+    { id: 'custom' as DateRangeType, label: t('custom') || 'CUSTOM' },
   ];
 
   return (
@@ -154,4 +165,3 @@ export function DateRangePicker({ onDateRangeChange, defaultRange = 'lastWeek' }
     </div>
   );
 }
-

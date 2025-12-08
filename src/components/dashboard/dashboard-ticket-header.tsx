@@ -1,9 +1,23 @@
 'use client';
 
 import { useLanguage } from '@/contexts/language-context';
+import { cn } from '@/lib/utils';
 
-export function DashboardTicketHeader() {
+type PeriodFilter = 'today' | 'thisMonth' | 'lastMonth';
+
+interface DashboardTicketHeaderProps {
+  selectedPeriod: PeriodFilter;
+  onPeriodChange: (period: PeriodFilter) => void;
+}
+
+export function DashboardTicketHeader({ selectedPeriod, onPeriodChange }: DashboardTicketHeaderProps) {
   const { t } = useLanguage();
+
+  const periods: { id: PeriodFilter; label: string }[] = [
+    { id: 'today', label: t('today') || 'Today' },
+    { id: 'thisMonth', label: t('thisMonth') || 'This Month' },
+    { id: 'lastMonth', label: t('lastMonth') || 'Last Month' },
+  ];
 
   return (
     <div className="flex items-center justify-between">
@@ -13,17 +27,21 @@ export function DashboardTicketHeader() {
         </button>
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-lg shadow-soft">
-          {t('today').toUpperCase()}
-        </button>
-        <button className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-          {t('thisMonth').toUpperCase()}
-        </button>
-        <button className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors">
-          {t('lastMonth').toUpperCase()}
-        </button>
+        {periods.map((period) => (
+          <button
+            key={period.id}
+            onClick={() => onPeriodChange(period.id)}
+            className={cn(
+              'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors',
+              selectedPeriod === period.id
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-soft'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            )}
+          >
+            {period.label.toUpperCase()}
+          </button>
+        ))}
       </div>
     </div>
   );
 }
-
