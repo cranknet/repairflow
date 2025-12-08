@@ -1802,6 +1802,40 @@ export const translations: Record<Language, Record<string, string>> = {
     'chat.mentionHint': 'Type @ to mention • Enter to send • Shift+Enter for new line',
     'chat.editPlaceholder': 'Edit your message...',
     'chat.messagePlaceholder': 'Type a message... Use @ to mention',
+
+    // Receipt Scanner
+    'receiptScanner.title': 'Receipt Scanner',
+    'receiptScanner.description': 'Scan supplier invoices to automatically add parts to inventory',
+    'receiptScanner.takePhoto': 'Take Photo',
+    'receiptScanner.uploadImage': 'Upload Image',
+    'receiptScanner.processing': 'Processing receipt...',
+    'receiptScanner.addToInventory': 'Add to Inventory',
+    'receiptScanner.noPartsFound': 'No parts found in this receipt',
+    'receiptScanner.noPartsToAdd': 'No parts to add',
+    'receiptScanner.noInternet': 'Internet connection required for receipt scanning',
+    'receiptScanner.networkError': 'Network error - check your connection',
+    'receiptScanner.cameraNotSupported': 'Camera not supported on this device',
+    'receiptScanner.cameraNotFound': 'No camera detected on this device',
+    'receiptScanner.cameraPermissionDenied': 'Camera access denied. Please allow camera access',
+    'receiptScanner.cameraInUse': 'Camera is being used by another app',
+    'receiptScanner.cameraError': 'Failed to access camera',
+    'receiptScanner.scanReceipt': 'Scan Receipt',
+
+    // AI Vision Settings
+    'settings.aiVision': 'AI Vision',
+    'settings.aiVision.title': 'AI Vision Settings',
+    'settings.aiVision.description': 'Configure AI Vision for receipt scanning and part extraction',
+    'settings.aiVision.provider': 'AI Provider',
+    'settings.aiVision.apiKey': 'API Key',
+    'settings.aiVision.costInfo': 'Cost Information',
+    'settings.aiVision.howToUse': 'How to Use',
+
+    // Image Cropper
+    'receiptScanner.cropTitle': 'Select Parts Area',
+    'receiptScanner.cropInstruction': 'Drag the corners to select ONLY the section containing part names, quantities, and prices.',
+    'receiptScanner.cropTips': 'Tips for best results:',
+    'receiptScanner.cropAndScan': 'Crop & Scan',
+    'receiptScanner.useFullImage': 'Use Full Image',
   },
   ar: {
     // Installer Wizard - Steps
