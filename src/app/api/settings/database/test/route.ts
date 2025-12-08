@@ -24,12 +24,8 @@ export async function POST(request: NextRequest) {
         // Test the connection
         try {
             const prisma = new PrismaClient({
-                datasources: {
-                    db: {
-                        url: databaseUrl,
-                    },
-                },
-            });
+                datasourceUrl: databaseUrl,
+            } as any);
 
             // Try a simple query
             await prisma.$connect();
