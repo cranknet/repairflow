@@ -107,15 +107,71 @@ export default function FinancePage() {
     const { t } = useLanguage();
     const [summary, setSummary] = useState<FinanceSummary | null>(null);
     const [loading, setLoading] = useState(true);
+    const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+    const [allPeriodData, setAllPeriodData] = useState<{
+        daily: FinanceSummary | null;
+        weekly: FinanceSummary | null;
+        monthly: FinanceSummary | null;
+        yearly: FinanceSummary | null;
+    }>({
+        daily: null,
+        weekly: null,
+        monthly: null,
+        yearly: null,
+    });
 
     useEffect(() => {
         fetchSummary();
-    }, []);
+        fetchAllPeriods();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [period]);
+
+    const fetchAllPeriods = async () => {
+        try {
+            // Fetch all periods in parallel
+            const [dailyRes, weeklyRes, monthlyRes, yearlyRes] = await Promise.all([
+                fetch('/api/finance/metrics?period=daily'),
+                fetch('/api/finance/metrics?period=weekly'),
+                fetch('/api/finance/metrics?period=monthly'),
+                fetch('/api/finance/metrics?period=yearly'),
+            ]);
+
+            const [daily, weekly, monthly, yearly] = await Promise.all([
+                dailyRes.json(),
+                weeklyRes.json(),
+                monthlyRes.json(),
+                yearlyRes.json(),
+            ]);
+
+            const mapData = (data: any): FinanceSummary => ({
+                dailyRevenue: data.revenue || 0,
+                dailyRefunds: data.refunds || 0,
+                dailyExpenses: data.expenses || 0,
+                grossMargin: data.grossMargin || 0,
+                netProfit: data.netProfit || 0,
+                partsUsed: data.partsUsedCount || 0,
+                returnsPending: data.returnsPendingCount || 0,
+                partsCost: data.partsCost || 0,
+                grossProfit: data.grossProfit || 0,
+                inventoryLoss: data.inventoryLoss || 0,
+            });
+
+            setAllPeriodData({
+                daily: mapData(daily),
+                weekly: mapData(weekly),
+                monthly: mapData(monthly),
+                yearly: mapData(yearly),
+            });
+        } catch (error) {
+            console.error('Error fetching all period data:', error);
+        }
+    };
 
     const fetchSummary = async () => {
+        setLoading(true);
         try {
-            // Use unified finance metrics endpoint with daily period for today's view
-            const response = await fetch('/api/finance/metrics?period=daily');
+            // Use unified finance metrics endpoint with selected period
+            const response = await fetch(`/api/finance/metrics?period=${period}`);
             if (!response.ok) throw new Error('Failed to fetch summary');
             const data = await response.json();
             // Map the unified response to the expected interface
@@ -135,6 +191,23 @@ export default function FinancePage() {
             console.error('Error fetching finance summary:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const periods = [
+        { id: 'daily' as const, label: t('dashboard.period.daily') || 'Today' },
+        { id: 'weekly' as const, label: t('dashboard.period.weekly') || 'Week' },
+        { id: 'monthly' as const, label: t('dashboard.period.monthly') || 'Month' },
+        { id: 'yearly' as const, label: t('dashboard.period.yearly') || 'Year' },
+    ];
+
+    const getPeriodLabel = () => {
+        switch (period) {
+            case 'daily': return t('dashboard.today') || "Today's";
+            case 'weekly': return t('dashboard.thisWeek') || "This Week's";
+            case 'monthly': return t('dashboard.thisMonth') || "This Month's";
+            case 'yearly': return t('dashboard.thisYear') || "This Year's";
+            default: return t('dashboard.today') || "Today's";
         }
     };
 
@@ -195,6 +268,25 @@ export default function FinancePage() {
                                 ? 'bg-gradient-to-br from-success-50 to-success-100 dark:from-success-500/10 dark:to-success-500/5 border border-success-200 dark:border-success-500/20'
                                 : 'bg-gradient-to-br from-error-50 to-error-100 dark:from-error-500/10 dark:to-error-500/5 border border-error-200 dark:border-error-500/20'
                         )}>
+                            {/* Period Selector */}
+                            <div className="flex gap-1.5 mb-6 p-1 bg-white/50 dark:bg-gray-800/50 rounded-lg w-fit backdrop-blur-sm">
+                                {periods.map((p) => (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => setPeriod(p.id)}
+                                        disabled={loading}
+                                        className={cn(
+                                            'px-3 py-1.5 text-xs font-semibold rounded-md transition-all',
+                                            period === p.id
+                                                ? 'bg-brand-500 text-white shadow-sm'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                                        )}
+                                    >
+                                        {p.label}
+                                    </button>
+                                ))}
+                            </div>
+
                             {/* Background pattern */}
                             <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
                                 <span className={cn(
@@ -222,7 +314,7 @@ export default function FinancePage() {
                                             {t('finance.netProfit')}
                                         </p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            {t('finance.todaysSummary')}
+                                            {getPeriodLabel()} Summary
                                         </p>
                                     </div>
                                 </div>
@@ -253,7 +345,7 @@ export default function FinancePage() {
                         {/* Revenue vs Expenses Comparison Card */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-theme-sm">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                                {t('finance.todaysSummary')}
+                                {getPeriodLabel()} Summary
                             </h3>
 
                             <div className="space-y-6">
@@ -381,6 +473,186 @@ export default function FinancePage() {
                             iconColor={summary.returnsPending > 0 ? 'text-warning-500' : 'text-gray-500'}
                             valueColor={summary.returnsPending > 0 ? 'text-warning-600 dark:text-warning-400' : 'text-gray-900 dark:text-white'}
                         />
+                    </div>
+
+                    {/* All Periods Summary Grid */}
+                    <div className="mb-10">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="h-8 w-1 bg-brand-500 rounded-full" />
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                {t('finance.periodSummaries') || 'Period Summaries'}
+                            </h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {/* Today Summary */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-symbols-outlined text-brand-500">today</span>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                        {t('dashboard.period.daily') || 'Today'}
+                                    </h3>
+                                </div>
+                                {allPeriodData.daily ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.revenue')}
+                                                </p>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                    ${allPeriodData.daily.dailyRevenue.toFixed(0)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.netProfit')}
+                                                </p>
+                                                <p className={cn(
+                                                    'text-lg font-bold',
+                                                    allPeriodData.daily.netProfit >= 0
+                                                        ? 'text-success-600 dark:text-success-400'
+                                                        : 'text-error-600 dark:text-error-400'
+                                                )}>
+                                                    ${Math.abs(allPeriodData.daily.netProfit).toFixed(0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="animate-pulse space-y-3">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Week Summary */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-symbols-outlined text-brand-500">date_range</span>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                        {t('dashboard.period.weekly') || 'This Week'}
+                                    </h3>
+                                </div>
+                                {allPeriodData.weekly ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.revenue')}
+                                                </p>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                    ${allPeriodData.weekly.dailyRevenue.toFixed(0)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.netProfit')}
+                                                </p>
+                                                <p className={cn(
+                                                    'text-lg font-bold',
+                                                    allPeriodData.weekly.netProfit >= 0
+                                                        ? 'text-success-600 dark:text-success-400'
+                                                        : 'text-error-600 dark:text-error-400'
+                                                )}>
+                                                    ${Math.abs(allPeriodData.weekly.netProfit).toFixed(0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="animate-pulse space-y-3">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Month Summary */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-symbols-outlined text-brand-500">calendar_month</span>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                        {t('dashboard.period.monthly') || 'This Month'}
+                                    </h3>
+                                </div>
+                                {allPeriodData.monthly ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.revenue')}
+                                                </p>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                    ${allPeriodData.monthly.dailyRevenue.toFixed(0)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.netProfit')}
+                                                </p>
+                                                <p className={cn(
+                                                    'text-lg font-bold',
+                                                    allPeriodData.monthly.netProfit >= 0
+                                                        ? 'text-success-600 dark:text-success-400'
+                                                        : 'text-error-600 dark:text-error-400'
+                                                )}>
+                                                    ${Math.abs(allPeriodData.monthly.netProfit).toFixed(0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="animate-pulse space-y-3">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Year Summary */}
+                            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-symbols-outlined text-brand-500">event</span>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                        {t('dashboard.period.yearly') || 'This Year'}
+                                    </h3>
+                                </div>
+                                {allPeriodData.yearly ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.revenue')}
+                                                </p>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                    ${allPeriodData.yearly.dailyRevenue.toFixed(0)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {t('finance.netProfit')}
+                                                </p>
+                                                <p className={cn(
+                                                    'text-lg font-bold',
+                                                    allPeriodData.yearly.netProfit >= 0
+                                                        ? 'text-success-600 dark:text-success-400'
+                                                        : 'text-error-600 dark:text-error-400'
+                                                )}>
+                                                    ${Math.abs(allPeriodData.yearly.netProfit).toFixed(0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="animate-pulse space-y-3">
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </>
             ) : null}
