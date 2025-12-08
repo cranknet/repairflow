@@ -12,7 +12,11 @@ import { Bars3Icon } from '@heroicons/react/24/outline';
 /**
  * Top Header Component
  * 
- * Responsive top app bar with search, notifications, chat, and user actions.
+ * Modern, clean header with:
+ * - Sticky positioning
+ * - Contained width matching content
+ * - Subtle styling with refined shadows
+ * - Always-visible search bar
  */
 
 interface TopHeaderProps {
@@ -24,34 +28,40 @@ export function TopHeader({ onMobileMenuToggle }: TopHeaderProps) {
 
   return (
     <header
-      className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 transition-all shadow-theme-xs"
+      className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800"
       role="banner"
     >
-      <div className="flex items-center gap-2 sm:gap-4 h-16 px-3 sm:px-4">
-        {/* Hamburger Menu - Mobile only */}
-        <button
-          onClick={onMobileMenuToggle}
-          className="md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors"
-          aria-label={t('header.openMenu')}
-        >
-          <Bars3Icon className="h-6 w-6" />
-        </button>
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+        {/* Left side */}
+        <div className="flex items-center gap-3 flex-1">
+          {/* Hamburger Menu - Mobile only */}
+          <button
+            onClick={onMobileMenuToggle}
+            className="md:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-colors"
+            aria-label={t('header.openMenu')}
+          >
+            <Bars3Icon className="h-5 w-5" />
+          </button>
 
-        {/* Search Bar - Left aligned */}
-        <div className="flex-1 max-w-2xl">
-          <SearchBars />
+          {/* Search Bar - Always visible */}
+          <div className="flex-1 max-w-xl">
+            <SearchBars />
+          </div>
         </div>
 
-        {/* Spacer - hidden on mobile */}
-        <div className="hidden sm:flex flex-1" />
-
         {/* Right Side Actions */}
-        <div className="flex items-center gap-1 sm:gap-2" role="toolbar" aria-label={t('header.appActions')}>
+        <div className="flex items-center gap-1" role="toolbar" aria-label={t('header.appActions')}>
           <LanguageSwitcher />
-          <InboxIcon />
-          <ChatBell />
-          <NotificationsBell />
-          <div className="hidden sm:block h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1" aria-hidden="true" />
+
+          <div className="hidden sm:flex items-center gap-1">
+            <InboxIcon />
+            <ChatBell />
+            <NotificationsBell />
+          </div>
+
+          {/* Divider */}
+          <div className="hidden sm:block h-6 w-px bg-gray-200 dark:bg-gray-700 mx-2" aria-hidden="true" />
+
           <UserProfileDropdown />
         </div>
       </div>

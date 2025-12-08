@@ -4,8 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TailAdmin Pro Color System */
-:root {
+/* 
+ * TailAdmin Pro Color System
+ * 
+ * Default CSS variables defined here serve as fallbacks.
+ * Actual theme values are applied dynamically via JavaScript
+ * using the applyThemeToDocument() function from src/lib/themes.ts
+ * 
+ * Supported themes: light, dark, professional, vibrant, minimal
+ * Theme selection is persisted in localStorage and applied on page load.
+ */
+:root,
+[data-theme="light"] {
   /* Background & Foreground */
   --background: 210 20% 98%;
   --foreground: 220 26% 14%;
@@ -19,6 +29,12 @@
   /* TailAdmin Brand Teal */
   --primary: 173 80% 40%;
   --primary-foreground: 0 0% 100%;
+
+  /* Brand color shades (used by bg-brand-*, text-brand-* etc.) */
+  --brand-50: 173 80% 96%;
+  --brand-100: 173 65% 85%;
+  --brand-400: 173 80% 50%;
+  --brand-600: 173 80% 35%;
 
   /* Secondary */
   --secondary: 220 14% 96%;
@@ -61,7 +77,8 @@
   --shadow-focus: 0px 0px 0px 4px rgba(20, 184, 166, 0.12);
 }
 
-.dark {
+.dark,
+[data-theme="dark"] {
   /* Background & Foreground */
   --background: 222 47% 11%;
   --foreground: 210 40% 98%;
@@ -75,6 +92,12 @@
   /* TailAdmin Brand Teal (Dark) */
   --primary: 168 76% 50%;
   --primary-foreground: 222 47% 11%;
+
+  /* Brand color shades */
+  --brand-50: 168 76% 15%;
+  --brand-100: 168 65% 25%;
+  --brand-400: 168 76% 60%;
+  --brand-600: 168 76% 40%;
 
   /* Secondary */
   --secondary: 217 33% 17%;
@@ -112,6 +135,117 @@
   --shadow-lg: 0px 12px 16px -4px rgba(0, 0, 0, 0.2), 0px 4px 6px -2px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0px 20px 24px -4px rgba(0, 0, 0, 0.2), 0px 8px 8px -4px rgba(0, 0, 0, 0.1);
   --shadow-focus: 0px 0px 0px 4px rgba(45, 212, 191, 0.24);
+}
+
+/* Professional Theme - Corporate blue-slate */
+[data-theme="professional"] {
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --brand-50: 217 91% 96%;
+  --brand-100: 217 80% 88%;
+  --brand-400: 217 91% 70%;
+  --brand-600: 217 91% 50%;
+  --secondary: 214 32% 91%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 214 32% 91%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 214 95% 93%;
+  --accent-foreground: 217 91% 60%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 217 91% 60%;
+  --shadow-xs: 0px 1px 2px 0px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0px 1px 3px 0px rgba(15, 23, 42, 0.1), 0px 1px 2px 0px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0px 4px 8px -2px rgba(15, 23, 42, 0.1), 0px 2px 4px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0px 12px 16px -4px rgba(15, 23, 42, 0.08), 0px 4px 6px -2px rgba(15, 23, 42, 0.03);
+  --shadow-xl: 0px 20px 24px -4px rgba(15, 23, 42, 0.08), 0px 8px 8px -4px rgba(15, 23, 42, 0.03);
+  --shadow-focus: 0px 0px 0px 4px rgba(59, 130, 246, 0.15);
+}
+
+/* Vibrant Theme - Energetic orange/amber warm tones */
+[data-theme="vibrant"] {
+  --background: 40 33% 98%;
+  --foreground: 20 14% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14% 10%;
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --brand-50: 33 100% 96%;
+  --brand-100: 33 90% 88%;
+  --brand-400: 24 95% 63%;
+  --brand-600: 24 95% 43%;
+  --secondary: 33 100% 96%;
+  --secondary-foreground: 20 14% 10%;
+  --muted: 40 33% 96%;
+  --muted-foreground: 25 5% 45%;
+  --accent: 33 100% 96%;
+  --accent-foreground: 24 95% 53%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 100%;
+  --warning: 45 93% 47%;
+  --warning-foreground: 20 14% 10%;
+  --border: 40 20% 88%;
+  --input: 40 20% 88%;
+  --ring: 24 95% 53%;
+  --shadow-xs: 0px 1px 2px 0px rgba(120, 53, 15, 0.05);
+  --shadow-sm: 0px 1px 3px 0px rgba(120, 53, 15, 0.1), 0px 1px 2px 0px rgba(120, 53, 15, 0.06);
+  --shadow-md: 0px 4px 8px -2px rgba(120, 53, 15, 0.1), 0px 2px 4px -2px rgba(120, 53, 15, 0.06);
+  --shadow-lg: 0px 12px 16px -4px rgba(120, 53, 15, 0.08), 0px 4px 6px -2px rgba(120, 53, 15, 0.03);
+  --shadow-xl: 0px 20px 24px -4px rgba(120, 53, 15, 0.08), 0px 8px 8px -4px rgba(120, 53, 15, 0.03);
+  --shadow-focus: 0px 0px 0px 4px rgba(249, 115, 22, 0.15);
+}
+
+/* Minimal Theme - Ultra-clean zinc/neutral monochromatic */
+[data-theme="minimal"] {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 4%;
+  --primary: 240 6% 10%;
+  --primary-foreground: 0 0% 100%;
+  --brand-50: 240 5% 96%;
+  --brand-100: 240 5% 90%;
+  --brand-400: 240 6% 25%;
+  --brand-600: 240 6% 5%;
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 240 6% 10%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 240 6% 10%;
+  --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0px 1px 3px 0px rgba(0, 0, 0, 0.06), 0px 1px 2px 0px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0px 4px 8px -2px rgba(0, 0, 0, 0.06), 0px 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0px 12px 16px -4px rgba(0, 0, 0, 0.05), 0px 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-xl: 0px 20px 24px -4px rgba(0, 0, 0, 0.05), 0px 8px 8px -4px rgba(0, 0, 0, 0.02);
+  --shadow-focus: 0px 0px 0px 4px rgba(63, 63, 70, 0.1);
 }
 
 /* Base Styles */
@@ -186,6 +320,7 @@
 
 /* Utility Classes */
 @layer utilities {
+
   /* Text overflow utilities */
   .text-truncate {
     overflow: hidden;

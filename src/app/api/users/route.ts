@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { createNotification } from '@/lib/notifications';
+import { validatePassword } from '@/lib/settings';
 
 const createUserSchema = z.object({
   username: z.string().min(1),
   email: z.string().email().optional().or(z.literal('')),
-  password: z.string().min(10, 'Password must be at least 10 characters'),
+  password: z.string().min(1, 'Password is required'),
   name: z.string().optional(),
   role: z.enum(['ADMIN', 'STAFF']).default('STAFF'),
 });
@@ -51,6 +52,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const data = createUserSchema.parse(body);
+
+    // Validate password against security settings
+    const passwordValidation = await validatePassword(data.password);
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { error: 'Password validation failed', details: passwordValidation.errors },
+        { status: 400 }
+      );
+    }
 
     // Check if username already exists
     const existingUser = await prisma.user.findUnique({

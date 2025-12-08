@@ -10,6 +10,7 @@ import {
   getAllowedTransitionsForRole,
   type TicketStatusType
 } from '@/lib/ticket-lifecycle';
+import { getTicketSettings } from '@/lib/settings';
 
 // Schema for ticket updates – parts field removed
 const updateTicketSchema = z.object({
@@ -167,6 +168,19 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Status change handling
     if (data.status && data.status !== ticket.status) {
+      // Get ticket settings to check if notes are required
+      const ticketSettings = await getTicketSettings();
+
+      // Check if status notes are required (based on settings)
+      if (ticketSettings.requireStatusNotes) {
+        if (!data.statusNotes || data.statusNotes.trim() === '') {
+          return NextResponse.json(
+            { error: 'Notes are required when changing ticket status' },
+            { status: 400 }
+          );
+        }
+      }
+
       // Calculate payment status for transition validation
       const payments = await prisma.payment.findMany({
         where: { ticketId: id },

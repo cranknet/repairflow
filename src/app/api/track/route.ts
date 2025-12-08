@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getTrackingSettings } from '@/lib/settings';
 
 // Simple in-memory rate limiting (for production, use Redis or similar)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -46,25 +47,19 @@ function maskTrackingCode(code: string): string {
   return 'XXXX-' + code.slice(-4);
 }
 
-function maskEmail(email: string | null): string {
-  if (!email) return '';
-  const [local, domain] = email.split('@');
-  if (!local || !domain) return email;
-  const maskedLocal = local.slice(0, 1) + '***';
-  const maskedDomain = '***' + domain.slice(-4);
-  return `${maskedLocal}@${maskedDomain}`;
-}
-
-function maskName(name: string): string {
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) {
-    return parts[0].slice(0, 1) + '.';
-  }
-  return parts[0] + ' ' + parts[parts.length - 1].slice(0, 1) + '.';
-}
-
 export async function GET(request: NextRequest) {
   try {
+    // Get tracking settings first
+    const trackingSettings = await getTrackingSettings();
+
+    // Check if tracking is enabled
+    if (!trackingSettings.trackingEnabled) {
+      return NextResponse.json(
+        { error: 'Public tracking is not enabled' },
+        { status: 403 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const ticketNumber = searchParams.get('ticket');
     const trackingCode = searchParams.get('code');
@@ -72,16 +67,16 @@ export async function GET(request: NextRequest) {
     // Check rate limiting
     const clientId = getClientId(request);
     const rateLimit = checkRateLimit(clientId);
-    
+
     if (!rateLimit.allowed) {
       const remainingSeconds = Math.ceil((rateLimit.resetAt! - Date.now()) / 1000);
       return NextResponse.json(
-        { 
+        {
           error: 'Too many attempts. Please try again later.',
           rateLimitExceeded: true,
           retryAfter: remainingSeconds
         },
-        { 
+        {
           status: 429,
           headers: {
             'Retry-After': remainingSeconds.toString(),
@@ -119,6 +114,12 @@ export async function GET(request: NextRequest) {
             phone: true,
           },
         },
+        assignedTo: trackingSettings.showTechnicianOnTracking ? {
+          select: {
+            name: true,
+            username: true,
+          },
+        } : false,
         statusHistory: {
           orderBy: { createdAt: 'asc' }, // Chronological order for timeline
         },
@@ -130,7 +131,7 @@ export async function GET(request: NextRequest) {
       // Add small random delay to prevent timing attacks (100-300ms)
       const delay = 100 + Math.random() * 200;
       await new Promise(resolve => setTimeout(resolve, delay));
-      
+
       return NextResponse.json(
         { error: 'Unable to locate ticket. Please verify your information.' },
         { status: 404 }
@@ -142,9 +143,10 @@ export async function GET(request: NextRequest) {
     const currentIndex = statusOrder.indexOf(ticket.status);
     const progress = currentIndex >= 0 ? Math.round(((currentIndex + 1) / statusOrder.length) * 100) : 0;
 
-    // Calculate estimated completion (if not completed)
+    // Calculate estimated completion (if not completed) - only if setting allows
     let estimatedCompletion = null;
-    if (ticket.status !== 'COMPLETED' && ticket.status !== 'CANCELLED' && ticket.status !== 'RETURNED') {
+    if (trackingSettings.showEtaOnTracking &&
+      ticket.status !== 'COMPLETED' && ticket.status !== 'CANCELLED' && ticket.status !== 'RETURNED') {
       // Simple estimation: add average days based on status
       const avgDaysByStatus: Record<string, number> = {
         'RECEIVED': 2,
@@ -157,29 +159,34 @@ export async function GET(request: NextRequest) {
     }
 
     // Check for existing satisfaction rating for THIS specific ticket
-    const existingRating = await prisma.satisfactionRating.findFirst({
-      where: {
-        ticketId: ticket.id,
-        customerEmail: ticket.customer.email?.trim().toLowerCase() || '',
-      },
-      select: {
-        id: true,
-        rating: true,
-        comment: true,
-        phoneNumber: true,
-        verifiedBy: true,
-        createdAt: true,
-      },
-    });
+    let existingRating = null;
+    let canSubmitRating = false;
 
-    // Determine if customer can submit rating
-    // Can submit if: ticket is COMPLETED or REPAIRED, and no existing rating
-    const canSubmitRating = 
-      (ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') &&
-      !existingRating;
+    if (trackingSettings.satisfactionRatingEnabled) {
+      existingRating = await prisma.satisfactionRating.findFirst({
+        where: {
+          ticketId: ticket.id,
+          customerEmail: ticket.customer.email?.trim().toLowerCase() || '',
+        },
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          phoneNumber: true,
+          verifiedBy: true,
+          createdAt: true,
+        },
+      });
 
-    // Return limited, privacy-protected information for public tracking
-    return NextResponse.json({
+      // Determine if customer can submit rating
+      // Can submit if: ticket is COMPLETED or REPAIRED, and no existing rating
+      canSubmitRating =
+        (ticket.status === 'COMPLETED' || ticket.status === 'REPAIRED') &&
+        !existingRating;
+    }
+
+    // Build response based on settings
+    const response: Record<string, any> = {
       id: ticket.id,
       ticketNumber: ticket.ticketNumber,
       trackingCode: maskTrackingCode(ticket.trackingCode), // Masked for display
@@ -191,33 +198,69 @@ export async function GET(request: NextRequest) {
       deviceConditionFront: ticket.deviceConditionFront,
       deviceConditionBack: ticket.deviceConditionBack,
       priority: ticket.priority,
-      estimatedPrice: ticket.estimatedPrice,
-      finalPrice: ticket.finalPrice,
       createdAt: ticket.createdAt,
       completedAt: ticket.completedAt,
-      estimatedCompletion: estimatedCompletion?.toISOString() || null,
       warrantyDays: ticket.warrantyDays,
       warrantyText: ticket.warrantyText,
-      statusHistory: ticket.statusHistory.map(history => ({
-        id: history.id,
-        status: history.status,
-        notes: history.notes, // Filtered notes (public-safe)
-        createdAt: history.createdAt,
-      })),
       customer: {
         name: ticket.customer.name, // Unmasked since they authenticated with tracking code
         email: ticket.customer.email, // Unmasked since they authenticated with tracking code
-        phone: ticket.customer.phone || null,
+        phone: trackingSettings.showPhoneOnTracking ? ticket.customer.phone : null,
       },
-      satisfactionRating: existingRating || null,
+      // Settings-controlled fields
+      showContactForm: trackingSettings.showContactForm,
+      satisfactionRatingEnabled: trackingSettings.satisfactionRatingEnabled,
       canSubmitRating,
-    });
+      welcomeMessage: trackingSettings.trackingWelcomeMessage,
+      completionMessage: trackingSettings.trackingCompletionMessage,
+    };
+
+    // Conditionally include price information
+    if (trackingSettings.showPriceOnTracking) {
+      response.estimatedPrice = ticket.estimatedPrice;
+      response.finalPrice = ticket.finalPrice;
+    }
+
+    // Conditionally include notes in status history
+    if (trackingSettings.showNotesOnTracking) {
+      response.statusHistory = ticket.statusHistory.map(history => ({
+        id: history.id,
+        status: history.status,
+        notes: history.notes,
+        createdAt: history.createdAt,
+      }));
+    } else {
+      response.statusHistory = ticket.statusHistory.map(history => ({
+        id: history.id,
+        status: history.status,
+        createdAt: history.createdAt,
+      }));
+    }
+
+    // Conditionally include ETA
+    if (trackingSettings.showEtaOnTracking) {
+      response.estimatedCompletion = estimatedCompletion?.toISOString() || null;
+    }
+
+    // Conditionally include technician info
+    if (trackingSettings.showTechnicianOnTracking && ticket.assignedTo) {
+      response.assignedTo = {
+        name: ticket.assignedTo.name || ticket.assignedTo.username,
+      };
+    }
+
+    // Include satisfaction rating if enabled
+    if (trackingSettings.satisfactionRatingEnabled) {
+      response.satisfactionRating = existingRating || null;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching ticket:', error);
     // Add random delay even on errors
     const delay = 100 + Math.random() * 200;
     await new Promise(resolve => setTimeout(resolve, delay));
-    
+
     return NextResponse.json(
       { error: 'Unable to locate ticket. Please verify your information.' },
       { status: 500 }

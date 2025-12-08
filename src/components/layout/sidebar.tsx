@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -15,9 +15,11 @@ import { FEATURES } from '@/lib/features';
 /**
  * Navigation Sidebar Component
  * 
- * Responsive navigation with proper state layers,
- * active indicators, and accessibility features.
- * Fully responsive with mobile overlay and tablet auto-collapse.
+ * Modern, clean sidebar with:
+ * - Light background by default
+ * - Collapsible to icons-only (64px)
+ * - Hover tooltips when collapsed
+ * - Refined active state indicators
  */
 
 interface NavigationChild {
@@ -52,14 +54,13 @@ const navigationKeys: NavigationItem[] = [
     icon: 'confirmation_number',
     iconFilled: 'confirmation_number'
   },
-
   {
     key: 'finance',
     href: '/finance',
     icon: 'account_balance_wallet',
     iconFilled: 'account_balance_wallet',
     adminOnly: true,
-    requiresFeature: FEATURES.FINANCE_MODULE, // Feature flag
+    requiresFeature: FEATURES.FINANCE_MODULE,
     children: [
       {
         key: 'finance.payments',
@@ -79,7 +80,6 @@ const navigationKeys: NavigationItem[] = [
         icon: 'shopping_cart',
         iconFilled: 'shopping_cart'
       },
-
     ]
   },
   {
@@ -142,7 +142,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const { t } = useLanguage();
   const { companyLogo, companyName } = useSettings();
   const isFinanceModuleEnabled = useFeatureFlag(FEATURES.FINANCE_MODULE);
-  // Initialize collapsed state from localStorage
+
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
       const saved = localStorage.getItem('sidebar-collapsed');
@@ -156,18 +156,14 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
   const [isMounted, setIsMounted] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  // Detect screen size for auto-collapse behavior
   useEffect(() => {
     setIsMounted(true);
 
     const handleResize = () => {
       const width = window.innerWidth;
-
-      // On tablet and desktop (768px+), restore user preference if not already set
       if (width >= 768) {
         const saved = localStorage.getItem('sidebar-collapsed');
         if (saved !== null) {
-          // Only update if different to avoid loop
           const shouldBeCollapsed = JSON.parse(saved);
           setIsCollapsed((prev: boolean) => prev !== shouldBeCollapsed ? shouldBeCollapsed : prev);
         }
@@ -178,6 +174,17 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const filteredNavigation = useMemo(() => navigationKeys.filter((item) => {
+    if (item.adminOnly && session?.user?.role !== 'ADMIN') return false;
+    if ('roles' in item && Array.isArray(item.roles) && !item.roles.includes(session?.user?.role || '')) return false;
+    if ('requiresFeature' in item && item.requiresFeature) {
+      if (item.requiresFeature === FEATURES.FINANCE_MODULE || item.requiresFeature === 'finance_module') {
+        if (!isFinanceModuleEnabled) return false;
+      }
+    }
+    return true;
+  }), [session?.user?.role, isFinanceModuleEnabled]);
+
   // Auto-expand parent items when child route is active
   useEffect(() => {
     const activeParents = new Set<string>();
@@ -186,19 +193,15 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
         const hasActiveChild = item.children.some(
           (child) => pathname === child.href || pathname.startsWith(child.href + '/')
         );
-        if (hasActiveChild) {
-          activeParents.add(item.key);
-        }
+        if (hasActiveChild) activeParents.add(item.key);
       }
     });
     if (activeParents.size > 0) {
       setExpandedItems((prev) => new Set([...prev, ...activeParents]));
     }
-  }, [pathname]);
+  }, [pathname, filteredNavigation]);
 
-  // Save collapse state to localStorage (tablet/desktop)
   const toggleCollapse = () => {
-    // Only allow manual toggle on tablet/desktop
     if (window.innerWidth >= 768) {
       const newState = !isCollapsed;
       setIsCollapsed(newState);
@@ -206,37 +209,12 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     }
   };
 
-  // Close mobile menu when navigating
   const handleNavClick = () => {
     if (window.innerWidth < 768 && onMobileMenuClose) {
       onMobileMenuClose();
     }
   };
 
-  const filteredNavigation = navigationKeys.filter((item) => {
-    if (item.adminOnly && session?.user?.role !== 'ADMIN') {
-      return false;
-    }
-    if ('roles' in item && Array.isArray(item.roles) && !item.roles.includes(session?.user?.role || '')) {
-      return false;
-    }
-    // Check feature flag requirement
-    if ('requiresFeature' in item && item.requiresFeature) {
-      // For finance module, check the feature flag
-      if (
-        item.requiresFeature === FEATURES.FINANCE_MODULE ||
-        item.requiresFeature === 'finance_module' // Backward compatibility
-      ) {
-        if (!isFinanceModuleEnabled) {
-          return false;
-        }
-      }
-      // Future feature flags can be added here
-    }
-    return true;
-  });
-
-  // Toggle expand/collapse for items with children
   const toggleExpand = (key: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
@@ -251,32 +229,43 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
     });
   };
 
-  // Don't render until mounted to avoid hydration issues
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   const sidebarContent = (
     <div
       className={cn(
-        'flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full transition-all duration-300 flex-shrink-0',
-        // Mobile: full width when open, hidden when closed
-        'md:relative',
-        // Tablet/Desktop: responsive width
-        isCollapsed ? 'w-20' : 'w-72'
+        'flex flex-col h-full transition-all duration-300 flex-shrink-0',
+        // Light background with subtle right border
+        'bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800',
+        // Responsive width
+        isCollapsed ? 'w-16' : 'w-64'
       )}
     >
-      {/* Logo and Toggle */}
-      <div className="border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between px-4 h-16">
-          {!isCollapsed && (
+      {/* Logo Header */}
+      <div className="h-16 flex items-center border-b border-gray-100 dark:border-gray-800">
+        <div className={cn(
+          'flex items-center w-full',
+          isCollapsed ? 'justify-center px-2' : 'justify-between px-4'
+        )}>
+          {isCollapsed ? (
+            // Collapsed: Menu button to expand
+            <button
+              onClick={toggleCollapse}
+              className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-colors"
+              aria-label={t('sidebar.expand')}
+              title={t('sidebar.expand')}
+            >
+              <span className="material-symbols-outlined text-xl">menu</span>
+            </button>
+          ) : (
+            // Expanded: Full logo + name
             <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={handleNavClick}>
               {companyLogo ? (
                 <Image
                   src={companyLogo}
                   alt={t('sidebar.companyLogoAlt')}
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                   className="object-contain flex-shrink-0 rounded-lg"
                   unoptimized
                 />
@@ -284,104 +273,199 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                 <Image
                   src="/default-logo.png"
                   alt={t('sidebar.logoAlt')}
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                   className="object-contain flex-shrink-0 rounded-lg"
                   unoptimized
                 />
               )}
-              <span className="text-lg font-semibold text-gray-900 dark:text-white truncate">{companyName}</span>
+              <span className="text-base font-semibold text-gray-900 dark:text-white truncate">
+                {companyName}
+              </span>
             </Link>
           )}
-          {/* Only show toggle on tablet/desktop */}
-          <button
-            onClick={toggleCollapse}
-            className={cn(
-              'p-2 rounded-lg text-gray-500 dark:text-gray-400 transition-colors',
-              'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-              'hidden md:block',
-              isCollapsed && 'mx-auto'
-            )}
-            aria-label={t('sidebar.toggle')}
-            aria-expanded={!isCollapsed}
-          >
-            <span className="material-symbols-outlined text-2xl">
-              {isCollapsed ? 'menu_open' : 'menu'}
-            </span>
-          </button>
-          {/* Close button on mobile */}
+
+          {/* Toggle button - Desktop only, only when expanded */}
+          {!isCollapsed && (
+            <button
+              onClick={toggleCollapse}
+              className="hidden md:flex p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-colors items-center justify-center"
+              aria-label={t('sidebar.collapse')}
+            >
+              <span className="material-symbols-outlined text-lg">chevron_left</span>
+            </button>
+          )}
+
+          {/* Mobile close button */}
           <button
             onClick={onMobileMenuClose}
-            className={cn(
-              'p-2 rounded-lg text-gray-500 dark:text-gray-400 transition-colors',
-              'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-              'md:hidden'
-            )}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors md:hidden"
             aria-label={t('sidebar.close')}
           >
-            <span className="material-symbols-outlined text-2xl">close</span>
+            <span className="material-symbols-outlined text-xl">close</span>
           </button>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col gap-1 p-4" aria-label={t('sidebar.mainNavigation')}>
-        {filteredNavigation.map((item) => {
-          const hasChildren = item.children && item.children.length > 0;
-          const hasActiveChild = hasChildren
-            ? item.children!.some(
-              (child) => pathname === child.href || pathname.startsWith(child.href + '/')
-            )
-            : false;
-          const isActive =
-            pathname === item.href ||
-            pathname.startsWith(item.href + '/') ||
-            hasActiveChild;
-          const isExpanded = expandedItems.has(item.key) || hasActiveChild;
-          const translatedName = t(item.key);
+      <nav className="flex-1 overflow-y-auto py-4 px-2" aria-label={t('sidebar.mainNavigation')}>
+        <ul className="flex flex-col gap-1">
+          {filteredNavigation.map((item) => {
+            const hasChildren = item.children && item.children.length > 0;
+            const hasActiveChild = hasChildren
+              ? item.children!.some((child) => pathname === child.href || pathname.startsWith(child.href + '/'))
+              : false;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/') || hasActiveChild;
+            const isExpanded = expandedItems.has(item.key) || hasActiveChild;
+            const translatedName = t(item.key);
 
-          return (
-            <div key={item.key} className="flex flex-col gap-1">
-              {/* Parent item */}
-              {hasChildren ? (
-                <div
-                  className={cn(
-                    'relative flex items-center rounded-lg text-sm font-medium transition-colors group w-full',
-                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-500',
-                    'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'pr-1 hover:bg-gray-100 dark:hover:bg-white/5',
-                    isActive && !isCollapsed
-                      ? 'bg-brand-50 dark:bg-brand-500/[0.12]'
-                      : ''
-                  )}
-                  onMouseLeave={() => {
-                    // Reset hover state if needed
-                  }}
-                >
+            return (
+              <li key={item.key}>
+                {hasChildren ? (
+                  // Parent with children
+                  <div className="relative group">
+                    <div className={cn(
+                      'flex items-center rounded-lg transition-all duration-200',
+                      isCollapsed ? 'justify-center' : 'gap-3 px-3',
+                      isActive && !isCollapsed
+                        ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                    )}>
+                      <Link
+                        href={item.href}
+                        onClick={handleNavClick}
+                        className={cn(
+                          'flex items-center flex-1 py-2.5 rounded-lg transition-colors',
+                          isCollapsed ? 'justify-center w-12 h-12' : 'gap-3'
+                        )}
+                        title={isCollapsed ? translatedName : undefined}
+                      >
+                        {/* Active indicator */}
+                        {isActive && !isCollapsed && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+                        )}
+
+                        <span
+                          className={cn(
+                            'text-[22px] flex-shrink-0',
+                            isActive ? 'material-symbols-rounded' : 'material-symbols-outlined'
+                          )}
+                          style={{
+                            fontVariationSettings: isActive
+                              ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
+                              : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+                          }}
+                        >
+                          {isActive ? item.iconFilled : item.icon}
+                        </span>
+
+                        {!isCollapsed && (
+                          <span className="text-sm font-medium truncate">{translatedName}</span>
+                        )}
+                      </Link>
+
+                      {/* Expand toggle */}
+                      {!isCollapsed && (
+                        <button
+                          onClick={(e) => toggleExpand(item.key, e)}
+                          className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                          aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
+                        >
+                          <span className="material-symbols-outlined text-lg transition-transform duration-200">
+                            {isExpanded ? 'expand_less' : 'expand_more'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Collapsed hover menu */}
+                    {isCollapsed && (
+                      <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
+                        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-2 min-w-[180px]">
+                          <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            {translatedName}
+                          </div>
+                          {item.children!.map((child) => {
+                            const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
+                            return (
+                              <Link
+                                key={child.key}
+                                href={child.href}
+                                onClick={handleNavClick}
+                                className={cn(
+                                  'flex items-center gap-2 px-3 py-2 text-sm transition-colors',
+                                  isChildActive
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
+                                )}
+                              >
+                                <span className="material-symbols-outlined text-lg">{child.icon}</span>
+                                {t(child.key)}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expanded children */}
+                    {!isCollapsed && isExpanded && (
+                      <ul className="mt-1 ml-9 flex flex-col gap-0.5">
+                        {item.children!.map((child) => {
+                          const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
+                          return (
+                            <li key={child.key}>
+                              <Link
+                                href={child.href}
+                                onClick={handleNavClick}
+                                className={cn(
+                                  'relative flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors',
+                                  isChildActive
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                                )}
+                              >
+                                <span
+                                  className="material-symbols-outlined text-lg"
+                                  style={{
+                                    fontVariationSettings: isChildActive
+                                      ? "'FILL' 1, 'wght' 500"
+                                      : "'FILL' 0, 'wght' 400"
+                                  }}
+                                >
+                                  {isChildActive ? child.iconFilled : child.icon}
+                                </span>
+                                {t(child.key)}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  // Simple nav item
                   <Link
                     href={item.href}
                     onClick={handleNavClick}
                     className={cn(
-                      'flex flex-1 items-center gap-3 rounded-lg py-2.5 transition-colors',
-                      isCollapsed ? 'justify-center px-0 w-full h-full' : 'pl-3',
+                      'relative flex items-center rounded-lg transition-all duration-200 group',
+                      isCollapsed ? 'justify-center w-12 h-12 mx-auto' : 'gap-3 px-3 py-2.5',
                       isActive
-                        ? 'text-brand-500 dark:text-brand-400'
-                        : 'text-gray-700 dark:text-gray-300'
+                        ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                     )}
                     title={isCollapsed ? translatedName : undefined}
                   >
                     {/* Active indicator */}
                     {isActive && !isCollapsed && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                     )}
 
-                    {/* Icon */}
                     <span
                       className={cn(
-                        'text-2xl flex-shrink-0',
-                        isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
+                        'text-[22px] flex-shrink-0',
+                        isActive ? 'material-symbols-rounded' : 'material-symbols-outlined'
                       )}
                       style={{
                         fontVariationSettings: isActive
@@ -392,222 +476,58 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                       {isActive ? item.iconFilled : item.icon}
                     </span>
 
-                    {/* Label */}
                     {!isCollapsed && (
-                      <span className="flex-1 truncate text-left">
+                      <span className="text-sm font-medium truncate">{translatedName}</span>
+                    )}
+
+                    {/* Tooltip for collapsed */}
+                    {isCollapsed && (
+                      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
                         {translatedName}
-                      </span>
+                      </div>
                     )}
                   </Link>
-
-                  {/* Toggle Button */}
-                  {!isCollapsed && (
-                    <button
-                      onClick={(e) => toggleExpand(item.key, e)}
-                      className={cn(
-                        'p-1.5 rounded-md transition-colors mr-1',
-                        'hover:bg-black/5 dark:hover:bg-white/10',
-                        isActive ? 'text-brand-500 dark:text-brand-400' : 'text-gray-500 dark:text-gray-400'
-                      )}
-                      aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
-                      aria-expanded={isExpanded}
-                    >
-                      <span className="material-symbols-outlined text-xl transition-transform duration-200">
-                        {isExpanded ? 'expand_more' : 'chevron_right'}
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Collapsed Hover Menu */}
-                  {isCollapsed && (
-                    <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-[60]">
-                      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl py-2 min-w-[200px] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-                        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-1 font-semibold text-gray-900 dark:text-white">
-                          {translatedName}
-                        </div>
-                        {item.children!.map((child) => {
-                          const isChildActive =
-                            pathname === child.href || pathname.startsWith(child.href + '/');
-                          return (
-                            <Link
-                              key={child.key}
-                              href={child.href}
-                              className={cn(
-                                'flex items-center gap-3 px-4 py-2 text-sm transition-colors',
-                                isChildActive
-                                  ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
-                                  : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  'material-symbols-outlined text-xl',
-                                  isChildActive && 'material-symbols-rounded font-bold'
-                                )}
-                              >
-                                {isChildActive ? child.iconFilled : child.icon}
-                              </span>
-                              <span>{t(child.key)}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  href={item.href}
-                  onClick={handleNavClick}
-                  className={cn(
-                    'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-                    'min-h-[44px]',
-                    isCollapsed ? 'justify-center h-14 w-14 mx-auto' : 'px-3 py-2.5',
-                    isActive
-                      ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
-                  )}
-                  title={isCollapsed ? translatedName : undefined}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {/* Active indicator */}
-                  {isActive && !isCollapsed && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full" />
-                  )}
-
-                  {/* Icon */}
-                  <span
-                    className={cn(
-                      'text-2xl flex-shrink-0',
-                      isActive ? 'material-symbols-rounded font-bold' : 'material-symbols-outlined'
-                    )}
-                    style={{
-                      fontVariationSettings: isActive
-                        ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                        : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                    }}
-                  >
-                    {isActive ? item.iconFilled : item.icon}
-                  </span>
-
-                  {/* Label */}
-                  {!isCollapsed && (
-                    <span className="flex-1 truncate">
-                      {translatedName}
-                    </span>
-                  )}
-
-                  {/* State layer for hover/press */}
-
-                </Link>
-              )}
-
-              {/* Children items */}
-              {hasChildren && isExpanded && !isCollapsed && (
-                <div
-                  id={`nav-children-${item.key}`}
-                  className="flex flex-col gap-1 pl-12"
-                  role="group"
-                  aria-label={`${translatedName} submenu`}
-                >
-                  {item.children!.map((child) => {
-                    const isChildActive =
-                      pathname === child.href || pathname.startsWith(child.href + '/');
-                    const translatedChildName = t(child.key);
-
-                    return (
-                      <Link
-                        key={child.key}
-                        href={child.href}
-                        onClick={handleNavClick}
-                        className={cn(
-                          'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors group overflow-hidden',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-                          'min-h-[40px] px-3 py-2',
-                          isChildActive
-                            ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
-                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
-                        )}
-                        aria-current={isChildActive ? 'page' : undefined}
-                      >
-                        {/* Active indicator */}
-                        {isChildActive && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full" />
-                        )}
-
-                        {/* Icon */}
-                        <span
-                          className={cn(
-                            'text-xl flex-shrink-0',
-                            isChildActive
-                              ? 'material-symbols-rounded font-bold'
-                              : 'material-symbols-outlined'
-                          )}
-                          style={{
-                            fontVariationSettings: isChildActive
-                              ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                              : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                          }}
-                        >
-                          {isChildActive ? child.iconFilled : child.icon}
-                        </span>
-
-                        {/* Label */}
-                        <span className="flex-1 truncate">{translatedChildName}</span>
-
-                        {/* State layer for hover/press */}
-
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
-      {/* Version Info */}
-      {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800">
+      {/* Footer */}
+      <div className={cn(
+        'border-t border-gray-100 dark:border-gray-800',
+        isCollapsed ? 'p-2' : 'px-4 py-3'
+      )}>
+        {isCollapsed ? (
+          <div className="flex justify-center">
+            <div className="h-2 w-2 rounded-full bg-primary" title={t('sidebar.appActive')} />
+          </div>
+        ) : (
           <AppVersion />
-        </div>
-      )}
-
-      {/* Collapsed version indicator */}
-      {isCollapsed && (
-        <div className="px-2 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-center">
-          <div className="h-2 w-2 rounded-full bg-brand-500" title={t('sidebar.appActive')} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 
   return (
     <>
-      {/* Mobile: Overlay sidebar */}
-      <div className={cn(
-        'fixed inset-0 z-50 md:hidden',
-        mobileMenuOpen ? 'block' : 'hidden'
-      )}>
-        {/* Backdrop */}
+      {/* Mobile overlay */}
+      <div className={cn('fixed inset-0 z-50 md:hidden', mobileMenuOpen ? 'block' : 'hidden')}>
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onMobileMenuClose}
           aria-hidden="true"
         />
-
-        {/* Sidebar */}
         <div className={cn(
-          'absolute left-0 top-0 bottom-0 w-72 transform transition-transform duration-300',
+          'absolute left-0 top-0 bottom-0 w-64 transform transition-transform duration-300',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}>
           {sidebarContent}
         </div>
       </div>
 
-      {/* Tablet/Desktop: Normal sidebar */}
+      {/* Desktop sidebar */}
       <div className="hidden md:block">
         {sidebarContent}
       </div>

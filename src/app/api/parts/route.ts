@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { getInventorySettings } from '@/lib/settings';
 
 const createPartSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   sku: z.string().min(1, 'SKU is required'),
   description: z.string().optional(),
   quantity: z.number().int().min(0).default(0),
-  reorderLevel: z.number().int().min(0).default(5),
+  reorderLevel: z.number().int().min(0).optional(),
   unitPrice: z.number().min(0).default(0),
   supplierId: z.string().optional(),
   supplier: z.string().optional(), // Supplier name as fallback
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
     const supplierId = searchParams.get('supplierId');
 
     const where: any = {};
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search } },
@@ -71,6 +72,19 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const data = createPartSchema.parse(body);
+
+    // Get inventory settings
+    const inventorySettings = await getInventorySettings();
+
+    // Check if supplier is required
+    if (inventorySettings.requireSupplier) {
+      if (!data.supplierId && !data.supplier) {
+        return NextResponse.json(
+          { error: 'Supplier is required for all parts' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Handle supplier: if supplierId provided, use it; if supplier name provided, find or create
     let supplierId: string | undefined = data.supplierId;
@@ -121,17 +135,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use default reorder level from settings if not provided
+    const reorderLevel = data.reorderLevel ?? inventorySettings.defaultReorderLevel;
+
     // Create part
     const createData: any = {
       name: data.name,
       sku: data.sku,
       description: data.description,
       quantity: data.quantity,
-      reorderLevel: data.reorderLevel,
+      reorderLevel,
       unitPrice: data.unitPrice,
       supplierId: supplierId || undefined,
     };
-    
+
     // Set supplierName for backwards compatibility (mapped from "supplier" column)
     if (supplierName) {
       createData.supplierName = supplierName;

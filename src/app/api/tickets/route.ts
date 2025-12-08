@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { emitEvent } from '@/lib/events/emitter';
-import { shouldAutoMarkTicketsAsPaid } from '@/lib/settings';
+import { getTicketSettings, getWarrantySettings } from '@/lib/settings';
 
 const createTicketSchema = z.object({
   customerId: z.string(),
@@ -13,8 +13,8 @@ const createTicketSchema = z.object({
   deviceIssue: z.string().min(1),
   deviceConditionFront: z.string().optional(),
   deviceConditionBack: z.string().optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
-  estimatedPrice: z.number().min(0),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  estimatedPrice: z.number().min(0).optional(),
   assignedToId: z.string().optional(),
   warrantyDays: z.number().int().min(0).optional(),
   warrantyText: z.string().optional(),
@@ -79,20 +79,60 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createTicketSchema.parse(body);
 
-    // Generate unique ticket number and tracking code
-    const ticketNumber = `TKT-${Date.now()}`;
+    // Get settings for ticket creation
+    const [ticketSettings, warrantySettings] = await Promise.all([
+      getTicketSettings(),
+      getWarrantySettings(),
+    ]);
+
+    // Validate required device photos if setting is enabled
+    if (ticketSettings.requireDevicePhotos) {
+      if (!data.deviceConditionFront || !data.deviceConditionBack) {
+        return NextResponse.json(
+          { error: 'Device photos (front and back) are required' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate estimated price if setting is enabled
+    if (ticketSettings.requireEstimatedPrice) {
+      if (data.estimatedPrice === undefined || data.estimatedPrice <= 0) {
+        return NextResponse.json(
+          { error: 'Estimated price is required and must be greater than 0' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Generate unique ticket number with prefix from settings
+    const prefix = ticketSettings.ticketNumberPrefix || 'T';
+    const ticketNumber = `${prefix}-${Date.now()}`;
     const trackingCode = nanoid(8).toUpperCase();
 
-    // Check if tickets should be automatically marked as paid
-    const autoMarkAsPaid = await shouldAutoMarkTicketsAsPaid();
+    // Apply defaults from settings
+    const priority = data.priority || ticketSettings.defaultPriority || 'MEDIUM';
+    const warrantyDays = data.warrantyDays ?? warrantySettings.defaultWarrantyDays;
+    const warrantyText = data.warrantyText || warrantySettings.defaultWarrantyText;
 
     const ticket = await prisma.ticket.create({
       data: {
-        ...data,
+        customerId: data.customerId,
+        deviceBrand: data.deviceBrand,
+        deviceModel: data.deviceModel,
+        deviceIssue: data.deviceIssue,
+        deviceConditionFront: data.deviceConditionFront,
+        deviceConditionBack: data.deviceConditionBack,
+        priority,
+        estimatedPrice: data.estimatedPrice ?? 0,
+        assignedToId: data.assignedToId,
+        warrantyDays,
+        warrantyText,
+        notes: data.notes,
         ticketNumber,
         trackingCode,
         status: 'RECEIVED',
-        paid: autoMarkAsPaid,
+        paid: ticketSettings.autoMarkAsPaid,
         statusHistory: {
           create: {
             status: 'RECEIVED',
@@ -146,4 +186,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
 

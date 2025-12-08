@@ -6,10 +6,12 @@ import { TopHeader } from './top-header';
 import { useSession } from 'next-auth/react';
 
 /**
- * Material Design 3 Main Layout Component
+ * Main Layout Component
  * 
- * Implements MD3 layout patterns with proper surface hierarchy,
- * elevation, and responsive behavior.
+ * Clean, modern layout with:
+ * - Light sidebar on left
+ * - Sticky header above content
+ * - Proper spacing and overflow handling
  */
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
@@ -23,23 +25,17 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     } else {
       document.body.style.overflow = '';
     }
-
     return () => {
       document.body.style.overflow = '';
     };
   }, [mobileMenuOpen]);
 
-  const handleMobileMenuToggle = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMenuOpen(false);
-  };
+  const handleMobileMenuToggle = () => setMobileMenuOpen(!mobileMenuOpen);
+  const handleMobileMenuClose = () => setMobileMenuOpen(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar - Navigation Rail/Drawer */}
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      {/* Sidebar */}
       {session && (
         <Sidebar
           mobileMenuOpen={mobileMenuOpen}
@@ -48,21 +44,19 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Top Header - App Bar */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        {/* Top Header */}
         {session && (
-          <TopHeader
-            onMobileMenuToggle={handleMobileMenuToggle}
-          />
+          <TopHeader onMobileMenuToggle={handleMobileMenuToggle} />
         )}
 
-        {/* Main Content - Scrollable area */}
+        {/* Scrollable Content */}
         <main
-          className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-4 sm:p-6"
+          className="flex-1 overflow-y-auto"
           style={{ scrollbarGutter: 'stable' }}
           role="main"
         >
-          <div className="h-full">
+          <div className="p-4 sm:p-6">
             {children}
           </div>
         </main>

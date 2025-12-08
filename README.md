@@ -266,6 +266,15 @@ The app uses Prisma ORM. To modify the schema:
 Access settings via the Settings page (Admin only):
 - **General Settings**: Company information (name, email, phone, address, currency, country)
 - **Appearance**: Theme customization and color preferences
+- **Theme System**: Choose from 5 built-in themes:
+  - **Light**: Clean white/teal interface (default)
+  - **Dark**: Easy on the eyes for low light
+  - **Professional**: Corporate blue-slate theme
+  - **Vibrant**: Energetic orange/amber warm tones
+  - **Minimal**: Ultra-clean monochromatic
+  - **System**: Automatically follows your device's light/dark preference
+  
+  Themes are persisted in localStorage and applied instantly. Theme selection is available in **Settings → Appearance**.
 - **Branding**: Custom logo, favicon, and login background image uploads
 - **Social Media**: Facebook, YouTube, and Instagram links for public tracking page
 - **SMS Templates**: Create and manage SMS templates in multiple languages
