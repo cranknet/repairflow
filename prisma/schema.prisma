@@ -113,15 +113,18 @@ model TicketPart {
 }
 
 model TicketPriceAdjustment {
-  id        String   @id @default(cuid())
-  ticketId  String
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  oldPrice  Float
-  newPrice  Float
-  reason    String
-  createdAt DateTime @default(now())
+  id                 String    @id @default(cuid())
+  ticketId           String
+  ticket             Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  oldPrice           Float
+  newPrice           Float
+  reason             String
+  createdAt          DateTime  @default(now())
+  
+  // Link to the automatically created adjustment payment
+  adjustmentPayments Payment[]
 }
 
 model Part {
@@ -156,6 +159,25 @@ model Supplier {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   parts       Part[]
+  receiptScans ReceiptScan[]
+}
+
+// Track scanned receipts for duplicate detection
+model ReceiptScan {
+  id            String    @id @default(cuid())
+  invoiceNumber String?
+  supplierId    String?
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+  contentHash   String    // Hash of parts for fingerprinting
+  partsCount    Int
+  total         Float?
+  date          String?
+  scannedAt     DateTime  @default(now())
+  scannedById   String
+  
+  @@index([invoiceNumber])
+  @@index([contentHash])
+  @@index([supplierId])
 }
 
 model NotificationPreference {
@@ -276,11 +298,18 @@ model Payment {
   method          String   @default("CASH") // cash, card, mobile, other
   currency        String?  // Currency code (from settings), nullable for backward compatibility
   reference       String?  // Optional transaction ID
-  reason          String?  // Required when amount differs from outstanding
+  reason          String?  // Required when amount differs from outstanding or for adjustments
   metadata        String?  // JSON metadata (receipt number, gateway response, etc.)
   performedBy     String
   performedByUser User     @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
   createdAt       DateTime @default(now())
+  
+  // Price adjustment tracking
+  isAdjustment      Boolean @default(false) // True if this is a price adjustment payment
+  adjustmentType    String? // "PRICE_INCREASE", "PRICE_DECREASE", "CORRECTION"
+  originalPaymentId String? // Link to the original payment being adjusted
+  priceAdjustmentId String? // Link to the TicketPriceAdjustment record
+  priceAdjustment   TicketPriceAdjustment? @relation(fields: [priceAdjustmentId], references: [id], onDelete: SetNull)
   
   // Relation for refund payments
   refundReturns   Return[] @relation("ReturnRefundPayment")
@@ -289,6 +318,8 @@ model Payment {
   @@index([performedBy])
   @@index([createdAt])
   @@index([paymentNumber])
+  @@index([isAdjustment])
+  @@index([originalPaymentId])
 }
 
 model ContactMessage {

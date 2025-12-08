@@ -337,6 +337,73 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             },
           };
 
+          // Check if ticket has been paid - if so, create an adjustment payment
+          const existingPayments = await prisma.payment.findMany({
+            where: { ticketId: ticket.id },
+            orderBy: { createdAt: 'desc' },
+          });
+
+          const totalPaid = existingPayments.reduce((sum, p) => sum + p.amount, 0);
+          const hasPaidPayments = totalPaid > 0;
+
+          // If ticket has payments and price is being adjusted (not initial setting),
+          // create an adjustment payment record
+          if (hasPaidPayments && !isInitialPriceSetting) {
+            const priceDifference = newFinalPrice - currentFinalPrice;
+
+            // Generate payment number
+            const today = new Date();
+            const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+            const existingPaymentsToday = await prisma.payment.count({
+              where: {
+                paymentNumber: {
+                  startsWith: `PAY-${dateStr}`,
+                },
+              },
+            });
+            const sequenceNumber = (existingPaymentsToday + 1).toString().padStart(4, '0');
+            const paymentNumber = `PAY-${dateStr}-${sequenceNumber}`;
+
+            // Determine adjustment type
+            const adjustmentType = priceDifference > 0
+              ? 'PRICE_INCREASE'
+              : priceDifference < 0
+                ? 'PRICE_DECREASE'
+                : 'CORRECTION';
+
+            // Find the most recent non-adjustment payment as the "original"
+            const originalPayment = existingPayments.find(p => !p.isAdjustment);
+
+            // Create adjustment payment linked to the price adjustment
+            await prisma.payment.create({
+              data: {
+                paymentNumber,
+                ticketId: ticket.id,
+                amount: priceDifference, // Can be positive or negative
+                method: originalPayment?.method || 'CASH',
+                currency: originalPayment?.currency,
+                performedBy: session.user.id,
+                reason: `Price Adjustment: ${adjustmentReason}`,
+                isAdjustment: true,
+                adjustmentType,
+                originalPaymentId: originalPayment?.id,
+                metadata: JSON.stringify({
+                  autoCreated: true,
+                  oldPrice: currentFinalPrice,
+                  newPrice: newFinalPrice,
+                  priceDifference,
+                }),
+              },
+            });
+
+            // If this is a price decrease (customer gets credit), mark ticket as not fully paid
+            if (priceDifference < 0 && ticket.paid) {
+              updateData.paid = false;
+            }
+
+            console.log(`Created adjustment payment: ${priceDifference > 0 ? '+' : ''}${priceDifference.toFixed(2)} for ticket ${ticket.ticketNumber}`);
+          }
+
           // Emit charge.added event for price adjustment
           emitEvent({
             eventId: nanoid(),

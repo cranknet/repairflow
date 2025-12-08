@@ -39,6 +39,7 @@ import { SMSTemplatesManager } from './sms-templates-manager';
 import { ThemeCustomizer } from './theme-customizer';
 import { NotificationPreferences } from './notification-preferences';
 import { EmailSettingsTab } from './email-settings-tab';
+import { AIVisionSettingsTab } from './AIVisionSettingsTab';
 
 export function SettingsClient({
   initialSettings,
@@ -67,6 +68,7 @@ export function SettingsClient({
     { id: 'notifications', label: t('notifications') || 'Notifications', icon: SETTINGS_ICONS.notifications },
     { id: 'tracking', label: t('settings.tracking') || 'Public Tracking', icon: SETTINGS_ICONS.tracking },
     { id: 'security', label: t('settings.security') || 'Security', icon: SETTINGS_ICONS.security },
+    { id: 'ai_vision', label: t('settings.aiVision') || 'AI Vision', icon: SETTINGS_ICONS.ai_vision },
     { id: 'appearance', label: t('appearance'), icon: SETTINGS_ICONS.appearance },
     { id: 'permissions', label: t('settings.permissions') || 'Permissions', icon: SETTINGS_ICONS.permissions, adminOnly: true },
     { id: 'database', label: t('settings.database') || 'Database', icon: SETTINGS_ICONS.database, adminOnly: true },
@@ -564,6 +566,9 @@ export function SettingsClient({
             <ThemeCustomizer />
           </div>
         )}
+
+        {/* AI Vision */}
+        {activeTab === 'ai_vision' && <AIVisionSettingsTab />}
 
         {/* User Management */}
         {activeTab === 'users' && (

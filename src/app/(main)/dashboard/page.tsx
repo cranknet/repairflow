@@ -4,10 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SalesChart } from '@/components/dashboard/sales-chart';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { DashboardTicketTable } from '@/components/dashboard/dashboard-ticket-table';
-import { DashboardTicketHeader } from '@/components/dashboard/dashboard-ticket-header';
 import { QuickActionsBar } from '@/components/dashboard/quick-actions-bar';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
+import { TicketsSection } from '@/components/dashboard/tickets-section';
 import { format } from 'date-fns';
 
 export default async function DashboardPage() {
@@ -313,14 +312,7 @@ export default async function DashboardPage() {
       />
 
       {/* Recent Tickets - Full Width */}
-      <Card>
-        <CardHeader>
-          <DashboardTicketHeader />
-        </CardHeader>
-        <CardContent>
-          <DashboardTicketTable tickets={serializedRecentTickets} />
-        </CardContent>
-      </Card>
+      <TicketsSection tickets={serializedRecentTickets} />
     </div>
   );
 }
