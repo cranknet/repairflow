@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { GlobeAltIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/language-context';
-import { languages, Language } from '@/lib/i18n';
+import { languages, Language } from '@/lib/i18n-config';
 
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
@@ -41,9 +41,8 @@ export function LanguageSwitcher() {
         <GlobeAltIcon className="h-5 w-5" />
         <span className="text-sm font-medium">{currentLang.flag}</span>
         <ChevronDownIcon
-          className={`h-4 w-4 text-gray-600 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`}
+          className={`h-4 w-4 text-gray-600 transition-transform ${isOpen ? 'rotate-180' : ''
+            }`}
         />
       </button>
 
@@ -59,11 +58,10 @@ export function LanguageSwitcher() {
                 key={lang.code}
                 type="button"
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center gap-3 ${
-                  language === lang.code
+                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center gap-3 ${language === lang.code
                     ? 'bg-blue-50 text-blue-600 font-medium'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 <span className="text-lg">{lang.flag}</span>
                 <span className="flex-1">{lang.name}</span>

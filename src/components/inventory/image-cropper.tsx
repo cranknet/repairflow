@@ -253,22 +253,22 @@ export function ImageCropper({ imageData, onCrop, onCancel }: ImageCropperProps)
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <span className="material-symbols-outlined text-blue-500">crop</span>
-                    <span>Select parts area</span>
+                    <span>{t('receiptScanner.cropTitle') || 'Select parts area'}</span>
                 </div>
                 <button
                     onClick={() => setShowTips(!showTips)}
                     className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1"
                 >
                     <span className="material-symbols-outlined text-sm">help</span>
-                    {showTips ? 'Hide tips' : 'Tips'}
+                    {showTips ? (t('hideTips') || 'Hide tips') : (t('tips') || 'Tips')}
                 </button>
             </div>
 
             {/* Collapsible tips */}
             {showTips && (
                 <div className="text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-gray-600 dark:text-gray-400 space-y-1">
-                    <p>✓ <span className="text-green-600">Include:</span> Part names, quantities, prices</p>
-                    <p>✗ <span className="text-red-500">Exclude:</span> Headers, footers, payment info</p>
+                    <p>✓ <span className="text-green-600">{t('include') || 'Include'}:</span> {t('receiptScanner.cropInclude') || 'Part names, quantities, prices'}</p>
+                    <p>✗ <span className="text-red-500">{t('exclude') || 'Exclude'}:</span> {t('receiptScanner.cropExclude') || 'Headers, footers, payment info'}</p>
                 </div>
             )}
 
@@ -370,7 +370,7 @@ export function ImageCropper({ imageData, onCrop, onCancel }: ImageCropperProps)
             <div className="flex gap-2">
                 <Button onClick={performCrop} className="flex-1 h-10">
                     <span className="material-symbols-outlined text-lg mr-1.5">check</span>
-                    Crop & Scan
+                    {t('receiptScanner.cropAndScan') || 'Crop & Scan'}
                 </Button>
                 <Button variant="outline" onClick={() => onCrop(imageData)} className="h-10 px-4">
                     <span className="material-symbols-outlined text-lg">fullscreen</span>

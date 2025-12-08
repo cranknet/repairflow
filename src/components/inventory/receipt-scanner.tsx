@@ -234,13 +234,13 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
 
     // Perform Tesseract OCR in browser
     const performTesseractOCR = async (imageData: string): Promise<string> => {
-        setLoadingMessage('Loading OCR engine...');
+        setLoadingMessage(t('receiptScanner.loadingOcr') || 'Loading OCR engine...');
         setOcrProgress(0);
 
         // Dynamic import of Tesseract.js
         const Tesseract = await import('tesseract.js');
 
-        setLoadingMessage('Extracting text from image...');
+        setLoadingMessage(t('receiptScanner.extractingText') || 'Extracting text from image...');
 
         const result = await Tesseract.recognize(
             imageData,
@@ -277,24 +277,24 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
 
             // For Tesseract mode, do OCR in browser first
             if (scanMode === 'tesseract') {
-                setLoadingMessage('Running local OCR...');
+                setLoadingMessage(t('receiptScanner.runningLocalOcr') || 'Running local OCR...');
                 ocrText = await performTesseractOCR(imageData);
 
                 if (!ocrText.trim()) {
-                    setError({ message: 'Could not extract text from image. Please try a clearer photo.', retryable: true });
+                    setError({ message: t('receiptScanner.ocrFailed') || 'Could not extract text from image. Please try a clearer photo.', retryable: true });
                     setIsLoading(false);
                     return;
                 }
 
                 // Check if online for AI parsing
                 if (!isOnline) {
-                    setError({ message: 'Internet required to parse extracted text', retryable: true });
+                    setError({ message: t('receiptScanner.internetForParsing') || 'Internet required to parse extracted text', retryable: true });
                     setIsLoading(false);
                     return;
                 }
             }
 
-            setLoadingMessage('Analyzing receipt with AI...');
+            setLoadingMessage(t('receiptScanner.analyzing') || 'Analyzing receipt with AI...');
 
             // Build request body
             const requestBody: any = {
@@ -320,7 +320,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
 
             if (!response.ok) {
                 setError({
-                    message: data.error || 'Failed to process receipt',
+                    message: data.error || t('receiptScanner.processFailed') || 'Failed to process receipt',
                     retryable: data.retryable ?? true
                 });
                 return;
@@ -424,7 +424,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
 
             toast({
                 title: t('success'),
-                description: `${data.updated} parts updated, ${data.created} new parts created`,
+                description: t('receiptScanner.successMessage', { updated: data.updated, created: data.created }) || `${data.updated} parts updated, ${data.created} new parts created`,
             });
 
             // Reset state
@@ -435,7 +435,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
         } catch (err: any) {
             toast({
                 title: t('error'),
-                description: err.message || 'Failed to add parts to inventory',
+                description: err.message || t('receiptScanner.addFailed') || 'Failed to add parts to inventory',
                 variant: 'destructive',
             });
         } finally {
@@ -460,9 +460,9 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
 
     const getModeLabel = () => {
         switch (scanMode) {
-            case 'tesseract': return '🆓 Free (Tesseract)';
-            case 'ocrspace': return '☁️ OCR.space';
-            case 'vision': return '🔮 AI Vision';
+            case 'tesseract': return t('receiptScanner.mode.tesseract') || '🆓 Free (Tesseract)';
+            case 'ocrspace': return t('receiptScanner.mode.ocrspace') || '☁️ OCR.space';
+            case 'vision': return t('receiptScanner.mode.vision') || '🔮 AI Vision';
             default: return scanMode;
         }
     };
@@ -618,18 +618,18 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                     >
                                         {scanResult.supplier?.name && (
                                             <option value="extracted">
-                                                {scanResult.supplier.name} (detected)
+                                                {scanResult.supplier.name} ({t('receiptScanner.detected') || 'detected'})
                                             </option>
                                         )}
-                                        <option value="">No supplier</option>
+                                        <option value="">{t('receiptScanner.noSupplier') || 'No supplier'}</option>
                                         {suppliers.length > 0 && (
-                                            <optgroup label="Existing Suppliers">
+                                            <optgroup label={t('receiptScanner.existingSuppliers') || 'Existing Suppliers'}>
                                                 {suppliers.map(s => (
                                                     <option key={s.id} value={s.id}>{s.name}</option>
                                                 ))}
                                             </optgroup>
                                         )}
-                                        <option value="new">+ Add new supplier...</option>
+                                        <option value="new">{t('receiptScanner.addNewSupplier') || '+ Add new supplier...'}</option>
                                     </select>
                                 ) : (
                                     <div className="flex-1 flex gap-2">
@@ -637,7 +637,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                             type="text"
                                             value={newSupplierName}
                                             onChange={(e) => setNewSupplierName(e.target.value)}
-                                            placeholder="Supplier name"
+                                            placeholder={t('receiptScanner.supplierNamePlaceholder') || 'Supplier name'}
                                             className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                                             autoFocus
                                         />
@@ -657,9 +657,9 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                             {/* Invoice details row */}
                             {(scanResult.invoiceNumber || scanResult.date || scanResult.total) && (
                                 <div className="flex flex-wrap gap-3 text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                    {scanResult.invoiceNumber && <span>Invoice: {scanResult.invoiceNumber}</span>}
-                                    {scanResult.date && <span>Date: {scanResult.date}</span>}
-                                    {scanResult.total && <span>Total: ${scanResult.total.toFixed(2)}</span>}
+                                    {scanResult.invoiceNumber && <span>{t('receiptScanner.invoice') || 'Invoice'}: {scanResult.invoiceNumber}</span>}
+                                    {scanResult.date && <span>{t('receiptScanner.date') || 'Date'}: {scanResult.date}</span>}
+                                    {scanResult.total && <span>{t('receiptScanner.total') || 'Total'}: ${scanResult.total.toFixed(2)}</span>}
                                 </div>
                             )}
                         </div>
@@ -737,10 +737,10 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                         {/* Summary */}
                         <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>
-                                {scanResult.matched.length} matched, {scanResult.unmatched.length} new parts
+                                {scanResult.matched.length} {t('receiptScanner.matched') || 'matched'}, {scanResult.unmatched.length} {t('receiptScanner.newParts') || 'new parts'}
                             </span>
                             <span className="font-medium">
-                                Total: ${editableParts.reduce((sum, p) => sum + (p.quantity * p.unitPrice), 0).toFixed(2)}
+                                {t('receiptScanner.total') || 'Total'}: ${editableParts.reduce((sum, p) => sum + (p.quantity * p.unitPrice), 0).toFixed(2)}
                             </span>
                         </div>
 
@@ -751,7 +751,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                     <span className="material-symbols-outlined text-amber-500 text-xl">warning</span>
                                     <div className="flex-1">
                                         <p className="font-medium text-amber-700 dark:text-amber-300">
-                                            {duplicateWarning.type === 'invoice' ? 'Duplicate Invoice' : 'Similar Receipt Detected'}
+                                            {duplicateWarning.type === 'invoice' ? (t('receiptScanner.duplicateInvoice') || 'Duplicate Invoice') : (t('receiptScanner.similarReceipt') || 'Similar Receipt Detected')}
                                         </p>
                                         <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
                                             {duplicateWarning.message}
@@ -774,7 +774,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                         disabled={isConfirming}
                                         className="flex-1"
                                     >
-                                        {isConfirming ? 'Adding...' : 'Add Anyway'}
+                                        {isConfirming ? (t('receiptScanner.adding') || 'Adding...') : (t('receiptScanner.addAnyway') || 'Add Anyway')}
                                     </Button>
                                     <Button
                                         size="sm"

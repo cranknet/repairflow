@@ -11,7 +11,7 @@ import { BuildingOfficeIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/re
 import { companySchema, type CompanyFormData, type InstallState } from '../../lib/validation';
 import { COUNTRIES } from '@/lib/countries';
 import { CURRENCIES } from '@/lib/currencies';
-import { languages } from '@/lib/i18n';
+import { languages } from '@/lib/i18n-config';
 
 interface CompanyStepProps {
     onNext: () => void;
