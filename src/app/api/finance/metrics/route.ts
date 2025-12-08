@@ -58,9 +58,9 @@ export async function GET(request: NextRequest) {
         }
 
         // Get additional counts for UI
-        const [partsUsedCount, returnsPendingCount] = await Promise.all([
-            // Parts used in completed tickets during date range
-            prisma.ticketPart.count({
+        const [partsUsedResult, returnsPendingCount] = await Promise.all([
+            // Parts used in completed tickets during date range (sum of quantities)
+            prisma.ticketPart.aggregate({
                 where: {
                     ticket: {
                         status: 'COMPLETED',
@@ -70,12 +70,17 @@ export async function GET(request: NextRequest) {
                         },
                     },
                 },
+                _sum: {
+                    quantity: true,
+                },
             }),
             // Pending returns count (regardless of date)
             prisma.return.count({
                 where: { status: 'PENDING' },
             }),
         ]);
+
+        const partsUsedCount = partsUsedResult._sum.quantity || 0;
 
         // Build response with all financial data
         const response = {
