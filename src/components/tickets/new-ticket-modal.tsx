@@ -365,12 +365,19 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
               />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <Button type="button" variant="outline" onClick={onClose}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? t('creating') : t('createTicket')}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                    {t('creating')}
+                  </span>
+                ) : (
+                  t('createTicket')
+                )}
               </Button>
             </DialogFooter>
           </form>

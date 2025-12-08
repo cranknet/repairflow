@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
@@ -414,14 +414,15 @@ export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: Crea
                 </div>
               )}
 
-              <div>
-                <Label htmlFor="return-reason">{t('reason')} *</Label>
-                <textarea
+              <div className="space-y-2">
+                <Label htmlFor="return-reason">
+                  {t('reason')} <span className="text-error-500">*</span>
+                </Label>
+                <Textarea
                   id="return-reason"
                   value={returnData.reason}
                   onChange={(e) => setReturnData({ ...returnData, reason: e.target.value })}
                   rows={3}
-                  className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
                   placeholder={t('reasonForReturn')}
                 />
               </div>
@@ -438,14 +439,13 @@ export function CreateReturnModal({ isOpen, onClose, ticketId, onSuccess }: Crea
                 />
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="return-notes">{t('additionalNotes')}</Label>
-                <textarea
+                <Textarea
                   id="return-notes"
                   value={returnData.notes}
                   onChange={(e) => setReturnData({ ...returnData, notes: e.target.value })}
                   rows={3}
-                  className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 mt-1"
                   placeholder={t('additionalNotesPlaceholder')}
                 />
               </div>

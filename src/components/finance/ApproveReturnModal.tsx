@@ -2,8 +2,20 @@
 
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/language-context';
+import { Button } from '@/components/ui/button';
+import { Input, Textarea } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ApproveReturnModalProps {
+    isOpen?: boolean;
     returnData: {
         id: string;
         refundAmount: number;
@@ -14,7 +26,7 @@ interface ApproveReturnModalProps {
     onSuccess: () => void;
 }
 
-export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveReturnModalProps) {
+export function ApproveReturnModal({ isOpen = true, returnData, onClose, onSuccess }: ApproveReturnModalProps) {
     const { t } = useLanguage();
     const [partialAmount, setPartialAmount] = useState<string>(returnData.refundAmount.toString());
     const [notes, setNotes] = useState('');
@@ -60,90 +72,103 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
         }
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-background rounded-xl shadow-lg w-full max-w-md">
-                <div className="bg-accent px-6 py-4 rounded-t-xl">
-                    <h2 className="text-lg font-semibold text-foreground">{t('finance.approveReturn.title')}</h2>
-                </div>
+    const isPartialRefund = parseFloat(partialAmount) < returnData.refundAmount;
 
-                <div className="p-6 space-y-4">
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>{t('finance.approveReturn.title')}</DialogTitle>
+                    <DialogDescription>
+                        {t('finance.approveReturn.description') || 'Review and approve this return request'}
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-5">
+                    {/* Error Alert */}
                     {error && (
-                        <div className="p-4 bg-error-container text-on-error-container rounded-lg text-body-medium flex items-start gap-2">
-                            <span className="material-symbols-outlined">error</span>
+                        <div className="p-3 bg-error-50 dark:bg-error-500/10 border border-error-200 dark:border-error-500/20 text-error-600 dark:text-error-400 rounded-lg text-sm flex items-start gap-2">
+                            <span className="material-symbols-outlined text-base">error</span>
                             <span>{error}</span>
                         </div>
                     )}
 
-                    <div className="bg-muted/50 rounded-lg p-4">
-                        <div className="text-xs text-muted-foreground mb-1">{t('finance.approveReturn.returnReason')}</div>
-                        <div className="text-sm text-foreground">{returnData.reason}</div>
+                    {/* Return Reason Display */}
+                    <div className="bg-muted/50 rounded-lg p-4 border border-border">
+                        <p className="text-xs text-muted-foreground mb-1">{t('finance.approveReturn.returnReason')}</p>
+                        <p className="text-sm text-foreground">{returnData.reason}</p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            {t('finance.refundAmount')} <span className="text-error">*</span>
-                        </label>
-                        <div className="flex items-center gap-2">
-                            <div className="relative flex-1">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                                <input
+                    {/* Refund Amount */}
+                    <div className="space-y-2">
+                        <Label htmlFor="approve-amount">
+                            {t('finance.refundAmount')} <span className="text-error-500">*</span>
+                        </Label>
+                        <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                                <Input
+                                    id="approve-amount"
                                     type="number"
                                     step="0.01"
                                     min="0.01"
                                     max={returnData.refundAmount}
                                     value={partialAmount}
                                     onChange={(e) => setPartialAmount(e.target.value)}
-                                    className="w-full pl-8 pr-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                    leadingIcon={<span className="text-muted-foreground">$</span>}
                                 />
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <span className="text-sm text-muted-foreground whitespace-nowrap">
                                 / ${returnData.refundAmount.toFixed(2)}
-                            </div>
+                            </span>
                         </div>
-                        {parseFloat(partialAmount) < returnData.refundAmount && (
-                            <div className="mt-2 text-body-small text-tertiary flex items-center gap-1">
+                        {isPartialRefund && (
+                            <p className="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
                                 <span className="material-symbols-outlined text-sm">info</span>
                                 {t('finance.approveReturn.partialRefund')}
-                            </div>
+                            </p>
                         )}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            {t('finance.notes')}
-                        </label>
-                        <textarea
+                    {/* Notes */}
+                    <div className="space-y-2">
+                        <Label htmlFor="approve-notes">{t('finance.notes')}</Label>
+                        <Textarea
+                            id="approve-notes"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder={t('finance.approveReturn.notesPlaceholder')}
                             rows={3}
-                            className="w-full px-4 py-3 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                         />
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
-                        <input
-                            type="checkbox"
-                            checked={createInventoryAdj}
-                            onChange={(e) => setCreateInventoryAdj(e.target.checked)}
-                            id="inventory-adj"
-                            className="mt-1"
-                        />
-                        <label htmlFor="inventory-adj" className="flex-1 cursor-pointer">
-                            <div className="text-sm font-medium text-foreground">{t('finance.approveReturn.returnParts')}</div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                {t('finance.approveReturn.returnPartsDesc')}
+                    {/* Inventory Adjustment Option */}
+                    <div className="p-4 bg-muted/30 rounded-lg border border-border">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={createInventoryAdj}
+                                onChange={(e) => setCreateInventoryAdj(e.target.checked)}
+                                id="inventory-adj"
+                                className="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary focus:ring-offset-0"
+                            />
+                            <div className="flex-1">
+                                <p className="text-sm font-medium text-foreground">
+                                    {t('finance.approveReturn.returnParts')}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                    {t('finance.approveReturn.returnPartsDesc')}
+                                </p>
                             </div>
                         </label>
                     </div>
 
-                    <div className="bg-muted/30 rounded-lg p-4">
-                        <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                    {/* What Will Happen Summary */}
+                    <div className="bg-success-50 dark:bg-success-500/10 rounded-lg p-4 border border-success-200 dark:border-success-500/20">
+                        <h3 className="text-sm font-medium text-success-700 dark:text-success-400 mb-2 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-base">check_circle</span>
                             {t('finance.approveReturn.whatWillHappen')}
                         </h3>
-                        <ul className="text-xs text-muted-foreground space-y-1 ml-6 list-disc">
+                        <ul className="text-xs text-success-600 dark:text-success-400/80 space-y-1 ml-6 list-disc">
                             <li>{t('finance.approveReturn.refundRecorded', { amount: parseFloat(partialAmount || '0').toFixed(2) })}</li>
                             <li>{t('finance.approveReturn.statusApproved')}</li>
                             <li>{t('finance.approveReturn.ticketReturned')}</li>
@@ -151,33 +176,24 @@ export function ApproveReturnModal({ returnData, onClose, onSuccess }: ApproveRe
                             {createInventoryAdj && <li>{t('finance.approveReturn.inventoryAdjustment')}</li>}
                         </ul>
                     </div>
-
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={loading}
-                            className="flex-1 px-6 py-3 border border-input text-foreground rounded-full hover:bg-muted/50 transition-colors disabled:opacity-50"
-                        >
-                            {t('cancel')}
-                        </button>
-                        <button
-                            onClick={handleApprove}
-                            disabled={loading || !partialAmount}
-                            className="flex-1 px-6 py-3 bg-primary text-on-primary rounded-full hover:shadow-md-level2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            {loading ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                                    {t('finance.approveReturn.processing')}
-                                </span>
-                            ) : (
-                                t('finance.approveReturn.approveRefund')
-                            )}
-                        </button>
-                    </div>
                 </div>
-            </div>
-        </div>
+
+                <DialogFooter className="pt-4 gap-3">
+                    <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+                        {t('cancel')}
+                    </Button>
+                    <Button onClick={handleApprove} disabled={loading || !partialAmount}>
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                                {t('finance.approveReturn.processing')}
+                            </span>
+                        ) : (
+                            t('finance.approveReturn.approveRefund')
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -12,6 +12,7 @@ import { useSettings } from '@/contexts/settings-context';
 import { LoginSidebar } from '@/components/auth/login-sidebar';
 import { EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
@@ -103,8 +104,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center px-4 py-8">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-gray-50 to-gray-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-900" />
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/login-bg-teal.png"
+          alt="Background"
+          fill
+          className="object-cover opacity-100"
+          priority
+          quality={100}
+        />
+        {/* Overlay to ensure text readability if needed, though the design is light */}
+        <div className="absolute inset-0 bg-white/30 dark:bg-slate-900/60 backdrop-blur-[1px]" />
+      </div>
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-[900px] grid grid-cols-1 lg:grid-cols-5 gap-0 animate-fadeIn">

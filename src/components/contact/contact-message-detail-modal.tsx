@@ -1,17 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { ContactMessageStatusBadge } from './contact-message-status-badge';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { TrashIcon } from '@heroicons/react/24/outline';
 
 interface ContactMessage {
   id: string;
@@ -180,182 +186,167 @@ export function ContactMessageDetailModal({
     }
   };
 
-  if (!isOpen || !message) return null;
+  if (!message) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/80"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative z-50 w-full max-w-2xl mx-4 max-h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              {t('contact.admin.title')}
-            </h2>
-            <div className="flex items-center gap-2 mt-2">
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <DialogTitle>{t('contact.admin.title')}</DialogTitle>
               <ContactMessageStatusBadge status={message.status} />
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
+            <DialogDescription>
+              {t('contact.detail.description') || 'View and manage this contact message'}
+            </DialogDescription>
+          </DialogHeader>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Message Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('contact.detail.message')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm whitespace-pre-wrap">{message.message}</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-5">
+            {/* Message Details */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{t('contact.detail.message')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap text-foreground">{message.message}</p>
+              </CardContent>
+            </Card>
 
-          {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('contact.detail.from')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{t('name')}</p>
-                <p className="font-medium">{message.name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{t('contact.detail.email')}</p>
-                <a
-                  href={`mailto:${message.email}`}
-                  className="font-medium text-primary hover:underline"
-                >
-                  {message.email}
-                </a>
-              </div>
-              {message.phone && (
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('contact.detail.phone')}</p>
-                  <a
-                    href={`tel:${message.phone}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {message.phone}
-                  </a>
+            {/* Contact Information */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{t('contact.detail.from')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">{t('name')}</p>
+                    <p className="font-medium text-sm">{message.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">{t('contact.detail.email')}</p>
+                    <a
+                      href={`mailto:${message.email}`}
+                      className="font-medium text-sm text-primary hover:underline"
+                    >
+                      {message.email}
+                    </a>
+                  </div>
+                  {message.phone && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">{t('contact.detail.phone')}</p>
+                      <a
+                        href={`tel:${message.phone}`}
+                        className="font-medium text-sm text-primary hover:underline"
+                      >
+                        {message.phone}
+                      </a>
+                    </div>
+                  )}
+                  {message.ticket && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">{t('contact.detail.ticket')}</p>
+                      <Link
+                        href={`/tickets/${message.ticket.id}`}
+                        className="font-medium text-sm text-primary hover:underline"
+                      >
+                        {message.ticket.ticketNumber}
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Related Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('additionalInfo')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {message.ticket && (
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('contact.detail.ticket')}</p>
-                  <Link
-                    href={`/tickets/${message.ticket.id}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {message.ticket.ticketNumber}
-                  </Link>
-                </div>
-              )}
+            {/* Additional Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{t('contact.detail.received')}</p>
-                <p className="font-medium">{format(new Date(message.createdAt), 'PPpp')}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('contact.detail.received')}</p>
+                <p className="font-medium text-sm">{format(new Date(message.createdAt), 'PPpp')}</p>
               </div>
               {message.assignedTo && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('contact.detail.assigned_to')}</p>
-                  <p className="font-medium">
+                  <p className="text-xs text-muted-foreground mb-1">{t('contact.detail.assigned_to')}</p>
+                  <p className="font-medium text-sm">
                     {message.assignedTo.name || message.assignedTo.username}
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Actions */}
-          <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-wrap gap-2">
-              {message.status === 'NEW' && (
-                <Button
-                  onClick={() => handleStatusUpdate('READ')}
-                  disabled={isUpdating}
-                  variant="secondary"
-                  size="sm"
-                >
-                  {t('contact.admin.mark_read')}
-                </Button>
-              )}
-              {message.status !== 'ARCHIVED' && (
-                <Button
-                  onClick={() => handleStatusUpdate('ARCHIVED')}
-                  disabled={isUpdating}
-                  variant="outline"
-                  size="sm"
-                >
-                  {t('contact.admin.archive')}
-                </Button>
-              )}
-              {canDelete && (
-                <Button
-                  onClick={handleDelete}
-                  disabled={isUpdating || isDeleting}
-                  variant="destructive"
-                  size="sm"
-                >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  {t('delete')}
-                </Button>
-              )}
             </div>
 
-            {/* Assign Section */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('contact.admin.assign')}</label>
-              <div className="flex gap-2">
-                <Select
-                  value={selectedUserId}
-                  onValueChange={setSelectedUserId}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder={t('contact.admin.unassigned')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">{t('contact.admin.unassigned')}</SelectItem>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name || user.username}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleAssign}
-                  disabled={isUpdating || selectedUserId === (message.assignedToId || 'unassigned')}
-                  size="sm"
-                >
-                  {t('contact.admin.assign')}
-                </Button>
+            {/* Actions */}
+            <div className="space-y-4 pt-4 border-t border-border">
+              {/* Status Actions */}
+              <div className="flex flex-wrap gap-2">
+                {message.status === 'NEW' && (
+                  <Button
+                    onClick={() => handleStatusUpdate('READ')}
+                    disabled={isUpdating}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <span className="material-symbols-outlined text-base mr-1.5">mark_email_read</span>
+                    {t('contact.admin.mark_read')}
+                  </Button>
+                )}
+                {message.status !== 'ARCHIVED' && (
+                  <Button
+                    onClick={() => handleStatusUpdate('ARCHIVED')}
+                    disabled={isUpdating}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <span className="material-symbols-outlined text-base mr-1.5">archive</span>
+                    {t('contact.admin.archive')}
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button
+                    onClick={handleDelete}
+                    disabled={isUpdating || isDeleting}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    <span className="material-symbols-outlined text-base mr-1.5">delete</span>
+                    {t('delete')}
+                  </Button>
+                )}
+              </div>
+
+              {/* Assign Section */}
+              <div className="space-y-2">
+                <Label>{t('contact.admin.assign')}</Label>
+                <div className="flex gap-2">
+                  <Select
+                    value={selectedUserId}
+                    onValueChange={setSelectedUserId}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder={t('contact.admin.unassigned')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">{t('contact.admin.unassigned')}</SelectItem>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name || user.username}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    onClick={handleAssign}
+                    disabled={isUpdating || selectedUserId === (message.assignedToId || 'unassigned')}
+                    size="sm"
+                  >
+                    {t('contact.admin.assign')}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       {canDelete && (
@@ -371,7 +362,6 @@ export function ContactMessageDetailModal({
           isLoading={isDeleting}
         />
       )}
-    </div>
+    </>
   );
 }
-

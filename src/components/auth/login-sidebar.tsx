@@ -52,7 +52,7 @@ export function LoginSidebar({ className }: LoginSidebarProps) {
         <div
             className={cn(
                 "h-full flex flex-col justify-center p-8",
-                "bg-gradient-to-br from-primary/5 via-primary/10 to-blue-100",
+                "bg-gradient-to-br from-primary/5 via-primary/10 to-brand-100",
                 "dark:from-slate-800 dark:via-slate-800 dark:to-slate-700",
                 "border border-gray-100 dark:border-slate-700 border-l-0",
                 "rounded-2xl",

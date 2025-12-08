@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
@@ -115,75 +115,95 @@ export function EditSupplierModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('editSupplier')}</DialogTitle>
           <DialogDescription>
             {t('updateSupplierInformation')}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Supplier Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">{t('supplierName')} *</Label>
+            <Label htmlFor="edit-sup-name">
+              {t('supplierName')} <span className="text-error-500">*</span>
+            </Label>
             <Input
-              id="name"
+              id="edit-sup-name"
               {...register('name')}
               placeholder={t('finance.supplierForm.namePlaceholder')}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="contactPerson">{t('contactPerson')}</Label>
-            <Input
-              id="contactPerson"
-              {...register('contactPerson')}
-              placeholder={t('finance.supplierForm.contactPersonPlaceholder')}
+              errorText={errors.name?.message}
             />
           </div>
+
+          {/* Contact Person & Phone - 2 column */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-sup-contact">{t('contactPerson')}</Label>
+              <Input
+                id="edit-sup-contact"
+                {...register('contactPerson')}
+                placeholder={t('finance.supplierForm.contactPersonPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-sup-phone">{t('phone')}</Label>
+              <Input
+                id="edit-sup-phone"
+                {...register('phone')}
+                placeholder={t('finance.supplierForm.phonePlaceholder')}
+              />
+            </div>
+          </div>
+
+          {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">{t('email')}</Label>
+            <Label htmlFor="edit-sup-email">{t('email')}</Label>
             <Input
-              id="email"
+              id="edit-sup-email"
               type="email"
               {...register('email')}
               placeholder={t('finance.supplierForm.emailPlaceholder')}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">{t('phone')}</Label>
-            <Input
-              id="phone"
-              {...register('phone')}
-              placeholder={t('finance.supplierForm.phonePlaceholder')}
+              errorText={errors.email?.message}
             />
           </div>
+
+          {/* Address */}
           <div className="space-y-2">
-            <Label htmlFor="address">{t('address')}</Label>
+            <Label htmlFor="edit-sup-address">{t('address')}</Label>
             <Input
-              id="address"
+              id="edit-sup-address"
               {...register('address')}
               placeholder={t('finance.supplierForm.addressPlaceholder')}
             />
           </div>
+
+          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">{t('notes')}</Label>
-            <Input
-              id="notes"
+            <Label htmlFor="edit-sup-notes">{t('notes')}</Label>
+            <Textarea
+              id="edit-sup-notes"
               {...register('notes')}
               placeholder={t('finance.supplierForm.notesPlaceholder')}
+              rows={3}
             />
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="pt-4 gap-3">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('loading') : t('save')}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                  {t('saving') || 'Saving...'}
+                </span>
+              ) : (
+                t('save')
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -191,4 +211,3 @@ export function EditSupplierModal({
     </Dialog>
   );
 }
-

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
@@ -95,7 +95,7 @@ export function EditCustomerModal({
 
       toast({
         title: t('success'),
-        description: 'Customer updated successfully',
+        description: t('customerUpdated') || 'Customer updated successfully',
       });
       onSuccess();
       onClose();
@@ -112,70 +112,88 @@ export function EditCustomerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Customer</DialogTitle>
+          <DialogTitle>{t('editCustomer') || 'Edit Customer'}</DialogTitle>
           <DialogDescription>
-            Update customer information below.
+            {t('updateCustomerInfo') || 'Update customer information below.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('customerName')} *</Label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder="Enter customer name"
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Name & Phone - 2 column on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">
+                {t('customerName')} <span className="text-error-500">*</span>
+              </Label>
+              <Input
+                id="edit-name"
+                {...register('name')}
+                placeholder={t('customers.placeholder.name')}
+                errorText={errors.name?.message}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">
+                {t('customerPhone')} <span className="text-error-500">*</span>
+              </Label>
+              <Input
+                id="edit-phone"
+                {...register('phone')}
+                placeholder={t('customers.placeholder.phone')}
+                errorText={errors.phone?.message}
+              />
+            </div>
           </div>
+
+          {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="phone">{t('customerPhone')} *</Label>
+            <Label htmlFor="edit-email">{t('customerEmail')}</Label>
             <Input
-              id="phone"
-              {...register('phone')}
-              placeholder="Enter phone number"
-            />
-            {errors.phone && (
-              <p className="text-sm text-red-500">{errors.phone.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">{t('customerEmail')}</Label>
-            <Input
-              id="email"
+              id="edit-email"
               type="email"
               {...register('email')}
-              placeholder="Enter email address"
+              placeholder={t('customers.placeholder.email')}
+              errorText={errors.email?.message}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
           </div>
+
+          {/* Address */}
           <div className="space-y-2">
-            <Label htmlFor="address">{t('customerAddress')}</Label>
+            <Label htmlFor="edit-address">{t('customerAddress')}</Label>
             <Input
-              id="address"
+              id="edit-address"
               {...register('address')}
-              placeholder="Enter address"
+              placeholder={t('customers.placeholder.address')}
             />
           </div>
+
+          {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">{t('notes')}</Label>
-            <Input
-              id="notes"
+            <Label htmlFor="edit-notes">{t('notes')}</Label>
+            <Textarea
+              id="edit-notes"
               {...register('notes')}
-              placeholder="Enter notes"
+              placeholder={t('customers.placeholder.notes')}
+              rows={2}
             />
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="pt-4 gap-3">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('loading') : t('save')}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                  {t('saving') || 'Saving...'}
+                </span>
+              ) : (
+                t('save')
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -183,4 +201,3 @@ export function EditCustomerModal({
     </Dialog>
   );
 }
-

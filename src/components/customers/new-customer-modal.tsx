@@ -84,15 +84,15 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('addNewCustomer')}</DialogTitle>
           <DialogDescription>{t('createNewCustomerProfile')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-5 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 id="modal-name"
                 label={t('customerName')}
@@ -140,12 +140,19 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button type="button" variant="outline" onClick={onClose}>
               {t('cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('creating') : t('createCustomer')}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                  {t('creating')}
+                </span>
+              ) : (
+                t('createCustomer')
+              )}
             </Button>
           </DialogFooter>
         </form>
