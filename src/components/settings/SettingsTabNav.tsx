@@ -19,6 +19,7 @@ import {
     KeyIcon,
     CircleStackIcon,
     UsersIcon,
+    CameraIcon,
 } from '@heroicons/react/24/outline';
 import { ComponentType } from 'react';
 
@@ -147,4 +148,5 @@ export const SETTINGS_ICONS = {
     permissions: KeyIcon,
     database: CircleStackIcon,
     users: UsersIcon,
+    ai_vision: CameraIcon,
 };
