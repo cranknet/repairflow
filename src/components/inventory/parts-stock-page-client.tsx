@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PartsStockSearch } from '@/components/inventory/parts-stock-search';
 import { PartFormModal } from '@/components/finance/PartFormModal';
+import { ReceiptScanner } from '@/components/inventory/receipt-scanner';
 import { useLanguage } from '@/contexts/language-context';
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Part {
   id: string;
@@ -75,6 +77,7 @@ export function PartsStockPageClient({
 }: PartsStockPageClientProps) {
   const router = useRouter();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPart, setEditingPart] = useState<Part | null>(null);
   const [viewingPart, setViewingPart] = useState<Part | null>(null);
@@ -82,6 +85,7 @@ export function PartsStockPageClient({
   const [isDeleting, setIsDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [stockFilter, setStockFilter] = useState<'all' | 'inStock' | 'lowStock' | 'outOfStock'>('all');
+  const [showReceiptScanner, setShowReceiptScanner] = useState(false);
 
   const handleSuccess = () => {
     router.refresh();
@@ -123,11 +127,24 @@ export function PartsStockPageClient({
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/parts/${deletingPart.id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Delete failed');
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Delete failed' }));
+        throw new Error(errorData.error || 'Delete failed');
+      }
+
+      toast({
+        title: t('success') || 'Success',
+        description: t('partDeleted') || 'Part deleted successfully',
+      });
       router.refresh();
       setDeletingPart(null);
     } catch (error) {
-      console.error('Delete error:', error);
+      toast({
+        title: t('error') || 'Error',
+        description: error instanceof Error ? error.message : (t('partDeleteFailed') || 'Failed to delete part'),
+        variant: 'destructive',
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -187,8 +204,8 @@ export function PartsStockPageClient({
                   <button
                     onClick={() => setViewMode('cards')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
                     <span className="material-symbols-outlined text-lg">grid_view</span>
@@ -196,8 +213,8 @@ export function PartsStockPageClient({
                   <button
                     onClick={() => setViewMode('table')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
                     <span className="material-symbols-outlined text-lg">table_rows</span>
@@ -211,6 +228,15 @@ export function PartsStockPageClient({
                 >
                   <span className="material-symbols-outlined text-lg">download</span>
                   <span className="hidden sm:inline">Export</span>
+                </button>
+
+                <button
+                  onClick={() => setShowReceiptScanner(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-theme-sm border border-gray-200 dark:border-gray-700"
+                  title={t('receiptScanner.scanReceipt') || 'Scan Receipt'}
+                >
+                  <span className="material-symbols-outlined text-lg">document_scanner</span>
+                  <span className="hidden sm:inline">{t('receiptScanner.scanReceipt') || 'Scan Receipt'}</span>
                 </button>
 
                 <Link
@@ -315,8 +341,8 @@ export function PartsStockPageClient({
                 <button
                   onClick={() => setStockFilter('all')}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${stockFilter === 'all'
-                      ? 'bg-primary text-white shadow-md shadow-primary/25'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-primary text-white shadow-md shadow-primary/25'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   All ({stats.total})
@@ -324,8 +350,8 @@ export function PartsStockPageClient({
                 <button
                   onClick={() => setStockFilter('inStock')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${stockFilter === 'inStock'
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   <span className="material-symbols-outlined text-lg">check_circle</span>
@@ -334,8 +360,8 @@ export function PartsStockPageClient({
                 <button
                   onClick={() => setStockFilter('lowStock')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${stockFilter === 'lowStock'
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   <span className="material-symbols-outlined text-lg">warning</span>
@@ -344,8 +370,8 @@ export function PartsStockPageClient({
                 <button
                   onClick={() => setStockFilter('outOfStock')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${stockFilter === 'outOfStock'
-                      ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   <span className="material-symbols-outlined text-lg">cancel</span>
@@ -639,6 +665,21 @@ export function PartsStockPageClient({
               {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Receipt Scanner Modal */}
+      <Dialog open={showReceiptScanner} onOpenChange={setShowReceiptScanner}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{t('receiptScanner.title') || 'Receipt Scanner'}</DialogTitle>
+          </DialogHeader>
+          <ReceiptScanner
+            onComplete={() => {
+              setShowReceiptScanner(false);
+              handleRefresh();
+            }}
+          />
         </DialogContent>
       </Dialog>
     </>
