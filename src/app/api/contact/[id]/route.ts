@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { t } from '@/lib/server-translation';
 
 const updateMessageSchema = z.object({
   status: z.enum(['NEW', 'READ', 'ARCHIVED']).optional(),
@@ -15,7 +16,7 @@ export async function PATCH(
   try {
     const session = await auth();
     if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'STAFF')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -25,7 +26,7 @@ export async function PATCH(
     const validationResult = updateMessageSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid input' },
+        { error: t('errors.invalidInput') },
         { status: 400 }
       );
     }
@@ -46,7 +47,7 @@ export async function PATCH(
         });
         if (!user) {
           return NextResponse.json(
-            { error: 'User not found' },
+            { error: t('errors.userNotFound') },
             { status: 404 }
           );
         }
@@ -80,12 +81,12 @@ export async function PATCH(
     console.error('Error updating contact message:', error);
     if (error instanceof Error && error.message.includes('Record to update not found')) {
       return NextResponse.json(
-        { error: 'Message not found' },
+        { error: t('errors.messageNotFound') },
         { status: 404 }
       );
     }
     return NextResponse.json(
-      { error: 'Failed to update contact message' },
+      { error: t('errors.failedToUpdate') },
       { status: 500 }
     );
   }
@@ -98,7 +99,7 @@ export async function PUT(
   try {
     const session = await auth();
     if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'STAFF')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -112,7 +113,7 @@ export async function PUT(
       });
       if (!user) {
         return NextResponse.json(
-          { error: 'User not found' },
+          { error: t('errors.userNotFound') },
           { status: 404 }
         );
       }
@@ -146,12 +147,12 @@ export async function PUT(
     console.error('Error assigning contact message:', error);
     if (error instanceof Error && error.message.includes('Record to update not found')) {
       return NextResponse.json(
-        { error: 'Message not found' },
+        { error: t('errors.messageNotFound') },
         { status: 404 }
       );
     }
     return NextResponse.json(
-      { error: 'Failed to assign contact message' },
+      { error: t('errors.failedToUpdate') },
       { status: 500 }
     );
   }
@@ -164,10 +165,10 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
     if (session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: t('errors.forbidden') }, { status: 403 });
     }
 
     const { id } = await params;
@@ -182,12 +183,12 @@ export async function DELETE(
     console.error('Error deleting contact message:', error);
     if (error instanceof Error && error.message.includes('Record to delete does not exist')) {
       return NextResponse.json(
-        { error: 'Message not found' },
+        { error: t('errors.messageNotFound') },
         { status: 404 }
       );
     }
     return NextResponse.json(
-      { error: 'Failed to delete contact message' },
+      { error: t('errors.failedToDelete') },
       { status: 500 }
     );
   }
