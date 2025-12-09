@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { getWarrantySettings } from '@/lib/settings';
+import { t } from '@/lib/server-translation';
 
 const createReturnSchema = z.object({
   ticketId: z.string(),
@@ -16,13 +17,13 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     // Admin-only check for creating returns
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Only administrators can create returns' },
+        { error: t('errors.onlyAdminsCanCreate') },
         { status: 403 }
       );
     }
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!ticket) {
-      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.ticketNotFound') }, { status: 404 });
     }
 
     // Validate that ticket status is REPAIRED or COMPLETED
@@ -168,13 +169,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: t('errors.invalidInput'), details: error.errors },
         { status: 400 }
       );
     }
     console.error('Error creating return:', error);
     return NextResponse.json(
-      { error: 'Failed to create return' },
+      { error: t('errors.failedToCreate') },
       { status: 500 }
     );
   }
@@ -185,7 +186,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -218,7 +219,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching returns:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch returns' },
+      { error: t('errors.failedToFetch') },
       { status: 500 }
     );
   }
