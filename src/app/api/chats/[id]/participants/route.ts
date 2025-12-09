@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { CHAT_PARTICIPANT_ROLES } from '@/lib/chat/types';
+import { t } from '@/lib/server-translation';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
         const session = await auth();
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
         }
 
         const { id } = await params;
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         });
 
         if (!currentParticipant) {
-            return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
+            return NextResponse.json({ error: t('errors.chatNotFound') }, { status: 404 });
         }
 
         const participants = await prisma.chatParticipant.findMany({
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     } catch (error) {
         console.error('Error fetching participants:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch participants' },
+            { error: t('errors.failedToFetch') },
             { status: 500 }
         );
     }
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
         const session = await auth();
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
         }
 
         const { id } = await params;
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         });
 
         if (!currentParticipant) {
-            return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
+            return NextResponse.json({ error: t('errors.chatNotFound') }, { status: 404 });
         }
 
         // Only OWNER, ADMIN, or system ADMIN can add participants
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         if (!canAddParticipants) {
             return NextResponse.json(
-                { error: 'You do not have permission to add participants' },
+                { error: t('errors.forbidden') },
                 { status: 403 }
             );
         }
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         if (!userId) {
             return NextResponse.json(
-                { error: 'User ID is required' },
+                { error: t('errors.invalidInput') },
                 { status: 400 }
             );
         }
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         });
 
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            return NextResponse.json({ error: t('errors.userNotFound') }, { status: 404 });
         }
 
         // Check if already a participant
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         if (existingParticipant) {
             return NextResponse.json(
-                { error: 'User is already a participant' },
+                { error: t('errors.invalidInput') },
                 { status: 400 }
             );
         }
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     } catch (error) {
         console.error('Error adding participant:', error);
         return NextResponse.json(
-            { error: 'Failed to add participant' },
+            { error: t('errors.failedToCreate') },
             { status: 500 }
         );
     }
@@ -164,7 +165,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
         const session = await auth();
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
         }
 
         const { id } = await params;
@@ -173,7 +174,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         if (!userIdToRemove) {
             return NextResponse.json(
-                { error: 'User ID is required' },
+                { error: t('errors.invalidInput') },
                 { status: 400 }
             );
         }
@@ -189,7 +190,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         });
 
         if (!currentParticipant) {
-            return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
+            return NextResponse.json({ error: t('errors.chatNotFound') }, { status: 404 });
         }
 
         // Users can remove themselves, or OWNER/ADMIN can remove others
@@ -200,7 +201,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         if (!isSelf && !canRemoveOthers) {
             return NextResponse.json(
-                { error: 'You do not have permission to remove this participant' },
+                { error: t('errors.forbidden') },
                 { status: 403 }
             );
         }
@@ -217,7 +218,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         if (!participantToRemove) {
             return NextResponse.json(
-                { error: 'Participant not found' },
+                { error: t('errors.userNotFound') },
                 { status: 404 }
             );
         }
@@ -233,7 +234,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
             if (ownerCount <= 1) {
                 return NextResponse.json(
-                    { error: 'Cannot remove the only owner of the chat' },
+                    { error: t('errors.invalidInput') },
                     { status: 400 }
                 );
             }
@@ -248,11 +249,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             },
         });
 
-        return NextResponse.json({ success: true, message: 'Participant removed' });
+        return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error removing participant:', error);
         return NextResponse.json(
-            { error: 'Failed to remove participant' },
+            { error: t('errors.failedToDelete') },
             { status: 500 }
         );
     }
