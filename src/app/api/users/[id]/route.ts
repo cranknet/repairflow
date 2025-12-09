@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { createNotification } from '@/lib/notifications';
+import { t } from '@/lib/server-translation';
 
 const updateUserSchema = z.object({
   username: z.string().min(1).optional(),
@@ -20,7 +21,7 @@ export async function GET(
   try {
     const session = await auth();
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -37,14 +38,14 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.userNotFound') }, { status: 404 });
     }
 
     return NextResponse.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user' },
+      { error: t('errors.failedToFetch') },
       { status: 500 }
     );
   }
@@ -57,7 +58,7 @@ export async function PUT(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -66,7 +67,7 @@ export async function PUT(
 
     // Allow users to update their own profile, or admins to update any profile
     if (session.user.id !== id && session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: t('errors.forbidden') }, { status: 403 });
     }
 
     // Check if user exists
@@ -75,7 +76,7 @@ export async function PUT(
     });
 
     if (!existingUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.userNotFound') }, { status: 404 });
     }
 
     // If username is being changed, check if new username already exists
@@ -140,13 +141,13 @@ export async function PUT(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: t('errors.invalidInput'), details: error.errors },
         { status: 400 }
       );
     }
     console.error('Error updating user:', error);
     return NextResponse.json(
-      { error: 'Failed to update user' },
+      { error: t('errors.failedToUpdate') },
       { status: 500 }
     );
   }
@@ -159,7 +160,7 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -167,7 +168,7 @@ export async function DELETE(
     // Prevent deleting own account
     if (id === session.user.id) {
       return NextResponse.json(
-        { error: 'Cannot delete your own account' },
+        { error: t('errors.invalidInput') },
         { status: 400 }
       );
     }
@@ -178,7 +179,7 @@ export async function DELETE(
     });
 
     if (!existingUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.userNotFound') }, { status: 404 });
     }
 
     const deletedUsername = existingUser.username;
@@ -198,7 +199,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting user:', error);
     return NextResponse.json(
-      { error: 'Failed to delete user' },
+      { error: t('errors.failedToDelete') },
       { status: 500 }
     );
   }
