@@ -71,63 +71,63 @@ export const SETTINGS_ICONS = {
     ai_vision: CameraIcon,
 };
 
-// Define categories with their tabs
+// Define categories with their tabs (labels are translation keys)
 export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     {
         id: 'business',
-        label: 'Business Setup',
+        label: 'settings.category.business',
         icon: BuildingOfficeIcon,
-        description: 'Company, finance & inventory',
+        description: 'settings.category.business.description',
         tabs: [
-            { id: 'general', label: 'General', icon: BuildingOfficeIcon },
-            { id: 'finance', label: 'Finance', icon: CurrencyDollarIcon },
-            { id: 'inventory', label: 'Inventory', icon: CubeIcon },
+            { id: 'general', label: 'settings.tab.general', icon: BuildingOfficeIcon },
+            { id: 'finance', label: 'settings.tab.finance', icon: CurrencyDollarIcon },
+            { id: 'inventory', label: 'settings.tab.inventory', icon: CubeIcon },
         ],
     },
     {
         id: 'operations',
-        label: 'Operations',
+        label: 'settings.category.operations',
         icon: WrenchScrewdriverIcon,
-        description: 'Tickets, warranty & printing',
+        description: 'settings.category.operations.description',
         tabs: [
-            { id: 'tickets', label: 'Tickets', icon: TicketIcon },
-            { id: 'warranty', label: 'Warranty', icon: ShieldCheckIcon },
-            { id: 'print', label: 'Print & Invoice', icon: PrinterIcon },
-            { id: 'tracking', label: 'Public Tracking', icon: GlobeAltIcon },
+            { id: 'tickets', label: 'settings.tab.tickets', icon: TicketIcon },
+            { id: 'warranty', label: 'settings.tab.warranty', icon: ShieldCheckIcon },
+            { id: 'print', label: 'settings.tab.print', icon: PrinterIcon },
+            { id: 'tracking', label: 'settings.tab.tracking', icon: GlobeAltIcon },
         ],
     },
     {
         id: 'appearance',
-        label: 'Appearance',
+        label: 'settings.category.appearance',
         icon: PaintBrushIcon,
-        description: 'Branding & themes',
+        description: 'settings.category.appearance.description',
         tabs: [
-            { id: 'branding', label: 'Branding', icon: SwatchIcon },
-            { id: 'appearance', label: 'Themes', icon: PaintBrushIcon },
+            { id: 'branding', label: 'settings.tab.branding', icon: SwatchIcon },
+            { id: 'appearance', label: 'settings.tab.themes', icon: PaintBrushIcon },
         ],
     },
     {
         id: 'communications',
-        label: 'Communications',
+        label: 'settings.category.communications',
         icon: MegaphoneIcon,
-        description: 'SMS, email & notifications',
+        description: 'settings.category.communications.description',
         tabs: [
-            { id: 'sms', label: 'SMS Templates', icon: ChatBubbleLeftIcon },
-            { id: 'email', label: 'Email', icon: EnvelopeIcon },
-            { id: 'notifications', label: 'Notifications', icon: BellIcon },
+            { id: 'sms', label: 'settings.tab.sms', icon: ChatBubbleLeftIcon },
+            { id: 'email', label: 'settings.tab.email', icon: EnvelopeIcon },
+            { id: 'notifications', label: 'settings.tab.notifications', icon: BellIcon },
         ],
     },
     {
         id: 'system',
-        label: 'System & Security',
+        label: 'settings.category.system',
         icon: ServerStackIcon,
-        description: 'Security, users & database',
+        description: 'settings.category.system.description',
         tabs: [
-            { id: 'security', label: 'Security', icon: LockClosedIcon },
-            { id: 'permissions', label: 'Permissions', icon: KeyIcon, adminOnly: true },
-            { id: 'users', label: 'Users', icon: UsersIcon, adminOnly: true },
-            { id: 'database', label: 'Database', icon: CircleStackIcon, adminOnly: true },
-            { id: 'ai_vision', label: 'AI Vision', icon: CameraIcon },
+            { id: 'security', label: 'settings.tab.security', icon: LockClosedIcon },
+            { id: 'permissions', label: 'settings.tab.permissions', icon: KeyIcon, adminOnly: true },
+            { id: 'users', label: 'settings.tab.users', icon: UsersIcon, adminOnly: true },
+            { id: 'database', label: 'settings.tab.database', icon: CircleStackIcon, adminOnly: true },
+            { id: 'ai_vision', label: 'settings.tab.aiVision', icon: CameraIcon },
         ],
     },
 ];
@@ -191,10 +191,10 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className={cn('text-sm font-semibold', isActive && 'text-primary')}>
-                                            {t(`settings.category.${category.id}`) || category.label}
+                                            {t(category.label)}
                                         </p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                            {category.description}
+                                            {t(category.description)}
                                         </p>
                                     </div>
                                 </button>
@@ -205,7 +205,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                     {/* Sub-tabs for active category */}
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-1 mb-3">
-                            {t(`settings.category.${currentCategory.id}`) || currentCategory.label}
+                            {t(currentCategory.label)}
                         </p>
                         <nav className="space-y-1">
                             {availableTabs.map((tab) => {
@@ -224,7 +224,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                                         )}
                                     >
                                         {Icon && <Icon className="h-4 w-4" />}
-                                        <span className="truncate">{t(tab.id) || tab.label}</span>
+                                        <span className="truncate">{t(tab.label)}</span>
                                         {fullTab?.adminOnly && (
                                             <span className="ml-auto px-1.5 py-0.5 text-[10px] font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded">
                                                 Admin
@@ -263,7 +263,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                                 )}
                             >
                                 <Icon className="h-4 w-4" />
-                                {category.label}
+                                {t(category.label)}
                             </button>
                         );
                     })}
@@ -284,7 +284,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                                         : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
                                 )}
                             >
-                                {t(tab.id) || tab.label}
+                                {t(tab.label)}
                             </button>
                         );
                     })}
@@ -312,7 +312,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                     >
                         {SETTINGS_CATEGORIES.map((category) => (
                             <option key={category.id} value={category.id}>
-                                {category.label}
+                                {t(category.label)}
                             </option>
                         ))}
                     </select>
@@ -330,7 +330,7 @@ export function SettingsTabNav({ tabs, activeTab, onTabChange, className }: Sett
                     >
                         {availableTabs.map((tab) => (
                             <option key={tab.id} value={tab.id}>
-                                {t(tab.id) || tab.label}
+                                {t(tab.label)}
                             </option>
                         ))}
                     </select>
