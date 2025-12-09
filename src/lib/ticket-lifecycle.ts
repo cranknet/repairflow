@@ -3,6 +3,8 @@
  * Pure utility functions for managing ticket status transitions - no database access
  */
 
+import { getServerTranslation, type Language } from './server-translation';
+
 // Status constants matching schema.prisma
 export const TicketStatus = {
     RECEIVED: 'RECEIVED',
@@ -183,46 +185,45 @@ export const RETURN_WINDOW_SETTING_KEY = 'return_window_days';
 export const DEFAULT_RETURN_WINDOW_DAYS = 30;
 
 /**
- * Get status display info for UI
+ * Status color mapping (colors don't need translation)
  */
-export function getStatusDisplayInfo(status: string): { label: string; color: string; description: string } {
-    const statusInfo: Record<string, { label: string; color: string; description: string }> = {
-        [TicketStatus.RECEIVED]: {
-            label: 'Received',
-            color: 'blue',
-            description: 'Device handed in, ticket created',
-        },
-        [TicketStatus.IN_PROGRESS]: {
-            label: 'In Progress',
-            color: 'yellow',
-            description: 'Technician has begun diagnostics/repair',
-        },
-        [TicketStatus.WAITING_FOR_PARTS]: {
-            label: 'Waiting for Parts',
-            color: 'orange',
-            description: 'Awaiting required inventory parts',
-        },
-        [TicketStatus.REPAIRED]: {
-            label: 'Repaired',
-            color: 'green',
-            description: 'Repair completed, awaiting pickup',
-        },
-        [TicketStatus.COMPLETED]: {
-            label: 'Completed',
-            color: 'emerald',
-            description: 'Device picked up by customer',
-        },
-        [TicketStatus.RETURNED]: {
-            label: 'Returned',
-            color: 'purple',
-            description: 'Customer returned repaired device',
-        },
-        [TicketStatus.CANCELLED]: {
-            label: 'Cancelled',
-            color: 'red',
-            description: 'Job aborted',
-        },
-    };
+const STATUS_COLORS: Record<string, string> = {
+    [TicketStatus.RECEIVED]: 'blue',
+    [TicketStatus.IN_PROGRESS]: 'yellow',
+    [TicketStatus.WAITING_FOR_PARTS]: 'orange',
+    [TicketStatus.REPAIRED]: 'green',
+    [TicketStatus.COMPLETED]: 'emerald',
+    [TicketStatus.RETURNED]: 'purple',
+    [TicketStatus.CANCELLED]: 'red',
+};
 
-    return statusInfo[status] || { label: status, color: 'gray', description: '' };
+/**
+ * Status translation key mapping
+ */
+const STATUS_KEYS: Record<string, string> = {
+    [TicketStatus.RECEIVED]: 'received',
+    [TicketStatus.IN_PROGRESS]: 'inProgress',
+    [TicketStatus.WAITING_FOR_PARTS]: 'waitingForParts',
+    [TicketStatus.REPAIRED]: 'repaired',
+    [TicketStatus.COMPLETED]: 'completed',
+    [TicketStatus.RETURNED]: 'returned',
+    [TicketStatus.CANCELLED]: 'cancelled',
+};
+
+/**
+ * Get status display info for UI
+ * @param status - The ticket status
+ * @param lang - Optional language for translations (defaults to 'en')
+ */
+export function getStatusDisplayInfo(status: string, lang: Language = 'en'): { label: string; color: string; description: string } {
+    const key = STATUS_KEYS[status];
+    if (!key) {
+        return { label: status, color: 'gray', description: '' };
+    }
+
+    return {
+        label: getServerTranslation(`status.${key}.label`, lang),
+        color: STATUS_COLORS[status] || 'gray',
+        description: getServerTranslation(`status.${key}.description`, lang),
+    };
 }
