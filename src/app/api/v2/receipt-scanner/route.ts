@@ -12,6 +12,7 @@ import { extractTextWithOCRSpace, OCRError } from '@/lib/ocr-service';
 import { parseReceiptText, AIParseError } from '@/lib/ai-text-parser';
 import { matchPartsToInventory, addMatchedPartsToInventory } from '@/lib/part-matcher';
 import { z } from 'zod';
+import { t } from '@/lib/server-translation';
 
 // Scanning modes
 type ScanMode = 'tesseract' | 'ocrspace' | 'vision';
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     try {
         const session = await auth();
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: t('unauthorized') }, { status: 401 });
         }
 
         const body = await request.json();
@@ -69,11 +70,11 @@ export async function POST(request: NextRequest) {
         // Handle OCR errors
         if (error instanceof OCRError) {
             const errorMessages: Record<string, { message: string; statusCode: number }> = {
-                'NETWORK_ERROR': { message: 'Internet connection required for receipt scanning', statusCode: 503 },
-                'INVALID_API_KEY': { message: 'OCR API key is invalid. Please check Settings', statusCode: 400 },
-                'RATE_LIMIT': { message: 'OCR rate limit exceeded (500/day on free plan)', statusCode: 429 },
-                'IMAGE_ERROR': { message: 'Could not read image. Please try a clearer photo', statusCode: 400 },
-                'OCR_FAILED': { message: 'OCR processing failed. Please try again', statusCode: 500 },
+                'NETWORK_ERROR': { message: t('internetConnectionRequiredForReceipt'), statusCode: 503 },
+                'INVALID_API_KEY': { message: t('ocrApiKeyIsInvalid'), statusCode: 400 },
+                'RATE_LIMIT': { message: t('ocrRateLimitExceeded500day'), statusCode: 429 },
+                'IMAGE_ERROR': { message: t('errors.imageError'), statusCode: 400 },
+                'OCR_FAILED': { message: t('ocrProcessingFailedPleaseTry'), statusCode: 500 },
             };
             const errorInfo = errorMessages[error.code] || { message: error.message, statusCode: 500 };
             return NextResponse.json(
@@ -85,11 +86,11 @@ export async function POST(request: NextRequest) {
         // Handle AI Parse errors
         if (error instanceof AIParseError) {
             const errorMessages: Record<string, { message: string; statusCode: number }> = {
-                'NETWORK_ERROR': { message: 'Internet connection required', statusCode: 503 },
-                'INVALID_API_KEY': { message: 'AI API key is invalid. Please check Settings', statusCode: 400 },
-                'RATE_LIMIT': { message: 'Too many requests. Please wait and try again', statusCode: 429 },
+                'NETWORK_ERROR': { message: t('receiptScanner.noInternet'), statusCode: 503 },
+                'INVALID_API_KEY': { message: t('aiApiKeyIsInvalid'), statusCode: 400 },
+                'RATE_LIMIT': { message: t('tooManyRequestsPleaseWait'), statusCode: 429 },
                 'NO_PARTS': { message: 'No parts detected in this receipt', statusCode: 400 },
-                'PARSE_ERROR': { message: 'Failed to parse receipt text', statusCode: 500 },
+                'PARSE_ERROR': { message: t('failedToParseReceiptText'), statusCode: 500 },
             };
             const errorInfo = errorMessages[error.code] || { message: error.message, statusCode: 500 };
             return NextResponse.json(
@@ -102,12 +103,12 @@ export async function POST(request: NextRequest) {
         if ((error as AIVisionError).code) {
             const aiError = error as AIVisionError;
             const errorMessages: Record<string, { message: string; statusCode: number }> = {
-                'NO_INTERNET': { message: 'Internet connection required for receipt scanning', statusCode: 503 },
-                'INVALID_API_KEY': { message: 'AI Vision API key is invalid. Please check Settings', statusCode: 400 },
-                'RATE_LIMIT': { message: 'Too many requests. Please wait and try again', statusCode: 429 },
-                'IMAGE_QUALITY': { message: 'Image quality too low. Please retake photo', statusCode: 400 },
-                'NO_PARTS': { message: 'No parts detected in this image', statusCode: 400 },
-                'SERVICE_DOWN': { message: 'AI service temporarily unavailable. Please try again', statusCode: 503 },
+                'NO_INTERNET': { message: t('internetConnectionRequiredForReceipt'), statusCode: 503 },
+                'INVALID_API_KEY': { message: t('aiVisionApiKeyIs'), statusCode: 400 },
+                'RATE_LIMIT': { message: t('tooManyRequestsPleaseWait'), statusCode: 429 },
+                'IMAGE_QUALITY': { message: t('imageQualityTooLowPlease'), statusCode: 400 },
+                'NO_PARTS': { message: t('noPartsDetectedInThis'), statusCode: 400 },
+                'SERVICE_DOWN': { message: t('aiServiceTemporarilyUnavailablePlease'), statusCode: 503 },
             };
             const errorInfo = errorMessages[aiError.code] || { message: aiError.message, statusCode: 500 };
             return NextResponse.json(
@@ -118,13 +119,13 @@ export async function POST(request: NextRequest) {
 
         if (error instanceof z.ZodError) {
             return NextResponse.json(
-                { error: 'Validation error', details: error.errors },
+                { error: t('validationError'), details: error.errors },
                 { status: 400 }
             );
         }
 
         return NextResponse.json(
-            { error: 'Failed to process receipt' },
+            { error: t('receiptScanner.processFailed') },
             { status: 500 }
         );
     }
@@ -164,7 +165,7 @@ async function handleScanReceipt(body: any, userId: string) {
         // Mode 1: AI Vision (most expensive, best quality)
         if (!aiApiKey) {
             return NextResponse.json(
-                { error: 'AI API key not configured. Please configure in Settings', code: 'INVALID_API_KEY', retryable: false },
+                { error: t('aiApiKeyNotConfigured'), code: 'INVALID_API_KEY', retryable: false },
                 { status: 400 }
             );
         }
@@ -183,7 +184,7 @@ async function handleScanReceipt(body: any, userId: string) {
         // Mode 2: OCR.space + Normal API
         if (!ocrApiKey) {
             return NextResponse.json(
-                { error: 'OCR.space API key not configured. Please configure in Settings', code: 'INVALID_API_KEY', retryable: false },
+                { error: t('ocrspaceApiKeyNotConfigured'), code: 'INVALID_API_KEY', retryable: false },
                 { status: 400 }
             );
         }
@@ -212,7 +213,7 @@ async function handleScanReceipt(body: any, userId: string) {
         // In this mode, the client sends pre-extracted OCR text
         if (!data.ocrText) {
             return NextResponse.json(
-                { error: 'OCR text not provided. Client should use Tesseract.js to extract text first.', code: 'PARSE_ERROR', retryable: false },
+                { error: t('ocrTextNotProvidedClient'), code: 'PARSE_ERROR', retryable: false },
                 { status: 400 }
             );
         }
@@ -283,7 +284,7 @@ async function handleConfirmParts(body: any, userId: string) {
                 return NextResponse.json({
                     success: false,
                     duplicate: true,
-                    duplicateType: 'invoice',
+                    duplicateType: t('invoice'),
                     message: `Invoice "${data.invoiceNumber}" was already scanned on ${existingByInvoice.scannedAt.toLocaleDateString()}`,
                     existingRecord: {
                         id: existingByInvoice.id,

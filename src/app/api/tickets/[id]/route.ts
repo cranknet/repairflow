@@ -176,7 +176,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (ticketSettings.requireStatusNotes) {
         if (!data.statusNotes || data.statusNotes.trim() === '') {
           return NextResponse.json(
-            { error: 'Notes are required when changing ticket status' },
+            { error: t('notesAreRequiredWhenChanging') },
             { status: 400 }
           );
         }
@@ -224,7 +224,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (!statusUser) {
         return NextResponse.json(
           {
-            error: 'Authentication error',
+            error: t('authenticationError'),
             details: 'Your user account is no longer valid. Please log out and log in again.'
           },
           { status: 401 }
@@ -305,7 +305,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           // Relative adjustment: add/subtract from current price
           newFinalPrice = currentFinalPrice + data.priceAdjustment!;
           if (newFinalPrice < 0) {
-            return NextResponse.json({ error: 'Price cannot be negative' }, { status: 400 });
+            return NextResponse.json({ error: t('priceCannotBeNegative') }, { status: 400 });
           }
         } else {
           newFinalPrice = data.finalPrice!;
@@ -317,7 +317,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         if (priceIsChanging) {
           // For subsequent adjustments (not initial), require a reason
           if (!isInitialPriceSetting && (!data.priceAdjustmentReason || data.priceAdjustmentReason.trim() === '')) {
-            return NextResponse.json({ error: 'Reason is required for price adjustment' }, { status: 400 });
+            return NextResponse.json({ error: t('reasonIsRequiredForPrice') }, { status: 400 });
           }
 
           // Verify the user exists before creating price adjustment
@@ -330,7 +330,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           if (!user) {
             return NextResponse.json(
               {
-                error: 'Authentication error',
+                error: t('authenticationError'),
                 details: 'Your user account is no longer valid. Please log out and log in again.'
               },
               { status: 401 }
@@ -447,7 +447,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           }
         }
       } else {
-        return NextResponse.json({ error: 'Price can only be adjusted after repair is finished' }, { status: 400 });
+        return NextResponse.json({ error: t('priceCanOnlyBeAdjusted') }, { status: 400 });
       }
     }
 
@@ -509,7 +509,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json(updatedTicket);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: t('validationError'), details: error.errors }, { status: 400 });
     }
 
     // Handle Prisma foreign key errors
@@ -520,7 +520,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       console.error('Update data that caused error:', JSON.stringify(updateData, null, 2));
       return NextResponse.json(
         {
-          error: 'Foreign key constraint violation',
+          error: t('foreignKeyConstraintViolation'),
           details: `The referenced record does not exist. Field: ${meta?.field_name || 'unknown'}, Model: ${meta?.model_name || 'unknown'}, Target: ${JSON.stringify(meta?.target || 'unknown')}`
         },
         { status: 400 }
@@ -528,8 +528,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     console.error('Error updating ticket:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: 'Failed to update ticket', details: errorMessage }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : t('unknownError');
+    return NextResponse.json({ error: t('failedToUpdateTicket'), details: errorMessage }, { status: 500 });
   }
 }
 
@@ -579,7 +579,7 @@ export async function DELETE(
     // Already soft-deleted
     if (ticket.deletedAt) {
       return NextResponse.json(
-        { error: 'Ticket is already deleted' },
+        { error: t('ticketIsAlreadyDeleted') },
         { status: 400 }
       );
     }
@@ -588,7 +588,7 @@ export async function DELETE(
     if (ticket._count.payments > 0) {
       return NextResponse.json(
         {
-          error: 'Cannot delete ticket with payment records. Payment history must be preserved for financial audit trail.',
+          error: t('cannotDeleteTicketWithPayment'),
           code: 'HAS_PAYMENTS'
         },
         { status: 403 }
@@ -599,7 +599,7 @@ export async function DELETE(
     if (ticket._count.returns > 0) {
       return NextResponse.json(
         {
-          error: 'Cannot delete ticket with return records. Return history must be preserved for financial audit trail.',
+          error: t('cannotDeleteTicketWithReturn'),
           code: 'HAS_RETURNS'
         },
         { status: 403 }
@@ -647,7 +647,7 @@ export async function DELETE(
 
       return NextResponse.json({
         success: true,
-        message: 'Ticket archived successfully (preserved for financial audit)',
+        message: t('ticketArchivedSuccessfullyPreservedFor'),
         deleteType: 'soft'
       });
     }

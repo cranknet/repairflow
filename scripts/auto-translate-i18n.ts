@@ -45,19 +45,36 @@ async function main() {
     const ar = JSON.parse(fs.readFileSync(arPath, 'utf-8')) as Record<string, string>;
 
     const todoMarker = '[TODO_TRANSLATE]';
+    const translateMarker = '[TRANSLATE]';
 
-    const keys = Object.keys(fr).filter(k => fr[k].startsWith(todoMarker));
+    const keys = Object.keys(fr).filter(k => 
+        fr[k].startsWith(todoMarker) || fr[k].startsWith(translateMarker)
+    );
     console.log(`Found ${keys.length} missing French translations.`);
 
     for (const key of keys) {
         const sourceText = en[key] ?? key; // fallback to key if missing in en
-        const cleanSource = sourceText.replace(/^\[TODO_TRANSLATE\]\s*/, '').trim();
+        const cleanSource = sourceText
+            .replace(/^\[TODO_TRANSLATE\]\s*/, '')
+            .replace(/^\[TRANSLATE\]\s*/, '')
+            .trim();
         try {
             const frText = await translate(cleanSource, 'fr');
             fr[key] = frText;
             const arText = await translate(cleanSource, 'ar');
             ar[key] = arText;
             console.log(`✔ Translated ${key}`);
+            
+            // If translation failed (returned source text), re-add the marker
+            if (frText === cleanSource && !fr[key].startsWith(translateMarker)) {
+                fr[key] = `${translateMarker} ${cleanSource}`;
+            }
+            if (arText === cleanSource && !ar[key].startsWith(translateMarker)) {
+                ar[key] = `${translateMarker} ${cleanSource}`;
+            }
+            
+            // Add a small delay to be nice to the free API
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (e) {
             console.error(`❌ Failed to translate ${key}:`, e);
         }

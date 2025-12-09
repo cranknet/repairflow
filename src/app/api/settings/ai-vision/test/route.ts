@@ -7,12 +7,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { AIVisionProvider } from '@/lib/ai-vision';
+import { t } from '@/lib/server-translation';
 
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
         if (!session || session.user.role !== 'ADMIN') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: t('unauthorized') }, { status: 401 });
         }
 
         const body = await request.json();
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
             }
 
             if (!keyToTest) {
-                return NextResponse.json({ success: false, error: 'No OCR API key provided' }, { status: 400 });
+                return NextResponse.json({ success: false, error: t('noOcrApiKeyProvided') }, { status: 400 });
             }
 
             const result = await testOCRSpace(keyToTest);
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
             }
 
             if (!keyToTest) {
-                return NextResponse.json({ success: false, error: 'No AI API key provided' }, { status: 400 });
+                return NextResponse.json({ success: false, error: t('noAiApiKeyProvided') }, { status: 400 });
             }
 
             const providerToTest = provider || 'openai';
@@ -69,14 +70,14 @@ export async function POST(request: NextRequest) {
                     result = await testAnthropic(keyToTest);
                     break;
                 default:
-                    result = { success: false, error: 'Unknown provider' };
+                    result = { success: false, error: t('unknownProvider') };
             }
 
             return NextResponse.json({ ...result, latency: Date.now() - startTime, provider: providerToTest });
         }
     } catch (error) {
         console.error('Error testing API key:', error);
-        return NextResponse.json({ success: false, error: 'Test failed' }, { status: 500 });
+        return NextResponse.json({ success: false, error: t('testFailed') }, { status: 500 });
     }
 }
 
@@ -99,10 +100,10 @@ async function testOCRSpace(apiKey: string): Promise<{ success: boolean; error?:
 
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
-                return { success: false, error: 'Invalid API key' };
+                return { success: false, error: t('invalidApiKey') };
             }
             if (response.status === 429) {
-                return { success: false, error: 'Rate limit exceeded' };
+                return { success: false, error: t('rateLimitExceeded') };
             }
             return { success: false, error: `API error: ${response.status}` };
         }
@@ -111,12 +112,12 @@ async function testOCRSpace(apiKey: string): Promise<{ success: boolean; error?:
 
         // Even with an empty image, a valid key will get a response
         if (result.ErrorMessage && result.ErrorMessage.includes('API key')) {
-            return { success: false, error: 'Invalid API key' };
+            return { success: false, error: t('invalidApiKey') };
         }
 
         return { success: true };
     } catch (error) {
-        return { success: false, error: 'Network error' };
+        return { success: false, error: t('networkError') };
     }
 }
 
@@ -129,15 +130,15 @@ async function testOpenAI(apiKey: string): Promise<{ success: boolean; error?: s
         },
         body: JSON.stringify({
             model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: 'Say OK' }],
+            messages: [{ role: 'user', content: t('sayOk') }],
             max_tokens: 5,
         }),
     });
 
     if (!response.ok) {
-        if (response.status === 401) return { success: false, error: 'Invalid API key' };
-        if (response.status === 429) return { success: false, error: 'Rate limit exceeded' };
-        if (response.status === 403) return { success: false, error: 'API key lacks permissions' };
+        if (response.status === 401) return { success: false, error: t('invalidApiKey') };
+        if (response.status === 429) return { success: false, error: t('rateLimitExceeded') };
+        if (response.status === 403) return { success: false, error: t('apiKeyLacksPermissions') };
         const error = await response.json().catch(() => ({}));
         return { success: false, error: error.error?.message || `API error (${response.status})` };
     }
@@ -152,7 +153,7 @@ async function testGoogle(apiKey: string): Promise<{ success: boolean; error?: s
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: 'Say OK' }] }],
+                contents: [{ parts: [{ text: t('sayOk') }] }],
                 generationConfig: { maxOutputTokens: 5 },
             }),
         }
@@ -161,9 +162,9 @@ async function testGoogle(apiKey: string): Promise<{ success: boolean; error?: s
     if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         if (response.status === 400 && error.error?.message?.includes('API key')) {
-            return { success: false, error: 'Invalid API key' };
+            return { success: false, error: t('invalidApiKey') };
         }
-        if (response.status === 429) return { success: false, error: 'Rate limit exceeded' };
+        if (response.status === 429) return { success: false, error: t('rateLimitExceeded') };
         return { success: false, error: error.error?.message || `API error (${response.status})` };
     }
 
@@ -181,13 +182,13 @@ async function testAnthropic(apiKey: string): Promise<{ success: boolean; error?
         body: JSON.stringify({
             model: 'claude-3-haiku-20240307',
             max_tokens: 5,
-            messages: [{ role: 'user', content: 'Say OK' }],
+            messages: [{ role: 'user', content: t('sayOk') }],
         }),
     });
 
     if (!response.ok) {
-        if (response.status === 401) return { success: false, error: 'Invalid API key' };
-        if (response.status === 429) return { success: false, error: 'Rate limit exceeded' };
+        if (response.status === 401) return { success: false, error: t('invalidApiKey') };
+        if (response.status === 429) return { success: false, error: t('rateLimitExceeded') };
         const error = await response.json().catch(() => ({}));
         return { success: false, error: error.error?.message || `API error (${response.status})` };
     }
