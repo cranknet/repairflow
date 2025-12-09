@@ -9,6 +9,7 @@ import { TicketPaymentModal } from './ticket-payment-modal';
 import { StatusProgressBar } from './status-progress-bar';
 import { useLanguage } from '@/contexts/language-context';
 import { TicketPrintProvider } from './ticket-print-context';
+import { TicketPrintButtons } from './ticket-print-buttons';
 
 interface TicketPart {
   id: string;

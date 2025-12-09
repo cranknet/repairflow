@@ -117,6 +117,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
       <TicketDetailHeader
         ticketNumber={ticket.ticketNumber}
         createdAt={ticket.createdAt}
+        ticket={enrichedTicket}
       />
 
       {/* Progress Bar */}

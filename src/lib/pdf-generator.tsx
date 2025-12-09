@@ -1,13 +1,37 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { format } from 'date-fns';
 
-// Register a font that supports Arabic (using a publicly available Google Font or local if available)
-// For now, we'll try to use a standard font, but in production, you should bundle 'Amiri' or 'Cairo'
+// Register Arabic font using Google Fonts TTF URLs (direct links)
 Font.register({
     family: 'Amiri',
-    src: 'https://fonts.gstatic.com/s/amiri/v22/J7aRnpd8CGxBHpUrtLMg7Q.ttf'
+    fonts: [
+        {
+            src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf',
+            fontWeight: 400,
+            fontStyle: 'normal'
+        },
+        {
+            src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Italic.ttf',
+            fontWeight: 400,
+            fontStyle: 'italic'
+        },
+        {
+            src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Bold.ttf',
+            fontWeight: 700,
+            fontStyle: 'normal'
+        },
+        {
+            src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-BoldItalic.ttf',
+            fontWeight: 700,
+            fontStyle: 'italic'
+        },
+    ],
 });
+
+// Hyphenation callback - needed for Arabic
+Font.registerHyphenationCallback(word => [word]);
+
 
 // Styles
 const styles = StyleSheet.create({

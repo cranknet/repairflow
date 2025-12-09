@@ -8,7 +8,7 @@ import { ReceiptTemplate } from './receipt-template';
 type PrintFormat = 'label' | 'receipt' | 'invoice';
 
 interface TicketPrintContextType {
-    print: (format: PrintFormat, language: 'en' | 'fr' | 'ar') => Promise<void>;
+    print: (format: PrintFormat, language: 'en' | 'fr') => Promise<void>;
     autoPrint: () => Promise<void>;
     isGeneratingPdf: boolean;
 }
@@ -35,7 +35,7 @@ export function TicketPrintProvider({ children, ticket }: TicketPrintProviderPro
 
     // State for rendering hidden content
     const [renderFormat, setRenderFormat] = useState<PrintFormat | null>(null);
-    const [renderLanguage, setRenderLanguage] = useState<'en' | 'fr' | 'ar'>('en');
+    const [renderLanguage, setRenderLanguage] = useState<'en' | 'fr'>('en');
 
     // Fetch settings on mount
     const [settings, setSettings] = useState<Record<string, string>>({});
@@ -49,7 +49,7 @@ export function TicketPrintProvider({ children, ticket }: TicketPrintProviderPro
             .catch(console.error);
     }, []);
 
-    const print = async (format: PrintFormat, language: 'en' | 'fr' | 'ar') => {
+    const print = async (format: PrintFormat, language: 'en' | 'fr') => {
         if (format === 'invoice') {
             await handlePdfPrint(language);
         } else {
@@ -64,7 +64,7 @@ export function TicketPrintProvider({ children, ticket }: TicketPrintProviderPro
         // logic: if user explicitly sets "Invoice Size" to "Thermal", assume Receipt format
         // if A4, assume Invoice PDF format
         const invoiceSize = settings['print_invoice_size'] || '80x120';
-        const lang = (settings['default_print_language'] as 'en' | 'fr' | 'ar') || 'en';
+        const lang = (settings['default_print_language'] as 'en' | 'fr') || 'en';
 
         if (invoiceSize === '80x120') {
             // Auto print thermal receipt
@@ -114,7 +114,7 @@ export function TicketPrintProvider({ children, ticket }: TicketPrintProviderPro
         }
     };
 
-    const handleClientPrint = (format: 'label' | 'receipt', language: 'en' | 'fr' | 'ar') => {
+    const handleClientPrint = (format: 'label' | 'receipt', language: 'en' | 'fr') => {
         return new Promise<void>((resolve) => {
             // Set state to render the content
             setRenderFormat(format);
@@ -151,11 +151,10 @@ export function TicketPrintProvider({ children, ticket }: TicketPrintProviderPro
                     height = 'auto';
                 }
 
-                const isRTL = language === 'ar';
 
                 const printContent = `
             <!DOCTYPE html>
-            <html dir="${isRTL ? 'rtl' : 'ltr'}">
+            <html dir="ltr">
                 <head>
                 <title>Ticket-${ticket.ticketNumber}-${format}</title>
                 <style>

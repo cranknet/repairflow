@@ -80,6 +80,9 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Print API Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : '';
+        console.error('Error details:', { message: errorMessage, stack: errorStack });
+        return NextResponse.json({ error: 'Internal Server Error', details: errorMessage }, { status: 500 });
     }
 }
