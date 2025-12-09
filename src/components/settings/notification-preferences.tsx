@@ -14,26 +14,28 @@ interface NotificationPreference {
   enabled: boolean;
 }
 
+// Entity types with translation keys
 const ENTITY_TYPES = [
-  { value: 'customer', label: 'Customer' },
-  { value: 'ticket', label: 'Ticket' },
-  { value: 'payment', label: 'Payment' },
-  { value: 'charge', label: 'Charge' },
-  { value: 'repairjob', label: 'Repair Job' },
-  { value: 'part', label: 'Part' },
-  { value: 'supplier', label: 'Supplier' },
+  { value: 'customer', labelKey: 'customer' },
+  { value: 'ticket', labelKey: 'ticket' },
+  { value: 'payment', labelKey: 'payment' },
+  { value: 'charge', labelKey: 'charge' },
+  { value: 'repairjob', labelKey: 'repairJob' },
+  { value: 'part', labelKey: 'part' },
+  { value: 'supplier', labelKey: 'supplier' },
 ];
 
+// Actions with translation keys
 const ACTIONS = [
-  { value: 'created', label: 'Created' },
-  { value: 'updated', label: 'Updated' },
-  { value: 'deleted', label: 'Deleted' },
-  { value: 'status_changed', label: 'Status Changed' },
-  { value: 'assigned', label: 'Assigned' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'used', label: 'Used' },
-  { value: 'removed', label: 'Removed' },
-  { value: 'added', label: 'Added' },
+  { value: 'created', labelKey: 'created' },
+  { value: 'updated', labelKey: 'updated' },
+  { value: 'deleted', labelKey: 'deleted' },
+  { value: 'status_changed', labelKey: 'statusChanged' },
+  { value: 'assigned', labelKey: 'assigned' },
+  { value: 'completed', labelKey: 'completed' },
+  { value: 'used', labelKey: 'used' },
+  { value: 'removed', labelKey: 'removed' },
+  { value: 'added', labelKey: 'added' },
 ];
 
 export function NotificationPreferences() {
@@ -104,7 +106,7 @@ export function NotificationPreferences() {
       if (response.ok) {
         toast({
           title: t('success'),
-          description: 'Notification preferences saved successfully',
+          description: t('notificationPreferencesSaved'),
         });
         await fetchPreferences();
       } else {
@@ -113,7 +115,7 @@ export function NotificationPreferences() {
     } catch (error) {
       toast({
         title: t('error'),
-        description: 'Failed to save notification preferences',
+        description: t('failedToSaveNotificationPreferences'),
         variant: 'destructive',
       });
     } finally {
@@ -122,21 +124,21 @@ export function NotificationPreferences() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading preferences...</div>;
+    return <div className="text-center py-8">{t('loadingPreferences')}</div>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
+        <CardTitle>{t('notificationPreferences')}</CardTitle>
         <CardDescription>
-          Choose which notifications you want to receive for different events
+          {t('notificationPreferencesDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {ENTITY_TYPES.map((entity) => (
           <div key={entity.value} className="space-y-3">
-            <h3 className="font-semibold text-lg">{entity.label}</h3>
+            <h3 className="font-semibold text-lg">{t(entity.labelKey)}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {ACTIONS.filter((action) => {
                 // Filter actions based on entity type
@@ -170,7 +172,7 @@ export function NotificationPreferences() {
                     onChange={() => togglePreference(entity.value, action.value)}
                     className="rounded"
                   />
-                  <span className="text-sm">{action.label}</span>
+                  <span className="text-sm">{t(action.labelKey)}</span>
                 </label>
               ))}
             </div>
@@ -179,7 +181,7 @@ export function NotificationPreferences() {
         
         <div className="pt-4 border-t">
           <Button onClick={savePreferences} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Preferences'}
+            {isSaving ? t('saving') : t('savePreferences')}
           </Button>
         </div>
       </CardContent>
