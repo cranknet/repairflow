@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { emitEvent } from '@/lib/events/emitter';
 import { nanoid } from 'nanoid';
+import { t } from '@/lib/server-translation';
 
 const updateSupplierSchema = z.object({
   name: z.string().min(1).optional(),
@@ -21,7 +22,7 @@ export async function GET(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -35,14 +36,14 @@ export async function GET(
     });
 
     if (!supplier) {
-      return NextResponse.json({ error: 'Supplier not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.supplierNotFound') }, { status: 404 });
     }
 
     return NextResponse.json(supplier);
   } catch (error) {
     console.error('Error fetching supplier:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch supplier' },
+      { error: t('errors.failedToFetch') },
       { status: 500 }
     );
   }
@@ -55,7 +56,7 @@ export async function PATCH(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -68,7 +69,7 @@ export async function PATCH(
     });
 
     if (!existingSupplier) {
-      return NextResponse.json({ error: 'Supplier not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.supplierNotFound') }, { status: 404 });
     }
 
     const updateData: any = {};
@@ -103,13 +104,13 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: t('errors.invalidInput'), details: error.errors },
         { status: 400 }
       );
     }
     console.error('Error updating supplier:', error);
     return NextResponse.json(
-      { error: 'Failed to update supplier' },
+      { error: t('errors.failedToUpdate') },
       { status: 500 }
     );
   }
@@ -122,13 +123,13 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     // Only admins can delete suppliers
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Only administrators can delete suppliers' },
+        { error: t('errors.onlyAdminsCanDelete') },
         { status: 403 }
       );
     }
@@ -146,7 +147,7 @@ export async function DELETE(
     });
 
     if (!supplier) {
-      return NextResponse.json({ error: 'Supplier not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.supplierNotFound') }, { status: 404 });
     }
 
     // Prevent deletion if supplier has parts
@@ -180,7 +181,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting supplier:', error);
     return NextResponse.json(
-      { error: 'Failed to delete supplier' },
+      { error: t('errors.failedToDelete') },
       { status: 500 }
     );
   }
