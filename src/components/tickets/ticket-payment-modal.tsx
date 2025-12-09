@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
+import { useTicketPrint } from './ticket-print-context';
 
 interface TicketPaymentModalProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export function TicketPaymentModal({
 }: TicketPaymentModalProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { autoPrint } = useTicketPrint();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState('');
@@ -187,6 +189,9 @@ export function TicketPaymentModal({
 
       onSuccess();
       onClose();
+      // Trigger auto-print
+      await autoPrint();
+
       router.refresh();
     } catch (error) {
       toast({
@@ -350,8 +355,8 @@ export function TicketPaymentModal({
                     type="button"
                     onClick={() => setAdjustmentMode('add')}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-colors ${adjustmentMode === 'add'
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                       }`}
                   >
                     <span className="material-symbols-outlined">add_circle</span>
@@ -361,8 +366,8 @@ export function TicketPaymentModal({
                     type="button"
                     onClick={() => setAdjustmentMode('subtract')}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-colors ${adjustmentMode === 'subtract'
-                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                       }`}
                   >
                     <span className="material-symbols-outlined">remove_circle</span>
@@ -425,8 +430,8 @@ export function TicketPaymentModal({
               {/* Preview */}
               {adjustmentNum > 0 && (
                 <div className={`p-4 rounded-lg border-2 ${adjustmentMode === 'add'
-                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                  : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                   }`}>
                   <div className="flex justify-between items-center">
                     <div>

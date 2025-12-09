@@ -157,6 +157,20 @@ export function PrintSettingsTab({
                                 maxLength={10}
                             />
                         </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="default_print_language">{t('settings.defaultPrintLanguage') || 'Default Print Language'}</Label>
+                            <select
+                                id="default_print_language"
+                                value={settings.default_print_language || 'en'}
+                                onChange={(e) => onSettingChange('default_print_language', e.target.value)}
+                                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+                            >
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                                <option value="ar">العربية</option>
+                            </select>
+                        </div>
                     </div>
 
                     <ToggleSetting

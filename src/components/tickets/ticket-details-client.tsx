@@ -8,6 +8,7 @@ import { AddPartsModal } from './add-parts-modal';
 import { TicketPaymentModal } from './ticket-payment-modal';
 import { StatusProgressBar } from './status-progress-bar';
 import { useLanguage } from '@/contexts/language-context';
+import { TicketPrintProvider } from './ticket-print-context';
 
 interface TicketPart {
   id: string;
@@ -98,7 +99,7 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
   };
 
   return (
-    <>
+    <TicketPrintProvider ticket={ticket}>
       {/* Status Progress Bar - Main status management component */}
       <StatusProgressBar
         ticket={ticket}
@@ -163,6 +164,6 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
         onClose={handleReturnModalClose}
         ticketId={ticket.id}
       />
-    </>
+    </TicketPrintProvider>
   );
 }

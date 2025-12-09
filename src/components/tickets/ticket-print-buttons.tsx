@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PrinterIcon } from '@heroicons/react/24/outline';
+import { PrinterIcon, ArrowDownTrayIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import {
   Dialog,
   DialogContent,
@@ -11,95 +11,48 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TicketLabel40x20 } from './ticket-label-40x20';
-import { TicketLabel80x80 } from './ticket-label-80x80';
+import { ReceiptTemplate } from './receipt-template';
 import { useLanguage } from '@/contexts/language-context';
 import { useToast } from '@/components/ui/use-toast';
+import { useTicketPrint } from './ticket-print-context';
 
 export function TicketPrintButtons({ ticket }: { ticket: any }) {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { print, isGeneratingPdf } = useTicketPrint();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedFormat, setSelectedFormat] = useState<'40x20' | '80x80' | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<'label' | 'receipt' | 'invoice' | null>(null);
+  const [printLanguage, setPrintLanguage] = useState<'en' | 'fr' | 'ar'>('en');
+  // const [isGeneratingPdf, setIsGeneratingPdf] = useState(false); // Removed local state logic
   const printRef = useRef<HTMLDivElement>(null);
 
   // Check if invoice can be printed (only for REPAIRED status, or if ticket has returns)
+  // Implementation Note: User requested full payment history, so receipt/invoice might be useful even before completion
+  // But keeping restriction for Invoice PDF to avoid incomplete invoices.
   const hasReturns = ticket.returns && ticket.returns.length > 0;
-  const canPrintInvoice = ticket.status === 'REPAIRED' || hasReturns;
+  const canPrintInvoice = true; // Enabled for all statuses to allow pro-forma or receipts
 
-  const handleSelectFormat = (format: '40x20' | '80x80') => {
-    if (format === '80x80' && !canPrintInvoice) {
-      toast({
-        title: t('error'),
-        description: 'Invoice can only be printed when ticket status is Repaired',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleSelectFormat = (format: 'label' | 'receipt' | 'invoice') => {
     setSelectedFormat(format);
   };
 
-  const handlePrint = () => {
-    if (!printRef.current) return;
-
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    const content = printRef.current.innerHTML;
-    const pageSize = selectedFormat === '40x20' ? '40mm 20mm' : '80mm 120mm';
-    const title = selectedFormat === '40x20' 
-      ? `Ticket-${ticket.ticketNumber}-Label` 
-      : `Ticket-${ticket.ticketNumber}-Invoice`;
-
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${title}</title>
-          <style>
-            @page {
-              size: ${pageSize};
-              margin: 0;
-            }
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
-            body {
-              margin: 0;
-              padding: 0;
-              font-family: Arial, sans-serif;
-              width: ${selectedFormat === '40x20' ? '40mm' : '80mm'};
-              height: ${selectedFormat === '40x20' ? '20mm' : '120mm'};
-            }
-            @media print {
-              body {
-                margin: 0;
-                padding: 0;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${content}
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    
-    // Wait for content to load, then print
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.onafterprint = () => {
-        printWindow.close();
+  const handlePrint = async () => {
+    try {
+      if (selectedFormat) {
+        await print(selectedFormat, printLanguage);
         setIsDialogOpen(false);
-        setSelectedFormat(null);
-      };
-    }, 250);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -118,40 +71,68 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t('printTicket')}</DialogTitle>
+            <DialogTitle className="flex justify-between items-center">
+              <span>{t('printTicket')}</span>
+              <div className="flex items-center gap-2">
+                <GlobeAltIcon className="h-4 w-4 text-gray-500" />
+                <Select value={printLanguage} onValueChange={(v: any) => setPrintLanguage(v)}>
+                  <SelectTrigger className="w-[100px] h-8">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="ar">العربية</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </DialogTitle>
             <DialogDescription>
               {t('selectFormat')} {ticket.ticketNumber}
             </DialogDescription>
           </DialogHeader>
-          
+
           {!selectedFormat ? (
             <>
               <div className="space-y-3 py-4">
+                {/* 1. Label */}
                 <Button
-                  onClick={() => handleSelectFormat('40x20')}
+                  onClick={() => handleSelectFormat('label')}
                   variant="outline"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
-                  <div className="flex flex-col items-start">
-                    <div className="font-semibold text-base">{t('printLabel')}</div>
+                  <div className="flex flex-col items-start text-left">
+                    <div className="font-semibold text-base">{t('printLabel') || 'Print Label (40x20mm)'}</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      {t('labelDescription')}
+                      {t('labelDescription') || 'Compact label with QR code for device tracking'}
                     </div>
                   </div>
                 </Button>
+
+                {/* 2. Receipt */}
                 <Button
-                  onClick={() => handleSelectFormat('80x80')}
+                  onClick={() => handleSelectFormat('receipt')}
                   variant="outline"
                   className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  disabled={!canPrintInvoice}
-                  title={!canPrintInvoice ? 'Invoice can only be printed when ticket status is Completed or Repaired' : undefined}
                 >
-                  <div className="flex flex-col items-start">
-                    <div className={`font-semibold text-base ${!canPrintInvoice ? 'opacity-50' : ''}`}>{t('printInvoice')}</div>
+                  <div className="flex flex-col items-start text-left">
+                    <div className="font-semibold text-base">{t('printReceipt') || 'Print Receipt (Thermal)'}</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      {!canPrintInvoice 
-                        ? 'Available only when status is Completed or Repaired'
-                        : t('invoiceDescription')}
+                      {t('receiptDescription') || 'Thermal printer receipt with payment history'}
+                    </div>
+                  </div>
+                </Button>
+
+                {/* 3. Invoice PDF */}
+                <Button
+                  onClick={() => handleSelectFormat('invoice')}
+                  variant="outline"
+                  className="w-full justify-start h-auto py-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <div className="flex flex-col items-start text-left">
+                    <div className="font-semibold text-base">{t('printInvoice') || 'Print Invoice (A4 PDF)'}</div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {t('invoiceDescription') || 'Full A4 invoice for standard printers'}
                     </div>
                   </div>
                 </Button>
@@ -167,50 +148,58 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
               <div className="py-4">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-lg">
-                      {selectedFormat === '40x20' ? t('labelPreview') : t('invoicePreview')}
+                    <h3 className="font-semibold text-lg capitalize">
+                      {selectedFormat} Preview
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {t('reviewPreview')}
-                    </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedFormat(null)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedFormat(null)}>
                     ← {t('back')}
                   </Button>
                 </div>
-                
+
                 {/* Print Preview Container */}
                 <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg overflow-auto flex justify-center items-center">
-                  <div
-                    ref={printRef}
-                    className="bg-white shadow-lg border border-gray-300"
-                    style={{
-                      width: selectedFormat === '40x20' ? '151px' : '302px', // 40mm = 151px, 80mm = 302px (at 96 DPI)
-                      height: selectedFormat === '40x20' ? '76px' : '453px', // 20mm = 76px, 120mm = 453px (at 96 DPI)
-                      flexShrink: 0,
-                      minWidth: selectedFormat === '40x20' ? '151px' : '302px',
-                      minHeight: selectedFormat === '40x20' ? '76px' : '453px',
-                    }}
-                  >
-                    {selectedFormat === '40x20' ? (
-                      <TicketLabel40x20 ticket={ticket} />
-                    ) : (
-                      <TicketLabel80x80 ticket={ticket} />
-                    )}
-                  </div>
+
+                  {selectedFormat === 'invoice' ? (
+                    <div className="text-center p-10 bg-white rounded shadow">
+                      <p className="mb-4 text-gray-600">PDF Preview not available inline.</p>
+                      <Button onClick={handlePrint} disabled={isGeneratingPdf}>
+                        {isGeneratingPdf ? 'Generating...' : 'Download PDF'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      ref={printRef}
+                      className="bg-white shadow-lg border border-gray-300 origin-top transform scale-100" // prevent scale issues
+                      style={{
+                        width: selectedFormat === 'label' ? '151px' : '302px', // 40mm~151px, 80mm~302px
+                        minHeight: selectedFormat === 'label' ? '76px' : 'auto',
+                        padding: 0,
+                      }}
+                    >
+                      {selectedFormat === 'label' && <TicketLabel40x20 ticket={ticket} />}
+                      {selectedFormat === 'receipt' && <ReceiptTemplate ticket={ticket} language={printLanguage} />}
+                    </div>
+                  )}
+
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSelectedFormat(null)}>
                   {t('back')}
                 </Button>
-                <Button onClick={handlePrint}>
-                  <PrinterIcon className="h-4 w-4 mr-2" />
-                  {t('print')}
+                <Button onClick={handlePrint} disabled={isGeneratingPdf}>
+                  {selectedFormat === 'invoice' ? (
+                    <>
+                      <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                      {isGeneratingPdf ? 'Generating...' : t('download')}
+                    </>
+                  ) : (
+                    <>
+                      <PrinterIcon className="h-4 w-4 mr-2" />
+                      {t('print')}
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
             </>
