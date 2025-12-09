@@ -44,7 +44,13 @@
     "version:major": "node scripts/update-version.js major",
     "version:set": "node scripts/update-version.js set",
     "i18n:scan": "i18next-scanner --config i18next-scanner.config.js",
-    "i18n:migrate": "tsx scripts/migrate-i18n.ts"
+    "i18n:migrate": "tsx scripts/migrate-i18n.ts",
+    "i18n:check": "tsx scripts/i18n-check.ts",
+    "i18n:check:strict": "tsx scripts/i18n-check.ts --strict",
+    "i18n:report": "tsx scripts/scan-i18n-comprehensive.ts && tsx scripts/generate-i18n-summary.ts",
+    "i18n:fix": "tsx scripts/i18n-auto-fix.ts",
+    "i18n:fix:auto": "tsx scripts/i18n-auto-fix.ts --auto --missing-only",
+    "precommit": "npm run i18n:fix:auto && git add public/locales/"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.0",
