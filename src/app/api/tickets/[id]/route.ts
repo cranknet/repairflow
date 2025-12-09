@@ -11,6 +11,7 @@ import {
   type TicketStatusType
 } from '@/lib/ticket-lifecycle';
 import { getTicketSettings } from '@/lib/settings';
+import { t } from '@/lib/server-translation';
 
 // Schema for ticket updates – parts field removed
 const updateTicketSchema = z.object({
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (!ticket) {
-      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.ticketNotFound') }, { status: 404 });
     }
 
     // Calculate outstanding amount and total paid
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('Error fetching ticket:', error);
-    return NextResponse.json({ error: 'Failed to fetch ticket' }, { status: 500 });
+    return NextResponse.json({ error: t('errors.failedToFetch') }, { status: 500 });
   }
 }
 
@@ -101,7 +102,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     const { id } = await params;
@@ -110,7 +111,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const ticket = await prisma.ticket.findUnique({ where: { id } });
     if (!ticket) {
-      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.ticketNotFound') }, { status: 404 });
     }
 
     // Prevent any updates for terminal state tickets (RETURNED, CANCELLED)
@@ -135,17 +136,17 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         where: { id: data.assignedToId },
       });
       if (!assignedUser) {
-        return NextResponse.json(
-          { error: 'Assigned user not found' },
-          { status: 400 }
-        );
+      return NextResponse.json(
+        { error: t('errors.userNotFound') },
+        { status: 400 }
+      );
       }
     }
 
     // Paid status change handling (admin / staff only)
     if (data.paid !== undefined && data.paid !== ticket.paid) {
       if (session.user.role !== 'ADMIN' && session.user.role !== 'STAFF') {
-        return NextResponse.json({ error: 'Only admin or staff can change payment status' }, { status: 403 });
+        return NextResponse.json({ error: t('errors.onlyAdminsCanUpdate') }, { status: 403 });
       }
       // Emit ticket.updated event for payment status change
       emitEvent({
@@ -539,13 +540,13 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     // Only admins can delete tickets
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Only administrators can delete tickets' },
+        { error: t('errors.onlyAdminsCanDelete') },
         { status: 403 }
       );
     }
@@ -572,7 +573,7 @@ export async function DELETE(
     });
 
     if (!ticket) {
-      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.ticketNotFound') }, { status: 404 });
     }
 
     // Already soft-deleted
@@ -700,7 +701,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting ticket:', error);
     return NextResponse.json(
-      { error: 'Failed to delete ticket' },
+      { error: t('errors.failedToDelete') },
       { status: 500 }
     );
   }
