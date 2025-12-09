@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/language-context';
 
 interface DatabaseConfig {
     type: 'sqlite' | 'mysql';
@@ -13,6 +14,7 @@ interface DatabaseConfig {
 }
 
 export function DatabaseSwitcher() {
+    const { t } = useLanguage();
     const [config, setConfig] = useState<DatabaseConfig>({
         type: 'sqlite',
     });
@@ -53,12 +55,12 @@ export function DatabaseSwitcher() {
             const result = await response.json();
 
             if (response.ok) {
-                setTestStatus({ status: 'success', message: 'Connection successful!' });
+                setTestStatus({ status: 'success', message: t('database.connectionSuccessful') });
             } else {
-                setTestStatus({ status: 'error', message: result.error || 'Connection failed' });
+                setTestStatus({ status: 'error', message: result.error || t('errors.connectionFailed') });
             }
         } catch (error) {
-            setTestStatus({ status: 'error', message: 'Failed to test connection' });
+            setTestStatus({ status: 'error', message: t('errors.connectionFailed') });
         }
     };
 
@@ -72,13 +74,13 @@ export function DatabaseSwitcher() {
             });
 
             if (response.ok) {
-                alert('Database configuration saved! Please restart the application for changes to take effect.');
+                alert(t('database.configSaved'));
             } else {
                 const result = await response.json();
-                alert('Failed to save configuration: ' + (result.error || 'Unknown error'));
+                alert(t('errors.failedToSaveConfig') + ': ' + (result.error || ''));
             }
         } catch (error) {
-            alert('Failed to save configuration');
+            alert(t('errors.failedToSaveConfig'));
         } finally {
             setIsSaving(false);
         }
@@ -88,8 +90,8 @@ export function DatabaseSwitcher() {
         return (
             <Card className="p-6">
                 <div className="text-center text-gray-500">
-                    <p className="text-sm">Database switcher is only available in the desktop application.</p>
-                    <p className="text-xs mt-2">Configure database connection in your .env file for web deployment.</p>
+                    <p className="text-sm">{t('database.switcherNotAvailable')}</p>
+                    <p className="text-xs mt-2">{t('database.configureEnvFile')}</p>
                 </div>
             </Card>
         );
@@ -98,15 +100,15 @@ export function DatabaseSwitcher() {
     return (
         <Card className="p-6 space-y-6">
             <div>
-                <h3 className="text-lg font-semibold mb-4">Database Configuration</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('database.configuration')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                    Switch between local SQLite database or remote MySQL database.
+                    {t('database.switchDescription')}
                 </p>
             </div>
 
             {/* Database Type Selection */}
             <div>
-                <label className="block text-sm font-medium mb-2">Database Type</label>
+                <label className="block text-sm font-medium mb-2">{t('database.type')}</label>
                 <div className="flex gap-4">
                     <label className="flex items-center cursor-pointer">
                         <input
@@ -116,7 +118,7 @@ export function DatabaseSwitcher() {
                             onChange={(e) => setConfig({ ...config, type: e.target.value as 'sqlite' })}
                             className="mr-2"
                         />
-                        <span>SQLite (Local)</span>
+                        <span>{t('database.sqliteLocal')}</span>
                     </label>
                     <label className="flex items-center cursor-pointer">
                         <input
@@ -126,7 +128,7 @@ export function DatabaseSwitcher() {
                             onChange={(e) => setConfig({ ...config, type: e.target.value as 'mysql' })}
                             className="mr-2"
                         />
-                        <span>MySQL (Remote)</span>
+                        <span>{t('database.mysqlRemote')}</span>
                     </label>
                 </div>
             </div>
@@ -136,7 +138,7 @@ export function DatabaseSwitcher() {
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Host</label>
+                            <label className="block text-sm font-medium mb-1">{t('database.host')}</label>
                             <input
                                 type="text"
                                 value={config.host || ''}
@@ -146,7 +148,7 @@ export function DatabaseSwitcher() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Port</label>
+                            <label className="block text-sm font-medium mb-1">{t('database.port')}</label>
                             <input
                                 type="number"
                                 value={config.port || 3306}
@@ -158,7 +160,7 @@ export function DatabaseSwitcher() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1">Database Name</label>
+                        <label className="block text-sm font-medium mb-1">{t('database.databaseName')}</label>
                         <input
                             type="text"
                             value={config.database || ''}
@@ -170,7 +172,7 @@ export function DatabaseSwitcher() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Username</label>
+                            <label className="block text-sm font-medium mb-1">{t('database.username')}</label>
                             <input
                                 type="text"
                                 value={config.user || ''}
@@ -180,7 +182,7 @@ export function DatabaseSwitcher() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Password</label>
+                            <label className="block text-sm font-medium mb-1">{t('database.password')}</label>
                             <input
                                 type="password"
                                 value={config.password || ''}
@@ -198,7 +200,7 @@ export function DatabaseSwitcher() {
                             disabled={testStatus.status === 'testing'}
                             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                         >
-                            {testStatus.status === 'testing' ? 'Testing...' : 'Test Connection'}
+                            {testStatus.status === 'testing' ? t('database.testing') : t('database.testConnection')}
                         </button>
 
                         {testStatus.status !== 'idle' && testStatus.status !== 'testing' && (
@@ -213,10 +215,9 @@ export function DatabaseSwitcher() {
             {/* SQLite Info */}
             {config.type === 'sqlite' && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 className="font-medium text-sm mb-2">Local Database</h4>
+                    <h4 className="font-medium text-sm mb-2">{t('database.localDatabase')}</h4>
                     <p className="text-sm text-gray-600">
-                        Using local SQLite database stored in your application data folder.
-                        Each installation will have its own database.
+                        {t('database.localDatabaseDescription')}
                     </p>
                 </div>
             )}
@@ -228,13 +229,13 @@ export function DatabaseSwitcher() {
                     disabled={isSaving || (config.type === 'mysql' && testStatus.status !== 'success')}
                     className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isSaving ? 'Saving...' : 'Save Configuration'}
+                    {isSaving ? t('database.saving') : t('database.saveConfiguration')}
                 </button>
             </div>
 
             {config.type === 'mysql' && testStatus.status !== 'success' && (
                 <p className="text-xs text-gray-500 text-right">
-                    Please test the connection before saving
+                    {t('database.testBeforeSaving')}
                 </p>
             )}
         </Card>
