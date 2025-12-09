@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { emitEvent } from '@/lib/events/emitter';
 import { nanoid } from 'nanoid';
+import { t } from '@/lib/server-translation';
 
 const updatePartSchema = z.object({
   name: z.string().min(1).optional(),
@@ -23,13 +24,13 @@ export async function PATCH(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     // Only admins can update parts
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Only administrators can update parts' },
+        { error: t('errors.onlyAdminsCanUpdate') },
         { status: 403 }
       );
     }
@@ -52,7 +53,7 @@ export async function PATCH(
     });
 
     if (!existingPart) {
-      return NextResponse.json({ error: 'Part not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.partNotFound') }, { status: 404 });
     }
 
     // Check if SKU is being changed and if new SKU already exists
@@ -63,7 +64,7 @@ export async function PATCH(
 
       if (skuExists) {
         return NextResponse.json(
-          { error: 'Part with this SKU already exists' },
+          { error: t('errors.skuAlreadyExists') },
           { status: 400 }
         );
       }
@@ -98,7 +99,7 @@ export async function PATCH(
 
       if (!supplier) {
         return NextResponse.json(
-          { error: 'Supplier not found' },
+          { error: t('errors.supplierNotFound') },
           { status: 404 }
         );
       }
@@ -154,13 +155,13 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: t('errors.invalidInput'), details: error.errors },
         { status: 400 }
       );
     }
     console.error('Error updating part:', error);
     return NextResponse.json(
-      { error: 'Failed to update part' },
+      { error: t('errors.failedToUpdate') },
       { status: 500 }
     );
   }
@@ -173,13 +174,13 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: t('errors.unauthorized') }, { status: 401 });
     }
 
     // Only admins can delete parts
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Only administrators can delete parts' },
+        { error: t('errors.onlyAdminsCanDelete') },
         { status: 403 }
       );
     }
@@ -201,7 +202,7 @@ export async function DELETE(
     });
 
     if (!part) {
-      return NextResponse.json({ error: 'Part not found' }, { status: 404 });
+      return NextResponse.json({ error: t('errors.partNotFound') }, { status: 404 });
     }
 
     // Prevent deletion if part is used in tickets
@@ -242,19 +243,19 @@ export async function DELETE(
       // Check for foreign key constraint errors
       if (error.message.includes('Foreign key constraint') || error.message.includes('constraint')) {
         return NextResponse.json(
-          { error: 'Cannot delete part because it is referenced by other records. Please remove all references first.' },
+          { error: t('errors.invalidInput') },
           { status: 400 }
         );
       }
       
       return NextResponse.json(
-        { error: error.message || 'Failed to delete part' },
+        { error: t('errors.failedToDelete') },
         { status: 500 }
       );
     }
     
     return NextResponse.json(
-      { error: 'Failed to delete part' },
+      { error: t('errors.failedToDelete') },
       { status: 500 }
     );
   }
