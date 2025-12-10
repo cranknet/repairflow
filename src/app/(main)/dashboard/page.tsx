@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SalesChart } from '@/components/dashboard/sales-chart';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { QuickActionsBar } from '@/components/dashboard/quick-actions-bar';
+import { DashboardQuickActions } from '@/components/dashboard/dashboard-quick-actions';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
 import { TicketsSection } from '@/components/dashboard/tickets-section';
 import { format } from 'date-fns';
@@ -269,7 +269,7 @@ export default async function DashboardPage() {
       />
 
       {/* Quick Actions Bar */}
-      <QuickActionsBar />
+      <DashboardQuickActions />
 
       {/* Hero Section: Revenue + Business Health */}
       <DashboardHero

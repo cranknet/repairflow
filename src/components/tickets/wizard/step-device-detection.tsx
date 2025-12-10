@@ -21,6 +21,9 @@ import {
   CheckCircleIcon,
   PlusIcon,
   WifiIcon,
+  DevicePhoneMobileIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from '@heroicons/react/24/outline';
 
 interface StepDeviceDetectionProps {
@@ -38,6 +41,7 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
   const [detectionStatus, setDetectionStatus] = useState<DetectionStatus>('idle');
   const [detectionError, setDetectionError] = useState<string>('');
   const [confidence, setConfidence] = useState<number>(0);
+  const [showFrontPhoto, setShowFrontPhoto] = useState(false);
 
   // Image capture state
   const [showCrop, setShowCrop] = useState<'front' | 'back' | null>(null);
@@ -62,19 +66,19 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
   // Check online status and AI configuration
   useEffect(() => {
     setIsOnline(navigator.onLine);
-    
+
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     // Check AI configuration
     fetch('/api/ai/detect-device')
       .then(res => res.json())
       .then(data => setAiConfigured(data.configured))
       .catch(() => setAiConfigured(false));
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -108,26 +112,30 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Trigger AI detection when both images are available
+  // Trigger AI detection when back image is available
   useEffect(() => {
-    if (data.frontImage && data.backImage && isOnline && aiConfigured && detectionStatus === 'idle') {
+    if (data.backImage && isOnline && aiConfigured && detectionStatus === 'idle') {
       runAIDetection();
     }
-  }, [data.frontImage, data.backImage, isOnline, aiConfigured]);
+  }, [data.backImage, isOnline, aiConfigured]);
 
   const runAIDetection = async () => {
-    if (!data.frontImage && !data.backImage) return;
-    
+    if (!data.backImage) return;
+
     setDetectionStatus('detecting');
     setDetectionError('');
 
     try {
-      const images = [data.frontImage, data.backImage].filter(Boolean);
-      
+      // Only send the back image for AI detection
+      const images = [data.backImage];
+
       const response = await fetch('/api/ai/detect-device', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images }),
+        body: JSON.stringify({
+          images,
+          brandHint: data.brand || undefined, // Send brand as hint if already selected
+        }),
       });
 
       const result = await response.json();
@@ -148,6 +156,20 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
         toast({
           title: t('deviceDetected'),
           description: `${result.brand} ${result.model}${result.color ? ` (${result.color})` : ''}`,
+        });
+      } else if (result.brand || result.model) {
+        // Partial detection
+        onChange({
+          ...data,
+          brand: result.brand || data.brand,
+          model: result.model || data.model,
+          color: result.color || data.color,
+        });
+        setConfidence(result.confidence || 0);
+        setDetectionStatus('success');
+        toast({
+          title: t('partialDetection') || 'Partial Detection',
+          description: t('completeManually') || 'Please complete missing fields manually',
         });
       } else {
         setDetectionStatus('error');
@@ -193,8 +215,8 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     }
     setShowCrop(null);
     setImageSrc(null);
-    // Reset detection status to allow re-detection
-    if (detectionStatus !== 'idle') {
+    // Reset detection status to allow re-detection when back photo changes
+    if (showCrop === 'back' && detectionStatus !== 'idle') {
       setDetectionStatus('idle');
     }
   };
@@ -210,11 +232,24 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     } else {
       onChange({ ...data, backImage: '' });
     }
-    setDetectionStatus('idle');
+    if (type === 'back') {
+      setDetectionStatus('idle');
+    }
   };
 
   // Camera handling
   const startCamera = async (type: 'front' | 'back') => {
+    // Check if camera API is available (requires HTTPS or localhost)
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+      console.warn('Camera API not available - falling back to file input');
+      if (type === 'front') {
+        frontCameraRef.current?.click();
+      } else {
+        backCameraRef.current?.click();
+      }
+      return;
+    }
+
     try {
       let stream: MediaStream;
       try {
@@ -235,7 +270,6 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
       }, 100);
     } catch (error) {
       console.error('Camera error:', error);
-      // Fallback to file input
       if (type === 'front') {
         frontCameraRef.current?.click();
       } else {
@@ -339,11 +373,11 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
   const showAIFeatures = isOnline && aiConfigured;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Offline/No AI Warning */}
       {!isOnline && (
-        <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-          <WifiIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+          <WifiIcon className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
           <p className="text-sm text-amber-700 dark:text-amber-300">
             {t('offlineMode')} - {t('manualEntryOnly')}
           </p>
@@ -351,59 +385,260 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
       )}
 
       {isOnline && aiConfigured === false && (
-        <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-          <SparklesIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <SparklesIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           <p className="text-sm text-blue-700 dark:text-blue-300">
             {t('aiNotConfigured')} - {t('manualEntryOnly')}
           </p>
         </div>
       )}
 
-      {/* Photo Upload Section */}
+      {/* Brand Selection - First for better AI detection */}
+      {showAIFeatures && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <DevicePhoneMobileIcon className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium mb-1">{t('knowTheBrand') || 'Know the brand?'}</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {t('brandHintHelps') || 'Selecting the brand first helps AI identify the exact model more accurately'}
+                </p>
+                <div className="relative" ref={dropdownRef}>
+                  <Input
+                    id="brandHint"
+                    value={data.brand}
+                    onChange={(e) => handleBrandInput(e.target.value)}
+                    onFocus={() => {
+                      if (data.brand) {
+                        handleBrandInput(data.brand);
+                      } else {
+                        setShowBrandDropdown(true);
+                      }
+                    }}
+                    placeholder={t('selectBrandOptional') || 'Select brand (optional)'}
+                    autoComplete="off"
+                    className="text-sm"
+                  />
+                  {showBrandDropdown && (filteredBrands.length > 0 || showAddBrand) && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
+                      {filteredBrands.slice(0, 10).map((b) => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => selectBrand(b)}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                        >
+                          {b}
+                        </button>
+                      ))}
+                      {showAddBrand && (
+                        <button
+                          type="button"
+                          onClick={handleAddBrand}
+                          className="w-full text-left px-3 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
+                        >
+                          <PlusIcon className="h-4 w-4" />
+                          {t('addAsNewBrand', { brand: data.brand })}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Back Photo - Primary for AI Detection */}
       <div>
-        <Label className="text-base font-medium mb-4 block">
-          {t('devicePhotos')}
-          {showAIFeatures && (
-            <span className="ml-2 text-sm font-normal text-gray-500">
-              ({t('uploadBothForAI')})
-            </span>
+        <div className="flex items-center justify-between mb-3">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
+            {t('deviceBackPhoto')}
+            {showAIFeatures && (
+              <span className="text-xs font-normal text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                {t('forAIDetection') || 'For AI'}
+              </span>
+            )}
+          </Label>
+        </div>
+
+        <Card className="overflow-hidden border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
+          <CardContent className="p-3 sm:p-4">
+            {data.backImage ? (
+              <div className="relative">
+                <img
+                  src={data.backImage}
+                  alt={t('deviceBack')}
+                  className="w-full h-40 sm:h-52 object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeImage('back')}
+                  className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0"
+                >
+                  <XMarkIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="h-40 sm:h-52 rounded-lg flex flex-col items-center justify-center gap-3 bg-gray-50/50 dark:bg-gray-800/30">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <CameraIcon className="w-8 h-8 text-primary" />
+                </div>
+                <p className="text-sm text-center text-muted-foreground px-4">
+                  {t('captureBackPhoto') || 'Take a photo of the device back for AI detection'}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => startCamera('back')}
+                    className="text-sm"
+                  >
+                    <CameraIcon className="h-4 w-4 mr-2" />
+                    {t('takePhoto')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => backInputRef.current?.click()}
+                    className="text-sm"
+                  >
+                    <PhotoIcon className="h-4 w-4 mr-2" />
+                    {t('uploadFile')}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <input
+              ref={backInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect('back')}
+              className="hidden"
+            />
+            <input
+              ref={backCameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileSelect('back')}
+              className="hidden"
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* AI Detection Status */}
+      {showAIFeatures && data.backImage && (
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          {detectionStatus === 'detecting' && (
+            <>
+              <ArrowPathIcon className="w-5 h-5 text-primary-600 animate-spin shrink-0" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {t('detectingDevice')}...
+              </span>
+            </>
           )}
-        </Label>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Front Photo */}
+
+          {detectionStatus === 'success' && (
+            <>
+              <CheckCircleIcon className="w-5 h-5 text-green-600 shrink-0" />
+              <span className="text-sm text-green-700 dark:text-green-400 flex-1">
+                {t('deviceDetected')} ({confidence}% {t('confidence')})
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => { setDetectionStatus('idle'); runAIDetection(); }}
+                className="h-8"
+              >
+                <ArrowPathIcon className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+
+          {detectionStatus === 'error' && (
+            <>
+              <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 shrink-0" />
+              <span className="text-sm text-amber-700 dark:text-amber-400 flex-1 line-clamp-1">
+                {detectionError}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => { setDetectionStatus('idle'); runAIDetection(); }}
+                className="h-8"
+              >
+                <ArrowPathIcon className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">{t('retry') || 'Retry'}</span>
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Front Photo - Optional for Documentation */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowFrontPhoto(!showFrontPhoto)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+        >
+          {showFrontPhoto ? (
+            <ChevronUpIcon className="w-4 h-4" />
+          ) : (
+            <ChevronDownIcon className="w-4 h-4" />
+          )}
+          <span className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs flex items-center justify-center font-medium">2</span>
+          {t('deviceFrontPhoto')}
+          <span className="text-xs opacity-60">({t('optional')})</span>
+          {data.frontImage && <CheckCircleIcon className="w-4 h-4 text-green-500" />}
+        </button>
+
+        {showFrontPhoto && (
           <Card className="overflow-hidden">
-            <CardContent className="p-4">
-              <p className="text-sm font-medium mb-3">{t('deviceFrontPhoto')}</p>
-              
+            <CardContent className="p-3 sm:p-4">
+              <p className="text-xs text-muted-foreground mb-3">
+                {t('frontPhotoForDocs') || 'Front photo is for condition records only, not used for AI detection'}
+              </p>
+
               {data.frontImage ? (
                 <div className="relative">
                   <img
                     src={data.frontImage}
                     alt={t('deviceFront')}
-                    className="w-full h-48 object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                    className="w-full h-32 sm:h-40 object-contain rounded border bg-gray-50 dark:bg-gray-800"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => removeImage('front')}
-                    className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80"
+                    className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0"
                   >
                     <XMarkIcon className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (
-                <div className="h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-800/50">
-                  <CameraIcon className="w-10 h-10 text-gray-400" />
+                <div className="h-28 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg flex flex-col items-center justify-center gap-2 bg-gray-50/50 dark:bg-gray-800/30">
                   <div className="flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => startCamera('front')}
+                      className="text-xs"
                     >
-                      <CameraIcon className="h-4 w-4 mr-2" />
+                      <CameraIcon className="h-4 w-4 mr-1" />
                       {t('takePhoto')}
                     </Button>
                     <Button
@@ -411,14 +646,15 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                       variant="outline"
                       size="sm"
                       onClick={() => frontInputRef.current?.click()}
+                      className="text-xs"
                     >
-                      <PhotoIcon className="h-4 w-4 mr-2" />
-                      {t('uploadFile')}
+                      <PhotoIcon className="h-4 w-4 mr-1" />
+                      {t('upload') || 'Upload'}
                     </Button>
                   </div>
                 </div>
               )}
-              
+
               <input
                 ref={frontInputRef}
                 type="file"
@@ -436,141 +672,14 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
               />
             </CardContent>
           </Card>
-
-          {/* Back Photo */}
-          <Card className="overflow-hidden">
-            <CardContent className="p-4">
-              <p className="text-sm font-medium mb-3">{t('deviceBackPhoto')}</p>
-              
-              {data.backImage ? (
-                <div className="relative">
-                  <img
-                    src={data.backImage}
-                    alt={t('deviceBack')}
-                    className="w-full h-48 object-contain rounded border bg-gray-50 dark:bg-gray-800"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeImage('back')}
-                    className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-800/50">
-                  <CameraIcon className="w-10 h-10 text-gray-400" />
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => startCamera('back')}
-                    >
-                      <CameraIcon className="h-4 w-4 mr-2" />
-                      {t('takePhoto')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => backInputRef.current?.click()}
-                    >
-                      <PhotoIcon className="h-4 w-4 mr-2" />
-                      {t('uploadFile')}
-                    </Button>
-                  </div>
-                </div>
-              )}
-              
-              <input
-                ref={backInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect('back')}
-                className="hidden"
-              />
-              <input
-                ref={backCameraRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileSelect('back')}
-                className="hidden"
-              />
-            </CardContent>
-          </Card>
-        </div>
+        )}
       </div>
 
-      {/* AI Detection Status */}
-      {showAIFeatures && (data.frontImage || data.backImage) && (
-        <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-          {detectionStatus === 'detecting' && (
-            <>
-              <ArrowPathIcon className="w-5 h-5 text-primary-600 animate-spin" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {t('detectingDevice')}...
-              </span>
-            </>
-          )}
-          
-          {detectionStatus === 'success' && (
-            <>
-              <CheckCircleIcon className="w-5 h-5 text-green-600" />
-              <span className="text-sm text-green-700 dark:text-green-400">
-                {t('deviceDetected')} ({confidence}% {t('confidence')})
-              </span>
-            </>
-          )}
-          
-          {detectionStatus === 'error' && (
-            <>
-              <ExclamationTriangleIcon className="w-5 h-5 text-amber-600" />
-              <span className="text-sm text-amber-700 dark:text-amber-400">
-                {detectionError}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={runAIDetection}
-                className="ml-auto"
-              >
-                <ArrowPathIcon className="w-4 h-4 mr-1" />
-                {t('retryDetection')}
-              </Button>
-            </>
-          )}
-          
-          {detectionStatus === 'idle' && (data.frontImage && data.backImage) && (
-            <>
-              <SparklesIcon className="w-5 h-5 text-primary-600" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {t('readyToDetect')}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={runAIDetection}
-                className="ml-auto"
-              >
-                <SparklesIcon className="w-4 h-4 mr-1" />
-                {t('detectDevice')}
-              </Button>
-            </>
-          )}
-        </div>
-      )}
-
       {/* Device Info Form */}
-      <div ref={dropdownRef} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {/* Brand */}
         <div className="relative">
-          <Label htmlFor="deviceBrand">{t('deviceBrand')} *</Label>
+          <Label htmlFor="deviceBrand" className="text-sm">{t('deviceBrand')} *</Label>
           <Input
             id="deviceBrand"
             value={data.brand}
@@ -584,15 +693,16 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
             }}
             placeholder={t('deviceBrandPlaceholder')}
             autoComplete="off"
+            className="text-sm"
           />
           {showBrandDropdown && (filteredBrands.length > 0 || showAddBrand) && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-              {filteredBrands.map((b) => (
+            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
+              {filteredBrands.slice(0, 8).map((b) => (
                 <button
                   key={b}
                   type="button"
                   onClick={() => selectBrand(b)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
                 >
                   {b}
                 </button>
@@ -601,10 +711,10 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                 <button
                   type="button"
                   onClick={handleAddBrand}
-                  className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  {t('addAsNewBrand', { brand: data.brand })}
+                  {t('add') || 'Add'} "{data.brand}"
                 </button>
               )}
             </div>
@@ -613,7 +723,7 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
 
         {/* Model */}
         <div className="relative">
-          <Label htmlFor="deviceModel">{t('deviceModel')} *</Label>
+          <Label htmlFor="deviceModel" className="text-sm">{t('deviceModel')} *</Label>
           <Input
             id="deviceModel"
             value={data.model}
@@ -626,15 +736,16 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
             placeholder={t('deviceModelPlaceholder')}
             disabled={!data.brand}
             autoComplete="off"
+            className="text-sm"
           />
           {showModelDropdown && (filteredModels.length > 0 || showAddModel) && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
-              {filteredModels.map((m) => (
+            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-auto">
+              {filteredModels.slice(0, 8).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => selectModel(m)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
                 >
                   {m}
                 </button>
@@ -643,10 +754,10 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                 <button
                   type="button"
                   onClick={handleAddModel}
-                  className="w-full text-left px-4 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  {t('addAsNewModel', { model: data.model })}
+                  {t('add') || 'Add'} "{data.model}"
                 </button>
               )}
             </div>
@@ -654,31 +765,18 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
         </div>
 
         {/* Color */}
-        <div>
-          <Label htmlFor="deviceColor">{t('deviceColor')}</Label>
+        <div className="col-span-2 sm:col-span-1">
+          <Label htmlFor="deviceColor" className="text-sm">{t('deviceColor')}</Label>
           <Input
             id="deviceColor"
             value={data.color}
             onChange={(e) => onChange({ ...data, color: e.target.value })}
             placeholder={t('deviceColorPlaceholder')}
             autoComplete="off"
+            className="text-sm"
           />
         </div>
       </div>
-
-      {/* Skip AI Detection Link */}
-      {showAIFeatures && detectionStatus === 'idle' && !data.brand && !data.model && (
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-          {t('skipAiDetection')}{' '}
-          <button
-            type="button"
-            onClick={() => {/* User can just fill in the fields manually */}}
-            className="text-primary-600 dark:text-primary-400 hover:underline"
-          >
-            {t('enterManually')}
-          </button>
-        </p>
-      )}
 
       {/* Camera Modal */}
       {showCamera && (
@@ -728,4 +826,3 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     </div>
   );
 }
-

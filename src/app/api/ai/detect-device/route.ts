@@ -2,7 +2,8 @@
  * AI Device Detection API
  * POST /api/ai/detect-device
  * 
- * Analyzes device photos to detect brand, model, and color using AI vision.
+ * Analyzes device back photo to detect brand, model, and color using AI vision.
+ * Optionally accepts a brand hint to improve detection accuracy.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +14,7 @@ import { detectDeviceFromImages, AIVisionProvider } from '@/lib/ai-vision';
 
 const detectDeviceSchema = z.object({
     images: z.array(z.string()).min(1, 'At least one image is required').max(2, 'Maximum 2 images allowed'),
+    brandHint: z.string().optional(), // Optional brand hint to improve detection
 });
 
 export async function POST(request: NextRequest) {
@@ -40,19 +42,25 @@ export async function POST(request: NextRequest) {
 
         if (!aiApiKey) {
             return NextResponse.json(
-                { 
-                    error: 'AI Vision API key not configured', 
+                {
+                    error: 'AI Vision API key not configured',
                     code: 'INVALID_API_KEY',
-                    configured: false 
+                    configured: false
                 },
                 { status: 400 }
             );
         }
 
-        const result = await detectDeviceFromImages(data.images, {
-            provider: aiProvider,
-            apiKey: aiApiKey,
-        });
+        const result = await detectDeviceFromImages(
+            data.images,
+            {
+                provider: aiProvider,
+                apiKey: aiApiKey,
+            },
+            {
+                brandHint: data.brandHint,
+            }
+        );
 
         return NextResponse.json({
             success: true,

@@ -82,7 +82,7 @@ export function StepCustomer({ data, onChange }: StepCustomerProps) {
   const handleToggleNewCustomer = () => {
     const newShowForm = !showNewCustomerForm;
     setShowNewCustomerForm(newShowForm);
-    
+
     if (newShowForm) {
       onChange({
         customerId: '',
@@ -122,23 +122,23 @@ export function StepCustomer({ data, onChange }: StepCustomerProps) {
   return (
     <div className="space-y-6">
       {/* Toggle between existing and new customer */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
         <Button
           type="button"
           variant={!showNewCustomerForm ? 'default' : 'outline'}
           onClick={() => showNewCustomerForm && handleToggleNewCustomer()}
-          className="flex-1 py-6"
+          className="flex-1 py-4 sm:py-6 text-sm sm:text-base"
         >
-          <UserIcon className="w-5 h-5 mr-2" />
+          <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
           {t('selectExistingCustomer')}
         </Button>
         <Button
           type="button"
           variant={showNewCustomerForm ? 'default' : 'outline'}
           onClick={() => !showNewCustomerForm && handleToggleNewCustomer()}
-          className="flex-1 py-6"
+          className="flex-1 py-4 sm:py-6 text-sm sm:text-base"
         >
-          <UserPlusIcon className="w-5 h-5 mr-2" />
+          <UserPlusIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
           {t('createNewCustomerInline')}
         </Button>
       </div>

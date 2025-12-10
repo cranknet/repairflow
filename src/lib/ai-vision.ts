@@ -316,29 +316,59 @@ export interface DeviceDetectionResult {
     model: string;
     color: string;
     confidence: number; // 0-100
+    stickerText?: string; // Any text found on stickers
 }
 
-const DEVICE_DETECTION_PROMPT = `You are a mobile device identification expert. Analyze these device images (front and/or back) and identify the device.
+export interface DeviceDetectionOptions {
+    brandHint?: string; // Optional brand hint to improve detection
+}
+
+/**
+ * Generate device detection prompt with optional brand hint
+ */
+function getDeviceDetectionPrompt(brandHint?: string): string {
+    const brandContext = brandHint
+        ? `\n\nIMPORTANT: The user has indicated this is a "${brandHint}" device. Use this to narrow down the specific model.`
+        : '';
+
+    return `You are a mobile device identification expert. Analyze this device BACK photo and identify the exact model.
+
+FOCUS ON THE BACK OF THE DEVICE:
+- Camera module layout (number of lenses, arrangement, shape)
+- Brand logo position and style
+- Flash position relative to cameras
+- Fingerprint sensor location (if visible)
+- Overall body shape and material appearance
+- Button placement
+
+STICKER DETECTION (CRITICAL):
+- Look for any stickers on the device (IMEI labels, model stickers, carrier labels)
+- If you see a sticker with text, extract all readable text including model numbers
+- Common sticker locations: near SIM tray, on battery cover, near camera area
+- Sticker text often contains: model number (e.g., "SM-G998B", "A2894"), IMEI, serial number
 
 Extract the following information:
-- brand: The manufacturer (e.g., "Apple", "Samsung", "Google", "Xiaomi", "OnePlus", "Huawei")
+- brand: The manufacturer (e.g., "Apple", "Samsung", "Google", "Xiaomi", "OnePlus", "Huawei", "OPPO", "Vivo", "Realme", "Motorola")
 - model: The specific model name (e.g., "iPhone 14 Pro", "Galaxy S23 Ultra", "Pixel 8 Pro")
 - color: The device color (e.g., "Space Black", "Silver", "Deep Purple", "Phantom Black")
 - confidence: Your confidence level 0-100 (100 = very certain)
+- stickerText: Any text you can read from stickers on the device (model numbers, IMEI, etc.)
 
-Tips for identification:
-- Look for logos, branding, camera layouts, and design elements
-- iPhone: Apple logo, notch/Dynamic Island, camera arrangement
-- Samsung: Samsung logo, camera island shape, button placement
-- Google Pixel: Camera bar design, Google branding
-- Consider the case/body shape, button positions, ports
+MODEL IDENTIFICATION TIPS:
+- iPhone: Apple logo centered, camera island in corner, lens arrangement varies by model
+- Samsung Galaxy S series: Horizontal or vertical camera strip, Samsung logo lower center
+- Samsung Galaxy A series: Similar but plastic body, different camera arrangement
+- Google Pixel: Distinctive horizontal camera bar across top
+- Xiaomi/Redmi: Camera island with model number sometimes printed
+- OnePlus: Hasselblad branding on newer models${brandContext}
 
 Return ONLY valid JSON in this exact format:
 {
   "brand": "Brand Name",
-  "model": "Model Name",
+  "model": "Model Name", 
   "color": "Color Name",
-  "confidence": 85
+  "confidence": 85,
+  "stickerText": "Any visible sticker text or null"
 }
 
 If you cannot identify the device, return:
@@ -347,13 +377,15 @@ If you cannot identify the device, return:
   "model": "",
   "color": "",
   "confidence": 0,
+  "stickerText": null,
   "error": "reason"
 }`;
+}
 
 /**
  * Detect device from images using OpenAI GPT-4 Vision
  */
-async function detectDeviceWithOpenAI(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+async function detectDeviceWithOpenAI(images: string[], apiKey: string, brandHint?: string): Promise<DeviceDetectionResult> {
     const imageContent = images.map(img => ({
         type: 'image_url' as const,
         image_url: {
@@ -373,12 +405,12 @@ async function detectDeviceWithOpenAI(images: string[], apiKey: string): Promise
                 {
                     role: 'user',
                     content: [
-                        { type: 'text', text: DEVICE_DETECTION_PROMPT },
+                        { type: 'text', text: getDeviceDetectionPrompt(brandHint) },
                         ...imageContent,
                     ],
                 },
             ],
-            max_tokens: 500,
+            max_tokens: 1024,
         }),
     });
 
@@ -402,7 +434,7 @@ async function detectDeviceWithOpenAI(images: string[], apiKey: string): Promise
 /**
  * Detect device from images using Google Gemini Vision
  */
-async function detectDeviceWithGoogle(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+async function detectDeviceWithGoogle(images: string[], apiKey: string, brandHint?: string): Promise<DeviceDetectionResult> {
     const imageParts = images.map(img => ({
         inline_data: {
             mime_type: 'image/jpeg',
@@ -419,13 +451,13 @@ async function detectDeviceWithGoogle(images: string[], apiKey: string): Promise
             contents: [
                 {
                     parts: [
-                        { text: DEVICE_DETECTION_PROMPT },
+                        { text: getDeviceDetectionPrompt(brandHint) },
                         ...imageParts,
                     ],
                 },
             ],
             generationConfig: {
-                maxOutputTokens: 500,
+                maxOutputTokens: 1024,
             },
         }),
     });
@@ -455,7 +487,7 @@ async function detectDeviceWithGoogle(images: string[], apiKey: string): Promise
 /**
  * Detect device from images using Anthropic Claude Vision
  */
-async function detectDeviceWithAnthropic(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+async function detectDeviceWithAnthropic(images: string[], apiKey: string, brandHint?: string): Promise<DeviceDetectionResult> {
     const imageContent = images.map(img => ({
         type: 'image' as const,
         source: {
@@ -474,13 +506,13 @@ async function detectDeviceWithAnthropic(images: string[], apiKey: string): Prom
         },
         body: JSON.stringify({
             model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 500,
+            max_tokens: 1024,
             messages: [
                 {
                     role: 'user',
                     content: [
                         ...imageContent,
-                        { type: 'text', text: DEVICE_DETECTION_PROMPT },
+                        { type: 'text', text: getDeviceDetectionPrompt(brandHint) },
                     ],
                 },
             ],
@@ -506,6 +538,7 @@ async function detectDeviceWithAnthropic(images: string[], apiKey: string): Prom
 
 /**
  * Parse JSON response for device detection
+ * Handles truncated/incomplete JSON responses from AI
  */
 function parseDeviceDetectionResponse(content: string): DeviceDetectionResult {
     let jsonStr = content.trim();
@@ -529,6 +562,7 @@ function parseDeviceDetectionResponse(content: string): DeviceDetectionResult {
         }
     }
 
+    // First try standard JSON parse
     try {
         const result = JSON.parse(jsonStr);
         return {
@@ -538,17 +572,84 @@ function parseDeviceDetectionResponse(content: string): DeviceDetectionResult {
             confidence: Math.min(100, Math.max(0, Number(result.confidence) || 0)),
         };
     } catch (e) {
-        console.log('Device detection JSON parse error. Content was:', jsonStr.substring(0, 300));
+        // JSON parse failed - try to extract fields using regex from truncated response
+        console.log('Device detection JSON parse failed, attempting regex extraction. Content:', jsonStr.substring(0, 300));
+
+        const extractedResult = extractFieldsFromTruncatedJSON(jsonStr);
+
+        // If we got at least brand OR model, return partial result
+        if (extractedResult.brand || extractedResult.model) {
+            console.log('Successfully extracted partial data:', extractedResult);
+            return extractedResult;
+        }
+
+        // Nothing could be extracted
+        console.log('Could not extract any fields from response');
         throw { code: 'IMAGE_QUALITY', message: 'AI returned invalid format. Try clearer photos.', retryable: true } as AIVisionError;
     }
 }
 
 /**
+ * Extract device detection fields from truncated/malformed JSON using regex
+ */
+function extractFieldsFromTruncatedJSON(content: string): DeviceDetectionResult {
+    const result: DeviceDetectionResult = {
+        brand: '',
+        model: '',
+        color: '',
+        confidence: 0,
+    };
+
+    // Extract brand - look for "brand": "value" or "brand":"value"
+    const brandMatch = content.match(/"brand"\s*:\s*"([^"]+)"/i);
+    if (brandMatch) {
+        result.brand = brandMatch[1].trim();
+    }
+
+    // Extract model - may be truncated, so handle incomplete strings
+    const modelMatch = content.match(/"model"\s*:\s*"([^"]*)/i);
+    if (modelMatch) {
+        let model = modelMatch[1].trim();
+        // If the model appears truncated (ends abruptly), keep what we have
+        // Remove trailing incomplete words if present
+        if (model && !content.includes(`"model": "${model}"`)) {
+            // Model might be truncated, check if there's a closing quote after
+            const fullModelMatch = content.match(/"model"\s*:\s*"([^"]+)"/i);
+            if (fullModelMatch) {
+                model = fullModelMatch[1].trim();
+            }
+        }
+        result.model = model;
+    }
+
+    // Extract color
+    const colorMatch = content.match(/"color"\s*:\s*"([^"]+)"/i);
+    if (colorMatch) {
+        result.color = colorMatch[1].trim();
+    }
+
+    // Extract confidence
+    const confidenceMatch = content.match(/"confidence"\s*:\s*(\d+)/i);
+    if (confidenceMatch) {
+        result.confidence = Math.min(100, Math.max(0, parseInt(confidenceMatch[1], 10)));
+    } else if (result.brand || result.model) {
+        // If we extracted something but no confidence, assume moderate confidence
+        result.confidence = 60;
+    }
+
+    return result;
+}
+
+/**
  * Main function to detect device from images
+ * @param images Array of base64 image strings (typically just the back photo)
+ * @param config AI provider configuration
+ * @param options Optional detection options including brand hint
  */
 export async function detectDeviceFromImages(
     images: string[],
-    config: AIVisionConfig
+    config: AIVisionConfig,
+    options?: DeviceDetectionOptions
 ): Promise<DeviceDetectionResult> {
     if (!config.apiKey) {
         throw { code: 'INVALID_API_KEY', message: 'API key not configured', retryable: false } as AIVisionError;
@@ -558,14 +659,16 @@ export async function detectDeviceFromImages(
         throw { code: 'IMAGE_QUALITY', message: 'No images provided', retryable: false } as AIVisionError;
     }
 
+    const brandHint = options?.brandHint;
+
     try {
         switch (config.provider) {
             case 'openai':
-                return await detectDeviceWithOpenAI(images, config.apiKey);
+                return await detectDeviceWithOpenAI(images, config.apiKey, brandHint);
             case 'google':
-                return await detectDeviceWithGoogle(images, config.apiKey);
+                return await detectDeviceWithGoogle(images, config.apiKey, brandHint);
             case 'anthropic':
-                return await detectDeviceWithAnthropic(images, config.apiKey);
+                return await detectDeviceWithAnthropic(images, config.apiKey, brandHint);
             default:
                 throw { code: 'UNKNOWN', message: 'Unknown AI provider', retryable: false } as AIVisionError;
         }

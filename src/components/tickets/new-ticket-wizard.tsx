@@ -17,6 +17,9 @@ import {
   ArrowRightIcon,
   CheckIcon,
   ArrowPathIcon,
+  DevicePhoneMobileIcon,
+  UserIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { StepDeviceDetection } from './wizard/step-device-detection';
 import { StepCustomer } from './wizard/step-customer';
@@ -239,68 +242,73 @@ export function NewTicketWizard({ isOpen, onClose, onSuccess }: NewTicketWizardP
     }
   };
 
-  // Render step indicator
-  const renderStepIndicator = () => (
-    <div className="flex items-center justify-center mb-8">
-      {STEPS.map((step, index) => {
-        const isCompleted = index < currentStep;
-        const isCurrent = index === currentStep;
+  // Step icons mapping
+  const stepIcons = [DevicePhoneMobileIcon, UserIcon, DocumentTextIcon];
 
-        return (
-          <div key={step.id} className="flex items-center">
-            {/* Step circle */}
-            <div className="flex flex-col items-center">
-              <div
-                className={`
-                  w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
-                  transition-all duration-200
-                  ${
-                    isCompleted
-                      ? 'bg-primary-600 text-white'
-                      : isCurrent
-                      ? 'bg-primary-600 text-white ring-4 ring-primary-100 dark:ring-primary-900'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                  }
-                `}
-              >
-                {isCompleted ? (
-                  <CheckIcon className="w-5 h-5" />
-                ) : (
-                  index + 1
-                )}
-              </div>
-              <span
-                className={`
-                  mt-2 text-xs font-medium max-w-[80px] text-center
-                  ${
-                    isCurrent
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }
-                `}
-              >
-                {t(step.label)}
-              </span>
-            </div>
+  // Render step indicator - mobile responsive with icons and progress bar
+  const renderStepIndicator = () => {
+    const progress = ((currentStep) / (STEPS.length - 1)) * 100;
 
-            {/* Connector line */}
-            {index < STEPS.length - 1 && (
-              <div
-                className={`
-                  w-16 h-0.5 mx-2 mt-[-20px]
-                  ${
-                    index < currentStep
-                      ? 'bg-primary-600'
-                      : 'bg-gray-200 dark:bg-gray-700'
-                  }
-                `}
-              />
-            )}
+    return (
+      <div className="mb-6">
+        {/* Progress bar background */}
+        <div className="relative">
+          <div className="flex justify-between items-center relative z-10">
+            {STEPS.map((step, index) => {
+              const isCompleted = index < currentStep;
+              const isCurrent = index === currentStep;
+              const StepIcon = stepIcons[index];
+
+              return (
+                <div key={step.id} className="flex flex-col items-center">
+                  {/* Step circle with icon */}
+                  <div
+                    className={`
+                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center
+                      transition-all duration-300 border-2
+                      ${isCompleted
+                        ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-200 dark:shadow-primary-900/50'
+                        : isCurrent
+                          ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-200 dark:shadow-primary-900/50 scale-110'
+                          : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                      }
+                    `}
+                  >
+                    {isCompleted ? (
+                      <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                    ) : (
+                      <StepIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                    )}
+                  </div>
+                  {/* Step label */}
+                  <span
+                    className={`
+                      mt-2 text-xs sm:text-sm font-medium text-center
+                      ${isCompleted || isCurrent
+                        ? 'text-primary-600 dark:text-primary-400'
+                        : 'text-gray-500 dark:text-gray-400'
+                      }
+                    `}
+                  >
+                    {t(step.label)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
-    </div>
-  );
+
+          {/* Progress track (behind circles) */}
+          <div className="absolute top-5 sm:top-6 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700 -z-0 mx-5 sm:mx-6" />
+
+          {/* Progress fill */}
+          <div
+            className="absolute top-5 sm:top-6 left-0 h-0.5 bg-primary-600 transition-all duration-500 -z-0 mx-5 sm:mx-6"
+            style={{ width: `calc(${progress}% - ${progress === 100 ? '0px' : '0px'})` }}
+          />
+        </div>
+      </div>
+    );
+  };
 
   // Render current step content
   const renderStepContent = () => {
@@ -334,39 +342,41 @@ export function NewTicketWizard({ isOpen, onClose, onSuccess }: NewTicketWizardP
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t('createNewTicket')}</DialogTitle>
-          <DialogDescription>{t('createNewRepairTicket')}</DialogDescription>
+      <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-2 sm:pb-4">
+          <DialogTitle className="text-lg sm:text-xl">{t('createNewTicket')}</DialogTitle>
+          <DialogDescription className="text-sm">{t('createNewRepairTicket')}</DialogDescription>
         </DialogHeader>
 
         {/* Step Indicator */}
         {renderStepIndicator()}
 
         {/* Step Content */}
-        <div className="min-h-[400px]">
+        <div className="min-h-[300px] sm:min-h-[400px]">
           {renderStepContent()}
         </div>
 
-        {/* Navigation Footer */}
-        <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+        {/* Navigation Footer - Mobile responsive */}
+        <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
           <Button
             type="button"
             variant="outline"
             onClick={handleBack}
             disabled={!canGoBack || isSubmitting}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            {t('previousStep')}
+            <span className="hidden sm:inline">{t('previousStep')}</span>
+            <span className="sm:hidden">{t('back') || 'Back'}</span>
           </Button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
+              className="flex-1 sm:flex-initial"
             >
               {t('cancel')}
             </Button>
@@ -376,17 +386,19 @@ export function NewTicketWizard({ isOpen, onClose, onSuccess }: NewTicketWizardP
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canGoNext || isSubmitting}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
               >
                 {isSubmitting ? (
                   <>
                     <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    {t('creating')}
+                    <span className="hidden sm:inline">{t('creating')}</span>
+                    <span className="sm:hidden">...</span>
                   </>
                 ) : (
                   <>
                     <CheckIcon className="w-4 h-4" />
-                    {t('createTicket')}
+                    <span className="hidden sm:inline">{t('createTicket')}</span>
+                    <span className="sm:hidden">{t('create') || 'Create'}</span>
                   </>
                 )}
               </Button>
@@ -395,9 +407,10 @@ export function NewTicketWizard({ isOpen, onClose, onSuccess }: NewTicketWizardP
                 type="button"
                 onClick={handleNext}
                 disabled={!canGoNext}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 flex-1 sm:flex-initial"
               >
-                {t('nextStep')}
+                <span className="hidden sm:inline">{t('nextStep')}</span>
+                <span className="sm:hidden">{t('next') || 'Next'}</span>
                 <ArrowRightIcon className="w-4 h-4" />
               </Button>
             )}
