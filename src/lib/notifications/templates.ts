@@ -2,7 +2,7 @@
  * Template renderer for notifications
  */
 
-import { translations, Language } from '../i18n';
+import { getServerTranslation, Language } from '../server-translation';
 import { EventPayload } from '../events/types';
 
 /**
@@ -10,15 +10,11 @@ import { EventPayload } from '../events/types';
  */
 export function renderTemplate(
   key: string,
-  params: Record<string, any>,
+  params: Record<string, unknown>,
   locale: Language = 'en'
 ): string {
-  const template = translations[locale]?.[key] || translations.en[key] || key;
-  
-  // Replace placeholders: {entityId}, {ticketId}, {customerName}, {actorName}, {changeSummary}, etc.
-  return template.replace(/\{(\w+)\}/g, (match, paramName) => {
-    return params[paramName]?.toString() || match;
-  });
+  // Use the server-safe translation helper which handles interpolation
+  return getServerTranslation(key, locale, params as Record<string, string | number>);
 }
 
 /**
@@ -45,7 +41,7 @@ export function renderNotificationMessage(
     device: event.device ? `${event.device.brand} ${event.device.model}` : '',
     ...event.meta,
   };
-  
+
   return renderTemplate(templateKey, params, locale);
 }
 
