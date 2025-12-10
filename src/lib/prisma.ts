@@ -20,3 +20,11 @@ export const prisma =
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Note: For MySQL support, use prisma/mysql/schema.prisma and create a separate
+// lib/prisma-mysql.ts entry point, or swap this file at deployment time.
+// The mariadb driver requires:
+//   import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+//   import mariadb from 'mariadb';
+//   const pool = mariadb.createPool(process.env.DATABASE_URL);
+//   const adapter = new PrismaMariaDb(pool);
