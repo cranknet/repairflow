@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import {
   Dialog,
   DialogContent,
@@ -147,7 +148,7 @@ export function NewCustomerModal({ isOpen, onClose, onSuccess }: NewCustomerModa
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                  <ArrowPathIcon className="h-4 w-4 animate-spin" />
                   {t('creating')}
                 </span>
               ) : (

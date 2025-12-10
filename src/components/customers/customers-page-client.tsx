@@ -13,6 +13,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Squares2X2Icon,
+  TableCellsIcon,
+  UserGroupIcon,
+  CheckBadgeIcon,
+  UserPlusIcon,
+  TicketIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  EyeIcon,
+  TrashIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 
 interface Customer {
   id: string;
@@ -125,20 +138,20 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                   <button
                     onClick={() => setViewMode('cards')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">grid_view</span>
+                    <Squares2X2Icon className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">table_rows</span>
+                    <TableCellsIcon className="h-[18px] w-[18px]" />
                   </button>
                 </div>
 
@@ -146,7 +159,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                   onClick={() => setIsModalOpen(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                 >
-                  <span className="material-symbols-outlined">person_add</span>
+                  <UserPlusIcon className="h-5 w-5" />
                   {t('addCustomer') || 'Add Customer'}
                 </button>
               </div>
@@ -158,7 +171,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">group</span>
+                  <UserGroupIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Customers</p>
@@ -170,7 +183,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">verified</span>
+                  <CheckBadgeIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
@@ -182,7 +195,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">person_add</span>
+                  <UserPlusIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">New This Month</p>
@@ -194,7 +207,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">confirmation_number</span>
+                  <TicketIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Tickets</p>
@@ -213,7 +226,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
           {customers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">group</span>
+                <UserGroupIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('noCustomersFound') || 'No customers found'}</h3>
               <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
@@ -224,7 +237,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                   onClick={() => setIsModalOpen(true)}
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                 >
-                  <span className="material-symbols-outlined">person_add</span>
+                  <UserPlusIcon className="h-5 w-5" />
                   {t('addCustomer') || 'Add Customer'}
                 </button>
               )}
@@ -250,12 +263,12 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                           {customer.name}
                         </Link>
                         <div className="flex items-center gap-1.5 mt-1 text-sm text-gray-500">
-                          <span className="material-symbols-outlined text-base">phone</span>
+                          <PhoneIcon className="h-4 w-4" />
                           <span>{customer.phone}</span>
                         </div>
                         {customer.email && (
                           <div className="flex items-center gap-1.5 mt-0.5 text-sm text-gray-500 truncate">
-                            <span className="material-symbols-outlined text-base">mail</span>
+                            <EnvelopeIcon className="h-4 w-4" />
                             <span className="truncate">{customer.email}</span>
                           </div>
                         )}
@@ -266,7 +279,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5 text-sm">
-                          <span className="material-symbols-outlined text-lg text-amber-500">confirmation_number</span>
+                          <TicketIcon className="h-[18px] w-[18px] text-amber-500" />
                           <span className="font-medium text-gray-900 dark:text-white">{customer._count.tickets}</span>
                           <span className="text-gray-500">tickets</span>
                         </div>
@@ -278,7 +291,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                           className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                           title="View"
                         >
-                          <span className="material-symbols-outlined text-lg">visibility</span>
+                          <EyeIcon className="h-[18px] w-[18px]" />
                         </Link>
                         {isAdmin && (
                           <button
@@ -286,7 +299,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                             className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                             title="Delete"
                           >
-                            <span className="material-symbols-outlined text-lg">delete</span>
+                            <TrashIcon className="h-[18px] w-[18px]" />
                           </button>
                         )}
                       </div>
@@ -327,7 +340,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{customer.email || '-'}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-sm font-medium rounded-lg">
-                            <span className="material-symbols-outlined text-sm">confirmation_number</span>
+                            <TicketIcon className="h-3.5 w-3.5" />
                             {customer._count.tickets}
                           </span>
                         </td>
@@ -340,14 +353,14 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
                               href={`/customers/${customer.id}`}
                               className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                             >
-                              <span className="material-symbols-outlined text-lg">visibility</span>
+                              <EyeIcon className="h-[18px] w-[18px]" />
                             </Link>
                             {isAdmin && (
                               <button
                                 onClick={() => setDeletingCustomer(customer)}
                                 className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                               >
-                                <span className="material-symbols-outlined text-lg">delete</span>
+                                <TrashIcon className="h-[18px] w-[18px]" />
                               </button>
                             )}
                           </div>
@@ -369,7 +382,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-              <span className="material-symbols-outlined">warning</span>
+              <ExclamationTriangleIcon className="h-5 w-5" />
               Delete Customer
             </DialogTitle>
             <DialogDescription>

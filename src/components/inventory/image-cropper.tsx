@@ -3,6 +3,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
+import {
+    ScissorsIcon,
+    QuestionMarkCircleIcon,
+    CheckIcon,
+    ArrowsPointingOutIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 interface ImageCropperProps {
     imageData: string;
@@ -252,14 +259,14 @@ export function ImageCropper({ imageData, onCrop, onCancel }: ImageCropperProps)
             {/* Minimal header with collapsible tips */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    <span className="material-symbols-outlined text-blue-500">crop</span>
+                    <ScissorsIcon className="h-5 w-5 text-blue-500" />
                     <span>{t('receiptScanner.cropTitle') || 'Select parts area'}</span>
                 </div>
                 <button
                     onClick={() => setShowTips(!showTips)}
                     className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1"
                 >
-                    <span className="material-symbols-outlined text-sm">help</span>
+                    <QuestionMarkCircleIcon className="h-4 w-4" />
                     {showTips ? (t('hideTips') || 'Hide tips') : (t('tips') || 'Tips')}
                 </button>
             </div>
@@ -369,14 +376,14 @@ export function ImageCropper({ imageData, onCrop, onCancel }: ImageCropperProps)
             {/* Action buttons - consistent styling */}
             <div className="flex gap-2">
                 <Button onClick={performCrop} className="flex-1 h-10">
-                    <span className="material-symbols-outlined text-lg mr-1.5">check</span>
+                    <CheckIcon className="h-[18px] w-[18px] mr-1.5" />
                     {t('receiptScanner.cropAndScan') || 'Crop & Scan'}
                 </Button>
                 <Button variant="outline" onClick={() => onCrop(imageData)} className="h-10 px-4">
-                    <span className="material-symbols-outlined text-lg">fullscreen</span>
+                    <ArrowsPointingOutIcon className="h-[18px] w-[18px]" />
                 </Button>
                 <Button variant="ghost" onClick={onCancel} className="h-10 px-4">
-                    <span className="material-symbols-outlined text-lg">close</span>
+                    <XMarkIcon className="h-[18px] w-[18px]" />
                 </Button>
             </div>
         </div>

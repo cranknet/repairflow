@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SupplierFormModal } from './SupplierFormModal';
+import { ArrowPathIcon, PlusIcon } from '@heroicons/react/24/outline';
 import {
     Dialog,
     DialogContent,
@@ -206,7 +207,7 @@ export function PartFormModal({ part, onClose, onSuccess, isOpen = true }: PartF
                                             onClick={() => setFormData({ ...formData, sku: generateSKU() })}
                                             className="text-primary text-xs hover:underline flex items-center gap-1"
                                         >
-                                            <span className="material-symbols-outlined text-sm">refresh</span>
+                                            <ArrowPathIcon className="h-3.5 w-3.5" />
                                             {t('finance.partForm.regenerateSKU')}
                                         </button>
                                     )}
@@ -294,7 +295,7 @@ export function PartFormModal({ part, onClose, onSuccess, isOpen = true }: PartF
                                     onClick={() => setShowSupplierModal(true)}
                                     className="text-primary text-xs hover:underline flex items-center gap-1"
                                 >
-                                    <span className="material-symbols-outlined text-sm">add</span>
+                                    <PlusIcon className="h-3.5 w-3.5" />
                                     {t('finance.partForm.addSupplier')}
                                 </button>
                             </div>
@@ -343,7 +344,7 @@ export function PartFormModal({ part, onClose, onSuccess, isOpen = true }: PartF
                             <Button type="submit" disabled={loading}>
                                 {loading ? (
                                     <span className="flex items-center gap-2">
-                                        <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                                        <ArrowPathIcon className="h-4 w-4 animate-spin" />
                                         {isEditing ? (t('finance.partForm.updating') || 'Updating...') : t('finance.partForm.creating')}
                                     </span>
                                 ) : (

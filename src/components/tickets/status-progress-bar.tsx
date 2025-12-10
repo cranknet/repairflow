@@ -10,6 +10,26 @@ import {
     canTransition,
     hasPermission,
 } from '@/lib/ticket-lifecycle';
+import {
+    InboxIcon,
+    WrenchScrewdriverIcon,
+    ClockIcon,
+    CheckCircleIcon,
+    ShieldCheckIcon,
+    XCircleIcon,
+    ArrowUturnLeftIcon,
+    CheckIcon,
+    MinusIcon,
+    ExclamationTriangleIcon,
+    BanknotesIcon,
+    PlusCircleIcon,
+    PencilIcon,
+    PlayIcon,
+    ChatBubbleLeftIcon,
+    XMarkIcon,
+    InformationCircleIcon,
+    ArrowPathIcon,
+} from '@heroicons/react/24/outline';
 
 
 // Extended ticket type for full functionality
@@ -52,35 +72,35 @@ interface StatusProgressBarProps {
     onOpenSMSPrompt?: () => void;
 }
 
-// Define the 5-step progress flow
+// Define the 5-step progress flow with Heroicon components
 const PROGRESS_STEPS = [
     {
         status: TicketStatus.RECEIVED,
-        icon: 'inbox',
+        Icon: InboxIcon,
         label: 'received',
         description: 'Device received',
     },
     {
         status: TicketStatus.IN_PROGRESS,
-        icon: 'build',
+        Icon: WrenchScrewdriverIcon,
         label: 'inProgress',
         description: 'Repair in progress',
     },
     {
         status: TicketStatus.WAITING_FOR_PARTS,
-        icon: 'hourglass_empty',
+        Icon: ClockIcon,
         label: 'waitingForParts',
         description: 'Awaiting parts',
     },
     {
         status: TicketStatus.REPAIRED,
-        icon: 'check_circle',
+        Icon: CheckCircleIcon,
         label: 'repaired',
         description: 'Repair complete',
     },
     {
         status: TicketStatus.COMPLETED,
-        icon: 'verified',
+        Icon: ShieldCheckIcon,
         label: 'completed',
         description: 'Delivered to customer',
     },
@@ -405,10 +425,10 @@ export function StatusProgressBar({
 
     // Get step icon
     const getStepIcon = (step: typeof PROGRESS_STEPS[0], stepState: string) => {
-        if (stepState === 'completed') return 'check';
-        if (stepState === 'skipped') return 'remove';
-        if (stepState === 'current-warning') return 'warning';
-        return step.icon;
+        if (stepState === 'completed') return CheckIcon;
+        if (stepState === 'skipped') return MinusIcon;
+        if (stepState === 'current-warning') return ExclamationTriangleIcon;
+        return step.Icon;
     };
 
     // Format status label
@@ -424,9 +444,11 @@ export function StatusProgressBar({
                     ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
                     : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                     }`}>
-                    <span className="material-symbols-outlined">
-                        {ticket.status === TicketStatus.CANCELLED ? 'cancel' : 'undo'}
-                    </span>
+                    {ticket.status === TicketStatus.CANCELLED ? (
+                        <XCircleIcon className="h-5 w-5" />
+                    ) : (
+                        <ArrowUturnLeftIcon className="h-5 w-5" />
+                    )}
                     <span className="font-medium uppercase tracking-wide text-sm">
                         {formatStatus(ticket.status.toLowerCase().replace(/_/g, ''))}
                     </span>
@@ -473,9 +495,10 @@ export function StatusProgressBar({
                                         title={getStepTooltip(step, stepState)}
                                         className={`${getStepClasses(stepState)} ${isUpdating ? 'opacity-50 cursor-wait' : ''} shrink-0`}
                                     >
-                                        <span className="material-symbols-outlined text-xl">
-                                            {getStepIcon(step, stepState)}
-                                        </span>
+                                        {(() => {
+                                            const StepIcon = getStepIcon(step, stepState);
+                                            return <StepIcon className="h-5 w-5" />;
+                                        })()}
 
                                         {/* Parts count badge - positioned on circle */}
                                         {step.status === TicketStatus.WAITING_FOR_PARTS && hasParts && (
@@ -526,7 +549,7 @@ export function StatusProgressBar({
             {/* Payment Warning Banner */}
             {ticket.status === TicketStatus.REPAIRED && isPaymentDue && (
                 <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl">payments</span>
+                    <BanknotesIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                     <div className="flex-1">
                         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
                             {t('outstandingBalance')}: ${outstandingAmount.toFixed(2)}
@@ -554,7 +577,7 @@ export function StatusProgressBar({
                             onClick={() => onOpenPartsModal?.()}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">add_circle</span>
+                            <PlusCircleIcon className="h-4 w-4" />
                             {t('addParts')}
                         </button>
                         <button
@@ -562,7 +585,7 @@ export function StatusProgressBar({
                             disabled={isUpdating}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">check_circle</span>
+                            <CheckCircleIcon className="h-4 w-4" />
                             {t('markRepaired')}
                         </button>
                     </>
@@ -574,7 +597,7 @@ export function StatusProgressBar({
                             onClick={() => onOpenPartsModal?.()}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">edit</span>
+                            <PencilIcon className="h-4 w-4" />
                             {t('manageParts')}
                         </button>
                         <button
@@ -582,7 +605,7 @@ export function StatusProgressBar({
                             disabled={isUpdating}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">play_arrow</span>
+                            <PlayIcon className="h-4 w-4" />
                             {t('resumeWork')}
                         </button>
                         <button
@@ -590,7 +613,7 @@ export function StatusProgressBar({
                             disabled={isUpdating}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">check_circle</span>
+                            <CheckCircleIcon className="h-4 w-4" />
                             {t('partsInstalledComplete')}
                         </button>
                     </>
@@ -603,7 +626,7 @@ export function StatusProgressBar({
                                 onClick={() => onOpenPaymentModal?.()}
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-md transition-colors"
                             >
-                                <span className="material-symbols-outlined text-base">payments</span>
+                                <BanknotesIcon className="h-4 w-4" />
                                 {t('collectPayment')}
                             </button>
                         ) : (
@@ -612,7 +635,7 @@ export function StatusProgressBar({
                                 disabled={isUpdating}
                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-md transition-colors"
                             >
-                                <span className="material-symbols-outlined text-base">check_circle</span>
+                                <CheckCircleIcon className="h-4 w-4" />
                                 {t('markCompleted')}
                             </button>
                         )}
@@ -625,14 +648,14 @@ export function StatusProgressBar({
                             onClick={() => onOpenSMSPrompt?.()}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">sms</span>
+                            <ChatBubbleLeftIcon className="h-4 w-4" />
                             {t('sendSms')}
                         </button>
                         <button
                             onClick={() => onOpenReturnModal?.()}
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
                         >
-                            <span className="material-symbols-outlined text-base">undo</span>
+                            <ArrowUturnLeftIcon className="h-4 w-4" />
                             {t('initiateReturn')}
                         </button>
                     </>
@@ -645,7 +668,7 @@ export function StatusProgressBar({
                         disabled={isUpdating}
                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md transition-colors"
                     >
-                        <span className="material-symbols-outlined text-base">close</span>
+                        <XMarkIcon className="h-4 w-4" />
                         {t('cancel')}
                     </button>
                 )}
@@ -671,7 +694,7 @@ export function StatusProgressBar({
                         />
 
                         <div className="flex items-center gap-2 mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                            <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">info</span>
+                            <InformationCircleIcon className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                             <p className="text-xs text-amber-700 dark:text-amber-300">
                                 {t('refundWarningForCancelled')}
                             </p>
@@ -695,7 +718,7 @@ export function StatusProgressBar({
                             >
                                 {isUpdating ? (
                                     <>
-                                        <span className="material-symbols-outlined animate-spin mr-2 text-base">progress_activity</span>
+                                        <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
                                         {t('cancelling')}
                                     </>
                                 ) : (

@@ -9,6 +9,14 @@ import { TicketAssignment } from './ticket-assignment';
 import { TicketChatButton } from './ticket-chat-button';
 import { CustomerProfileButton } from '@/components/customers/customer-profile-button';
 import { CustomerContactActions } from '@/components/customers/customer-contact-actions';
+import {
+    DevicePhoneMobileIcon,
+    BanknotesIcon,
+    QrCodeIcon,
+    ClipboardDocumentIcon,
+    CheckIcon,
+    UserIcon,
+} from '@heroicons/react/24/outline';
 
 interface TicketSidebarProps {
     ticket: {
@@ -76,7 +84,7 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
             <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                 <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                        <span className="material-symbols-outlined text-primary-600 dark:text-primary-400">smartphone</span>
+                        <DevicePhoneMobileIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-sm">{t('device')}</h3>
@@ -138,7 +146,7 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
             <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-sm flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-gray-500">payments</span>
+                        <BanknotesIcon className="h-[18px] w-[18px] text-gray-500" />
                         {t('pricing')}
                     </h3>
                     <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${ticket.paid
@@ -168,7 +176,7 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
             <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                 <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-sm flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-gray-500">qr_code</span>
+                        <QrCodeIcon className="h-[18px] w-[18px] text-gray-500" />
                         {t('trackingCode')}
                     </h3>
                 </div>
@@ -182,9 +190,11 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
                         onClick={handleCopyTrackingCode}
                         className="flex-shrink-0"
                     >
-                        <span className="material-symbols-outlined text-sm">
-                            {copied ? 'check' : 'content_copy'}
-                        </span>
+                        {copied ? (
+                            <CheckIcon className="h-3.5 w-3.5" />
+                        ) : (
+                            <ClipboardDocumentIcon className="h-3.5 w-3.5" />
+                        )}
                     </Button>
                 </div>
             </div>
@@ -192,7 +202,7 @@ export function TicketSidebar({ ticket, userRole }: TicketSidebarProps) {
             {/* Assignment Card */}
             <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                 <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                    <span className="material-symbols-outlined text-lg text-gray-500">person</span>
+                    <UserIcon className="h-[18px] w-[18px] text-gray-500" />
                     {t('assignedTo')}
                 </h3>
                 <TicketAssignment ticket={ticket} userRole={userRole} />

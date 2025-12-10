@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { PrinterIcon, ArrowDownTrayIcon, CheckCircleIcon, InformationCircleIcon, ArrowLeftIcon, TagIcon, DocumentTextIcon, ReceiptRefundIcon, ArrowPathIcon, ArrowRightIcon, DocumentIcon } from '@heroicons/react/24/outline';
 import {
   Dialog,
   DialogContent,
@@ -60,7 +60,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
         variant="outline"
         className="gap-2 px-4 py-2 h-10 text-sm font-medium border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
       >
-        <span className="material-symbols-outlined text-xl">print</span>
+        <PrinterIcon className="h-5 w-5" />
         {t('print')}
       </Button>
 
@@ -72,7 +72,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
           {/* Big Header with Printer Icon */}
           <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-t-lg text-center border-b border-gray-200 dark:border-gray-700">
             <div className="w-20 h-20 mx-auto bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-blue-200 dark:border-blue-800">
-              <span className="material-symbols-outlined text-5xl text-blue-600 dark:text-blue-400">print</span>
+              <PrinterIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('printTicket')}</h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
@@ -104,14 +104,14 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                       >
                         <span className="text-lg">{lang.flag}</span>
                         <span className="hidden sm:inline">{lang.label}</span>
-                        {printLanguage === lang.code && <span className="material-symbols-outlined text-sm text-white">check_circle</span>}
+                        {printLanguage === lang.code && <CheckCircleIcon className="h-3.5 w-3.5 text-white" />}
                       </button>
                     ))}
                   </div>
                   {isArabic && (
                     <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                       <p className="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                        <span className="material-symbols-outlined">info</span>
+                        <InformationCircleIcon className="h-5 w-5" />
                         Arabic: Labels disabled. Receipt/Invoice use English layout.
                       </p>
                     </div>
@@ -128,37 +128,37 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                       }`}
                   >
                     <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${isArabic ? 'from-gray-400 to-gray-500' : formatColors.label} flex items-center justify-center shadow-lg ${!isArabic && 'group-hover:scale-110'} transition-transform`}>
-                      <span className="material-symbols-outlined text-2xl text-white">label</span>
+                      <TagIcon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <h3 className={`font-semibold text-lg ${isArabic ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>{t('printLabel') || 'Print Label'}</h3>
                       <p className={`text-sm ${isArabic ? 'text-gray-400' : 'text-gray-500'}`}>40×20mm • QR code + device info{isArabic && ' (Disabled)'}</p>
                     </div>
-                    {!isArabic && <span className="material-symbols-outlined text-gray-400 group-hover:text-primary-500">arrow_forward</span>}
+                    {!isArabic && <ArrowRightIcon className="h-5 w-5 text-gray-400 group-hover:text-primary-500" />}
                   </button>
 
                   {/* Receipt */}
                   <button onClick={() => handleSelectFormat('receipt')} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-primary-400 transition-all group text-left flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.receipt} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                      <span className="material-symbols-outlined text-2xl text-white">receipt_long</span>
+                      <ReceiptRefundIcon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{t('printReceipt') || 'Print Receipt'}</h3>
                       <p className="text-sm text-gray-500">80mm Thermal • Payment history{isArabic && <span className="text-amber-600"> (EN)</span>}</p>
                     </div>
-                    <span className="material-symbols-outlined text-gray-400 group-hover:text-primary-500">arrow_forward</span>
+                    <ArrowRightIcon className="h-5 w-5 text-gray-400 group-hover:text-primary-500" />
                   </button>
 
                   {/* Invoice */}
                   <button onClick={() => handleSelectFormat('invoice')} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-primary-400 transition-all group text-left flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.invoice} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                      <span className="material-symbols-outlined text-2xl text-white">description</span>
+                      <DocumentTextIcon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{t('printInvoice') || 'Print Invoice'}</h3>
                       <p className="text-sm text-gray-500">A4 PDF • Full invoice{isArabic && <span className="text-amber-600"> (EN)</span>}</p>
                     </div>
-                    <span className="material-symbols-outlined text-gray-400 group-hover:text-primary-500">arrow_forward</span>
+                    <ArrowRightIcon className="h-5 w-5 text-gray-400 group-hover:text-primary-500" />
                   </button>
                 </div>
 
@@ -172,7 +172,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${formatColors[selectedFormat]} flex items-center justify-center`}>
-                      <span className="material-symbols-outlined text-lg text-white">{selectedFormat === 'label' ? 'label' : selectedFormat === 'receipt' ? 'receipt_long' : 'description'}</span>
+                      {selectedFormat === 'label' ? <TagIcon className="h-[18px] w-[18px] text-white" /> : selectedFormat === 'receipt' ? <ReceiptRefundIcon className="h-[18px] w-[18px] text-white" /> : <DocumentTextIcon className="h-[18px] w-[18px] text-white" />}
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-white capitalize">{selectedFormat} Preview</h3>
@@ -180,7 +180,7 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setSelectedFormat(null)} className="gap-1">
-                    <span className="material-symbols-outlined">arrow_back</span> {t('back')}
+                    <ArrowLeftIcon className="h-4 w-4" /> {t('back')}
                   </Button>
                 </div>
 
@@ -188,12 +188,12 @@ export function TicketPrintButtons({ ticket }: { ticket: any }) {
                   {selectedFormat === 'invoice' ? (
                     <div className="text-center p-8 bg-white dark:bg-gray-900 rounded-xl shadow-lg max-w-sm border border-gray-200 dark:border-gray-700">
                       <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4 shadow-md">
-                        <span className="material-symbols-outlined text-3xl text-white">picture_as_pdf</span>
+                        <DocumentIcon className="h-8 w-8 text-white" />
                       </div>
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">PDF Invoice Ready</h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Click below to generate and download your A4 invoice.</p>
                       <Button onClick={handlePrint} disabled={isGeneratingPdf} className="w-full gap-2" size="lg">
-                        {isGeneratingPdf ? <><span className="material-symbols-outlined animate-spin">progress_activity</span>Generating...</> : <><ArrowDownTrayIcon className="h-5 w-5" />Download PDF</>}
+                        {isGeneratingPdf ? <><ArrowPathIcon className="h-5 w-5 animate-spin" />Generating...</> : <><ArrowDownTrayIcon className="h-5 w-5" />Download PDF</>}
                       </Button>
                     </div>
                   ) : (

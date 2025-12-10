@@ -10,6 +10,24 @@ import { ContactMessageStatusBadge } from './contact-message-status-badge';
 import { ContactMessageDetailModal } from './contact-message-detail-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import Link from 'next/link';
+import {
+  ArrowLeftIcon,
+  RectangleStackIcon,
+  TableCellsIcon,
+  TrashIcon,
+  EnvelopeIcon,
+  EnvelopeOpenIcon,
+  ArchiveBoxIcon,
+  MagnifyingGlassIcon,
+  ArrowPathIcon,
+  InboxIcon,
+  CalendarDaysIcon,
+  TicketIcon,
+  ClockIcon,
+  CheckIcon,
+  EyeIcon,
+} from '@heroicons/react/24/outline';
+import { ComponentType, SVGProps } from 'react';
 
 interface ContactMessage {
   id: string;
@@ -43,21 +61,21 @@ interface ContactMessagesClientProps {
   canDelete: boolean;
 }
 
-const statusConfig: Record<string, { icon: string; gradient: string; bgLight: string; text: string }> = {
+const statusConfig: Record<string, { Icon: ComponentType<SVGProps<SVGSVGElement>>; gradient: string; bgLight: string; text: string }> = {
   NEW: {
-    icon: 'mark_email_unread',
+    Icon: EnvelopeIcon,
     gradient: 'from-blue-500 to-indigo-600',
     bgLight: 'bg-blue-50 dark:bg-blue-900/20',
     text: 'text-blue-600 dark:text-blue-400',
   },
   READ: {
-    icon: 'drafts',
+    Icon: EnvelopeOpenIcon,
     gradient: 'from-gray-500 to-slate-600',
     bgLight: 'bg-gray-50 dark:bg-gray-900/20',
     text: 'text-gray-600 dark:text-gray-400',
   },
   ARCHIVED: {
-    icon: 'archive',
+    Icon: ArchiveBoxIcon,
     gradient: 'from-amber-500 to-orange-600',
     bgLight: 'bg-amber-50 dark:bg-amber-900/20',
     text: 'text-amber-600 dark:text-amber-400',
@@ -296,7 +314,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
             href="/dashboard"
             className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 group"
           >
-            <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
             <span className="text-sm font-medium">{t('backToDashboard')}</span>
           </Link>
 
@@ -316,20 +334,20 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                 <button
                   onClick={() => setViewMode('cards')}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                      ? 'bg-primary text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-lg">view_timeline</span>
+                  <RectangleStackIcon className="h-[18px] w-[18px]" />
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                      ? 'bg-primary text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-lg">table_rows</span>
+                  <TableCellsIcon className="h-[18px] w-[18px]" />
                 </button>
               </div>
 
@@ -340,7 +358,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                   disabled={isDeleting}
                   className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors text-sm font-medium disabled:opacity-50"
                 >
-                  <span className="material-symbols-outlined text-lg">delete_sweep</span>
+                  <TrashIcon className="h-[18px] w-[18px]" />
                   {t('contact.empty.inbox')}
                 </button>
               )}
@@ -353,7 +371,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center relative">
-                <span className="material-symbols-outlined text-white text-2xl">mail</span>
+                <EnvelopeIcon className="h-6 w-6 text-white" />
                 {stats.new > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                     {stats.new}
@@ -370,7 +388,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-2xl">mark_email_unread</span>
+                <EnvelopeIcon className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('contact.status.new')}</p>
@@ -382,7 +400,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-500 to-slate-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-2xl">drafts</span>
+                <EnvelopeOpenIcon className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('contact.status.read')}</p>
@@ -394,7 +412,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-2xl">archive</span>
+                <ArchiveBoxIcon className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('contact.status.archived')}</p>
@@ -410,7 +428,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
             {/* Search */}
             <div className="flex-1 w-full lg:w-auto">
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                <MagnifyingGlassIcon className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   value={searchTerm}
@@ -426,8 +444,8 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
               <button
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === 'ALL'
-                    ? 'bg-primary text-white shadow-md shadow-primary/25'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary text-white shadow-md shadow-primary/25'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
               >
                 {t('contact.admin.filters.all')} ({stats.total})
@@ -440,11 +458,11 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === status
-                        ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">{config.icon}</span>
+                    <config.Icon className="h-[18px] w-[18px]" />
                     {t(`contact.status.${status.toLowerCase()}`)} ({count})
                   </button>
                 );
@@ -457,14 +475,14 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center animate-pulse">
-              <span className="material-symbols-outlined text-white text-3xl animate-spin">progress_activity</span>
+              <ArrowPathIcon className="h-8 w-8 text-white animate-spin" />
             </div>
             <p className="mt-4 text-gray-500 dark:text-gray-400">{t('loading')}</p>
           </div>
         ) : filteredMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
             <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-              <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">inbox</span>
+              <InboxIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('contact.admin.no_messages')}</h3>
             <p className="text-gray-500 dark:text-gray-400 text-center max-w-md">
@@ -479,7 +497,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                 {/* Date Header */}
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-gray-500">calendar_today</span>
+                    <CalendarDaysIcon className="h-5 w-5 text-gray-500" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-white">{date}</p>
@@ -504,7 +522,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
-                                <span className="material-symbols-outlined text-white text-xl">{config.icon}</span>
+                                <config.Icon className="h-5 w-5 text-white" />
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900 dark:text-white">{message.name}</p>
@@ -532,12 +550,12 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                   onClick={(e) => e.stopPropagation()}
                                   className="flex items-center gap-1 text-primary hover:underline"
                                 >
-                                  <span className="material-symbols-outlined text-sm">confirmation_number</span>
+                                  <TicketIcon className="h-4 w-4" />
                                   {message.ticket.ticketNumber}
                                 </Link>
                               )}
                               <div className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">schedule</span>
+                                <ClockIcon className="h-4 w-4" />
                                 {format(new Date(message.createdAt), 'HH:mm')}
                               </div>
                             </div>
@@ -552,7 +570,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                   className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10"
                                   title={t('contact.admin.mark_read')}
                                 >
-                                  <span className="material-symbols-outlined text-lg">mark_email_read</span>
+                                  <CheckIcon className="h-[18px] w-[18px]" />
                                 </button>
                               )}
                               {message.status !== 'ARCHIVED' && (
@@ -564,7 +582,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                   className="p-1.5 rounded-lg text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                                   title={t('contact.admin.archive')}
                                 >
-                                  <span className="material-symbols-outlined text-lg">archive</span>
+                                  <ArchiveBoxIcon className="h-[18px] w-[18px]" />
                                 </button>
                               )}
                               {canDelete && (
@@ -576,7 +594,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                   className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   title={t('delete')}
                                 >
-                                  <span className="material-symbols-outlined text-lg">delete</span>
+                                  <TrashIcon className="h-[18px] w-[18px]" />
                                 </button>
                               )}
                             </div>
@@ -617,7 +635,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center`}>
-                              <span className="material-symbols-outlined text-white text-base">{config.icon}</span>
+                              <config.Icon className="h-4 w-4 text-white" />
                             </div>
                             <p className="font-medium text-gray-900 dark:text-white">{message.name}</p>
                           </div>
@@ -664,7 +682,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                               className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                               title={t('contact.admin.view')}
                             >
-                              <span className="material-symbols-outlined">visibility</span>
+                              <EyeIcon className="h-5 w-5" />
                             </button>
                             {message.status === 'NEW' && (
                               <button
@@ -675,7 +693,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                 className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                                 title={t('contact.admin.mark_read')}
                               >
-                                <span className="material-symbols-outlined">mark_email_read</span>
+                                <CheckIcon className="h-5 w-5" />
                               </button>
                             )}
                             {canDelete && (
@@ -687,7 +705,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
                                 className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 title={t('delete')}
                               >
-                                <span className="material-symbols-outlined">delete</span>
+                                <TrashIcon className="h-5 w-5" />
                               </button>
                             )}
                           </div>

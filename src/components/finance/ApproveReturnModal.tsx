@@ -6,6 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+    ArrowPathIcon,
+    ExclamationCircleIcon,
+    InformationCircleIcon,
+    CheckCircleIcon,
+} from '@heroicons/react/24/outline';
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -88,7 +94,7 @@ export function ApproveReturnModal({ isOpen = true, returnData, onClose, onSucce
                     {/* Error Alert */}
                     {error && (
                         <div className="p-3 bg-error-50 dark:bg-error-500/10 border border-error-200 dark:border-error-500/20 text-error-600 dark:text-error-400 rounded-lg text-sm flex items-start gap-2">
-                            <span className="material-symbols-outlined text-base">error</span>
+                            <ExclamationCircleIcon className="h-4 w-4 flex-shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
@@ -123,7 +129,7 @@ export function ApproveReturnModal({ isOpen = true, returnData, onClose, onSucce
                         </div>
                         {isPartialRefund && (
                             <p className="text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">info</span>
+                                <InformationCircleIcon className="h-3.5 w-3.5" />
                                 {t('finance.approveReturn.partialRefund')}
                             </p>
                         )}
@@ -165,7 +171,7 @@ export function ApproveReturnModal({ isOpen = true, returnData, onClose, onSucce
                     {/* What Will Happen Summary */}
                     <div className="bg-success-50 dark:bg-success-500/10 rounded-lg p-4 border border-success-200 dark:border-success-500/20">
                         <h3 className="text-sm font-medium text-success-700 dark:text-success-400 mb-2 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-base">check_circle</span>
+                            <CheckCircleIcon className="h-4 w-4" />
                             {t('finance.approveReturn.whatWillHappen')}
                         </h3>
                         <ul className="text-xs text-success-600 dark:text-success-400/80 space-y-1 ml-6 list-disc">
@@ -185,7 +191,7 @@ export function ApproveReturnModal({ isOpen = true, returnData, onClose, onSucce
                     <Button onClick={handleApprove} disabled={loading || !partialAmount}>
                         {loading ? (
                             <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                                <ArrowPathIcon className="h-4 w-4 animate-spin" />
                                 {t('finance.approveReturn.processing')}
                             </span>
                         ) : (

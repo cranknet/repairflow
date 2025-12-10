@@ -23,6 +23,12 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { useTicketPrint } from './ticket-print-context';
+import {
+  InformationCircleIcon,
+  PlusCircleIcon,
+  MinusCircleIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 
 interface TicketPaymentModalProps {
   isOpen: boolean;
@@ -340,7 +346,7 @@ export function TicketPaymentModal({
               {/* Adjustment Alert */}
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-lg">info</span>
+                  <InformationCircleIcon className="h-[18px] w-[18px] text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-amber-800 dark:text-amber-200">
                     {t('adjustPriceInfo') || 'This ticket is fully paid. You can add or subtract from the final price if needed. The customer balance will be updated accordingly.'}
                   </p>
@@ -359,7 +365,7 @@ export function TicketPaymentModal({
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                       }`}
                   >
-                    <span className="material-symbols-outlined">add_circle</span>
+                    <PlusCircleIcon className="h-5 w-5" />
                     <span className="font-medium">{t('addToPrice') || 'Add to Price'}</span>
                   </button>
                   <button
@@ -370,7 +376,7 @@ export function TicketPaymentModal({
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                       }`}
                   >
-                    <span className="material-symbols-outlined">remove_circle</span>
+                    <MinusCircleIcon className="h-5 w-5" />
                     <span className="font-medium">{t('subtractFromPrice') || 'Subtract'}</span>
                   </button>
                 </div>
@@ -450,8 +456,8 @@ export function TicketPaymentModal({
                     </div>
                   </div>
                   {adjustmentMode === 'subtract' && newPricePreview < totalPaid && (
-                    <div className="mt-2 p-2 bg-amber-100 dark:bg-amber-900/30 rounded text-sm text-amber-800 dark:text-amber-200">
-                      <span className="material-symbols-outlined text-sm align-middle mr-1">warning</span>
+                    <div className="mt-2 p-2 bg-amber-100 dark:bg-amber-900/30 rounded text-sm text-amber-800 dark:text-amber-200 flex items-center gap-1">
+                      <ExclamationTriangleIcon className="h-4 w-4" />
                       {t('refundNeeded') || 'Customer will be owed a refund of'}: ${(totalPaid - newPricePreview).toFixed(2)}
                     </div>
                   )}

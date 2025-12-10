@@ -5,6 +5,7 @@ import { TicketDetailsClient } from '@/components/tickets/ticket-details-client'
 import { TicketDetailHeader } from '@/components/tickets/ticket-detail-header';
 import { TicketSidebar } from '@/components/tickets/ticket-sidebar';
 import { TicketMainContent } from '@/components/tickets/ticket-main-content';
+import { MagnifyingGlassIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export default async function TicketDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -73,14 +74,14 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
   if (!ticket) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <span className="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">search_off</span>
+        <MagnifyingGlassIcon className="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" />
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ticket Not Found</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">The ticket you're looking for doesn't exist.</p>
         <a
           href="/tickets"
           className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          <ArrowLeftIcon className="h-4 w-4" />
           Back to Tickets
         </a>
       </div>

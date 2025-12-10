@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { useSettings } from '@/contexts/settings-context';
 import { LoginSidebar } from '@/components/auth/login-sidebar';
-import { EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, ArrowRightIcon, ArrowRightEndOnRectangleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -134,7 +134,7 @@ export default function LoginPage() {
             <div className="px-6 sm:px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-gray-50 to-white dark:from-slate-800 dark:to-slate-800">
               <div className="flex items-center gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-2xl">login</span>
+                  <ArrowRightEndOnRectangleIcon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900 dark:text-white">

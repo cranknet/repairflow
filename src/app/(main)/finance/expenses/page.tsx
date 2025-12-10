@@ -4,6 +4,27 @@ import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { ExpenseFormModal } from '@/components/finance/ExpenseFormModal';
 import Link from 'next/link';
+import {
+    ArrowLeftIcon,
+    RectangleStackIcon,
+    TableCellsIcon,
+    PlusIcon,
+    WalletIcon,
+    ShoppingBagIcon,
+    BuildingStorefrontIcon,
+    ExclamationTriangleIcon,
+    TagIcon,
+    MagnifyingGlassIcon,
+    ArrowPathIcon,
+    ReceiptPercentIcon,
+    CalendarDaysIcon,
+    CubeIcon,
+    UserIcon,
+    TrashIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+} from '@heroicons/react/24/outline';
+import { ComponentType, SVGProps } from 'react';
 
 interface Expense {
     id: string;
@@ -22,24 +43,24 @@ interface Expense {
     };
 }
 
-const typeConfig: Record<string, { icon: string; gradient: string; bgLight: string }> = {
+const typeConfig: Record<string, { Icon: ComponentType<SVGProps<SVGSVGElement>>; gradient: string; bgLight: string }> = {
     PURCHASE: {
-        icon: 'shopping_bag',
+        Icon: ShoppingBagIcon,
         gradient: 'from-blue-500 to-indigo-600',
         bgLight: 'bg-blue-50 dark:bg-blue-900/20',
     },
     SHOP: {
-        icon: 'store',
+        Icon: BuildingStorefrontIcon,
         gradient: 'from-emerald-500 to-teal-600',
         bgLight: 'bg-emerald-50 dark:bg-emerald-900/20',
     },
     PART_LOSS: {
-        icon: 'warning',
+        Icon: ExclamationTriangleIcon,
         gradient: 'from-red-500 to-rose-600',
         bgLight: 'bg-red-50 dark:bg-red-900/20',
     },
     MISC: {
-        icon: 'category',
+        Icon: TagIcon,
         gradient: 'from-amber-500 to-orange-600',
         bgLight: 'bg-amber-50 dark:bg-amber-900/20',
     },
@@ -134,7 +155,7 @@ export default function ExpensesPage() {
                         href="/finance"
                         className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 group"
                     >
-                        <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="text-sm font-medium">{t('finance.backToFinance')}</span>
                     </Link>
 
@@ -154,20 +175,20 @@ export default function ExpensesPage() {
                                 <button
                                     onClick={() => setViewMode('cards')}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                                            ? 'bg-primary text-white shadow-md'
-                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                        ? 'bg-primary text-white shadow-md'
+                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-lg">view_timeline</span>
+                                    <RectangleStackIcon className="h-[18px] w-[18px]" />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('table')}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                                            ? 'bg-primary text-white shadow-md'
-                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                        ? 'bg-primary text-white shadow-md'
+                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-lg">table_rows</span>
+                                    <TableCellsIcon className="h-[18px] w-[18px]" />
                                 </button>
                             </div>
 
@@ -176,7 +197,7 @@ export default function ExpensesPage() {
                                 onClick={() => setShowAddModal(true)}
                                 className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                             >
-                                <span className="material-symbols-outlined">add</span>
+                                <PlusIcon className="h-5 w-5" />
                                 {t('finance.expenses.addExpense')}
                             </button>
                         </div>
@@ -188,7 +209,7 @@ export default function ExpensesPage() {
                     <div className="col-span-2 lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">account_balance_wallet</span>
+                                <WalletIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.expenses.totalExpenses') || 'Total'}</p>
@@ -203,7 +224,7 @@ export default function ExpensesPage() {
                             <div key={type} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center`}>
-                                        <span className="material-symbols-outlined text-white text-xl">{config.icon}</span>
+                                        <config.Icon className="h-5 w-5 text-white" />
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">{t(`finance.expenseTypes.${type}`)}</p>
@@ -221,7 +242,7 @@ export default function ExpensesPage() {
                         {/* Search */}
                         <div className="flex-1 w-full lg:w-auto">
                             <div className="relative">
-                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                                <MagnifyingGlassIcon className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
                                     value={searchTerm}
@@ -237,8 +258,8 @@ export default function ExpensesPage() {
                             <button
                                 onClick={() => setTypeFilter('')}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${typeFilter === ''
-                                        ? 'bg-primary text-white shadow-md shadow-primary/25'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white shadow-md shadow-primary/25'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {t('finance.expenses.allTypes')}
@@ -250,11 +271,11 @@ export default function ExpensesPage() {
                                         key={type}
                                         onClick={() => setTypeFilter(type)}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${typeFilter === type
-                                                ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
-                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                            ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                             }`}
                                     >
-                                        <span className="material-symbols-outlined text-lg">{config.icon}</span>
+                                        <config.Icon className="h-[18px] w-[18px]" />
                                         {t(`finance.expenseTypes.${type}`)}
                                     </button>
                                 );
@@ -267,14 +288,14 @@ export default function ExpensesPage() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center animate-pulse">
-                            <span className="material-symbols-outlined text-white text-3xl animate-spin">progress_activity</span>
+                            <ArrowPathIcon className="h-8 w-8 text-white animate-spin" />
                         </div>
                         <p className="mt-4 text-gray-500 dark:text-gray-400">{t('finance.expenses.loading')}</p>
                     </div>
                 ) : expenses.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">receipt</span>
+                            <ReceiptPercentIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('finance.expenses.noExpenses')}</h3>
                         <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">{t('finance.expenses.createOne')}</p>
@@ -282,7 +303,7 @@ export default function ExpensesPage() {
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                         >
-                            <span className="material-symbols-outlined">add</span>
+                            <PlusIcon className="h-5 w-5" />
                             {t('finance.expenses.addExpense')}
                         </button>
                     </div>
@@ -294,7 +315,7 @@ export default function ExpensesPage() {
                                 {/* Date Header */}
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-gray-500">calendar_today</span>
+                                        <CalendarDaysIcon className="h-5 w-5 text-gray-500" />
                                     </div>
                                     <div>
                                         <p className="font-semibold text-gray-900 dark:text-white">{date}</p>
@@ -321,7 +342,7 @@ export default function ExpensesPage() {
                                                     <div className="flex items-start justify-between mb-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
-                                                                <span className="material-symbols-outlined text-white text-xl">{config.icon}</span>
+                                                                <config.Icon className="h-5 w-5 text-white" />
                                                             </div>
                                                             <div>
                                                                 <p className="font-semibold text-gray-900 dark:text-white">{expense.name}</p>
@@ -342,12 +363,12 @@ export default function ExpensesPage() {
                                                         <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                                             {expense.part && (
                                                                 <div className="flex items-center gap-1.5">
-                                                                    <span className="material-symbols-outlined text-lg">inventory_2</span>
+                                                                    <CubeIcon className="h-[18px] w-[18px]" />
                                                                     <span>{expense.part.name}</span>
                                                                 </div>
                                                             )}
                                                             <div className="flex items-center gap-1.5">
-                                                                <span className="material-symbols-outlined text-lg">person</span>
+                                                                <UserIcon className="h-[18px] w-[18px]" />
                                                                 <span>{expense.createdByUser.name || expense.createdByUser.username}</span>
                                                             </div>
                                                         </div>
@@ -357,7 +378,7 @@ export default function ExpensesPage() {
                                                             className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
                                                             title={t('finance.expenses.deleteTitle')}
                                                         >
-                                                            <span className="material-symbols-outlined">delete</span>
+                                                            <TrashIcon className="h-5 w-5" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -398,7 +419,7 @@ export default function ExpensesPage() {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${config.gradient} text-white`}>
-                                                        <span className="material-symbols-outlined text-sm">{config.icon}</span>
+                                                        <config.Icon className="h-4 w-4" />
                                                         {expense.type.replace('_', ' ')}
                                                     </span>
                                                 </td>
@@ -424,7 +445,7 @@ export default function ExpensesPage() {
                                                         className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                                         title={t('finance.expenses.deleteTitle')}
                                                     >
-                                                        <span className="material-symbols-outlined">delete</span>
+                                                        <TrashIcon className="h-5 w-5" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -448,7 +469,7 @@ export default function ExpensesPage() {
                                 disabled={page === 1}
                                 className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                             >
-                                <span className="material-symbols-outlined text-lg">chevron_left</span>
+                                <ChevronLeftIcon className="h-[18px] w-[18px]" />
                                 Previous
                             </button>
                             <span className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -460,7 +481,7 @@ export default function ExpensesPage() {
                                 className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                             >
                                 Next
-                                <span className="material-symbols-outlined text-lg">chevron_right</span>
+                                <ChevronRightIcon className="h-[18px] w-[18px]" />
                             </button>
                         </div>
                     </div>

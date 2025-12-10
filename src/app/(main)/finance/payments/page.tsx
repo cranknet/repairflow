@@ -4,6 +4,31 @@ import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 import { formatId } from '@/lib/utils';
+import {
+    ArrowLeftIcon,
+    Squares2X2Icon,
+    TableCellsIcon,
+    DocumentTextIcon,
+    ArrowTrendingUpIcon,
+    ArrowTrendingDownIcon,
+    WalletIcon,
+    MagnifyingGlassIcon,
+    ArrowPathIcon,
+    BanknotesIcon,
+    CreditCardIcon,
+    DevicePhoneMobileIcon,
+    CurrencyDollarIcon,
+    ArrowUturnLeftIcon,
+    UserIcon,
+    TicketIcon,
+    ReceiptPercentIcon,
+    IdentificationIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+} from '@heroicons/react/24/outline';
+import type { ComponentType, SVGProps } from 'react';
+
+type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface Payment {
     id: string;
@@ -27,11 +52,11 @@ interface Payment {
     };
 }
 
-const methodIcons: Record<string, string> = {
-    CASH: 'payments',
-    CARD: 'credit_card',
-    MOBILE: 'smartphone',
-    OTHER: 'attach_money',
+const methodIcons: Record<string, HeroIcon> = {
+    CASH: BanknotesIcon,
+    CARD: CreditCardIcon,
+    MOBILE: DevicePhoneMobileIcon,
+    OTHER: CurrencyDollarIcon,
 };
 
 const methodGradients: Record<string, string> = {
@@ -109,7 +134,7 @@ export default function PaymentsPage() {
                         href="/finance"
                         className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 group"
                     >
-                        <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="text-sm font-medium">{t('finance.backToFinance')}</span>
                     </Link>
 
@@ -128,21 +153,21 @@ export default function PaymentsPage() {
                             <button
                                 onClick={() => setViewMode('cards')}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                                        ? 'bg-primary text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
-                                <span className="material-symbols-outlined text-lg">grid_view</span>
+                                <Squares2X2Icon className="h-5 w-5" />
                                 Cards
                             </button>
                             <button
                                 onClick={() => setViewMode('table')}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                                        ? 'bg-primary text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
-                                <span className="material-symbols-outlined text-lg">table_rows</span>
+                                <TableCellsIcon className="h-5 w-5" />
                                 Table
                             </button>
                         </div>
@@ -154,7 +179,7 @@ export default function PaymentsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">receipt_long</span>
+                                <DocumentTextIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.payments.totalPayments') || 'Total Payments'}</p>
@@ -166,7 +191,7 @@ export default function PaymentsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">trending_up</span>
+                                <ArrowTrendingUpIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.payments.collected') || 'Collected'}</p>
@@ -178,7 +203,7 @@ export default function PaymentsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">trending_down</span>
+                                <ArrowTrendingDownIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.payments.refunds') || 'Refunds'}</p>
@@ -190,7 +215,7 @@ export default function PaymentsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">account_balance_wallet</span>
+                                <WalletIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.payments.netAmount') || 'Net Amount'}</p>
@@ -206,7 +231,7 @@ export default function PaymentsPage() {
                         {/* Search */}
                         <form onSubmit={handleSearch} className="flex-1 w-full lg:w-auto">
                             <div className="relative">
-                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                                <MagnifyingGlassIcon className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
                                     value={searchTerm}
@@ -222,8 +247,8 @@ export default function PaymentsPage() {
                             <button
                                 onClick={() => setMethodFilter('')}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${methodFilter === ''
-                                        ? 'bg-primary text-white shadow-md shadow-primary/25'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white shadow-md shadow-primary/25'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {t('finance.payments.allMethods')}
@@ -233,11 +258,11 @@ export default function PaymentsPage() {
                                     key={method}
                                     onClick={() => setMethodFilter(method)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${methodFilter === method
-                                            ? `bg-gradient-to-r ${methodGradients[method]} text-white shadow-md`
-                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        ? `bg-gradient-to-r ${methodGradients[method]} text-white shadow-md`
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-lg">{methodIcons[method]}</span>
+                                    {(() => { const Icon = methodIcons[method]; return <Icon className="h-5 w-5" />; })()}
                                     {t(`finance.paymentMethods.${method}`)}
                                 </button>
                             ))}
@@ -249,14 +274,14 @@ export default function PaymentsPage() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center animate-pulse">
-                            <span className="material-symbols-outlined text-white text-3xl animate-spin">progress_activity</span>
+                            <ArrowPathIcon className="h-8 w-8 text-white animate-spin" />
                         </div>
                         <p className="mt-4 text-gray-500 dark:text-gray-400">{t('finance.payments.loading')}</p>
                     </div>
                 ) : payments.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">receipt_long</span>
+                            <DocumentTextIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('finance.payments.noPayments')}</h3>
                         <p className="text-gray-500 dark:text-gray-400 text-center max-w-md">{t('finance.payments.adjustFilters')}</p>
@@ -276,7 +301,7 @@ export default function PaymentsPage() {
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${methodGradients[payment.method] || methodGradients.OTHER} flex items-center justify-center shadow-lg`}>
-                                                <span className="material-symbols-outlined text-white text-xl">{methodIcons[payment.method] || 'attach_money'}</span>
+                                                {(() => { const Icon = methodIcons[payment.method] || CurrencyDollarIcon; return <Icon className="h-5 w-5 text-white" />; })()}
                                             </div>
                                             <div>
                                                 <p className="font-mono text-sm text-gray-500 dark:text-gray-400">
@@ -294,7 +319,7 @@ export default function PaymentsPage() {
                                             </p>
                                             {payment.amount < 0 && (
                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-full">
-                                                    <span className="material-symbols-outlined text-sm">undo</span>
+                                                    <ArrowUturnLeftIcon className="h-3.5 w-3.5" />
                                                     {t('finance.payments.refund')}
                                                 </span>
                                             )}
@@ -307,7 +332,7 @@ export default function PaymentsPage() {
                                             <>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                                        <span className="material-symbols-outlined text-gray-500 text-lg">person</span>
+                                                        <UserIcon className="h-5 w-5 text-gray-500" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{payment.ticket.customer.name}</p>
@@ -320,7 +345,7 @@ export default function PaymentsPage() {
                                                     className="flex items-center gap-3 group/link"
                                                 >
                                                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                        <span className="material-symbols-outlined text-primary text-lg">confirmation_number</span>
+                                                        <TicketIcon className="h-5 w-5 text-primary" />
                                                     </div>
                                                     <span className="text-sm font-medium text-primary group-hover/link:underline">{payment.ticket.ticketNumber}</span>
                                                 </Link>
@@ -328,7 +353,7 @@ export default function PaymentsPage() {
                                         ) : (
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-gray-400 text-lg">receipt</span>
+                                                    <ReceiptPercentIcon className="h-5 w-5 text-gray-400" />
                                                 </div>
                                                 <span className="text-sm text-gray-400">{t('finance.common.na')}</span>
                                             </div>
@@ -336,7 +361,7 @@ export default function PaymentsPage() {
 
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-gray-500 text-lg">badge</span>
+                                                <IdentificationIcon className="h-5 w-5 text-gray-500" />
                                             </div>
                                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                                 {payment.performedByUser.name || payment.performedByUser.username}
@@ -396,7 +421,7 @@ export default function PaymentsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${methodGradients[payment.method]} text-white`}>
-                                                    <span className="material-symbols-outlined text-sm">{methodIcons[payment.method]}</span>
+                                                    {(() => { const Icon = methodIcons[payment.method]; return <Icon className="h-3.5 w-3.5" />; })()}
                                                     {payment.method}
                                                 </span>
                                             </td>
@@ -426,7 +451,7 @@ export default function PaymentsPage() {
                                 disabled={page === 1}
                                 className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                             >
-                                <span className="material-symbols-outlined text-lg">chevron_left</span>
+                                <ChevronLeftIcon className="h-5 w-5" />
                                 Previous
                             </button>
                             <span className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -438,7 +463,7 @@ export default function PaymentsPage() {
                                 className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                             >
                                 Next
-                                <span className="material-symbols-outlined text-lg">chevron_right</span>
+                                <ChevronRightIcon className="h-5 w-5" />
                             </button>
                         </div>
                     </div>

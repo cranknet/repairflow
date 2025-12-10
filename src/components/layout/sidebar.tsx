@@ -11,6 +11,42 @@ import { useLanguage } from '@/contexts/language-context';
 import { useSettings } from '@/contexts/settings-context';
 import { useFeatureFlag } from '@/lib/hooks/useFeatureFlag';
 import { FEATURES } from '@/lib/features';
+import {
+  Squares2X2Icon,
+  TicketIcon,
+  WalletIcon,
+  CurrencyDollarIcon,
+  ReceiptRefundIcon,
+  ShoppingCartIcon,
+  UsersIcon,
+  TruckIcon,
+  ArchiveBoxIcon,
+  BuildingStorefrontIcon,
+  AdjustmentsHorizontalIcon,
+  Cog6ToothIcon,
+  Bars3Icon,
+  ChevronLeftIcon,
+  XMarkIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/outline';
+import {
+  Squares2X2Icon as Squares2X2IconSolid,
+  TicketIcon as TicketIconSolid,
+  WalletIcon as WalletIconSolid,
+  CurrencyDollarIcon as CurrencyDollarIconSolid,
+  ReceiptRefundIcon as ReceiptRefundIconSolid,
+  ShoppingCartIcon as ShoppingCartIconSolid,
+  UsersIcon as UsersIconSolid,
+  TruckIcon as TruckIconSolid,
+  ArchiveBoxIcon as ArchiveBoxIconSolid,
+  BuildingStorefrontIcon as BuildingStorefrontIconSolid,
+  AdjustmentsHorizontalIcon as AdjustmentsHorizontalIconSolid,
+  Cog6ToothIcon as Cog6ToothIconSolid,
+  UserGroupIcon as UserGroupIconSolid,
+} from '@heroicons/react/24/solid';
+import type { ComponentType, SVGProps } from 'react';
 
 /**
  * Navigation Sidebar Component
@@ -22,111 +58,113 @@ import { FEATURES } from '@/lib/features';
  * - Refined active state indicators
  */
 
+type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
 interface NavigationChild {
   key: string;
   href: string;
-  icon: string;
-  iconFilled: string;
+  icon: HeroIcon;
+  iconFilled: HeroIcon;
 }
 
 interface NavigationItem {
   key: string;
   href: string;
-  icon: string;
-  iconFilled: string;
+  icon: HeroIcon;
+  iconFilled: HeroIcon;
   adminOnly?: boolean;
   requiresFeature?: string;
   roles?: string[];
   children?: NavigationChild[];
 }
 
-// Navigation items with Material Symbols icons
+// Navigation items with Heroicons
 const navigationKeys: NavigationItem[] = [
   {
     key: 'dashboard',
     href: '/dashboard',
-    icon: 'dashboard',
-    iconFilled: 'dashboard'
+    icon: Squares2X2Icon,
+    iconFilled: Squares2X2IconSolid
   },
   {
     key: 'tickets',
     href: '/tickets',
-    icon: 'confirmation_number',
-    iconFilled: 'confirmation_number'
+    icon: TicketIcon,
+    iconFilled: TicketIconSolid
   },
   {
     key: 'finance',
     href: '/finance',
-    icon: 'account_balance_wallet',
-    iconFilled: 'account_balance_wallet',
+    icon: WalletIcon,
+    iconFilled: WalletIconSolid,
     adminOnly: true,
     requiresFeature: FEATURES.FINANCE_MODULE,
     children: [
       {
         key: 'finance.payments',
         href: '/finance/payments',
-        icon: 'payments',
-        iconFilled: 'payments'
+        icon: CurrencyDollarIcon,
+        iconFilled: CurrencyDollarIconSolid
       },
       {
         key: 'finance.refunds',
         href: '/finance/refunds',
-        icon: 'receipt_long',
-        iconFilled: 'receipt_long'
+        icon: ReceiptRefundIcon,
+        iconFilled: ReceiptRefundIconSolid
       },
       {
         key: 'finance.expenses',
         href: '/finance/expenses',
-        icon: 'shopping_cart',
-        iconFilled: 'shopping_cart'
+        icon: ShoppingCartIcon,
+        iconFilled: ShoppingCartIconSolid
       },
     ]
   },
   {
     key: 'relations',
     href: '/customers',
-    icon: 'contacts',
-    iconFilled: 'contacts',
+    icon: UsersIcon,
+    iconFilled: UsersIconSolid,
     children: [
       {
         key: 'relations.customers',
         href: '/customers',
-        icon: 'group',
-        iconFilled: 'group'
+        icon: UserGroupIcon,
+        iconFilled: UserGroupIconSolid
       },
       {
         key: 'relations.suppliers',
         href: '/suppliers',
-        icon: 'local_shipping',
-        iconFilled: 'local_shipping'
+        icon: TruckIcon,
+        iconFilled: TruckIconSolid
       }
     ]
   },
   {
     key: 'inventory',
     href: '/inventory/stock',
-    icon: 'inventory_2',
-    iconFilled: 'inventory_2',
+    icon: ArchiveBoxIcon,
+    iconFilled: ArchiveBoxIconSolid,
     children: [
       {
         key: 'inventory.stock',
         href: '/inventory/stock',
-        icon: 'warehouse',
-        iconFilled: 'warehouse'
+        icon: BuildingStorefrontIcon,
+        iconFilled: BuildingStorefrontIconSolid
       },
       {
         key: 'inventory.adjustments',
         href: '/inventory/inventory-adjustments',
-        icon: 'tune',
-        iconFilled: 'tune'
+        icon: AdjustmentsHorizontalIcon,
+        iconFilled: AdjustmentsHorizontalIconSolid
       }
     ]
   },
   {
     key: 'settings',
     href: '/settings',
-    icon: 'settings',
-    iconFilled: 'settings',
+    icon: Cog6ToothIcon,
+    iconFilled: Cog6ToothIconSolid,
     adminOnly: true
   },
 ];
@@ -255,7 +293,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               aria-label={t('sidebar.expand')}
               title={t('sidebar.expand')}
             >
-              <span className="material-symbols-outlined text-xl">menu</span>
+              <Bars3Icon className="h-5 w-5" />
             </button>
           ) : (
             // Expanded: Full logo + name
@@ -292,7 +330,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
               className="hidden md:flex p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-colors items-center justify-center"
               aria-label={t('sidebar.collapse')}
             >
-              <span className="material-symbols-outlined text-lg">chevron_left</span>
+              <ChevronLeftIcon className="h-4 w-4" />
             </button>
           )}
 
@@ -302,7 +340,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors md:hidden"
             aria-label={t('sidebar.close')}
           >
-            <span className="material-symbols-outlined text-xl">close</span>
+            <XMarkIcon className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -318,6 +356,8 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/') || hasActiveChild;
             const isExpanded = expandedItems.has(item.key) || hasActiveChild;
             const translatedName = t(item.key);
+
+            const IconComponent = isActive ? item.iconFilled : item.icon;
 
             return (
               <li key={item.key}>
@@ -345,19 +385,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                         )}
 
-                        <span
-                          className={cn(
-                            'text-[22px] flex-shrink-0',
-                            isActive ? 'material-symbols-rounded' : 'material-symbols-outlined'
-                          )}
-                          style={{
-                            fontVariationSettings: isActive
-                              ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                              : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                          }}
-                        >
-                          {isActive ? item.iconFilled : item.icon}
-                        </span>
+                        <IconComponent className="h-[22px] w-[22px] flex-shrink-0" />
 
                         {!isCollapsed && (
                           <span className="text-sm font-medium truncate">{translatedName}</span>
@@ -371,9 +399,11 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                           className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                           aria-label={isExpanded ? t('sidebar.collapse') : t('sidebar.expand')}
                         >
-                          <span className="material-symbols-outlined text-lg transition-transform duration-200">
-                            {isExpanded ? 'expand_less' : 'expand_more'}
-                          </span>
+                          {isExpanded ? (
+                            <ChevronUpIcon className="h-4 w-4" />
+                          ) : (
+                            <ChevronDownIcon className="h-4 w-4" />
+                          )}
                         </button>
                       )}
                     </div>
@@ -387,6 +417,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                           </div>
                           {item.children!.map((child) => {
                             const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
+                            const ChildIcon = isChildActive ? child.iconFilled : child.icon;
                             return (
                               <Link
                                 key={child.key}
@@ -399,7 +430,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                                     : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
                                 )}
                               >
-                                <span className="material-symbols-outlined text-lg">{child.icon}</span>
+                                <ChildIcon className="h-[18px] w-[18px]" />
                                 {t(child.key)}
                               </Link>
                             );
@@ -413,6 +444,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                       <ul className="mt-1 ml-9 flex flex-col gap-0.5">
                         {item.children!.map((child) => {
                           const isChildActive = pathname === child.href || pathname.startsWith(child.href + '/');
+                          const ChildIcon = isChildActive ? child.iconFilled : child.icon;
                           return (
                             <li key={child.key}>
                               <Link
@@ -425,16 +457,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                                 )}
                               >
-                                <span
-                                  className="material-symbols-outlined text-lg"
-                                  style={{
-                                    fontVariationSettings: isChildActive
-                                      ? "'FILL' 1, 'wght' 500"
-                                      : "'FILL' 0, 'wght' 400"
-                                  }}
-                                >
-                                  {isChildActive ? child.iconFilled : child.icon}
-                                </span>
+                                <ChildIcon className="h-[18px] w-[18px]" />
                                 {t(child.key)}
                               </Link>
                             </li>
@@ -462,19 +485,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                       <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                     )}
 
-                    <span
-                      className={cn(
-                        'text-[22px] flex-shrink-0',
-                        isActive ? 'material-symbols-rounded' : 'material-symbols-outlined'
-                      )}
-                      style={{
-                        fontVariationSettings: isActive
-                          ? "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24"
-                          : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-                      }}
-                    >
-                      {isActive ? item.iconFilled : item.icon}
-                    </span>
+                    <IconComponent className="h-[22px] w-[22px] flex-shrink-0" />
 
                     {!isCollapsed && (
                       <span className="text-sm font-medium truncate">{translatedName}</span>

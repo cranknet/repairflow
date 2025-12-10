@@ -15,6 +15,7 @@ import { DeviceIssueAutocomplete } from '@/components/tickets/device-issue-autoc
 import { NewCustomerModal } from '@/components/customers/new-customer-modal';
 import { CustomerSelect } from '@/components/customers/customer-select';
 import { getCurrencySymbol } from '@/lib/currency';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import {
   Dialog,
   DialogContent,
@@ -372,7 +373,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                    <ArrowPathIcon className="h-4 w-4 animate-spin" />
                     {t('creating')}
                   </span>
                 ) : (

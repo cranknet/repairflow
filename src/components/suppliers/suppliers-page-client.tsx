@@ -13,6 +13,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Squares2X2Icon,
+  TableCellsIcon,
+  BuildingStorefrontIcon,
+  TruckIcon,
+  CheckBadgeIcon,
+  ArchiveBoxIcon,
+  UserIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 
 interface Supplier {
   id: string;
@@ -128,20 +144,20 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                   <button
                     onClick={() => setViewMode('cards')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">grid_view</span>
+                    <Squares2X2Icon className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">table_rows</span>
+                    <TableCellsIcon className="h-[18px] w-[18px]" />
                   </button>
                 </div>
 
@@ -150,7 +166,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
                   >
-                    <span className="material-symbols-outlined">add_business</span>
+                    <BuildingStorefrontIcon className="h-5 w-5" />
                     {t('addSupplier') || 'Add Supplier'}
                   </button>
                 )}
@@ -163,7 +179,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">local_shipping</span>
+                  <TruckIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Suppliers</p>
@@ -175,7 +191,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">verified</span>
+                  <CheckBadgeIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
@@ -187,7 +203,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">add_business</span>
+                  <BuildingStorefrontIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">New This Month</p>
@@ -199,7 +215,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">inventory_2</span>
+                  <ArchiveBoxIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Parts</p>
@@ -218,7 +234,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
           {suppliers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">local_shipping</span>
+                <TruckIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('noSuppliersFound') || 'No suppliers found'}</h3>
               <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
@@ -229,7 +245,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                   onClick={() => setIsModalOpen(true)}
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium"
                 >
-                  <span className="material-symbols-outlined">add_business</span>
+                  <BuildingStorefrontIcon className="h-5 w-5" />
                   {t('addSupplier') || 'Add Supplier'}
                 </button>
               )}
@@ -256,13 +272,13 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                         </Link>
                         {supplier.contactPerson && (
                           <div className="flex items-center gap-1.5 mt-1 text-sm text-gray-500">
-                            <span className="material-symbols-outlined text-base">person</span>
+                            <UserIcon className="h-4 w-4" />
                             <span>{supplier.contactPerson}</span>
                           </div>
                         )}
                         {supplier.phone && (
                           <div className="flex items-center gap-1.5 mt-0.5 text-sm text-gray-500">
-                            <span className="material-symbols-outlined text-base">phone</span>
+                            <PhoneIcon className="h-4 w-4" />
                             <span>{supplier.phone}</span>
                           </div>
                         )}
@@ -279,13 +295,13 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-2">
                         {supplier.email && (
                           <div className="flex items-center gap-2 text-sm text-gray-500 truncate">
-                            <span className="material-symbols-outlined text-base">mail</span>
+                            <EnvelopeIcon className="h-4 w-4" />
                             <span className="truncate">{supplier.email}</span>
                           </div>
                         )}
                         {supplier.address && (
                           <div className="flex items-center gap-2 text-sm text-gray-500 truncate">
-                            <span className="material-symbols-outlined text-base">location_on</span>
+                            <MapPinIcon className="h-4 w-4" />
                             <span className="truncate">{supplier.address}</span>
                           </div>
                         )}
@@ -300,7 +316,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                           className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
                           title="View"
                         >
-                          <span className="material-symbols-outlined text-lg">visibility</span>
+                          <EyeIcon className="h-[18px] w-[18px]" />
                         </Link>
                         {isAdmin && (
                           <>
@@ -309,14 +325,14 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                               className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                               title="Edit"
                             >
-                              <span className="material-symbols-outlined text-lg">edit</span>
+                              <PencilIcon className="h-[18px] w-[18px]" />
                             </button>
                             <button
                               onClick={() => setDeletingSupplier(supplier)}
                               className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                               title="Delete"
                             >
-                              <span className="material-symbols-outlined text-lg">delete</span>
+                              <TrashIcon className="h-[18px] w-[18px]" />
                             </button>
                           </>
                         )}
@@ -359,7 +375,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{supplier.email || '-'}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-sm font-medium rounded-lg">
-                            <span className="material-symbols-outlined text-sm">inventory_2</span>
+                            <ArchiveBoxIcon className="h-3.5 w-3.5" />
                             {supplier._count.parts}
                           </span>
                         </td>
@@ -369,7 +385,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                               href={`/suppliers/${supplier.id}`}
                               className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
                             >
-                              <span className="material-symbols-outlined text-lg">visibility</span>
+                              <EyeIcon className="h-[18px] w-[18px]" />
                             </Link>
                             {isAdmin && (
                               <>
@@ -377,13 +393,13 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
                                   onClick={() => setEditingSupplier(supplier)}
                                   className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                                 >
-                                  <span className="material-symbols-outlined text-lg">edit</span>
+                                  <PencilIcon className="h-[18px] w-[18px]" />
                                 </button>
                                 <button
                                   onClick={() => setDeletingSupplier(supplier)}
                                   className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 >
-                                  <span className="material-symbols-outlined text-lg">delete</span>
+                                  <TrashIcon className="h-[18px] w-[18px]" />
                                 </button>
                               </>
                             )}
@@ -416,7 +432,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-              <span className="material-symbols-outlined">warning</span>
+              <ExclamationTriangleIcon className="h-5 w-5" />
               Delete Supplier
             </DialogTitle>
             <DialogDescription>

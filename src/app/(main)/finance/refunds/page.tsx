@@ -5,6 +5,27 @@ import { useLanguage } from '@/contexts/language-context';
 import { ApproveReturnModal } from '@/components/finance/ApproveReturnModal';
 import Link from 'next/link';
 import { CreateReturnModal } from '@/components/returns/create-return-modal';
+import {
+    ArrowLeftIcon,
+    PlusIcon,
+    ClockIcon,
+    CheckCircleIcon,
+    XCircleIcon,
+    ShieldCheckIcon,
+    HandThumbUpIcon,
+    NoSymbolIcon,
+    ArrowPathIcon,
+    ArrowUturnLeftIcon,
+    UserIcon,
+    ChatBubbleLeftIcon,
+    CalendarIcon,
+    IdentificationIcon,
+    CheckIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline';
+import type { ComponentType, SVGProps } from 'react';
+
+type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface Return {
     id: string;
@@ -34,27 +55,27 @@ interface Return {
     };
 }
 
-const statusConfig: Record<string, { icon: string; gradient: string; bgLight: string; text: string }> = {
+const statusConfig: Record<string, { Icon: HeroIcon; gradient: string; bgLight: string; text: string }> = {
     PENDING: {
-        icon: 'schedule',
+        Icon: ClockIcon,
         gradient: 'from-amber-500 to-orange-600',
         bgLight: 'bg-amber-50 dark:bg-amber-900/20',
         text: 'text-amber-600 dark:text-amber-400',
     },
     APPROVED: {
-        icon: 'check_circle',
+        Icon: CheckCircleIcon,
         gradient: 'from-emerald-500 to-teal-600',
         bgLight: 'bg-emerald-50 dark:bg-emerald-900/20',
         text: 'text-emerald-600 dark:text-emerald-400',
     },
     REJECTED: {
-        icon: 'cancel',
+        Icon: XCircleIcon,
         gradient: 'from-red-500 to-rose-600',
         bgLight: 'bg-red-50 dark:bg-red-900/20',
         text: 'text-red-600 dark:text-red-400',
     },
     REFUNDED: {
-        icon: 'verified',
+        Icon: ShieldCheckIcon,
         gradient: 'from-blue-500 to-indigo-600',
         bgLight: 'bg-blue-50 dark:bg-blue-900/20',
         text: 'text-blue-600 dark:text-blue-400',
@@ -152,7 +173,7 @@ export default function RefundsPage() {
                         href="/finance"
                         className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 group"
                     >
-                        <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                        <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="text-sm font-medium">{t('finance.backToFinance')}</span>
                     </Link>
 
@@ -170,7 +191,7 @@ export default function RefundsPage() {
                             onClick={() => setShowCreateModal(true)}
                             className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                         >
-                            <span className="material-symbols-outlined">add</span>
+                            <PlusIcon className="h-5 w-5" />
                             {t('createReturn')}
                         </button>
                     </div>
@@ -181,7 +202,7 @@ export default function RefundsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative">
-                                <span className="material-symbols-outlined text-white text-2xl">pending</span>
+                                <ClockIcon className="h-6 w-6 text-white" />
                                 {stats.pending > 0 && (
                                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                                         {stats.pending}
@@ -198,7 +219,7 @@ export default function RefundsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">thumb_up</span>
+                                <HandThumbUpIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.statuses.APPROVED') || 'Approved'}</p>
@@ -210,7 +231,7 @@ export default function RefundsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">verified</span>
+                                <ShieldCheckIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.refunds.totalRefunded') || 'Refunded'}</p>
@@ -222,7 +243,7 @@ export default function RefundsPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-2xl">block</span>
+                                <NoSymbolIcon className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{t('finance.statuses.REJECTED') || 'Rejected'}</p>
@@ -238,8 +259,8 @@ export default function RefundsPage() {
                         <button
                             onClick={() => setStatusFilter('')}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === ''
-                                    ? 'bg-primary text-white shadow-md shadow-primary/25'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                ? 'bg-primary text-white shadow-md shadow-primary/25'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                         >
                             {t('finance.refunds.allStatus')} ({stats.total})
@@ -252,11 +273,11 @@ export default function RefundsPage() {
                                     key={status}
                                     onClick={() => setStatusFilter(status)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === status
-                                            ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
-                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        ? `bg-gradient-to-r ${config.gradient} text-white shadow-md`
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-lg">{config.icon}</span>
+                                    <config.Icon className="h-5 w-5" />
                                     {t(`finance.statuses.${status}`)} ({count})
                                 </button>
                             );
@@ -268,14 +289,14 @@ export default function RefundsPage() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-pulse">
-                            <span className="material-symbols-outlined text-white text-3xl animate-spin">progress_activity</span>
+                            <ArrowPathIcon className="h-8 w-8 text-white animate-spin" />
                         </div>
                         <p className="mt-4 text-gray-500 dark:text-gray-400">{t('finance.refunds.loading')}</p>
                     </div>
                 ) : returns.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">assignment_return</span>
+                            <ArrowUturnLeftIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('finance.refunds.noReturns')}</h3>
                         <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">No return requests found for the selected filter.</p>
@@ -283,7 +304,7 @@ export default function RefundsPage() {
                             onClick={() => setShowCreateModal(true)}
                             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                         >
-                            <span className="material-symbols-outlined">add</span>
+                            <PlusIcon className="h-5 w-5" />
                             {t('createReturn')}
                         </button>
                     </div>
@@ -307,7 +328,7 @@ export default function RefundsPage() {
                                         <div className="flex items-start justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
-                                                    <span className="material-symbols-outlined text-white text-xl">{config.icon}</span>
+                                                    <config.Icon className="h-5 w-5 text-white" />
                                                 </div>
                                                 <div>
                                                     <Link
@@ -326,7 +347,7 @@ export default function RefundsPage() {
                                                 <p className="text-xl font-bold text-red-500">-${returnItem.refundAmount.toFixed(2)}</p>
                                                 {returnItem.isRefunded && (
                                                     <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                                        <span className="material-symbols-outlined text-sm">verified</span>
+                                                        <ShieldCheckIcon className="h-4 w-4" />
                                                         {t('finance.refunds.refunded')}
                                                     </span>
                                                 )}
@@ -337,7 +358,7 @@ export default function RefundsPage() {
                                         <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-gray-500 text-lg">person</span>
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{returnItem.ticket.customer.name}</p>
@@ -348,7 +369,7 @@ export default function RefundsPage() {
                                             {/* Reason */}
                                             <div className="flex items-start gap-3">
                                                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                                                    <span className="material-symbols-outlined text-gray-500 text-lg">comment</span>
+                                                    <ChatBubbleLeftIcon className="h-5 w-5 text-gray-500" />
                                                 </div>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{returnItem.reason}</p>
                                             </div>
@@ -356,12 +377,12 @@ export default function RefundsPage() {
                                             {/* Meta Info */}
                                             <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="material-symbols-outlined text-sm">calendar_today</span>
+                                                    <CalendarIcon className="h-4 w-4" />
                                                     {new Date(returnItem.createdAt).toLocaleDateString()}
                                                 </div>
                                                 {returnItem.handledByUser && (
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="material-symbols-outlined text-sm">badge</span>
+                                                        <IdentificationIcon className="h-4 w-4" />
                                                         {returnItem.handledByUser.name || returnItem.handledByUser.username}
                                                     </div>
                                                 )}
@@ -375,14 +396,14 @@ export default function RefundsPage() {
                                                     onClick={() => handleApprove(returnItem)}
                                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all font-medium text-sm"
                                                 >
-                                                    <span className="material-symbols-outlined text-lg">check</span>
+                                                    <CheckIcon className="h-5 w-5" />
                                                     {t('finance.approveReturn')}
                                                 </button>
                                                 <button
                                                     onClick={() => handleReject(returnItem.id)}
                                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-lg hover:shadow-red-500/25 transition-all font-medium text-sm"
                                                 >
-                                                    <span className="material-symbols-outlined text-lg">close</span>
+                                                    <XMarkIcon className="h-5 w-5" />
                                                     {t('finance.rejectReturn')}
                                                 </button>
                                             </div>
@@ -390,14 +411,14 @@ export default function RefundsPage() {
 
                                         {returnItem.status === 'APPROVED' && returnItem.isRefunded && (
                                             <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                                <span className="material-symbols-outlined text-blue-500">task_alt</span>
+                                                <CheckCircleIcon className="h-5 w-5 text-blue-500" />
                                                 <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('finance.refunds.complete')}</span>
                                             </div>
                                         )}
 
                                         {returnItem.status === 'REJECTED' && (
                                             <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                                <span className="material-symbols-outlined text-red-500">cancel</span>
+                                                <XCircleIcon className="h-5 w-5 text-red-500" />
                                                 <span className="text-sm font-medium text-red-600 dark:text-red-400">{t('finance.refunds.rejected')}</span>
                                             </div>
                                         )}

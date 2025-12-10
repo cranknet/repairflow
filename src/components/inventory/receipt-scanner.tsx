@@ -7,6 +7,20 @@ import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { Input } from '@/components/ui/input';
 import { ImageCropper } from './image-cropper';
+import {
+    DocumentMagnifyingGlassIcon,
+    ExclamationCircleIcon,
+    WifiIcon,
+    CameraIcon,
+    ArrowUpTrayIcon,
+    BuildingStorefrontIcon,
+    XMarkIcon,
+    CheckCircleIcon,
+    PlusCircleIcon,
+    TrashIcon,
+    ExclamationTriangleIcon,
+    CubeIcon,
+} from '@heroicons/react/24/outline';
 
 interface ExtractedPart {
     name: string;
@@ -472,7 +486,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined">document_scanner</span>
+                        <DocumentMagnifyingGlassIcon className="h-5 w-5" />
                         {t('receiptScanner.title') || 'Receipt Scanner'}
                     </div>
                     <span className="text-xs font-normal px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
@@ -488,7 +502,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                 {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-lg flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined">error</span>
+                            <ExclamationCircleIcon className="h-5 w-5" />
                             <span>{error.message}</span>
                         </div>
                         {error.retryable && (
@@ -502,7 +516,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                 {/* Offline Warning (only if requires online for start) */}
                 {!isOnline && requiresOnlineForStart && (
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 p-4 rounded-lg flex items-center gap-2">
-                        <span className="material-symbols-outlined">wifi_off</span>
+                        <WifiIcon className="h-5 w-5" />
                         <span>{t('receiptScanner.noInternet') || 'Internet connection required'}</span>
                     </div>
                 )}
@@ -518,7 +532,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                         />
                         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
                             <Button onClick={capturePhoto} size="lg">
-                                <span className="material-symbols-outlined mr-2">camera</span>
+                                <CameraIcon className="h-5 w-5 mr-2" />
                                 {t('capture') || 'Capture'}
                             </Button>
                             <Button onClick={stopCamera} variant="outline" size="lg">
@@ -544,7 +558,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                             onClick={startCamera}
                             className="flex-1"
                         >
-                            <span className="material-symbols-outlined mr-2">photo_camera</span>
+                            <CameraIcon className="h-5 w-5 mr-2" />
                             {t('receiptScanner.takePhoto') || 'Take Photo'}
                         </Button>
                         <div className="relative flex-1">
@@ -559,7 +573,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                 variant="outline"
                                 className="w-full"
                             >
-                                <span className="material-symbols-outlined mr-2">upload_file</span>
+                                <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
                                 {t('receiptScanner.uploadImage') || 'Upload Image'}
                             </Button>
                         </div>
@@ -598,7 +612,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-sm space-y-3">
                             {/* Supplier Row */}
                             <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-gray-500">store</span>
+                                <BuildingStorefrontIcon className="h-5 w-5 text-gray-500" />
                                 {!showNewSupplier ? (
                                     <select
                                         value={selectedSupplierId || (scanResult.supplier?.name ? 'extracted' : '')}
@@ -648,7 +662,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                             }}
                                             className="text-gray-400 hover:text-gray-600"
                                         >
-                                            <span className="material-symbols-outlined text-sm">close</span>
+                                            <XMarkIcon className="h-4 w-4" />
                                         </button>
                                     </div>
                                 )}
@@ -708,12 +722,12 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                             <td className="py-2 px-2 text-center">
                                                 {part.matchedPartId ? (
                                                     <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
-                                                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                                                        <CheckCircleIcon className="h-4 w-4" />
                                                         <span className="text-xs">{part.matchConfidence}%</span>
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
-                                                        <span className="material-symbols-outlined text-sm">add_circle</span>
+                                                        <PlusCircleIcon className="h-4 w-4" />
                                                         <span className="text-xs">{t('new') || 'New'}</span>
                                                     </span>
                                                 )}
@@ -725,7 +739,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                                     onClick={() => removePart(index)}
                                                     className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                                                 >
-                                                    <span className="material-symbols-outlined text-sm">delete</span>
+                                                    <TrashIcon className="h-4 w-4" />
                                                 </Button>
                                             </td>
                                         </tr>
@@ -748,7 +762,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                         {duplicateWarning?.show && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
                                 <div className="flex items-start gap-3">
-                                    <span className="material-symbols-outlined text-amber-500 text-xl">warning</span>
+                                    <ExclamationTriangleIcon className="h-5 w-5 text-amber-500" />
                                     <div className="flex-1">
                                         <p className="font-medium text-amber-700 dark:text-amber-300">
                                             {duplicateWarning.type === 'invoice' ? (t('receiptScanner.duplicateInvoice') || 'Duplicate Invoice') : (t('receiptScanner.similarReceipt') || 'Similar Receipt Detected')}
@@ -802,7 +816,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined mr-2">inventory_2</span>
+                                            <CubeIcon className="h-5 w-5 mr-2" />
                                             {t('receiptScanner.addToInventory') || 'Add to Inventory'}
                                         </>
                                     )}
@@ -818,7 +832,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                 {/* No Parts Found */}
                 {scanResult && editableParts.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
-                        <span className="material-symbols-outlined text-4xl mb-2">inventory_2</span>
+                        <CubeIcon className="h-10 w-10 mx-auto mb-2" />
                         <p>{t('receiptScanner.noPartsFound') || 'No parts found in this receipt'}</p>
                         <Button variant="outline" onClick={reset} className="mt-4">
                             {t('tryAgain') || 'Try Again'}

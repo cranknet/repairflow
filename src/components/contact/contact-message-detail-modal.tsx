@@ -18,6 +18,11 @@ import {
 } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import {
+  EnvelopeOpenIcon,
+  ArchiveBoxIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 
 interface ContactMessage {
   id: string;
@@ -286,7 +291,7 @@ export function ContactMessageDetailModal({
                     variant="secondary"
                     size="sm"
                   >
-                    <span className="material-symbols-outlined text-base mr-1.5">mark_email_read</span>
+                    <EnvelopeOpenIcon className="h-4 w-4 mr-1.5" />
                     {t('contact.admin.mark_read')}
                   </Button>
                 )}
@@ -297,7 +302,7 @@ export function ContactMessageDetailModal({
                     variant="outline"
                     size="sm"
                   >
-                    <span className="material-symbols-outlined text-base mr-1.5">archive</span>
+                    <ArchiveBoxIcon className="h-4 w-4 mr-1.5" />
                     {t('contact.admin.archive')}
                   </Button>
                 )}
@@ -308,7 +313,7 @@ export function ContactMessageDetailModal({
                     variant="destructive"
                     size="sm"
                   >
-                    <span className="material-symbols-outlined text-base mr-1.5">delete</span>
+                    <TrashIcon className="h-4 w-4 mr-1.5" />
                     {t('delete')}
                   </Button>
                 )}

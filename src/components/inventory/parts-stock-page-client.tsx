@@ -15,6 +15,24 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Squares2X2Icon,
+  TableCellsIcon,
+  ArrowDownTrayIcon,
+  DocumentMagnifyingGlassIcon,
+  ArrowsUpDownIcon,
+  PlusIcon,
+  CubeIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
+  CurrencyDollarIcon,
+  TruckIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
+import { ComponentType, SVGProps } from 'react';
 
 interface Part {
   id: string;
@@ -50,21 +68,21 @@ const stockStatusConfig = {
     gradient: 'from-red-500 to-rose-600',
     bg: 'bg-red-50 dark:bg-red-900/20',
     text: 'text-red-600 dark:text-red-400',
-    icon: 'error',
+    Icon: XCircleIcon,
   },
   lowStock: {
     label: 'Low Stock',
     gradient: 'from-amber-500 to-orange-600',
     bg: 'bg-amber-50 dark:bg-amber-900/20',
     text: 'text-amber-600 dark:text-amber-400',
-    icon: 'warning',
+    Icon: ExclamationTriangleIcon,
   },
   inStock: {
     label: 'In Stock',
     gradient: 'from-emerald-500 to-teal-600',
     bg: 'bg-emerald-50 dark:bg-emerald-900/20',
     text: 'text-emerald-600 dark:text-emerald-400',
-    icon: 'check_circle',
+    Icon: CheckCircleIcon,
   },
 };
 
@@ -208,7 +226,7 @@ export function PartsStockPageClient({
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">grid_view</span>
+                    <Squares2X2Icon className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
@@ -217,7 +235,7 @@ export function PartsStockPageClient({
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span className="material-symbols-outlined text-lg">table_rows</span>
+                    <TableCellsIcon className="h-[18px] w-[18px]" />
                   </button>
                 </div>
 
@@ -226,7 +244,7 @@ export function PartsStockPageClient({
                   onClick={handleExport}
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-theme-sm border border-gray-200 dark:border-gray-700"
                 >
-                  <span className="material-symbols-outlined text-lg">download</span>
+                  <ArrowDownTrayIcon className="h-[18px] w-[18px]" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
 
@@ -235,7 +253,7 @@ export function PartsStockPageClient({
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-theme-sm border border-gray-200 dark:border-gray-700"
                   title={t('receiptScanner.scanReceipt') || 'Scan Receipt'}
                 >
-                  <span className="material-symbols-outlined text-lg">document_scanner</span>
+                  <DocumentMagnifyingGlassIcon className="h-[18px] w-[18px]" />
                   <span className="hidden sm:inline">{t('receiptScanner.scanReceipt') || 'Scan Receipt'}</span>
                 </button>
 
@@ -243,7 +261,7 @@ export function PartsStockPageClient({
                   href="/inventory/inventory-adjustments"
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-theme-sm border border-gray-200 dark:border-gray-700"
                 >
-                  <span className="material-symbols-outlined text-lg">swap_vert</span>
+                  <ArrowsUpDownIcon className="h-[18px] w-[18px]" />
                   <span className="hidden sm:inline">{t('inventory.adjustments') || 'Adjustments'}</span>
                 </Link>
 
@@ -252,7 +270,7 @@ export function PartsStockPageClient({
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                   >
-                    <span className="material-symbols-outlined">add</span>
+                    <PlusIcon className="h-5 w-5" />
                     {t('addPart') || 'Add Part'}
                   </button>
                 )}
@@ -265,7 +283,7 @@ export function PartsStockPageClient({
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">inventory_2</span>
+                  <CubeIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Parts</p>
@@ -277,7 +295,7 @@ export function PartsStockPageClient({
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">check_circle</span>
+                  <CheckCircleIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t('inventory.inStock') || 'In Stock'}</p>
@@ -289,7 +307,7 @@ export function PartsStockPageClient({
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative">
-                  <span className="material-symbols-outlined text-white text-2xl">warning</span>
+                  <ExclamationTriangleIcon className="h-6 w-6 text-white" />
                   {stats.lowStock > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                       {stats.lowStock}
@@ -306,7 +324,7 @@ export function PartsStockPageClient({
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">cancel</span>
+                  <XCircleIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Out of Stock</p>
@@ -318,7 +336,7 @@ export function PartsStockPageClient({
             <div className="col-span-2 lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-2xl">attach_money</span>
+                  <CurrencyDollarIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Value</p>
@@ -354,7 +372,7 @@ export function PartsStockPageClient({
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  <CheckCircleIcon className="h-[18px] w-[18px]" />
                   In Stock ({stats.inStock})
                 </button>
                 <button
@@ -364,7 +382,7 @@ export function PartsStockPageClient({
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-lg">warning</span>
+                  <ExclamationTriangleIcon className="h-[18px] w-[18px]" />
                   Low Stock ({stats.lowStock})
                 </button>
                 <button
@@ -374,7 +392,7 @@ export function PartsStockPageClient({
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-lg">cancel</span>
+                  <XCircleIcon className="h-[18px] w-[18px]" />
                   Out ({stats.outOfStock})
                 </button>
               </div>
@@ -385,7 +403,7 @@ export function PartsStockPageClient({
           {filteredParts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 text-5xl">inventory_2</span>
+                <CubeIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('noPartsFound') || 'No parts found'}</h3>
               <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
@@ -396,7 +414,7 @@ export function PartsStockPageClient({
                   onClick={() => setIsModalOpen(true)}
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
                 >
-                  <span className="material-symbols-outlined">add</span>
+                  <PlusIcon className="h-5 w-5" />
                   {t('addPart') || 'Add Part'}
                 </button>
               )}
@@ -419,7 +437,7 @@ export function PartsStockPageClient({
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
-                            <span className="material-symbols-outlined text-white text-xl">{config.icon}</span>
+                            <config.Icon className="h-5 w-5 text-white" />
                           </div>
                           <div>
                             <p className="font-semibold text-gray-900 dark:text-white">{part.name}</p>
@@ -455,7 +473,7 @@ export function PartsStockPageClient({
                         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                           {part.supplier ? (
                             <>
-                              <span className="material-symbols-outlined text-lg">local_shipping</span>
+                              <TruckIcon className="h-[18px] w-[18px]" />
                               <span>{part.supplier.name}</span>
                             </>
                           ) : (
@@ -469,7 +487,7 @@ export function PartsStockPageClient({
                             className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                             title="View"
                           >
-                            <span className="material-symbols-outlined text-lg">visibility</span>
+                            <EyeIcon className="h-[18px] w-[18px]" />
                           </button>
                           {isAdmin && (
                             <>
@@ -478,14 +496,14 @@ export function PartsStockPageClient({
                                 className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                                 title="Edit"
                               >
-                                <span className="material-symbols-outlined text-lg">edit</span>
+                                <PencilIcon className="h-[18px] w-[18px]" />
                               </button>
                               <button
                                 onClick={() => setDeletingPart(part)}
                                 className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 title="Delete"
                               >
-                                <span className="material-symbols-outlined text-lg">delete</span>
+                                <TrashIcon className="h-[18px] w-[18px]" />
                               </button>
                             </>
                           )}
@@ -534,7 +552,7 @@ export function PartsStockPageClient({
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${config.gradient} text-white`}>
-                              <span className="material-symbols-outlined text-sm">{config.icon}</span>
+                              <config.Icon className="h-4 w-4" />
                               {config.label}
                             </span>
                           </td>
@@ -548,7 +566,7 @@ export function PartsStockPageClient({
                                 onClick={() => setViewingPart(part)}
                                 className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                               >
-                                <span className="material-symbols-outlined text-lg">visibility</span>
+                                <EyeIcon className="h-[18px] w-[18px]" />
                               </button>
                               {isAdmin && (
                                 <>
@@ -556,13 +574,13 @@ export function PartsStockPageClient({
                                     onClick={() => setEditingPart(part)}
                                     className="p-2 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
                                   >
-                                    <span className="material-symbols-outlined text-lg">edit</span>
+                                    <PencilIcon className="h-[18px] w-[18px]" />
                                   </button>
                                   <button
                                     onClick={() => setDeletingPart(part)}
                                     className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                   >
-                                    <span className="material-symbols-outlined text-lg">delete</span>
+                                    <TrashIcon className="h-[18px] w-[18px]" />
                                   </button>
                                 </>
                               )}
@@ -599,7 +617,10 @@ export function PartsStockPageClient({
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stockStatusConfig[getStockStatus(viewingPart.quantity, viewingPart.reorderLevel)].gradient} flex items-center justify-center`}>
-                    <span className="material-symbols-outlined text-white">{stockStatusConfig[getStockStatus(viewingPart.quantity, viewingPart.reorderLevel)].icon}</span>
+                    {(() => {
+                      const StatusIcon = stockStatusConfig[getStockStatus(viewingPart.quantity, viewingPart.reorderLevel)].Icon;
+                      return <StatusIcon className="h-5 w-5 text-white" />;
+                    })()}
                   </div>
                   {viewingPart.name}
                 </DialogTitle>
@@ -646,7 +667,7 @@ export function PartsStockPageClient({
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-              <span className="material-symbols-outlined">warning</span>
+              <ExclamationTriangleIcon className="h-5 w-5" />
               Delete Part
             </DialogTitle>
             <DialogDescription>

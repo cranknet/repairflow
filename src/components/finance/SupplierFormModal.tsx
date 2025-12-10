@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/language-context';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import {
     Dialog,
     DialogContent,
@@ -198,7 +199,7 @@ export function SupplierFormModal({ isOpen = true, onClose, onSuccess, supplier 
                         <Button type="submit" disabled={loading}>
                             {loading ? (
                                 <span className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                                    <ArrowPathIcon className="h-4 w-4 animate-spin" />
                                     {isEditing
                                         ? (t('finance.supplierForm.updating') || 'Updating...')
                                         : t('finance.supplierForm.creating')

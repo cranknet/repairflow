@@ -14,6 +14,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  PlusCircleIcon,
+  XMarkIcon,
+  ArrowPathIcon,
+  CheckIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  CheckCircleIcon,
+  LightBulbIcon,
+  CubeIcon,
+  ShoppingCartIcon,
+} from '@heroicons/react/24/outline';
 
 interface Supplier {
   id: string;
@@ -365,7 +377,7 @@ export function AddPartsModal({
             <div className="border border-primary/50 rounded-lg bg-primary/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium text-sm flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-lg">add_circle</span>
+                  <PlusCircleIcon className="h-[18px] w-[18px] text-primary" />
                   {t('createNewPart') || 'Create New Part'}
                 </h4>
                 <button
@@ -373,7 +385,7 @@ export function AddPartsModal({
                   onClick={handleCloseInlineForm}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <span className="material-symbols-outlined text-sm">close</span>
+                  <XMarkIcon className="h-4 w-4" />
                 </button>
               </div>
 
@@ -408,7 +420,7 @@ export function AddPartsModal({
                       onClick={() => setNewPartForm({ ...newPartForm, sku: generateSKU() })}
                       className="text-primary text-xs hover:underline flex items-center gap-0.5"
                     >
-                      <span className="material-symbols-outlined text-xs">refresh</span>
+                      <ArrowPathIcon className="h-3 w-3" />
                       {t('regenerate') || 'Regenerate'}
                     </button>
                   </div>
@@ -498,12 +510,12 @@ export function AddPartsModal({
                 >
                   {isCreatingPart ? (
                     <>
-                      <span className="material-symbols-outlined animate-spin mr-1 text-sm">progress_activity</span>
+                      <ArrowPathIcon className="h-4 w-4 mr-1 animate-spin" />
                       {t('creating') || 'Creating...'}
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined mr-1 text-sm">check</span>
+                      <CheckIcon className="h-4 w-4 mr-1" />
                       {t('createAndSelect') || 'Create & Select'}
                     </>
                   )}
@@ -515,7 +527,7 @@ export function AddPartsModal({
           {/* Search Bar with Create Button */}
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">search</span>
+              <MagnifyingGlassIcon className="h-[18px] w-[18px] absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
@@ -530,7 +542,7 @@ export function AddPartsModal({
                 variant="outline"
                 onClick={handleOpenInlineForm}
               >
-                <span className="material-symbols-outlined text-sm mr-1">add</span>
+                <PlusIcon className="h-4 w-4 mr-1" />
                 {t('createNew') || 'Create New'}
               </Button>
             )}
@@ -549,7 +561,7 @@ export function AddPartsModal({
                   <div className="border border-border rounded-lg max-h-[300px] overflow-y-auto">
                     {loadingParts ? (
                       <div className="p-4 text-center text-muted-foreground">
-                        <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                        <ArrowPathIcon className="h-5 w-5 animate-spin mx-auto" />
                       </div>
                     ) : searchResults.length === 0 ? (
                       <div className="p-4 text-center text-muted-foreground text-sm">
@@ -575,9 +587,11 @@ export function AddPartsModal({
                                 {t('stock')}: {part.quantity} • ${part.unitPrice.toFixed(2)}
                               </p>
                             </div>
-                            <span className="material-symbols-outlined text-primary text-lg ml-2">
-                              {isPartSelected(part.id) ? 'check_circle' : 'add_circle'}
-                            </span>
+                            {isPartSelected(part.id) ? (
+                              <CheckCircleIcon className="h-[18px] w-[18px] text-primary ml-2" />
+                            ) : (
+                              <PlusCircleIcon className="h-[18px] w-[18px] text-primary ml-2" />
+                            )}
                           </div>
                         ))}
                       </div>
@@ -588,7 +602,7 @@ export function AddPartsModal({
                 /* Show suggestions when not searching and device name matches */
                 <>
                   <h3 className="font-medium text-sm mb-2 text-muted-foreground flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm text-amber-500">lightbulb</span>
+                    <LightBulbIcon className="h-4 w-4 text-amber-500" />
                     {t('suggestedParts') || 'Suggested for'} "{deviceName}"
                   </h3>
                   <div className="border border-border rounded-lg">
@@ -608,9 +622,11 @@ export function AddPartsModal({
                               ${part.unitPrice.toFixed(2)} • {t('stock')}: {part.quantity}
                             </p>
                           </div>
-                          <span className="material-symbols-outlined text-primary text-lg ml-2">
-                            {isPartSelected(part.id) ? 'check_circle' : 'add_circle'}
-                          </span>
+                          {isPartSelected(part.id) ? (
+                            <CheckCircleIcon className="h-[18px] w-[18px] text-primary ml-2" />
+                          ) : (
+                            <PlusCircleIcon className="h-[18px] w-[18px] text-primary ml-2" />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -622,7 +638,7 @@ export function AddPartsModal({
               ) : (
                 /* Empty state when no search and no suggestions */
                 <div className="border border-dashed border-border rounded-lg p-6 text-center">
-                  <span className="material-symbols-outlined text-3xl text-muted-foreground mb-2">inventory_2</span>
+                  <CubeIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">
                     {t('searchToFindParts') || 'Search to find parts or create a new one'}
                   </p>
@@ -638,7 +654,7 @@ export function AddPartsModal({
               <div className="border border-border rounded-lg max-h-[300px] overflow-y-auto">
                 {selectedParts.length === 0 ? (
                   <div className="p-6 text-center text-muted-foreground text-sm">
-                    <span className="material-symbols-outlined text-2xl mb-1">shopping_cart</span>
+                    <ShoppingCartIcon className="h-6 w-6 mx-auto mb-1" />
                     <p>{t('noPartsSelected') || 'No parts selected'}</p>
                   </div>
                 ) : (
@@ -657,7 +673,7 @@ export function AddPartsModal({
                               onClick={() => removePart(selectedPart.partId)}
                               className="text-error hover:text-error/80 ml-2"
                             >
-                              <span className="material-symbols-outlined text-sm">close</span>
+                              <XMarkIcon className="h-4 w-4" />
                             </button>
                           </div>
                           <div className="flex items-center gap-2">
@@ -714,7 +730,7 @@ export function AddPartsModal({
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
-                <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
                 {t('saving') || 'Saving...'}
               </>
             ) : (

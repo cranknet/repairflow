@@ -3,6 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { cn } from '@/lib/utils';
+import {
+    ArrowUpIcon,
+    ArrowDownIcon,
+    ArrowTrendingUpIcon,
+    ArrowTrendingDownIcon,
+    TicketIcon,
+    UserGroupIcon,
+    ArchiveBoxIcon,
+    ArrowPathIcon,
+} from '@heroicons/react/24/outline';
 
 type PeriodType = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -132,9 +142,11 @@ export function DashboardHero({
 
                 {/* Background pattern */}
                 <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-                    <span className="material-symbols-outlined text-[128px] text-brand-500">
-                        {isPositiveRevenue ? 'trending_up' : 'trending_down'}
-                    </span>
+                    {isPositiveRevenue ? (
+                        <ArrowTrendingUpIcon className="w-32 h-32 text-brand-500" />
+                    ) : (
+                        <ArrowTrendingDownIcon className="w-32 h-32 text-brand-500" />
+                    )}
                 </div>
 
                 <div className="relative">
@@ -145,9 +157,11 @@ export function DashboardHero({
                                 ? 'bg-success-500/20 text-success-600 dark:text-success-400'
                                 : 'bg-error-500/20 text-error-600 dark:text-error-400'
                         )}>
-                            <span className="material-symbols-outlined text-2xl">
-                                {isPositiveRevenue ? 'arrow_upward' : 'arrow_downward'}
-                            </span>
+                            {isPositiveRevenue ? (
+                                <ArrowUpIcon className="h-6 w-6" />
+                            ) : (
+                                <ArrowDownIcon className="h-6 w-6" />
+                            )}
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -161,9 +175,7 @@ export function DashboardHero({
 
                     {loading ? (
                         <div className="flex items-center gap-3 mb-3">
-                            <span className="material-symbols-outlined animate-spin text-3xl text-brand-500">
-                                progress_activity
-                            </span>
+                            <ArrowPathIcon className="h-8 w-8 animate-spin text-brand-500" />
                         </div>
                     ) : (
                         <>
@@ -192,9 +204,11 @@ export function DashboardHero({
                             ? 'bg-success-500/20 text-success-700 dark:text-success-300'
                             : 'bg-error-500/20 text-error-700 dark:text-error-300'
                     )}>
-                        <span className="material-symbols-outlined text-base">
-                            {isPositiveRevenue ? 'trending_up' : 'trending_down'}
-                        </span>
+                        {isPositiveRevenue ? (
+                            <ArrowTrendingUpIcon className="h-4 w-4" />
+                        ) : (
+                            <ArrowTrendingDownIcon className="h-4 w-4" />
+                        )}
                         {isPositiveRevenue ? '+' : ''}{data.revenueChange}% {getComparisonLabel()}
                     </div>
                 </div>
@@ -211,9 +225,7 @@ export function DashboardHero({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-xl text-brand-500">
-                                    confirmation_number
-                                </span>
+                                <TicketIcon className="h-5 w-5 text-brand-500" />
                             </div>
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                 {t('activeTickets')}
@@ -240,9 +252,7 @@ export function DashboardHero({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-success-50 dark:bg-success-500/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-xl text-success-500">
-                                    group
-                                </span>
+                                <UserGroupIcon className="h-5 w-5 text-success-500" />
                             </div>
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                 {t('totalCustomers')}
@@ -274,12 +284,10 @@ export function DashboardHero({
                                     ? 'bg-warning-50 dark:bg-warning-500/10'
                                     : 'bg-gray-100 dark:bg-gray-800'
                             )}>
-                                <span className={cn(
-                                    'material-symbols-outlined text-xl',
+                                <ArchiveBoxIcon className={cn(
+                                    'h-5 w-5',
                                     lowStockItems > 0 ? 'text-warning-500' : 'text-gray-500'
-                                )}>
-                                    inventory_2
-                                </span>
+                                )} />
                             </div>
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                 {t('lowStockItems')}

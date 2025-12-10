@@ -4,6 +4,26 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+    ArrowPathIcon,
+    ArrowUpIcon,
+    ArrowDownIcon,
+    CheckCircleIcon,
+    ExclamationTriangleIcon,
+    ArrowTrendingUpIcon,
+    ArrowTrendingDownIcon,
+    WrenchScrewdriverIcon,
+    ShoppingCartIcon,
+    ArrowRightIcon,
+    CalendarDaysIcon,
+    CalendarIcon,
+    ClockIcon,
+    CubeIcon,
+    CreditCardIcon,
+    DocumentTextIcon,
+    ReceiptPercentIcon,
+} from '@heroicons/react/24/outline';
+import { ComponentType, SVGProps } from 'react';
 
 interface FinanceSummary {
     dailyRevenue: number;
@@ -23,13 +43,13 @@ interface FinanceSummary {
 function MetricCard({
     label,
     value,
-    icon,
+    Icon,
     iconColor = 'text-gray-500',
     valueColor = 'text-gray-900 dark:text-white',
 }: {
     label: string;
     value: string | number;
-    icon: string;
+    Icon: ComponentType<SVGProps<SVGSVGElement>>;
     iconColor?: string;
     valueColor?: string;
 }) {
@@ -37,7 +57,7 @@ function MetricCard({
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
             <div className="flex items-center gap-3 mb-3">
                 <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800', iconColor)}>
-                    <span className="material-symbols-outlined text-xl">{icon}</span>
+                    <Icon className="h-5 w-5" />
                 </div>
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</span>
             </div>
@@ -50,13 +70,13 @@ function MetricCard({
 function QuickAccessCard({
     title,
     description,
-    icon,
+    Icon,
     href,
     accentColor,
 }: {
     title: string;
     description: string;
-    icon: string;
+    Icon: ComponentType<SVGProps<SVGSVGElement>>;
     href: string;
     accentColor: string;
 }) {
@@ -77,12 +97,10 @@ function QuickAccessCard({
                     accentColor.replace('bg-', 'bg-').replace('-500', '-50'),
                     'dark:bg-opacity-20'
                 )}>
-                    <span className={cn(
-                        'material-symbols-outlined text-2xl',
+                    <Icon className={cn(
+                        'h-6 w-6',
                         accentColor.replace('bg-', 'text-')
-                    )}>
-                        {icon}
-                    </span>
+                    )} />
                 </div>
 
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-brand-500 transition-colors">
@@ -94,9 +112,7 @@ function QuickAccessCard({
 
                 <div className="flex items-center gap-1.5 text-brand-500 font-medium text-sm">
                     <span>View details</span>
-                    <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
-                        arrow_forward
-                    </span>
+                    <ArrowRightIcon className="h-[18px] w-[18px] group-hover:translate-x-1 transition-transform" />
                 </div>
             </div>
         </Link>
@@ -215,21 +231,21 @@ export default function FinancePage() {
         {
             title: t('finance.payments'),
             description: t('finance.payments.description'),
-            icon: 'payments',
+            Icon: CreditCardIcon,
             href: '/finance/payments',
             accentColor: 'bg-brand-500',
         },
         {
             title: t('finance.refunds'),
             description: t('finance.refunds.description'),
-            icon: 'receipt_long',
+            Icon: DocumentTextIcon,
             href: '/finance/refunds',
             accentColor: 'bg-warning-500',
         },
         {
             title: t('finance.expenses'),
             description: t('finance.expenses.description'),
-            icon: 'shopping_cart',
+            Icon: ShoppingCartIcon,
             href: '/finance/expenses',
             accentColor: 'bg-error-500',
         },
@@ -250,9 +266,7 @@ export default function FinancePage() {
             {/* Loading State */}
             {loading ? (
                 <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-16 text-center shadow-theme-sm">
-                    <span className="material-symbols-outlined animate-spin text-5xl text-gray-400">
-                        progress_activity
-                    </span>
+                    <ArrowPathIcon className="h-12 w-12 mx-auto text-gray-400 animate-spin" />
                     <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium">
                         {t('finance.loadingSummary')}
                     </p>
@@ -289,12 +303,11 @@ export default function FinancePage() {
 
                             {/* Background pattern */}
                             <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-                                <span className={cn(
-                                    'material-symbols-outlined text-[128px]',
-                                    summary.netProfit >= 0 ? 'text-success-500' : 'text-error-500'
-                                )}>
-                                    {summary.netProfit >= 0 ? 'trending_up' : 'trending_down'}
-                                </span>
+                                {summary.netProfit >= 0 ? (
+                                    <ArrowTrendingUpIcon className="h-32 w-32 text-success-500" />
+                                ) : (
+                                    <ArrowTrendingDownIcon className="h-32 w-32 text-error-500" />
+                                )}
                             </div>
 
                             <div className="relative">
@@ -305,9 +318,11 @@ export default function FinancePage() {
                                             ? 'bg-success-500/20 text-success-600 dark:text-success-400'
                                             : 'bg-error-500/20 text-error-600 dark:text-error-400'
                                     )}>
-                                        <span className="material-symbols-outlined text-2xl">
-                                            {summary.netProfit >= 0 ? 'arrow_upward' : 'arrow_downward'}
-                                        </span>
+                                        {summary.netProfit >= 0 ? (
+                                            <ArrowUpIcon className="h-6 w-6" />
+                                        ) : (
+                                            <ArrowDownIcon className="h-6 w-6" />
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -334,9 +349,11 @@ export default function FinancePage() {
                                         ? 'bg-success-500/20 text-success-700 dark:text-success-300'
                                         : 'bg-error-500/20 text-error-700 dark:text-error-300'
                                 )}>
-                                    <span className="material-symbols-outlined text-base">
-                                        {summary.netProfit >= 0 ? 'check_circle' : 'warning'}
-                                    </span>
+                                    {summary.netProfit >= 0 ? (
+                                        <CheckCircleIcon className="h-4 w-4" />
+                                    ) : (
+                                        <ExclamationTriangleIcon className="h-4 w-4" />
+                                    )}
                                     {summary.netProfit >= 0 ? 'Profitable' : 'Loss'}
                                 </div>
                             </div>
@@ -353,7 +370,7 @@ export default function FinancePage() {
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-success-500">trending_up</span>
+                                            <ArrowTrendingUpIcon className="h-5 w-5 text-success-500" />
                                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                                 {t('finance.revenue')}
                                             </span>
@@ -376,7 +393,7 @@ export default function FinancePage() {
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-brand-500">build</span>
+                                            <WrenchScrewdriverIcon className="h-5 w-5 text-brand-500" />
                                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                                 {t('finance.partsCost') || 'Parts Cost'}
                                             </span>
@@ -399,7 +416,7 @@ export default function FinancePage() {
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-gray-500">shopping_cart</span>
+                                            <ShoppingCartIcon className="h-5 w-5 text-gray-500" />
                                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                                 {t('finance.expenses')}
                                             </span>
@@ -422,7 +439,7 @@ export default function FinancePage() {
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-error-500">trending_down</span>
+                                            <ArrowTrendingDownIcon className="h-5 w-5 text-error-500" />
                                             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                                                 {t('finance.refundsShort')}
                                             </span>
@@ -449,27 +466,27 @@ export default function FinancePage() {
                         <MetricCard
                             label={t('finance.grossMargin')}
                             value={`${summary.grossMargin.toFixed(1)}%`}
-                            icon="percent"
+                            Icon={ReceiptPercentIcon}
                             iconColor="text-brand-500"
                             valueColor={summary.grossMargin >= 50 ? 'text-success-600 dark:text-success-400' : 'text-gray-900 dark:text-white'}
                         />
                         <MetricCard
                             label={t('finance.dailyRefunds')}
                             value={`$${summary.dailyRefunds.toFixed(2)}`}
-                            icon="undo"
+                            Icon={ArrowPathIcon}
                             iconColor="text-warning-500"
                             valueColor="text-warning-600 dark:text-warning-400"
                         />
                         <MetricCard
                             label={t('finance.partsUsed')}
                             value={summary.partsUsed}
-                            icon="inventory_2"
+                            Icon={CubeIcon}
                             iconColor="text-gray-500"
                         />
                         <MetricCard
                             label={t('finance.returnsPending')}
                             value={summary.returnsPending}
-                            icon="pending"
+                            Icon={ClockIcon}
                             iconColor={summary.returnsPending > 0 ? 'text-warning-500' : 'text-gray-500'}
                             valueColor={summary.returnsPending > 0 ? 'text-warning-600 dark:text-warning-400' : 'text-gray-900 dark:text-white'}
                         />
@@ -488,7 +505,7 @@ export default function FinancePage() {
                             {/* Today Summary */}
                             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-brand-500">today</span>
+                                    <CalendarDaysIcon className="h-5 w-5 text-brand-500" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white">
                                         {t('dashboard.period.daily') || 'Today'}
                                     </h3>
@@ -530,7 +547,7 @@ export default function FinancePage() {
                             {/* Week Summary */}
                             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-brand-500">date_range</span>
+                                    <CalendarDaysIcon className="h-5 w-5 text-brand-500" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white">
                                         {t('dashboard.period.weekly') || 'This Week'}
                                     </h3>
@@ -572,7 +589,7 @@ export default function FinancePage() {
                             {/* Month Summary */}
                             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-brand-500">calendar_month</span>
+                                    <CalendarIcon className="h-5 w-5 text-brand-500" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white">
                                         {t('dashboard.period.monthly') || 'This Month'}
                                     </h3>
@@ -614,7 +631,7 @@ export default function FinancePage() {
                             {/* Year Summary */}
                             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 shadow-theme-sm hover:shadow-theme-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-brand-500">event</span>
+                                    <CalendarIcon className="h-5 w-5 text-brand-500" />
                                     <h3 className="font-semibold text-gray-900 dark:text-white">
                                         {t('dashboard.period.yearly') || 'This Year'}
                                     </h3>
@@ -672,7 +689,7 @@ export default function FinancePage() {
                             key={card.href}
                             title={card.title}
                             description={card.description}
-                            icon={card.icon}
+                            Icon={card.Icon}
                             href={card.href}
                             accentColor={card.accentColor}
                         />

@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/language-context';
 import { cn } from '@/lib/utils';
+import {
+    PlusCircleIcon,
+    UserPlusIcon,
+    ArchiveBoxIcon,
+    DocumentTextIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline';
+import type { ComponentType, SVGProps } from 'react';
+
+type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface QuickActionsBarProps {
     onNewTicket?: () => void;
@@ -31,41 +41,49 @@ export function QuickActionsBar({
         setShowNotes(false);
     };
 
-    const actions = [
-        {
-            id: 'new-ticket',
-            label: t('dashboard.quickActions.newTicket'),
-            icon: 'add_circle',
-            accentColor: 'text-brand-500',
-            bgColor: 'bg-brand-50/80 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20',
-            onClick: onNewTicket || (() => router.push('/tickets/new')),
-        },
-        {
-            id: 'new-customer',
-            label: t('dashboard.quickActions.addCustomer'),
-            icon: 'person_add',
-            accentColor: 'text-success-500',
-            bgColor: 'bg-success-50/80 dark:bg-success-500/10 hover:bg-success-100 dark:hover:bg-success-500/20',
-            onClick: onNewCustomer || (() => router.push('/customers/new')),
-        },
-        {
-            id: 'new-part',
-            label: t('dashboard.quickActions.addPart'),
-            icon: 'inventory_2',
-            accentColor: 'text-warning-500',
-            bgColor: 'bg-warning-50/80 dark:bg-warning-500/10 hover:bg-warning-100 dark:hover:bg-warning-500/20',
-            onClick: onNewPart || (() => router.push('/inventory/stock')),
-        },
-        {
-            id: 'quick-notes',
-            label: t('dashboard.quickActions.quickNote'),
-            icon: 'sticky_note_2',
-            accentColor: 'text-purple-500',
-            bgColor: 'bg-purple-50/80 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20',
-            onClick: () => setShowNotes(true),
-            hasNote: noteText.length > 0,
-        },
-    ];
+    const actions: {
+        id: string;
+        label: string;
+        Icon: HeroIcon;
+        accentColor: string;
+        bgColor: string;
+        onClick: () => void;
+        hasNote?: boolean;
+    }[] = [
+            {
+                id: 'new-ticket',
+                label: t('dashboard.quickActions.newTicket'),
+                Icon: PlusCircleIcon,
+                accentColor: 'text-brand-500',
+                bgColor: 'bg-brand-50/80 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20',
+                onClick: onNewTicket || (() => router.push('/tickets/new')),
+            },
+            {
+                id: 'new-customer',
+                label: t('dashboard.quickActions.addCustomer'),
+                Icon: UserPlusIcon,
+                accentColor: 'text-success-500',
+                bgColor: 'bg-success-50/80 dark:bg-success-500/10 hover:bg-success-100 dark:hover:bg-success-500/20',
+                onClick: onNewCustomer || (() => router.push('/customers/new')),
+            },
+            {
+                id: 'new-part',
+                label: t('dashboard.quickActions.addPart'),
+                Icon: ArchiveBoxIcon,
+                accentColor: 'text-warning-500',
+                bgColor: 'bg-warning-50/80 dark:bg-warning-500/10 hover:bg-warning-100 dark:hover:bg-warning-500/20',
+                onClick: onNewPart || (() => router.push('/inventory/stock')),
+            },
+            {
+                id: 'quick-notes',
+                label: t('dashboard.quickActions.quickNote'),
+                Icon: DocumentTextIcon,
+                accentColor: 'text-purple-500',
+                bgColor: 'bg-purple-50/80 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20',
+                onClick: () => setShowNotes(true),
+                hasNote: noteText.length > 0,
+            },
+        ];
 
     return (
         <div className="mb-6">
@@ -89,9 +107,7 @@ export function QuickActionsBar({
                                 action.bgColor
                             )}
                         >
-                            <span className={cn('material-symbols-outlined text-2xl', action.accentColor)}>
-                                {action.icon}
-                            </span>
+                            <action.Icon className={cn('h-6 w-6', action.accentColor)} />
                             <span className="font-medium text-sm text-gray-900 dark:text-white truncate">
                                 {action.label}
                             </span>
@@ -118,9 +134,7 @@ export function QuickActionsBar({
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-xl text-purple-500">
-                                        sticky_note_2
-                                    </span>
+                                    <DocumentTextIcon className="h-5 w-5 text-purple-500" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                     {t('dashboard.quickActions.quickNote')}
@@ -130,7 +144,7 @@ export function QuickActionsBar({
                                 onClick={() => setShowNotes(false)}
                                 className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <XMarkIcon className="h-5 w-5" />
                             </button>
                         </div>
 

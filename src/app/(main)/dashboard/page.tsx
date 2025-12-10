@@ -8,6 +8,13 @@ import { QuickActionsBar } from '@/components/dashboard/quick-actions-bar';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
 import { TicketsSection } from '@/components/dashboard/tickets-section';
 import { format } from 'date-fns';
+import {
+  CheckCircleIcon,
+  ClockIcon,
+  CalendarDaysIcon,
+  BanknotesIcon,
+} from '@heroicons/react/24/outline';
+import { ComponentType, SVGProps } from 'react';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -280,25 +287,25 @@ export default async function DashboardPage() {
         <MetricCard
           label="Completed Today"
           value={todayCompletedCount}
-          icon="check_circle"
+          Icon={CheckCircleIcon}
           iconColor="text-success-500"
         />
         <MetricCard
           label="Pending"
           value={pendingTickets}
-          icon="hourglass_empty"
+          Icon={ClockIcon}
           iconColor="text-warning-500"
         />
         <MetricCard
           label="This Week"
           value={completedTickets}
-          icon="event_available"
+          Icon={CalendarDaysIcon}
           iconColor="text-brand-500"
         />
         <MetricCard
           label="Weekly Sales"
           value={`$${totalSales.toFixed(0)}`}
-          icon="payments"
+          Icon={BanknotesIcon}
           iconColor="text-success-500"
         />
       </div>
@@ -321,19 +328,19 @@ export default async function DashboardPage() {
 function MetricCard({
   label,
   value,
-  icon,
+  Icon,
   iconColor = 'text-gray-500',
 }: {
   label: string;
   value: string | number;
-  icon: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
   iconColor?: string;
 }) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-theme-xs hover:shadow-theme-sm transition-shadow">
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-800 ${iconColor}`}>
-          <span className="material-symbols-outlined text-xl">{icon}</span>
+          <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">{label}</p>

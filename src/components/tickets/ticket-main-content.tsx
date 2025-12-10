@@ -9,6 +9,20 @@ import { DevicePhotos } from './device-photos';
 import { ReturnHandler } from './return-handler';
 import { PriceAdjustment } from './price-adjustment';
 import { SMSSender } from '@/components/sms/sms-sender';
+import {
+    ClockIcon,
+    ChevronDownIcon,
+    CameraIcon,
+    CubeIcon,
+    ArrowPathIcon,
+    TrashIcon,
+    XMarkIcon,
+    InformationCircleIcon,
+    DocumentTextIcon,
+    ArrowRightIcon,
+    ArrowUturnLeftIcon,
+    BoltIcon,
+} from '@heroicons/react/24/outline';
 
 interface StatusHistoryEntry {
     id: string;
@@ -179,15 +193,13 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                     className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg"
                 >
                     <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-gray-500">history</span>
+                        <ClockIcon className="h-5 w-5 text-gray-500" />
                         <h2 className="font-semibold">{t('ticketStatusHistory')}</h2>
                         <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                             {ticket.statusHistory?.length || 0}
                         </span>
                     </div>
-                    <span className={`material-symbols-outlined text-gray-400 transition-transform ${showFullHistory ? 'rotate-180' : ''}`}>
-                        expand_more
-                    </span>
+                    <ChevronDownIcon className={`h-5 w-5 text-gray-400 transition-transform ${showFullHistory ? 'rotate-180' : ''}`} />
                 </button>
 
                 {(showFullHistory || recentHistory.length > 0) && (
@@ -240,7 +252,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
             {(ticket.deviceConditionFront || ticket.deviceConditionBack) && (
                 <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                     <h2 className="font-semibold mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-gray-500">photo_camera</span>
+                        <CameraIcon className="h-5 w-5 text-gray-500" />
                         {t('devicePhotos')}
                     </h2>
                     <DevicePhotos
@@ -255,7 +267,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                 <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                     <h2 className="font-semibold mb-4 flex items-center justify-between">
                         <span className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-gray-500">inventory_2</span>
+                            <CubeIcon className="h-5 w-5 text-gray-500" />
                             {t('partsUsed')}
                         </span>
                         <div className="flex items-center gap-2">
@@ -271,10 +283,10 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                                     title={t('clearAllParts') || 'Clear all parts (no parts required)'}
                                 >
                                     {clearingAllParts ? (
-                                        <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                                        <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                                            <TrashIcon className="h-3.5 w-3.5" />
                                             <span className="hidden sm:inline">{t('clearAll') || 'Clear All'}</span>
                                         </>
                                     )}
@@ -287,7 +299,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                     {canModifyParts && (
                         <div className="mb-3 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                             <p className="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">info</span>
+                                <InformationCircleIcon className="h-4 w-4" />
                                 {t('partsCanBeRemoved') || 'Parts can be removed if not required for this repair.'}
                             </p>
                         </div>
@@ -319,9 +331,9 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                                             title={t('removePart') || 'Remove part'}
                                         >
                                             {removingPartId === tp.id ? (
-                                                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+                                                <ArrowPathIcon className="h-[18px] w-[18px] animate-spin" />
                                             ) : (
-                                                <span className="material-symbols-outlined text-lg">close</span>
+                                                <XMarkIcon className="h-[18px] w-[18px]" />
                                             )}
                                         </button>
                                     )}
@@ -341,7 +353,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
             {ticket.notes && (
                 <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                     <h2 className="font-semibold mb-3 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-gray-500">notes</span>
+                        <DocumentTextIcon className="h-5 w-5 text-gray-500" />
                         {t('notes')}
                     </h2>
                     <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
@@ -358,15 +370,13 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                         className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg"
                     >
                         <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-gray-500">price_change</span>
+                            <span className="h-5 w-5 text-gray-500 flex items-center justify-center text-xs">$</span>
                             <h2 className="font-semibold">{t('priceAdjustmentHistory')}</h2>
                             <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                                 {ticket.priceAdjustments.length}
                             </span>
                         </div>
-                        <span className={`material-symbols-outlined text-gray-400 transition-transform ${showPriceHistory ? 'rotate-180' : ''}`}>
-                            expand_more
-                        </span>
+                        <ChevronDownIcon className={`h-5 w-5 text-gray-400 transition-transform ${showPriceHistory ? 'rotate-180' : ''}`} />
                     </button>
 
                     {showPriceHistory && (
@@ -379,7 +389,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
                                         <div className="flex items-center justify-between mb-1">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-gray-500">${adj.oldPrice.toFixed(2)}</span>
-                                                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                                <ArrowRightIcon className="h-4 w-4" />
                                                 <span className="font-medium">${adj.newPrice.toFixed(2)}</span>
                                                 <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${isIncrease
                                                     ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
@@ -408,7 +418,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
             {(ticket.status === 'REPAIRED' || ticket.status === 'COMPLETED' || ticket.status === 'RETURNED') && (
                 <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                     <h2 className="font-semibold mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-gray-500">undo</span>
+                        <ArrowUturnLeftIcon className="h-5 w-5 text-gray-500" />
                         {t('returns')}
                     </h2>
                     <ReturnHandler ticket={ticket} />
@@ -419,7 +429,7 @@ export function TicketMainContent({ ticket, userRole }: TicketMainContentProps) 
             {(userRole === 'ADMIN' || userRole === 'STAFF') && (
                 <section className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
                     <h2 className="font-semibold mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-gray-500">bolt</span>
+                        <BoltIcon className="h-5 w-5 text-gray-500" />
                         {t('quickActions')}
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

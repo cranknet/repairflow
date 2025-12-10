@@ -2,7 +2,20 @@
 
 import { format } from 'date-fns';
 import { useMemo, useState, useRef } from 'react';
-import { ArrowLeftIcon, PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowLeftIcon,
+  PrinterIcon,
+  ArrowDownTrayIcon,
+  CheckCircleIcon,
+  InformationCircleIcon,
+  TagIcon,
+  ReceiptRefundIcon,
+  DocumentTextIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon as BackIcon,
+  DocumentIcon,
+  ArrowPathIcon,
+} from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/language-context';
@@ -121,7 +134,7 @@ export function TicketDetailHeader({ ticketNumber, createdAt, ticket }: TicketDe
           variant="outline"
           className="gap-2 px-4 py-2 h-10 text-sm font-medium border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
         >
-          <span className="material-symbols-outlined text-xl">print</span>
+          <PrinterIcon className="h-5 w-5" />
           <span className="hidden sm:inline">{t('print')}</span>
         </Button>
       </div>
@@ -134,7 +147,7 @@ export function TicketDetailHeader({ ticketNumber, createdAt, ticket }: TicketDe
           {/* Header */}
           <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-t-lg text-center border-b border-gray-200 dark:border-gray-700">
             <div className="w-20 h-20 mx-auto bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-blue-200 dark:border-blue-800">
-              <span className="material-symbols-outlined text-5xl text-blue-600 dark:text-blue-400">print</span>
+              <PrinterIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('printTicket')}</h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">{t('selectFormat')} <span className="font-semibold text-gray-900 dark:text-white">{ticket.ticketNumber}</span></p>
@@ -152,29 +165,29 @@ export function TicketDetailHeader({ ticketNumber, createdAt, ticket }: TicketDe
                         className={`px-4 py-3 rounded-xl border-2 transition-all font-medium flex items-center justify-center gap-2 ${printLanguage === lang.code ? (lang.code === 'ar' ? 'border-amber-500 bg-amber-500 text-white shadow-lg' : 'border-blue-600 bg-blue-600 text-white shadow-lg') : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'}`}>
                         <span className="text-lg">{lang.flag}</span>
                         <span className="hidden sm:inline">{lang.label}</span>
-                        {printLanguage === lang.code && <span className="material-symbols-outlined text-sm text-white">check_circle</span>}
+                        {printLanguage === lang.code && <CheckCircleIcon className="h-4 w-4 text-white" />}
                       </button>
                     ))}
                   </div>
-                  {isArabic && <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"><p className="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2"><span className="material-symbols-outlined">info</span>Arabic: Labels disabled. Invoice uses English.</p></div>}
+                  {isArabic && <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"><p className="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2"><InformationCircleIcon className="h-5 w-5" />Arabic: Labels disabled. Invoice uses English.</p></div>}
                 </div>
 
                 {/* Formats */}
                 <div className="space-y-3">
                   <button onClick={() => handleSelectFormat('label')} disabled={isArabic} className={`w-full p-4 rounded-xl border-2 transition-all group text-left flex items-center gap-4 ${isArabic ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50' : 'border-gray-200 hover:border-blue-400'}`}>
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${isArabic ? 'from-gray-400 to-gray-500' : formatColors.label} flex items-center justify-center shadow-lg`}><span className="material-symbols-outlined text-2xl text-white">label</span></div>
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${isArabic ? 'from-gray-400 to-gray-500' : formatColors.label} flex items-center justify-center shadow-lg`}><TagIcon className="h-6 w-6 text-white" /></div>
                     <div className="flex-1"><h3 className={`font-semibold text-lg ${isArabic ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>{t('printLabel') || 'Print Label'}</h3><p className={`text-sm ${isArabic ? 'text-gray-400' : 'text-gray-500'}`}>40×20mm • QR code</p></div>
-                    {!isArabic && <span className="material-symbols-outlined text-gray-400">arrow_forward</span>}
+                    {!isArabic && <ArrowRightIcon className="h-5 w-5 text-gray-400" />}
                   </button>
                   <button onClick={() => handleSelectFormat('receipt')} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-400 transition-all group text-left flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.receipt} flex items-center justify-center shadow-lg`}><span className="material-symbols-outlined text-2xl text-white">receipt_long</span></div>
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.receipt} flex items-center justify-center shadow-lg`}><ReceiptRefundIcon className="h-6 w-6 text-white" /></div>
                     <div className="flex-1"><h3 className="font-semibold text-gray-900 dark:text-white text-lg">{t('printReceipt') || 'Print Receipt'}</h3><p className="text-sm text-gray-500">80mm Thermal</p></div>
-                    <span className="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    <ArrowRightIcon className="h-5 w-5 text-gray-400" />
                   </button>
                   <button onClick={() => handleSelectFormat('invoice')} className="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-red-400 transition-all group text-left flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.invoice} flex items-center justify-center shadow-lg`}><span className="material-symbols-outlined text-2xl text-white">description</span></div>
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${formatColors.invoice} flex items-center justify-center shadow-lg`}><DocumentTextIcon className="h-6 w-6 text-white" /></div>
                     <div className="flex-1"><h3 className="font-semibold text-gray-900 dark:text-white text-lg">{t('printInvoice') || 'Print Invoice'}</h3><p className="text-sm text-gray-500">A4 PDF</p></div>
-                    <span className="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    <ArrowRightIcon className="h-5 w-5 text-gray-400" />
                   </button>
                 </div>
               </>
@@ -182,18 +195,18 @@ export function TicketDetailHeader({ ticketNumber, createdAt, ticket }: TicketDe
               <>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${formatColors[selectedFormat]} flex items-center justify-center`}><span className="material-symbols-outlined text-lg text-white">{selectedFormat === 'label' ? 'label' : selectedFormat === 'receipt' ? 'receipt_long' : 'description'}</span></div>
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${formatColors[selectedFormat]} flex items-center justify-center`}>{selectedFormat === 'label' ? <TagIcon className="h-[18px] w-[18px] text-white" /> : selectedFormat === 'receipt' ? <ReceiptRefundIcon className="h-[18px] w-[18px] text-white" /> : <DocumentTextIcon className="h-[18px] w-[18px] text-white" />}</div>
                     <div><h3 className="font-semibold text-gray-900 dark:text-white capitalize">{selectedFormat} Preview</h3><p className="text-xs text-gray-500">{printLanguage === 'en' ? 'English' : printLanguage === 'fr' ? 'Français' : 'العربية'}</p></div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedFormat(null)}><span className="material-symbols-outlined">arrow_back</span> {t('back')}</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedFormat(null)}><ArrowLeftIcon className="h-4 w-4 mr-1" /> {t('back')}</Button>
                 </div>
                 <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-xl flex justify-center items-center min-h-[200px]">
                   {selectedFormat === 'invoice' ? (
                     <div className="text-center p-8 bg-white dark:bg-gray-900 rounded-xl shadow-lg max-w-sm border border-gray-200 dark:border-gray-700">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4"><span className="material-symbols-outlined text-3xl text-white">picture_as_pdf</span></div>
+                      <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center mb-4"><DocumentIcon className="h-8 w-8 text-white" /></div>
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">PDF Invoice Ready</h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Click to download A4 invoice.</p>
-                      <Button onClick={handlePrint} disabled={isGeneratingPdf} className="w-full gap-2" size="lg">{isGeneratingPdf ? <><span className="material-symbols-outlined animate-spin">progress_activity</span>Generating...</> : <><ArrowDownTrayIcon className="h-5 w-5" />Download PDF</>}</Button>
+                      <Button onClick={handlePrint} disabled={isGeneratingPdf} className="w-full gap-2" size="lg">{isGeneratingPdf ? <><ArrowPathIcon className="h-5 w-5 animate-spin" />Generating...</> : <><ArrowDownTrayIcon className="h-5 w-5" />Download PDF</>}</Button>
                     </div>
                   ) : (
                     <div ref={printRef} className="bg-white shadow-xl border rounded-lg overflow-hidden" style={{ width: selectedFormat === 'label' ? '151px' : '302px', minHeight: selectedFormat === 'label' ? '76px' : 'auto' }}>
