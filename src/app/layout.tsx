@@ -1,15 +1,48 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 
+// PWA App Constants
+const APP_NAME = "RepairFlow";
+const APP_DESCRIPTION = "Complete management system for phone repair shops";
 
 export const metadata: Metadata = {
-  title: "RepairFlow - Repair Shop Management System",
-  description: "Complete management system for phone repair shops",
+  applicationName: APP_NAME,
+  title: {
+    default: "RepairFlow - Repair Shop Management System",
+    template: "%s | RepairFlow",
+  },
+  description: APP_DESCRIPTION,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: '/favicon.png',
+    apple: '/icons/icon-192x192.png',
   },
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: {
+      default: "RepairFlow - Repair Shop Management System",
+      template: "%s | RepairFlow",
+    },
+    description: APP_DESCRIPTION,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0ea5e9",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 import { headers } from "next/headers";
@@ -63,4 +96,3 @@ export default async function RootLayout({
     </html>
   );
 }
-

@@ -67,3 +67,8 @@ logs
 # Uploads
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Serwist (PWA)
+public/sw.js
+public/sw.js.map
+public/swe-worker*.js
