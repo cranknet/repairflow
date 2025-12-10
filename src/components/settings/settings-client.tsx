@@ -40,6 +40,7 @@ import { ThemeCustomizer } from './theme-customizer';
 import { NotificationPreferences } from './notification-preferences';
 import { EmailSettingsTab } from './email-settings-tab';
 import { AIVisionSettingsTab } from './AIVisionSettingsTab';
+import { FactoryResetTab } from './FactoryResetTab';
 
 export function SettingsClient({
   initialSettings,
@@ -73,6 +74,7 @@ export function SettingsClient({
     { id: 'permissions', label: t('settings.permissions') || 'Permissions', icon: SETTINGS_ICONS.permissions, adminOnly: true },
     { id: 'database', label: t('settings.database') || 'Database', icon: SETTINGS_ICONS.database, adminOnly: true },
     { id: 'users', label: t('userManagement'), icon: SETTINGS_ICONS.users, adminOnly: true },
+    { id: 'factory_reset', label: t('settings.tab.factoryReset') || 'Factory Reset', icon: SETTINGS_ICONS.factory_reset, adminOnly: true },
   ];
 
   // State
@@ -112,11 +114,6 @@ export function SettingsClient({
   const [selectedUserForLogs, setSelectedUserForLogs] = useState<any>(null);
   const [loginLogs, setLoginLogs] = useState<any[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(false);
-
-  // Reset dialog state
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [resetConfirmation, setResetConfirmation] = useState('');
-  const [isResetting, setIsResetting] = useState(false);
 
   // Handle URL parameters for tab selection
   useEffect(() => {
@@ -179,31 +176,6 @@ export function SettingsClient({
       });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  // Factory reset
-  const handleFactoryReset = async () => {
-    if (resetConfirmation !== 'RESET') {
-      toast({ title: t('error'), description: t('typeResetToConfirm') });
-      return;
-    }
-    setIsResetting(true);
-    try {
-      const response = await fetch('/api/settings/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmation: resetConfirmation }),
-      });
-      if (!response.ok) throw new Error('Failed to reset system');
-      toast({ title: t('success'), description: t('resetSuccessful') });
-      setTimeout(() => { window.location.href = '/install'; }, 1500);
-    } catch (error: any) {
-      toast({ title: t('error'), description: error.message || t('resetFailed') });
-      setIsResetting(false);
-    } finally {
-      setShowResetConfirm(false);
-      setResetConfirmation('');
     }
   };
 
@@ -441,7 +413,6 @@ export function SettingsClient({
             onSettingChange={handleSettingChange}
             onSave={handleSaveSettings}
             isSaving={isSaving}
-            onShowResetConfirm={() => setShowResetConfirm(true)}
           />
         )}
 
@@ -569,6 +540,9 @@ export function SettingsClient({
 
         {/* AI Vision */}
         {activeTab === 'ai_vision' && <AIVisionSettingsTab />}
+
+        {/* Factory Reset */}
+        {activeTab === 'factory_reset' && <FactoryResetTab />}
 
         {/* User Management */}
         {activeTab === 'users' && (
@@ -839,41 +813,6 @@ export function SettingsClient({
           </div>
           <DialogFooter>
             <Button onClick={() => setShowLoginLogs(false)} variant="outline">{t('close')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Factory Reset Dialog */}
-      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-red-600">{t('factoryReset')}</DialogTitle>
-            <DialogDescription className="text-red-700 font-semibold">{t('resetWarning')}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm">{t('confirmReset')}</p>
-            <div className="space-y-2">
-              <Label htmlFor="reset-confirm">{t('typeResetToConfirm')}</Label>
-              <Input
-                id="reset-confirm"
-                value={resetConfirmation}
-                onChange={(e) => setResetConfirmation(e.target.value)}
-                placeholder="RESET"
-                className="font-mono"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowResetConfirm(false); setResetConfirmation(''); }}>
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={handleFactoryReset}
-              disabled={isResetting || resetConfirmation !== 'RESET'}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isResetting ? t('resetInProgress') : t('resetSettings')}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

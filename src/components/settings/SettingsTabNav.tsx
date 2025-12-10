@@ -25,6 +25,7 @@ import {
     WrenchScrewdriverIcon,
     MegaphoneIcon,
     ServerStackIcon,
+    ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { ComponentType } from 'react';
 
@@ -69,6 +70,7 @@ export const SETTINGS_ICONS = {
     database: CircleStackIcon,
     users: UsersIcon,
     ai_vision: CameraIcon,
+    factory_reset: ArrowPathIcon,
 };
 
 // Define categories with their tabs (labels are translation keys)
@@ -128,6 +130,7 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
             { id: 'users', label: 'settings.tab.users', icon: UsersIcon, adminOnly: true },
             { id: 'database', label: 'settings.tab.database', icon: CircleStackIcon, adminOnly: true },
             { id: 'ai_vision', label: 'settings.tab.aiVision', icon: CameraIcon },
+            { id: 'factory_reset', label: 'settings.tab.factoryReset', icon: ArrowPathIcon, adminOnly: true },
         ],
     },
 ];

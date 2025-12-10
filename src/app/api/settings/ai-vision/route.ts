@@ -1,6 +1,8 @@
 /**
  * AI Vision Settings API
  * GET/PUT /api/settings/ai-vision
+ * 
+ * Supports: Google Gemini, OpenAI GPT-4, Anthropic Claude
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -45,8 +47,8 @@ export async function GET() {
         }
 
         // Set defaults
-        if (!result.scanMode) result.scanMode = 'tesseract';
-        if (!result.aiVisionProvider) result.aiVisionProvider = 'openai';
+        if (!result.scanMode) result.scanMode = 'vision';
+        if (!result.aiVisionProvider) result.aiVisionProvider = 'google';
         if (!result.hasAiApiKey) result.hasAiApiKey = 'false';
         if (!result.hasOcrApiKey) result.hasOcrApiKey = 'false';
 
