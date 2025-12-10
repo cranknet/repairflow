@@ -310,6 +310,280 @@ function parseJSONResponse(content: string): ReceiptScanResult {
 /**
  * Main function to extract parts from receipt image
  */
+// Device Detection Types and Prompt
+export interface DeviceDetectionResult {
+    brand: string;
+    model: string;
+    color: string;
+    confidence: number; // 0-100
+}
+
+const DEVICE_DETECTION_PROMPT = `You are a mobile device identification expert. Analyze these device images (front and/or back) and identify the device.
+
+Extract the following information:
+- brand: The manufacturer (e.g., "Apple", "Samsung", "Google", "Xiaomi", "OnePlus", "Huawei")
+- model: The specific model name (e.g., "iPhone 14 Pro", "Galaxy S23 Ultra", "Pixel 8 Pro")
+- color: The device color (e.g., "Space Black", "Silver", "Deep Purple", "Phantom Black")
+- confidence: Your confidence level 0-100 (100 = very certain)
+
+Tips for identification:
+- Look for logos, branding, camera layouts, and design elements
+- iPhone: Apple logo, notch/Dynamic Island, camera arrangement
+- Samsung: Samsung logo, camera island shape, button placement
+- Google Pixel: Camera bar design, Google branding
+- Consider the case/body shape, button positions, ports
+
+Return ONLY valid JSON in this exact format:
+{
+  "brand": "Brand Name",
+  "model": "Model Name",
+  "color": "Color Name",
+  "confidence": 85
+}
+
+If you cannot identify the device, return:
+{
+  "brand": "",
+  "model": "",
+  "color": "",
+  "confidence": 0,
+  "error": "reason"
+}`;
+
+/**
+ * Detect device from images using OpenAI GPT-4 Vision
+ */
+async function detectDeviceWithOpenAI(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+    const imageContent = images.map(img => ({
+        type: 'image_url' as const,
+        image_url: {
+            url: img.startsWith('data:') ? img : `data:image/jpeg;base64,${img}`,
+        },
+    }));
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: DEVICE_DETECTION_PROMPT },
+                        ...imageContent,
+                    ],
+                },
+            ],
+            max_tokens: 500,
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+            throw { code: 'INVALID_API_KEY', message: 'Invalid OpenAI API key', retryable: false } as AIVisionError;
+        }
+        if (response.status === 429) {
+            throw { code: 'RATE_LIMIT', message: 'Rate limit exceeded', retryable: true } as AIVisionError;
+        }
+        throw { code: 'SERVICE_DOWN', message: error.error?.message || 'OpenAI service error', retryable: true } as AIVisionError;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+
+    return parseDeviceDetectionResponse(content);
+}
+
+/**
+ * Detect device from images using Google Gemini Vision
+ */
+async function detectDeviceWithGoogle(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+    const imageParts = images.map(img => ({
+        inline_data: {
+            mime_type: 'image/jpeg',
+            data: img.replace(/^data:image\/\w+;base64,/, ''),
+        },
+    }));
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contents: [
+                {
+                    parts: [
+                        { text: DEVICE_DETECTION_PROMPT },
+                        ...imageParts,
+                    ],
+                },
+            ],
+            generationConfig: {
+                maxOutputTokens: 500,
+            },
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        if (response.status === 400 && error.error?.message?.includes('API key')) {
+            throw { code: 'INVALID_API_KEY', message: 'Invalid Google API key', retryable: false } as AIVisionError;
+        }
+        if (response.status === 429) {
+            throw { code: 'RATE_LIMIT', message: 'Rate limit exceeded', retryable: true } as AIVisionError;
+        }
+        throw { code: 'SERVICE_DOWN', message: error.error?.message || 'Google service error', retryable: true } as AIVisionError;
+    }
+
+    const data = await response.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!content) {
+        const blockReason = data.candidates?.[0]?.finishReason;
+        throw { code: 'IMAGE_QUALITY', message: `AI could not process image: ${blockReason || 'empty response'}`, retryable: true } as AIVisionError;
+    }
+
+    return parseDeviceDetectionResponse(content);
+}
+
+/**
+ * Detect device from images using Anthropic Claude Vision
+ */
+async function detectDeviceWithAnthropic(images: string[], apiKey: string): Promise<DeviceDetectionResult> {
+    const imageContent = images.map(img => ({
+        type: 'image' as const,
+        source: {
+            type: 'base64' as const,
+            media_type: 'image/jpeg' as const,
+            data: img.replace(/^data:image\/\w+;base64,/, ''),
+        },
+    }));
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 500,
+            messages: [
+                {
+                    role: 'user',
+                    content: [
+                        ...imageContent,
+                        { type: 'text', text: DEVICE_DETECTION_PROMPT },
+                    ],
+                },
+            ],
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+            throw { code: 'INVALID_API_KEY', message: 'Invalid Anthropic API key', retryable: false } as AIVisionError;
+        }
+        if (response.status === 429) {
+            throw { code: 'RATE_LIMIT', message: 'Rate limit exceeded', retryable: true } as AIVisionError;
+        }
+        throw { code: 'SERVICE_DOWN', message: error.error?.message || 'Anthropic service error', retryable: true } as AIVisionError;
+    }
+
+    const data = await response.json();
+    const content = data.content?.[0]?.text || '';
+
+    return parseDeviceDetectionResponse(content);
+}
+
+/**
+ * Parse JSON response for device detection
+ */
+function parseDeviceDetectionResponse(content: string): DeviceDetectionResult {
+    let jsonStr = content.trim();
+
+    // Remove markdown code blocks if present
+    if (jsonStr.startsWith('```json')) {
+        jsonStr = jsonStr.slice(7);
+    } else if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.slice(3);
+    }
+    if (jsonStr.endsWith('```')) {
+        jsonStr = jsonStr.slice(0, -3);
+    }
+    jsonStr = jsonStr.trim();
+
+    // If still not valid JSON, try to find JSON object in the response
+    if (!jsonStr.startsWith('{')) {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            jsonStr = jsonMatch[0];
+        }
+    }
+
+    try {
+        const result = JSON.parse(jsonStr);
+        return {
+            brand: String(result.brand || '').trim(),
+            model: String(result.model || '').trim(),
+            color: String(result.color || '').trim(),
+            confidence: Math.min(100, Math.max(0, Number(result.confidence) || 0)),
+        };
+    } catch (e) {
+        console.log('Device detection JSON parse error. Content was:', jsonStr.substring(0, 300));
+        throw { code: 'IMAGE_QUALITY', message: 'AI returned invalid format. Try clearer photos.', retryable: true } as AIVisionError;
+    }
+}
+
+/**
+ * Main function to detect device from images
+ */
+export async function detectDeviceFromImages(
+    images: string[],
+    config: AIVisionConfig
+): Promise<DeviceDetectionResult> {
+    if (!config.apiKey) {
+        throw { code: 'INVALID_API_KEY', message: 'API key not configured', retryable: false } as AIVisionError;
+    }
+
+    if (images.length === 0) {
+        throw { code: 'IMAGE_QUALITY', message: 'No images provided', retryable: false } as AIVisionError;
+    }
+
+    try {
+        switch (config.provider) {
+            case 'openai':
+                return await detectDeviceWithOpenAI(images, config.apiKey);
+            case 'google':
+                return await detectDeviceWithGoogle(images, config.apiKey);
+            case 'anthropic':
+                return await detectDeviceWithAnthropic(images, config.apiKey);
+            default:
+                throw { code: 'UNKNOWN', message: 'Unknown AI provider', retryable: false } as AIVisionError;
+        }
+    } catch (error) {
+        if ((error as AIVisionError).code) {
+            throw error;
+        }
+        // Network error
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            throw { code: 'NO_INTERNET', message: 'Network error - check your connection', retryable: true } as AIVisionError;
+        }
+        throw { code: 'UNKNOWN', message: String(error), retryable: true } as AIVisionError;
+    }
+}
+
+/**
+ * Main function to extract parts from receipt image
+ */
 export async function extractPartsFromReceipt(
     imageBase64: string,
     config: AIVisionConfig
