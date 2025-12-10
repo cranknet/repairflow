@@ -66,6 +66,7 @@ model Ticket {
   deviceIssue          String
   deviceConditionFront String? // Base64 image
   deviceConditionBack  String? // Base64 image
+  deviceColor          String? // Device color detected by AI or entered manually
   priority             String                  @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
   estimatedPrice       Float
   finalPrice           Float?
