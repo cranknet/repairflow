@@ -29,13 +29,36 @@ jobs:
     - name: Generate Prisma Client
       run: npx prisma generate
 
+    - name: Push Database Schema
+      run: npx prisma db push
+      env:
+        DATABASE_URL: "file:./test.db"
+
     - name: Run linter
       run: npm run lint
 
     - name: Build
       run: npm run build
       env:
-        DATABASE_URL: "file:./prisma/test.db"
-        NEXTAUTH_SECRET: "test-secret-key"
+        DATABASE_URL: "file:./test.db"
+        NEXTAUTH_SECRET: "test-secret-key-for-ci-build"
         NEXTAUTH_URL: "http://localhost:3000"
+        DB_PROVIDER: "sqlite"
 
+    - name: Verify PWA Service Worker
+      run: |
+        if [ -f "public/sw.js" ]; then
+          echo "✓ Service worker generated successfully"
+        else
+          echo "✗ Service worker not found at public/sw.js"
+          exit 1
+        fi
+
+    - name: Verify PWA Manifest
+      run: |
+        if [ -f "src/app/manifest.json" ]; then
+          echo "✓ Manifest found"
+        else
+          echo "✗ Manifest not found"
+          exit 1
+        fi
