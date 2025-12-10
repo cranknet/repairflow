@@ -10,7 +10,7 @@ import { TicketsListHeader } from '@/components/tickets/tickets-list-header';
 import { NoTicketsFound } from '@/components/tickets/no-tickets-found';
 import { TranslatedCardTitle } from '@/components/layout/translated-card-title';
 import { TicketsTable } from '@/components/tickets/tickets-table';
-import { NewTicketModal } from '@/components/tickets/new-ticket-modal';
+import { NewTicketWizard } from '@/components/tickets/new-ticket-wizard';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 
@@ -172,7 +172,7 @@ export function TicketsPageClient({
         </Card>
       </div>
 
-      <NewTicketModal
+      <NewTicketWizard
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
