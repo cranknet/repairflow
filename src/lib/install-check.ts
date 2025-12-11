@@ -1,7 +1,8 @@
 import 'server-only';
 
 /**
- * Check if the database is configured (DATABASE_URL is set and valid)
+ * Check if the database is configured (DATABASE_URL is set)
+ * For SQLite, we just check if the URL is a file path
  */
 export function isDatabaseConfigured(): boolean {
     const databaseUrl = process.env.DATABASE_URL;
@@ -10,14 +11,9 @@ export function isDatabaseConfigured(): boolean {
         return false;
     }
 
-    // Check if it's a placeholder or empty value
-    if (
-        databaseUrl === '' ||
-        databaseUrl.includes('user:password') ||
-        databaseUrl.includes('username:password') ||
-        databaseUrl === 'postgresql://user:password@localhost:5432/repairflow?schema=public'
-    ) {
-        return false;
+    // SQLite file-based URL is always considered configured
+    if (databaseUrl.startsWith('file:')) {
+        return true;
     }
 
     return true;
@@ -30,15 +26,11 @@ function isConnectionError(error: unknown): boolean {
     if (error && typeof error === 'object') {
         const e = error as { code?: string; message?: string };
         return (
-            e.code === 'ECONNREFUSED' ||
-            e.code === 'ENOTFOUND' ||
             e.code === 'ENOENT' ||
             e.code === 'P1001' || // Can't reach database server
             e.code === 'P1002' || // Database server timeout
-            (e.message?.includes('ECONNREFUSED') ?? false) ||
-            (e.message?.includes('connect ETIMEDOUT') ?? false) ||
-            (e.message?.includes('Connection refused') ?? false) ||
-            (e.message?.includes('pool timeout') ?? false)
+            (e.message?.includes('database') ?? false) ||
+            (e.message?.includes('SQLITE') ?? false)
         );
     }
     return false;
