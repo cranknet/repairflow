@@ -8,40 +8,36 @@
  * Check if running inside Tauri desktop app
  */
 export function isTauri(): boolean {
-  return typeof window !== 'undefined' && '__TAURI__' in window;
+    return typeof window !== 'undefined' && '__TAURI__' in window;
 }
 
 /**
  * Check if running as a desktop app (alias for isTauri)
  */
 export function isDesktop(): boolean {
-  return isTauri();
+    return isTauri();
 }
 
 /**
  * Check if running as a web app
  */
 export function isWeb(): boolean {
-  return !isTauri();
+    return !isTauri();
 }
 
 /**
  * Get the current platform
  */
 export function getPlatform(): 'tauri' | 'web' {
-  return isTauri() ? 'tauri' : 'web';
+    return isTauri() ? 'tauri' : 'web';
 }
 
 /**
- * Get the operating system (only available in Tauri)
+ * Get the operating system
+ * Returns 'windows' when running in Tauri on Windows
  */
-export async function getOS(): Promise<string | null> {
-  if (!isTauri()) return null;
-  
-  try {
-    const { platform } = await import('@tauri-apps/plugin-os');
-    return platform();
-  } catch {
-    return null;
-  }
+export function getOS(): string {
+    if (!isTauri()) return 'web';
+    // In Tauri on Windows, this will always be 'windows'
+    return 'windows';
 }
