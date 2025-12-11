@@ -32,6 +32,8 @@
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "load:test": "k6 run load-tests/concurrent-users.js",
+    "load:tickets": "k6 run load-tests/ticket-operations.js",
     "analyze": "cross-env ANALYZE=true npm run build",
     "db:push": "prisma db push",
     "db:push:mysql": "prisma db push --schema=prisma/mysql/schema.prisma",
