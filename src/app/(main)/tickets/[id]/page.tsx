@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { TicketDetailsClient } from '@/components/tickets/ticket-details-client';
@@ -76,14 +77,14 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
       <div className="flex flex-col items-center justify-center py-20">
         <MagnifyingGlassIcon className="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" />
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ticket Not Found</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">The ticket you're looking for doesn't exist.</p>
-        <a
+        <p className="text-gray-600 dark:text-gray-400 mb-6">The ticket you&apos;re looking for doesn&apos;t exist.</p>
+        <Link
           href="/tickets"
           className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
           <ArrowLeftIcon className="h-4 w-4" />
           Back to Tickets
-        </a>
+        </Link>
       </div>
     );
   }

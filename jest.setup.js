@@ -24,10 +24,8 @@ jest.mock('next/navigation', () => ({
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
     __esModule: true,
-    default: (props: any) => {
-        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-        return <img {...props} />;
-    },
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    default: (props) => <img {...props} />,
 }));
 
 // Mock window.matchMedia
@@ -54,4 +52,4 @@ global.IntersectionObserver = class IntersectionObserver {
         return [];
     }
     unobserve() { }
-} as any;
+};

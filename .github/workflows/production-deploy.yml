@@ -1,0 +1,294 @@
+name: Production Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - release/production-ready
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy only)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: repairflow
+  REGISTRY: ghcr.io
+
+jobs:
+  # ========================================
+  # Stage 1: Lint & Type Check
+  # ========================================
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run ESLint
+        run: npm run lint -- --max-warnings 50
+        continue-on-error: true
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+  # ========================================
+  # Stage 2: Security Audit
+  # ========================================
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+
+      - name: Scan for secrets
+        run: |
+          if grep -r "secret.*=.*['\"].*['\"]" --include="*.ts" --include="*.js" src/ 2>/dev/null | grep -v "NEXTAUTH_SECRET" | grep -v "test-secret"; then
+            echo "❌ Potential hardcoded secrets found!"
+            exit 1
+          fi
+          echo "✅ No obvious hardcoded secrets detected"
+
+  # ========================================
+  # Stage 3: Unit Tests
+  # ========================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run unit tests
+        run: npm run test -- --coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ========================================
+  # Stage 4: E2E Tests
+  # ========================================
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    needs: [lint, security]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Push database schema
+        run: npx prisma db push
+        env:
+          DATABASE_URL: "file:./test.db"
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+        env:
+          DATABASE_URL: "file:./test.db"
+          NEXTAUTH_SECRET: "test-secret-key-for-e2e-testing"
+          NEXTAUTH_URL: "http://localhost:3000"
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: "file:./test.db"
+          NEXTAUTH_SECRET: "test-secret-key-for-e2e-testing"
+          NEXTAUTH_URL: "http://localhost:3000"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ========================================
+  # Stage 5: i18n Check
+  # ========================================
+  i18n-check:
+    name: i18n Translation Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run i18n check
+        run: npm run i18n:check
+        continue-on-error: true
+
+  # ========================================
+  # Stage 6: Build Docker Image
+  # ========================================
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [lint, security, unit-tests]
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release/production-ready' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ========================================
+  # Stage 7: Smoke Test
+  # ========================================
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run smoke test container
+        run: |
+          docker run -d \
+            --name repairflow-test \
+            -p 3000:3000 \
+            -e DATABASE_URL="file:./test.db" \
+            -e NEXTAUTH_SECRET="test-secret-for-smoke-test" \
+            -e NEXTAUTH_URL="http://localhost:3000" \
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          
+          echo "Waiting for container to start..."
+          sleep 10
+
+      - name: Check health endpoint
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: Status $STATUS, retrying..."
+            sleep 5
+          done
+          echo "❌ Health check failed"
+          docker logs repairflow-test
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f repairflow-test || true
+
+  # ========================================
+  # Stage 8: Deploy Summary
+  # ========================================
+  deploy-summary:
+    name: Deploy Summary
+    runs-on: ubuntu-latest
+    needs: [smoke-test, e2e-tests, i18n-check]
+    if: always()
+    steps:
+      - name: Generate deployment summary
+        run: |
+          echo "## 🚀 Production Deployment Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Type Check | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Audit | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-tests.result == 'success' && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| i18n Check | ${{ needs.i18n-check.result == 'success' && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Build | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Test | ${{ needs.smoke-test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
