@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ReactCrop, { Crop, PixelCrop, makeAspectCrop, centerCrop } from 'react-image-crop';
@@ -113,12 +114,16 @@ export default function ImageCrop({ imageSrc, onCropComplete, onCancel }: ImageC
               aspect={undefined}
               minWidth={100}
             >
-              <img
-                ref={imgRef}
+              <Image
+                ref={imgRef as React.RefObject<HTMLImageElement>}
                 src={imageSrc}
                 alt="Crop"
                 onLoad={onImageLoad}
                 className="max-h-[60vh]"
+                width={800}
+                height={600}
+                style={{ width: 'auto', height: 'auto', maxHeight: '60vh' }}
+                unoptimized
               />
             </ReactCrop>
           </div>

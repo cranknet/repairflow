@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ImageModal } from './image-modal';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -39,12 +40,14 @@ export function DevicePhotos({ frontImage, backImage }: DevicePhotosProps) {
               <button
                 type="button"
                 onClick={() => openModal(frontImage, t('deviceFront'))}
-                className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-full cursor-pointer hover:opacity-90 transition-opacity relative h-48"
               >
-                <img
+                <Image
                   src={frontImage}
                   alt={t('deviceFront')}
-                  className="w-full h-48 object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
+                  fill
+                  className="object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
+                  unoptimized
                 />
               </button>
             </div>
@@ -55,12 +58,14 @@ export function DevicePhotos({ frontImage, backImage }: DevicePhotosProps) {
               <button
                 type="button"
                 onClick={() => openModal(backImage, t('deviceBack'))}
-                className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-full cursor-pointer hover:opacity-90 transition-opacity relative h-48"
               >
-                <img
+                <Image
                   src={backImage}
                   alt={t('deviceBack')}
-                  className="w-full h-48 object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
+                  fill
+                  className="object-contain border rounded bg-gray-50 dark:bg-gray-800 hover:border-primary-500 transition-colors"
+                  unoptimized
                 />
               </button>
             </div>

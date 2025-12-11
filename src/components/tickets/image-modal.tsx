@@ -1,7 +1,7 @@
 'use client';
 
+import Image from 'next/image';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { Button } from '@/components/ui/button';
 
 interface ImageModalProps {
   isOpen: boolean;
@@ -25,12 +25,14 @@ export function ImageModal({ isOpen, onClose, imageSrc, title }: ImageModalProps
           <XMarkIcon className="h-8 w-8" />
         </button>
         <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
-          <img
+          <Image
             src={imageSrc}
             alt={title}
-            className="max-w-full max-h-full object-contain"
+            fill
+            className="object-contain"
+            unoptimized
           />
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-lg">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-lg z-10">
             <p className="text-sm font-medium">{title}</p>
           </div>
         </div>

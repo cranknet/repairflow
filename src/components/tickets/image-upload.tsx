@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
@@ -197,12 +198,14 @@ export function ImageUpload({ label, value, onChange, onRemove, onCropComplete }
               <button
                 type="button"
                 onClick={() => setShowImageModal(true)}
-                className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-full cursor-pointer hover:opacity-90 transition-opacity relative h-48"
               >
-                <img
+                <Image
                   src={value}
                   alt={label}
-                  className="w-full h-48 object-contain rounded border"
+                  fill
+                  className="object-contain rounded border"
+                  unoptimized
                 />
               </button>
               <Button
