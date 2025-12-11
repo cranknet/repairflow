@@ -45,14 +45,14 @@ export function TicketsSection({ tickets }: TicketsSectionProps) {
     }, [tickets, selectedPeriod]);
 
     return (
-        <Card>
-            <CardHeader>
+        <Card className="overflow-hidden">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800">
                 <DashboardTicketHeader
                     selectedPeriod={selectedPeriod}
                     onPeriodChange={setSelectedPeriod}
                 />
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
                 <DashboardTicketTable tickets={filteredTickets} />
             </CardContent>
         </Card>

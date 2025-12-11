@@ -86,12 +86,12 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
                   <td className="py-4 px-4">
                     <span
                       className={`px-2.5 py-1 text-xs font-semibold rounded-full ${ticket.status === 'IN_PROGRESS'
-                          ? 'bg-orange-100 text-orange-700'
-                          : ticket.status === 'WAITING_FOR_PARTS'
-                            ? 'bg-amber-100 text-amber-700'
-                            : ticket.status === 'REPAIRED'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-blue-100 text-blue-700'
+                        ? 'bg-orange-100 text-orange-700'
+                        : ticket.status === 'WAITING_FOR_PARTS'
+                          ? 'bg-amber-100 text-amber-700'
+                          : ticket.status === 'REPAIRED'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-blue-100 text-blue-700'
                         }`}
                     >
                       {getStatusTranslation(ticket.status)}
@@ -120,9 +120,9 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3 px-4 py-4">
         {tickets.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
             {t('noActiveTickets')}
           </div>
         ) : (
@@ -130,7 +130,7 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
             <Link
               key={ticket.id}
               href={`/tickets/${ticket.id}`}
-              className="block p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+              className="block p-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -139,12 +139,12 @@ export function DashboardTicketTable({ tickets }: DashboardTicketTableProps) {
                 </div>
                 <span
                   className={`px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${ticket.status === 'IN_PROGRESS'
-                      ? 'bg-orange-100 text-orange-700'
-                      : ticket.status === 'WAITING_FOR_PARTS'
-                        ? 'bg-amber-100 text-amber-700'
-                        : ticket.status === 'REPAIRED'
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-blue-100 text-blue-700'
+                    ? 'bg-orange-100 text-orange-700'
+                    : ticket.status === 'WAITING_FOR_PARTS'
+                      ? 'bg-amber-100 text-amber-700'
+                      : ticket.status === 'REPAIRED'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
                     }`}
                 >
                   {getStatusTranslation(ticket.status)}
