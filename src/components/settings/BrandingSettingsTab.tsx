@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,11 +70,13 @@ export function BrandingSettingsTab({
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         {settings.company_logo ? (
-                            <div className="relative">
-                                <img
+                            <div className="relative h-20 w-20">
+                                <Image
                                     src={settings.company_logo}
                                     alt="Company Logo"
-                                    className="h-20 w-20 object-contain border border-gray-300 dark:border-gray-600 rounded"
+                                    fill
+                                    className="object-contain border border-gray-300 dark:border-gray-600 rounded"
+                                    unoptimized
                                 />
                                 <button
                                     onClick={() => onRemove('logo')}
@@ -118,11 +121,13 @@ export function BrandingSettingsTab({
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         {settings.company_favicon ? (
-                            <div className="relative">
-                                <img
+                            <div className="relative h-16 w-16">
+                                <Image
                                     src={settings.company_favicon}
                                     alt="Favicon"
-                                    className="h-16 w-16 object-contain border border-gray-300 dark:border-gray-600 rounded"
+                                    fill
+                                    className="object-contain border border-gray-300 dark:border-gray-600 rounded"
+                                    unoptimized
                                 />
                                 <button
                                     onClick={() => onRemove('favicon')}
@@ -167,11 +172,13 @@ export function BrandingSettingsTab({
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         {settings.login_background_image ? (
-                            <div className="relative">
-                                <img
+                            <div className="relative h-32 w-48">
+                                <Image
                                     src={settings.login_background_image}
                                     alt="Background"
-                                    className="h-32 w-48 object-cover border border-gray-300 dark:border-gray-600 rounded"
+                                    fill
+                                    className="object-cover border border-gray-300 dark:border-gray-600 rounded"
+                                    unoptimized
                                 />
                                 <button
                                     onClick={() => onRemove('background')}
@@ -216,11 +223,13 @@ export function BrandingSettingsTab({
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         {settings.default_track_image ? (
-                            <div className="relative">
-                                <img
+                            <div className="relative h-32 w-48">
+                                <Image
                                     src={settings.default_track_image}
                                     alt="Track Background"
-                                    className="h-32 w-48 object-cover border border-gray-300 dark:border-gray-600 rounded"
+                                    fill
+                                    className="object-cover border border-gray-300 dark:border-gray-600 rounded"
+                                    unoptimized
                                 />
                                 <button
                                     onClick={() => onRemove('track_image')}
