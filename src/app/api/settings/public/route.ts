@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { isDatabaseConfigured } from '@/lib/install-check';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,7 +49,15 @@ const PUBLIC_SETTINGS_KEYS = [
 ];
 
 export async function GET() {
+  // Return empty settings if database not configured
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json({});
+  }
+
   try {
+    // Dynamic import to avoid issues when DB isn't configured
+    const { prisma } = await import('@/lib/prisma');
+
     const settings = await prisma.settings.findMany({
       where: {
         key: {
@@ -66,10 +74,7 @@ export async function GET() {
     return NextResponse.json(settingsMap);
   } catch (error) {
     console.error('Error fetching public settings:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch settings' },
-      { status: 500 }
-    );
+    // Return empty object on error (graceful degradation)
+    return NextResponse.json({});
   }
 }
-
