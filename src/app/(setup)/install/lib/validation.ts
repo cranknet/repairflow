@@ -69,6 +69,8 @@ export interface DbCheckResult {
 // Installation state stored in session
 export interface InstallState {
   currentStep: number;
+  databaseConfigured?: boolean;
+  databaseProvider?: 'postgresql' | 'mysql';
   company?: CompanyFormData;
   admin?: Omit<AdminFormData, 'confirmPassword'>;
   preferences?: PreferencesFormData;

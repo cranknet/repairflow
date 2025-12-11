@@ -1,5 +1,5 @@
-// PostgreSQL Schema for RepairFlow
-// This schema is used when DB_PROVIDER=postgresql
+// MySQL Schema for RepairFlow
+// This schema is used when DB_PROVIDER=mysql
 
 generator client {
   provider        = "prisma-client-js"
@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,8 +65,8 @@ model Ticket {
   deviceBrand          String
   deviceModel          String
   deviceIssue          String                  @db.Text
-  deviceConditionFront String?                 @db.Text // Base64 image
-  deviceConditionBack  String?                 @db.Text // Base64 image
+  deviceConditionFront String?                 @db.LongText // Base64 image
+  deviceConditionBack  String?                 @db.LongText // Base64 image
   deviceColor          String? // Device color detected by AI or entered manually
   priority             String                  @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
   estimatedPrice       Float

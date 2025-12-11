@@ -1,30 +1,123 @@
 import 'server-only';
 
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
-// Create the adapter with the database path
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? 'file:./prisma/dev.db',
-});
+// Dynamic adapter selection based on DB_PROVIDER
+async function createPrismaClient(): Promise<PrismaClient> {
+  const provider = process.env.DB_PROVIDER || 'postgresql';
+  const databaseUrl = process.env.DATABASE_URL;
 
+  if (!databaseUrl) {
+    console.warn('DATABASE_URL not set, Prisma client may not work correctly');
+  }
+
+  if (provider === 'mysql') {
+    // MySQL adapter using mysql2
+    const mysql = await import('mysql2/promise');
+    const { PrismaMySql } = await import('@prisma/adapter-mysql');
+
+    const pool = mysql.createPool(databaseUrl || '');
+    const adapter = new PrismaMySql(pool);
+
+    return new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    });
+  } else {
+    // PostgreSQL adapter using pg (default)
+    const pg = await import('pg');
+    const { PrismaPg } = await import('@prisma/adapter-pg');
+
+    const pool = new pg.Pool({ connectionString: databaseUrl });
+    const adapter = new PrismaPg(pool);
+
+    return new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    });
+  }
+}
+
+// Global prisma instance cache
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  prismaPromise: Promise<PrismaClient> | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
+// Lazy initialization - create client on first use
+async function getPrismaClient(): Promise<PrismaClient> {
+  if (globalForPrisma.prisma) {
+    return globalForPrisma.prisma;
+  }
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+  if (!globalForPrisma.prismaPromise) {
+    globalForPrisma.prismaPromise = createPrismaClient().then((client) => {
+      globalForPrisma.prisma = client;
+      return client;
+    });
+  }
 
-// Note: For MySQL support, use prisma/mysql/schema.prisma and create a separate
-// lib/prisma-mysql.ts entry point, or swap this file at deployment time.
-// The mariadb driver requires:
-//   import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-//   import mariadb from 'mariadb';
-//   const pool = mariadb.createPool(process.env.DATABASE_URL);
-//   const adapter = new PrismaMariaDb(pool);
+  return globalForPrisma.prismaPromise;
+}
+
+// For synchronous access after initialization
+// Note: This throws if prisma hasn't been initialized yet
+function getPrismaSyncUnsafe(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    throw new Error('Prisma client not yet initialized. Use getPrismaClient() async function.');
+  }
+  return globalForPrisma.prisma;
+}
+
+// Export a proxy that lazily initializes
+// This maintains backward compatibility with existing code that uses `prisma.table.find()`
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    // If already initialized, use the real client
+    if (globalForPrisma.prisma) {
+      return (globalForPrisma.prisma as unknown as Record<string | symbol, unknown>)[prop];
+    }
+
+    // For methods that need async initialization
+    if (typeof prop === 'string') {
+      // Return a function that initializes and then calls the method
+      return new Proxy(() => { }, {
+        get(_, subProp) {
+          return async (...args: unknown[]) => {
+            const client = await getPrismaClient();
+            const model = (client as unknown as Record<string, unknown>)[prop];
+            if (model && typeof model === 'object') {
+              const method = (model as Record<string | symbol, unknown>)[subProp];
+              if (typeof method === 'function') {
+                return (method as (...args: unknown[]) => Promise<unknown>).call(model, ...args);
+              }
+            }
+            throw new Error(`Method ${String(prop)}.${String(subProp)} not found`);
+          };
+        },
+        apply: async (_, __, args) => {
+          const client = await getPrismaClient();
+          const method = (client as unknown as Record<string, unknown>)[prop];
+          if (typeof method === 'function') {
+            return (method as (...args: unknown[]) => Promise<unknown>).call(client, ...args);
+          }
+          throw new Error(`Method ${String(prop)} not found`);
+        },
+      });
+    }
+
+    return undefined;
+  },
+});
+
+// Export async getter for explicit initialization
+export { getPrismaClient };
+
+// Reset prisma client (useful when switching databases)
+export async function resetPrismaClient(): Promise<void> {
+  if (globalForPrisma.prisma) {
+    await globalForPrisma.prisma.$disconnect();
+  }
+  globalForPrisma.prisma = undefined;
+  globalForPrisma.prismaPromise = undefined;
+}
