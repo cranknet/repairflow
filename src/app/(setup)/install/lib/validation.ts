@@ -59,18 +59,9 @@ export interface EnvCheckResult {
   message?: string;
 }
 
-// Database check result type
-export interface DbCheckResult {
-  connected: boolean;
-  type: string;
-  error?: string;
-}
-
 // Installation state stored in session
 export interface InstallState {
   currentStep: number;
-  databaseConfigured?: boolean;
-  databaseProvider?: 'postgresql' | 'mysql';
   company?: CompanyFormData;
   admin?: Omit<AdminFormData, 'confirmPassword'>;
   preferences?: PreferencesFormData;

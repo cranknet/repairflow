@@ -7,7 +7,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { WizardProgress } from './wizard-progress';
 import { WizardSidebar } from './wizard-sidebar';
 import { WelcomeStep } from './steps/welcome-step';
-import { DatabaseStep } from './steps/database-step';
 import { CompanyStep } from './steps/company-step';
 import { BrandingStep } from './steps/branding-step';
 import { AdminStep } from './steps/admin-step';
@@ -18,7 +17,6 @@ import type { InstallState } from '../lib/validation';
 
 const STEPS = [
     'welcome',
-    'database',
     'company',
     'branding',
     'admin',
@@ -110,8 +108,6 @@ export function InstallWizard() {
         switch (STEPS[currentStep]) {
             case 'welcome':
                 return <WelcomeStep {...stepProps} />;
-            case 'database':
-                return <DatabaseStep {...stepProps} />;
             case 'company':
                 return <CompanyStep {...stepProps} />;
             case 'branding':
