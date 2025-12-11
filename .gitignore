@@ -76,7 +76,7 @@ public/swe-worker*.js
 
 # Reports & Scripts
 /report/
-build-output.txt
-eslint-report.json
-scripts/remaining-translations.json
-scripts/translations-needed.json
+/build-output.txt
+/eslint-report.json
+/scripts/remaining-translations.json
+/scripts/translations-needed.json
