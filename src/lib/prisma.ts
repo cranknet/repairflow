@@ -18,7 +18,12 @@ async function createPrismaClient(): Promise<PrismaClient> {
     const { PrismaMariaDb } = await import('@prisma/adapter-mariadb');
 
     const mariaDbUrl = (databaseUrl || '').replace(/^mysql:\/\//, 'mariadb://');
-    const pool = mariadb.createPool(mariaDbUrl);
+    const pool = mariadb.createPool({
+      uri: mariaDbUrl,
+      connectionLimit: 5,
+      acquireTimeout: 5000, // 5 second timeout
+      connectTimeout: 5000,
+    });
     const adapter = new PrismaMariaDb(pool);
 
     return new PrismaClient({
