@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
         }, {} as Record<string, string>);
 
         if (format === 'invoice') {
-            // Generate PDF
-            const stream = await renderToStream(
-                <InvoicePDF
-                    ticket={ticket}
-                    settings={settings}
-                    language={language as 'en' | 'fr' | 'ar'}
-                />
-            );
+            // Generate PDF - construct props first to avoid JSX in try/catch
+            const pdfProps = {
+                ticket,
+                settings,
+                language: language as 'en' | 'fr' | 'ar',
+            };
+            const pdfElement = React.createElement(InvoicePDF, pdfProps);
+            const stream = await renderToStream(pdfElement);
 
             // Convert stream to buffer to return (or stream directly)
             // Next.js App Router can return a Response with a ReadableStream

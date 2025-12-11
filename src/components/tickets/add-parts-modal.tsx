@@ -603,7 +603,7 @@ export function AddPartsModal({
                 <>
                   <h3 className="font-medium text-sm mb-2 text-muted-foreground flex items-center gap-1">
                     <LightBulbIcon className="h-4 w-4 text-amber-500" />
-                    {t('suggestedParts') || 'Suggested for'} "{deviceName}"
+                    {t('suggestedParts') || 'Suggested for'} &quot;{deviceName}&quot;
                   </h3>
                   <div className="border border-border rounded-lg">
                     <div className="divide-y divide-border">
