@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { EnvCheckResult } from '@/app/(setup)/install/lib/validation';
+import { isDatabaseConfigured } from '@/lib/install-check';
 
 /**
  * GET /api/install/environment
@@ -8,14 +9,16 @@ import type { EnvCheckResult } from '@/app/(setup)/install/lib/validation';
 export async function GET() {
     const checks: EnvCheckResult[] = [];
 
-    // Check DATABASE_URL
-    const databaseUrl = process.env.DATABASE_URL;
+    // Check DATABASE_URL - now optional during install (configured in database step)
+    const dbConfigured = isDatabaseConfigured();
     checks.push({
         key: 'DATABASE_URL',
-        label: 'Database URL',
-        status: databaseUrl ? 'ok' : 'error',
-        required: true,
-        message: databaseUrl ? 'Configured' : 'DATABASE_URL is required',
+        label: 'Database Configured',
+        status: dbConfigured ? 'ok' : 'warning',
+        required: false, // No longer required - will be configured in database step
+        message: dbConfigured
+            ? 'Database connection configured'
+            : 'Will be configured in the Database step',
     });
 
     // Check AUTH_SECRET / NEXTAUTH_SECRET
@@ -25,7 +28,7 @@ export async function GET() {
         label: 'Auth Secret',
         status: authSecret ? 'ok' : 'error',
         required: true,
-        message: authSecret ? 'Configured' : 'AUTH_SECRET or NEXTAUTH_SECRET is required',
+        message: authSecret ? 'Configured' : 'AUTH_SECRET or NEXTAUTH_SECRET is required in .env',
     });
 
     // Check SMTP configuration (optional)
@@ -39,7 +42,7 @@ export async function GET() {
         required: false,
         message: smtpConfigured
             ? 'Email sending configured'
-            : 'Email features will be limited without SMTP configuration',
+            : 'Optional: Email features can be configured later in Settings',
     });
 
     // Check EMAIL_ENCRYPTION_KEY (optional, for secure SMTP storage)

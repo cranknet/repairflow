@@ -1,47 +1,44 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { isDatabaseConfigured } from '@/lib/install-check';
 
 /**
  * GET /api/install/database
- * Test database connection
+ * Check current database configuration status (not connection test)
+ * The actual connection test is done via POST /api/install/database/configure
  */
 export async function GET() {
+    const dbConfigured = isDatabaseConfigured();
+    const provider = process.env.DB_PROVIDER || 'postgresql';
+
+    if (!dbConfigured) {
+        return NextResponse.json({
+            connected: false,
+            configured: false,
+            type: 'Not configured',
+            message: 'Please configure your database connection',
+        });
+    }
+
+    // If configured, try to connect
     try {
+        const { prisma } = await import('@/lib/prisma');
+
         // Test connection by running a simple query
         await prisma.$queryRaw`SELECT 1`;
 
         // Determine database type from DATABASE_URL
         const databaseUrl = process.env.DATABASE_URL || '';
-        let dbType = 'Unknown';
+        let dbType = provider === 'mysql' ? 'MySQL' : 'PostgreSQL';
 
-        if (databaseUrl.startsWith('file:') || databaseUrl.includes('.db')) {
-            dbType = 'SQLite';
-        } else if (databaseUrl.startsWith('postgresql://') || databaseUrl.startsWith('postgres://')) {
+        if (databaseUrl.startsWith('postgresql://') || databaseUrl.startsWith('postgres://')) {
             dbType = 'PostgreSQL';
         } else if (databaseUrl.startsWith('mysql://')) {
             dbType = 'MySQL';
         }
 
-        // Try to create initial settings to verify write access
-        await prisma.settings.upsert({
-            where: { key: 'install_db_test' },
-            update: { value: new Date().toISOString() },
-            create: {
-                key: 'install_db_test',
-                value: new Date().toISOString(),
-                description: 'Database write test during installation',
-            },
-        });
-
-        // Clean up test record
-        await prisma.settings.delete({
-            where: { key: 'install_db_test' },
-        }).catch(() => {
-            // Ignore if delete fails
-        });
-
         return NextResponse.json({
             connected: true,
+            configured: true,
             type: dbType,
             canRead: true,
             canWrite: true,
@@ -50,7 +47,8 @@ export async function GET() {
         console.error('Database connection error:', error);
         return NextResponse.json({
             connected: false,
-            type: 'Unknown',
+            configured: true,
+            type: provider === 'mysql' ? 'MySQL' : 'PostgreSQL',
             error: error instanceof Error ? error.message : 'Failed to connect to database',
         }, { status: 500 });
     }

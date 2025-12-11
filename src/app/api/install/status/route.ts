@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { isAppInstalled, isDatabaseConfigured } from '@/lib/install-check';
 
 /**
  * GET /api/install/status
@@ -7,18 +7,19 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET() {
     try {
-        const setting = await prisma.settings.findUnique({
-            where: { key: 'is_installed' },
-        });
+        const dbConfigured = isDatabaseConfigured();
+        const installed = dbConfigured ? await isAppInstalled() : false;
 
         return NextResponse.json({
-            isInstalled: setting?.value === 'true',
+            isInstalled: installed,
+            databaseConfigured: dbConfigured,
         });
     } catch (error) {
         // If database doesn't exist or can't connect, not installed
         console.error('Error checking install status:', error);
         return NextResponse.json({
             isInstalled: false,
+            databaseConfigured: false,
             error: 'Could not check installation status',
         });
     }

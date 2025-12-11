@@ -47,25 +47,15 @@ export const viewport: Viewport = {
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { isAppInstalled } from "@/lib/install-check";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check installation status
-  // We use a try-catch to handle potential DB issues during build or first run
-  let isInstalled = false;
-  try {
-    const isInstalledSetting = await prisma.settings.findUnique({
-      where: { key: "is_installed" },
-    });
-    isInstalled = isInstalledSetting?.value === "true";
-  } catch (error) {
-    console.error("Failed to check installation status:", error);
-    // If DB fails, assume not installed or handle gracefully
-  }
+  // Check installation status using helper that handles missing DB gracefully
+  const isInstalled = await isAppInstalled();
 
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";

@@ -1,14 +1,12 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { isAppInstalled } from "@/lib/install-check";
 import { InstallWizard } from "./components/install-wizard";
 
 export default async function InstallPage() {
     // Check if already installed - redirect to dashboard
-    const isInstalled = await prisma.settings.findUnique({
-        where: { key: "is_installed" },
-    });
+    const isInstalled = await isAppInstalled();
 
-    if (isInstalled?.value === "true") {
+    if (isInstalled) {
         redirect("/dashboard");
     }
 
