@@ -29,6 +29,12 @@ async function createPrismaClient(): Promise<PrismaClient> {
     });
   }
 
+  if (provider === 'sqlite' || databaseUrl?.startsWith('file:')) {
+    return new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    });
+  }
+
   if (provider === 'mysql') {
     // MySQL/MariaDB adapter using mariadb driver
     const { PrismaMariaDb } = await import('@prisma/adapter-mariadb');

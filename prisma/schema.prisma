@@ -2,12 +2,11 @@
 // This schema is used when DB_PROVIDER=mysql
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
 }
 
 model User {
@@ -47,7 +46,7 @@ model Customer {
   phone     String
   email     String?
   address   String?
-  notes     String?  @db.Text
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tickets   Ticket[]
@@ -63,9 +62,9 @@ model Ticket {
   assignedTo           User?                   @relation(fields: [assignedToId], references: [id])
   deviceBrand          String
   deviceModel          String
-  deviceIssue          String                  @db.Text
-  deviceConditionFront String?                 @db.LongText // Base64 image
-  deviceConditionBack  String?                 @db.LongText // Base64 image
+  deviceIssue          String
+  deviceConditionFront String? // Base64 image
+  deviceConditionBack  String? // Base64 image
   deviceColor          String? // Device color detected by AI or entered manually
   priority             String                  @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
   estimatedPrice       Float
@@ -74,8 +73,8 @@ model Ticket {
   paid                 Boolean                 @default(false)
   trackingCode         String                  @unique
   warrantyDays         Int?                    // Warranty period in days
-  warrantyText         String?                 @db.Text // Custom warranty text
-  notes                String?                 @db.Text
+  warrantyText         String? // Custom warranty text
+  notes                String?
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
   completedAt          DateTime?
@@ -97,7 +96,7 @@ model TicketStatusHistory {
   ticketId    String
   ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   status      String
-  notes       String?  @db.Text
+  notes       String?
   changedById String?
   changedBy   User?    @relation("StatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
@@ -121,7 +120,7 @@ model TicketPriceAdjustment {
   user               User      @relation(fields: [userId], references: [id])
   oldPrice           Float
   newPrice           Float
-  reason             String    @db.Text
+  reason             String
   createdAt          DateTime  @default(now())
   
   // Link to the automatically created adjustment payment
@@ -132,7 +131,7 @@ model Part {
   id                    String                 @id @default(cuid())
   name                  String
   sku                   String                 @unique
-  description           String?                @db.Text
+  description           String?
   quantity              Int                    @default(0)
   reorderLevel          Int                    @default(5)
   unitPrice             Float                  @default(0)
@@ -155,8 +154,8 @@ model Supplier {
   contactPerson String?
   email       String?
   phone       String?
-  address     String?  @db.Text
-  notes       String?  @db.Text
+  address     String?
+  notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   parts       Part[]
@@ -201,7 +200,7 @@ model InventoryTransaction {
   part      Part     @relation(fields: [partId], references: [id], onDelete: Cascade)
   type      String // IN, OUT, RETURN
   quantity  Int
-  reason    String?  @db.Text
+  reason    String?
   ticketId  String?
   createdAt DateTime @default(now())
   createdBy String?
@@ -211,12 +210,12 @@ model Return {
   id                    String              @id @default(cuid())
   ticketId              String
   ticket                Ticket              @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  reason                String              @db.Text
+  reason                String
   refundAmount          Float
   status                String              @default("PENDING") // PENDING, APPROVED, REJECTED
   originalTicketStatus  String?             // Store original ticket status for restoration on delete
   returnedTo            String?             // Optional field for return recipient
-  notes                 String?             @db.Text // Additional notes, separate from reason
+  notes                 String? // Additional notes, separate from reason
   createdBy             String              // userId who created the return
   createdByUser         User                @relation("ReturnCreatedBy", fields: [createdBy], references: [id])
   handledAt             DateTime?           // When admin approved/rejected
@@ -244,7 +243,7 @@ model Notification {
   ticketId  String?
   ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   type      String // STATUS_CHANGE, PRICE_ADJUSTMENT, ASSIGNMENT, etc.
-  message   String   @db.Text
+  message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
@@ -252,8 +251,8 @@ model Notification {
 model Settings {
   id          String   @id @default(cuid())
   key         String   @unique
-  value       String   @db.Text
-  description String?  @db.Text
+  value       String
+  description String?
   updatedAt   DateTime @updatedAt
 }
 
@@ -262,7 +261,7 @@ model LoginLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   ipAddress String?
-  userAgent String?  @db.Text
+  userAgent String?
   success   Boolean
   createdAt DateTime @default(now())
 }
@@ -281,7 +280,7 @@ model SMSTemplate {
   name       String
   templateId String // e.g., 'ticket_created', 'ticket_completed'
   language   String   @default("en") // en, ar, fr
-  message    String   @db.Text
+  message    String
   variables  String // JSON array of variable names
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
@@ -299,8 +298,8 @@ model Payment {
   method          String   @default("CASH") // cash, card, mobile, other
   currency        String?  // Currency code (from settings), nullable for backward compatibility
   reference       String?  // Optional transaction ID
-  reason          String?  @db.Text // Required when amount differs from outstanding or for adjustments
-  metadata        String?  @db.Text // JSON metadata (receipt number, gateway response, etc.)
+  reason          String? // Required when amount differs from outstanding or for adjustments
+  metadata        String? // JSON metadata (receipt number, gateway response, etc.)
   performedBy     String
   performedByUser User     @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
   createdAt       DateTime @default(now())
@@ -330,7 +329,7 @@ model ContactMessage {
   name        String
   email       String
   phone       String?
-  message     String   @db.Text
+  message     String
   status      String   @default("NEW") // NEW, READ, ARCHIVED
   assignedToId String?
   assignedTo  User?    @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -349,12 +348,12 @@ model SatisfactionRating {
   customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerEmail String
   rating        Int      // 1-5
-  comment       String?  @db.Text
+  comment       String?
   phoneNumber   String?  // Phone number for follow-up on low ratings
   verifiedBy    String   // TOKEN, EMAIL, AUTH
   overriddenBy  String?
   overriddenByUser User? @relation(fields: [overriddenBy], references: [id], onDelete: SetNull)
-  overrideReason String? @db.Text
+  overrideReason String?
   createdAt     DateTime @default(now())
 
   @@unique([ticketId, customerEmail])
@@ -370,7 +369,7 @@ model EmailSettings {
   smtpPort          Int      @default(587)
   smtpSecure        Boolean  @default(true)  // Use TLS
   smtpUser          String
-  smtpPassword      String   @db.Text // Encrypted in application layer
+  smtpPassword      String // Encrypted in application layer
 
   // Email Defaults
   fromEmail         String
@@ -402,7 +401,7 @@ model Expense {
   partId      String?
   part        Part?     @relation(fields: [partId], references: [id], onDelete: SetNull)
   deviceId    String?   // Could reference a specific device/ticket
-  notes       String?   @db.Text
+  notes       String?
   receiptUrl  String?   // Optional receipt image URL
   createdById String
   createdByUser User    @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
@@ -426,7 +425,7 @@ model InventoryAdjustment {
   qtyChange        Int       // Positive for additions, negative for removals
   cost             Float     // Cost of the adjustment
   costPerUnit      Float?    // Cost per unit (calculated or manual)
-  reason           String    @db.Text
+  reason           String
   relatedReturnId  String?   // Link to return if applicable
   ticketId         String?   // Link to ticket if part is added to a ticket
   ticket           Ticket?   @relation(fields: [ticketId], references: [id], onDelete: SetNull)
@@ -449,12 +448,12 @@ model JournalEntry {
   id            String   @id @default(cuid())
   type          String   // PAYMENT, REFUND, EXPENSE, INVENTORY_ADJUSTMENT, REVENUE
   amount        Float
-  description   String?  @db.Text
+  description   String?
   referenceType String   // TICKET, RETURN, PAYMENT, EXPENSE, INVENTORY_ADJUSTMENT
   referenceId   String   // ID of the referenced entity
   ticketId      String?  // Optional direct link to ticket
-  notes         String?  @db.Text
-  metadata      String?  @db.Text // JSON for additional data
+  notes         String?
+  metadata      String? // JSON for additional data
   createdById   String
   createdByUser User     @relation("JournalEntryCreatedBy", fields: [createdById], references: [id])
   createdAt     DateTime @default(now())
@@ -509,12 +508,12 @@ model ChatMessage {
   chat         Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId     String
   sender       User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  content      String         @db.Text
+  content      String
   replyToId    String?        // For reply threads
   replyTo      ChatMessage?   @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
   replies      ChatMessage[]  @relation("MessageReplies")
   isEdited     Boolean        @default(false)
-  attachments  String?        @db.Text // JSON array of attachment URLs
+  attachments  String? // JSON array of attachment URLs
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   deletedAt    DateTime?      // Soft delete support
