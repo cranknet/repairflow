@@ -315,6 +315,7 @@ export function Sidebar({ mobileMenuOpen = false, onMobileMenuClose }: SidebarPr
                   height={36}
                   className="object-contain flex-shrink-0 rounded-lg"
                   unoptimized
+                  loading="eager"
                 />
               )}
               <span className="text-base font-semibold text-gray-900 dark:text-white truncate">
