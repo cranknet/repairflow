@@ -566,11 +566,7 @@ export function SettingsClient({
 
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{t('userManagement')}</CardTitle>
-                    <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
-                  </div>
+                <div className="flex items-center justify-end">
                   <Button onClick={() => setShowNewUser(true)} variant="outline">
                     {t('addUser')}
                   </Button>

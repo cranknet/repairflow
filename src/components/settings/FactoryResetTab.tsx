@@ -69,22 +69,7 @@ export function FactoryResetTab() {
                 </Card>
 
                 <Card className="border-red-200 dark:border-red-800">
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                                <ExclamationTriangleIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-red-600 dark:text-red-400">
-                                    {t('factoryReset') || 'Factory Reset'}
-                                </CardTitle>
-                                <CardDescription>
-                                    {t('settings.factoryReset.description') || 'Reset all system settings and data to their initial state'}
-                                </CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="pt-6 space-y-6">
                         {/* Warning Section */}
                         <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4">
                             <h3 className="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">

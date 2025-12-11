@@ -220,10 +220,6 @@ export function SMSTemplatesManager() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>{t('smsTemplates')}</CardTitle>
-              <CardDescription>{t('manageSmsTemplates')}</CardDescription>
-            </div>
             <div className="flex items-center gap-2">
               <select
                 value={selectedLanguage}

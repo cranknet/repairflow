@@ -133,16 +133,7 @@ export function DatabaseSettingsTab({
 
             {/* Database Info */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <ServerIcon className="h-5 w-5" />
-                        {t('settings.database.title') || 'Database Management'}
-                    </CardTitle>
-                    <CardDescription>
-                        {t('settings.database.description') || 'Backup and restore your database'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-6 space-y-4">
                     <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                         <div className="flex items-center justify-between">
                             <div>

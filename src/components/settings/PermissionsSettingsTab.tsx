@@ -178,16 +178,7 @@ export function PermissionsSettingsTab({
 
             {/* Overview */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <ShieldCheckIcon className="h-5 w-5" />
-                        {t('settings.permissions.title') || 'Role Permissions'}
-                    </CardTitle>
-                    <CardDescription>
-                        {t('settings.permissions.description') || 'Configure what Staff users can access. Admins have full access to all features.'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                         <p className="text-sm text-blue-800 dark:text-blue-200">
                             <strong>Admin</strong> users always have full access to all features. Configure permissions below for <strong>Staff</strong> users.

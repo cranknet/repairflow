@@ -148,13 +148,7 @@ export function NotificationPreferences() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t('notificationPreferences')}</CardTitle>
-          <CardDescription>
-            {t('notificationPreferencesDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="pt-6 space-y-6">
           {ENTITY_TYPES.map((entity) => (
             <div key={entity.value} className="space-y-3">
               <h3 className="font-semibold text-lg">{t(entity.labelKey)}</h3>
