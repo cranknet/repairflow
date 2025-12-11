@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { format, isToday, isYesterday } from 'date-fns';
 import {
     ArrowLeftIcon,
@@ -116,11 +117,13 @@ export function ChatWindow({ chatId, onBack, onClose }: ChatWindowProps) {
 
                         if (isImage) {
                             return (
-                                <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block relative group">
-                                    <img
+                                <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="block relative group h-32 w-32">
+                                    <Image
                                         src={url}
                                         alt={filename}
-                                        className="h-32 rounded-lg object-cover border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                                        fill
+                                        className="rounded-lg object-cover border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                                        unoptimized
                                     />
                                 </a>
                             );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
 import {
@@ -288,18 +289,21 @@ export function ImageCropper({ imageData, onCrop, onCancel }: ImageCropperProps)
                     height: containerSize.height || 'auto',
                 }}
             >
-                {/* Original Image */}
-                <img
-                    ref={imageRef}
+                {/* Original Image - using native img for precise pixel-level cropping operations */}
+                <Image
+                    ref={imageRef as React.RefObject<HTMLImageElement>}
                     src={imageData}
                     alt="Receipt"
                     onLoad={handleImageLoad}
                     className="block"
+                    width={containerSize.width || 400}
+                    height={containerSize.height || 300}
                     style={{
                         width: containerSize.width || 'auto',
                         height: containerSize.height || 'auto',
                     }}
                     draggable={false}
+                    unoptimized
                 />
 
                 {/* Dark overlay outside crop area */}

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useLanguage } from '@/contexts/language-context';
 import {
     CheckCircleIcon,
@@ -102,11 +103,15 @@ export function WizardSidebar({ currentStep, totalSteps, installState }: WizardS
                         {t('install.sidebar.logoPreview') || 'Your Logo'}
                     </div>
                     <div className="flex justify-center p-4 bg-gray-50 dark:bg-slate-700 rounded-xl">
-                        <img
-                            src={installState.branding.logo}
-                            alt="Company Logo"
-                            className="max-h-20 object-contain"
-                        />
+                        <div className="relative h-20 w-full">
+                            <Image
+                                src={installState.branding.logo}
+                                alt="Company Logo"
+                                fill
+                                className="object-contain"
+                                unoptimized
+                            />
+                        </div>
                     </div>
                 </div>
             )}
