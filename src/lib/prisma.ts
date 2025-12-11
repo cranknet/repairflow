@@ -2,29 +2,46 @@ import 'server-only';
 
 import { PrismaClient } from '@prisma/client';
 
+// Check if we're in build mode or DATABASE_URL is not set
+function shouldSkipDbConnection(): boolean {
+  // Skip during build
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return true;
+  }
+  // Skip if no DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    return true;
+  }
+  return false;
+}
+
 // Dynamic adapter selection based on DB_PROVIDER
 async function createPrismaClient(): Promise<PrismaClient> {
   const provider = process.env.DB_PROVIDER || 'postgresql';
   const databaseUrl = process.env.DATABASE_URL;
 
-  if (!databaseUrl) {
-    console.warn('DATABASE_URL not set, Prisma client may not work correctly');
+  // During build or without DATABASE_URL, create a dummy client that will fail at runtime
+  if (shouldSkipDbConnection()) {
+    console.warn('Skipping database connection (build mode or no DATABASE_URL)');
+    // Return a PrismaClient without adapter - it will fail but won't block build
+    return new PrismaClient({
+      log: ['error'],
+    });
   }
 
   if (provider === 'mysql') {
     // MySQL/MariaDB adapter using mariadb driver
-    // Convert mysql:// to mariadb:// for the driver (Prisma CLI uses mysql://)
-    const mariadb = await import('mariadb');
     const { PrismaMariaDb } = await import('@prisma/adapter-mariadb');
 
-    const mariaDbUrl = (databaseUrl || '').replace(/^mysql:\/\//, 'mariadb://');
-    const pool = mariadb.createPool({
-      uri: mariaDbUrl,
-      connectionLimit: 5,
-      acquireTimeout: 5000, // 5 second timeout
-      connectTimeout: 5000,
+    // Parse the DATABASE_URL to extract connection details
+    const url = new URL(databaseUrl || 'mysql://localhost:3306/db');
+    const adapter = new PrismaMariaDb({
+      host: url.hostname,
+      port: parseInt(url.port || '3306', 10),
+      user: url.username,
+      password: decodeURIComponent(url.password || ''),
+      database: url.pathname.replace('/', '') || undefined,
     });
-    const adapter = new PrismaMariaDb(pool);
 
     return new PrismaClient({
       adapter,

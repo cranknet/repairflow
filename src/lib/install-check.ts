@@ -32,11 +32,13 @@ function isConnectionError(error: unknown): boolean {
         return (
             e.code === 'ECONNREFUSED' ||
             e.code === 'ENOTFOUND' ||
+            e.code === 'ENOENT' ||
             e.code === 'P1001' || // Can't reach database server
             e.code === 'P1002' || // Database server timeout
-            e.message?.includes('ECONNREFUSED') ||
-            e.message?.includes('connect ETIMEDOUT') ||
-            e.message?.includes('Connection refused')
+            (e.message?.includes('ECONNREFUSED') ?? false) ||
+            (e.message?.includes('connect ETIMEDOUT') ?? false) ||
+            (e.message?.includes('Connection refused') ?? false) ||
+            (e.message?.includes('pool timeout') ?? false)
         );
     }
     return false;
