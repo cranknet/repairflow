@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useLanguage } from '@/contexts/language-context';
 import { EnvelopeIcon, PhoneIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
@@ -40,14 +41,15 @@ export function TrackFooter({
                     {/* Brand */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <img
-                                src={logo}
-                                alt={storeName}
-                                className="h-10 w-auto object-contain"
-                                onError={(e) => {
-                                    e.currentTarget.src = '/default-logo.png';
-                                }}
-                            />
+                            <div className="relative h-10 w-10">
+                                <Image
+                                    src={logo || '/default-logo.png'}
+                                    alt={storeName}
+                                    fill
+                                    className="object-contain"
+                                    unoptimized
+                                />
+                            </div>
                             <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                                 {storeName}
                             </h3>

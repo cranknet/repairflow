@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useLanguage } from '@/contexts/language-context';
 import {
     DevicePhoneMobileIcon,
@@ -84,13 +85,15 @@ export function TrackDevice({ brand, model, issue, conditionFront, conditionBack
                                             onClick={() => setLightboxImage(conditionFront)}
                                             className="relative aspect-square rounded-xl overflow-hidden group"
                                         >
-                                            <img
+                                            <Image
                                                 src={conditionFront}
                                                 alt={t('beforeRepair')}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                unoptimized
                                             />
                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                                            <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-lg bg-black/50 text-white backdrop-blur-sm">
+                                            <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-lg bg-black/50 text-white backdrop-blur-sm z-10">
                                                 {t('beforeRepair')}
                                             </span>
                                         </button>
@@ -100,13 +103,15 @@ export function TrackDevice({ brand, model, issue, conditionFront, conditionBack
                                             onClick={() => setLightboxImage(conditionBack)}
                                             className="relative aspect-square rounded-xl overflow-hidden group"
                                         >
-                                            <img
+                                            <Image
                                                 src={conditionBack}
                                                 alt={t('afterRepair')}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                unoptimized
                                             />
                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                                            <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-lg bg-black/50 text-white backdrop-blur-sm">
+                                            <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-lg bg-black/50 text-white backdrop-blur-sm z-10">
                                                 {t('afterRepair')}
                                             </span>
                                         </button>
@@ -124,12 +129,15 @@ export function TrackDevice({ brand, model, issue, conditionFront, conditionBack
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
                     onClick={() => setLightboxImage(null)}
                 >
-                    <img
-                        src={lightboxImage}
-                        alt={t('conditionPhotos')}
-                        className="max-w-full max-h-full object-contain rounded-lg"
-                        onClick={(e) => e.stopPropagation()}
-                    />
+                    <div className="relative max-w-full max-h-full w-full h-full" onClick={(e) => e.stopPropagation()}>
+                        <Image
+                            src={lightboxImage}
+                            alt={t('conditionPhotos')}
+                            fill
+                            className="object-contain rounded-lg"
+                            unoptimized
+                        />
+                    </div>
                     <button
                         onClick={() => setLightboxImage(null)}
                         className={`absolute top-4 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors ${language === 'ar' ? 'left-4' : 'right-4'
