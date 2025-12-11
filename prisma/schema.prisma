@@ -1,5 +1,4 @@
-// MySQL Schema for RepairFlow
-// This schema is used when DB_PROVIDER=mysql
+// RepairFlow Database Schema (SQLite)
 
 generator client {
   provider = "prisma-client-js"
@@ -7,6 +6,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
