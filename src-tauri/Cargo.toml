@@ -1,0 +1,30 @@
+[package]
+name = "repairflow"
+version = "1.0.0"
+description = "RepairFlow Desktop Application"
+authors = ["RepairFlow Contributors"]
+license = "MIT"
+repository = "https://github.com/cranknet/repairflow"
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "repairflow_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["shell-open"] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serialport = "4"
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+thiserror = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
