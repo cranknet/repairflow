@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 import { InventoryAdjustmentFormModal } from '@/components/finance/InventoryAdjustmentFormModal';
@@ -79,11 +79,7 @@ export default function InventoryAdjustmentsPage() {
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
     const limit = 25;
 
-    useEffect(() => {
-        fetchAdjustments();
-    }, [page, searchTerm]);
-
-    const fetchAdjustments = async () => {
+    const fetchAdjustments = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({
@@ -102,7 +98,11 @@ export default function InventoryAdjustmentsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page]);
+
+    useEffect(() => {
+        fetchAdjustments();
+    }, [fetchAdjustments]);
 
     // Calculate stats
     const stats = useMemo(() => {

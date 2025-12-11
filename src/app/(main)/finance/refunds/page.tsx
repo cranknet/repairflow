@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { ApproveReturnModal } from '@/components/finance/ApproveReturnModal';
 import Link from 'next/link';
@@ -91,11 +91,7 @@ export default function RefundsPage() {
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
 
-    useEffect(() => {
-        fetchReturns();
-    }, [statusFilter]);
-
-    const fetchReturns = async () => {
+    const fetchReturns = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
@@ -111,7 +107,11 @@ export default function RefundsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [statusFilter]);
+
+    useEffect(() => {
+        fetchReturns();
+    }, [fetchReturns]);
 
     const handleApprove = (returnData: Return) => {
         setSelectedReturn(returnData);

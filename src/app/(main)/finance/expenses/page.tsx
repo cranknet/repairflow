@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { ExpenseFormModal } from '@/components/finance/ExpenseFormModal';
 import Link from 'next/link';
@@ -78,11 +78,7 @@ export default function ExpensesPage() {
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
     const limit = 25;
 
-    useEffect(() => {
-        fetchExpenses();
-    }, [page, typeFilter, searchTerm]);
-
-    const fetchExpenses = async () => {
+    const fetchExpenses = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({
@@ -104,7 +100,11 @@ export default function ExpensesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, typeFilter, searchTerm]);
+
+    useEffect(() => {
+        fetchExpenses();
+    }, [fetchExpenses]);
 
     const handleDelete = async (id: string) => {
         if (!confirm(t('finance.messages.deleteExpenseConfirm'))) return;

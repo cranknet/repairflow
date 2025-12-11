@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 import { formatId } from '@/lib/utils';
@@ -77,11 +77,7 @@ export default function PaymentsPage() {
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
     const limit = 25;
 
-    useEffect(() => {
-        fetchPayments();
-    }, [page, searchTerm, methodFilter]);
-
-    const fetchPayments = async () => {
+    const fetchPayments = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({
@@ -103,7 +99,11 @@ export default function PaymentsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, searchTerm, methodFilter]);
+
+    useEffect(() => {
+        fetchPayments();
+    }, [fetchPayments]);
 
     // Calculate stats
     const stats = useMemo(() => {
