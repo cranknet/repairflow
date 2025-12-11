@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
+import { MapPinIcon } from '@heroicons/react/24/outline';
 
 interface TrackingSettingsTabProps {
     settings: Record<string, string>;
@@ -65,6 +66,23 @@ export function TrackingSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-violet-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25">
+                            <MapPinIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.tracking.title') || 'Tracking Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.tracking.description') || 'Configure public tracking page and customer communication'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Public Tracking */}
             <Card>
                 <CardHeader>

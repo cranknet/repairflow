@@ -159,6 +159,23 @@ export function PermissionsSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-purple-500/10 via-fuchsia-500/10 to-pink-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-lg shadow-purple-500/25">
+                            <ShieldCheckIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.permissions.title') || 'Role Permissions'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.permissions.description') || 'Configure what Staff users can access. Admins have full access to all features.'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Overview */}
             <Card>
                 <CardHeader>
@@ -216,8 +233,8 @@ export function PermissionsSettingsTab({
                                             type="button"
                                             onClick={() => toggleAllPermissions(feature.id, feature.permissions!)}
                                             className={`px-2 py-1 text-xs rounded transition-colors ${hasAllPermissions(feature.id, feature.permissions!)
-                                                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
+                                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
                                                 }`}
                                         >
                                             {hasAllPermissions(feature.id, feature.permissions!)
@@ -232,8 +249,8 @@ export function PermissionsSettingsTab({
                                                 type="button"
                                                 onClick={() => togglePermission(feature.id, permission)}
                                                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasPermission(feature.id, permission)
-                                                        ? 'bg-primary-500 text-white'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                                                    ? 'bg-primary-500 text-white'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
                                                     }`}
                                             >
                                                 {PERMISSION_LABELS[permission] || permission}
@@ -247,8 +264,8 @@ export function PermissionsSettingsTab({
                                         type="button"
                                         onClick={() => togglePermission(feature.id, 'access')}
                                         className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${hasPermission(feature.id, 'access')
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                                            ? 'bg-primary-500 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
                                             }`}
                                     >
                                         {hasPermission(feature.id, 'access') ? 'Access Granted' : 'No Access'}

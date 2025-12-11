@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
+import { CubeIcon } from '@heroicons/react/24/outline';
 
 interface InventorySettingsTabProps {
     settings: Record<string, string>;
@@ -65,6 +66,23 @@ export function InventorySettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25">
+                            <CubeIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.inventory.title') || 'Inventory Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.inventory.description') || 'Configure inventory tracking and stock management'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Inventory Tracking */}
             <Card>
                 <CardHeader>

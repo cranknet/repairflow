@@ -19,6 +19,8 @@ import { TEMPLATE_IDS } from '@/lib/sms-templates';
 import { useLanguage } from '@/contexts/language-context';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+
 interface SMSTemplate {
   id: string;
   name: string;
@@ -198,6 +200,23 @@ export function SMSTemplatesManager() {
 
   return (
     <div className="space-y-6">
+      {/* Header Card */}
+      <Card className="overflow-hidden border-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/25">
+              <ChatBubbleLeftRightIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">{t('settings.sms.title') || 'SMS Templates'}</CardTitle>
+              <CardDescription>
+                {t('settings.sms.description') || 'Manage SMS notification templates for customer communication'}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

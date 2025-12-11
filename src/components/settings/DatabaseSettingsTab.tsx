@@ -10,7 +10,8 @@ import {
     ArrowUpTrayIcon,
     ServerIcon,
     ExclamationTriangleIcon,
-    CheckCircleIcon
+    CheckCircleIcon,
+    CircleStackIcon
 } from '@heroicons/react/24/outline';
 
 interface DatabaseSettingsTabProps {
@@ -113,6 +114,23 @@ export function DatabaseSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-cyan-500/10 via-teal-500/10 to-emerald-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-white shadow-lg shadow-cyan-500/25">
+                            <CircleStackIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.database.title') || 'Database Management'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.database.description') || 'Backup and restore your database'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Database Info */}
             <Card>
                 <CardHeader>

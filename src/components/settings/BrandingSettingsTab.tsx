@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/language-context';
-import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, XMarkIcon, SwatchIcon } from '@heroicons/react/24/outline';
 
 interface BrandingSettingsTabProps {
     settings: Record<string, string>;
@@ -43,6 +43,23 @@ export function BrandingSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-red-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/25">
+                            <SwatchIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.branding.title') || 'Branding Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.branding.description') || 'Customize your company logo, colors, and visual identity'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Company Logo */}
             <Card>
                 <CardHeader>

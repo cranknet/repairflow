@@ -121,173 +121,189 @@ export function EmailSettingsTab() {
     const smtpSecure = watch('smtpSecure');
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <EnvelopeIcon className="h-5 w-5" />
-                    {t('settings.email.title')}
-                </CardTitle>
-                <CardDescription>
-                    {t('settings.email.description')}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    {/* SMTP Server Settings */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">{t('settings.email.smtpServer')}</h3>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="smtpHost">{t('settings.email.host')} *</Label>
-                                <Input
-                                    id="smtpHost"
-                                    {...register('smtpHost')}
-                                    placeholder="smtp.gmail.com"
-                                />
-                                {errors.smtpHost && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.smtpHost.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="smtpPort">{t('settings.email.port')} *</Label>
-                                <Input
-                                    id="smtpPort"
-                                    type="number"
-                                    {...register('smtpPort')}
-                                    placeholder="587"
-                                />
-                                {errors.smtpPort && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.smtpPort.message}</p>
-                                )}
-                            </div>
+        <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-teal-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg shadow-blue-500/25">
+                            <EnvelopeIcon className="w-6 h-6" />
                         </div>
-
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                <Switch
-                                    id="smtpSecure"
-                                    checked={smtpSecure}
-                                    onCheckedChange={(checked) => setValue('smtpSecure', checked)}
-                                />
-                                <Label htmlFor="smtpSecure">{t('settings.email.useTls')}</Label>
-                            </div>
-                            <p className="text-sm text-muted-foreground ml-8">
-                                Port 587 uses STARTTLS (turn this OFF). Port 465 uses implicit TLS (turn this ON).
-                            </p>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.email.title') || 'Email Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.email.description') || 'Configure SMTP settings for sending emails from RepairFlow'}
+                            </CardDescription>
                         </div>
                     </div>
+                </CardHeader>
+            </Card>
 
-                    {/* Authentication */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">{t('settings.email.authentication')}</h3>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <EnvelopeIcon className="h-5 w-5" />
+                        {t('settings.email.smtpServer')}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        {/* SMTP Server Settings */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">{t('settings.email.smtpServer')}</h3>
 
-                        <div>
-                            <Label htmlFor="smtpUser">{t('settings.email.username')} *</Label>
-                            <Input
-                                id="smtpUser"
-                                type="email"
-                                {...register('smtpUser')}
-                                placeholder="your-email@gmail.com"
-                            />
-                            {errors.smtpUser && (
-                                <p className="text-sm text-red-500 mt-1">{errors.smtpUser.message}</p>
-                            )}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="smtpHost">{t('settings.email.host')} *</Label>
+                                    <Input
+                                        id="smtpHost"
+                                        {...register('smtpHost')}
+                                        placeholder="smtp.gmail.com"
+                                    />
+                                    {errors.smtpHost && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.smtpHost.message}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="smtpPort">{t('settings.email.port')} *</Label>
+                                    <Input
+                                        id="smtpPort"
+                                        type="number"
+                                        {...register('smtpPort')}
+                                        placeholder="587"
+                                    />
+                                    {errors.smtpPort && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.smtpPort.message}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <Switch
+                                        id="smtpSecure"
+                                        checked={smtpSecure}
+                                        onCheckedChange={(checked) => setValue('smtpSecure', checked)}
+                                    />
+                                    <Label htmlFor="smtpSecure">{t('settings.email.useTls')}</Label>
+                                </div>
+                                <p className="text-sm text-muted-foreground ml-8">
+                                    Port 587 uses STARTTLS (turn this OFF). Port 465 uses implicit TLS (turn this ON).
+                                </p>
+                            </div>
                         </div>
 
-                        <div>
-                            <Label htmlFor="smtpPassword">{t('settings.email.password')} *</Label>
-                            <Input
-                                id="smtpPassword"
-                                type="password"
-                                {...register('smtpPassword')}
-                                placeholder={configured ? '••••••••' : 'Enter password'}
-                            />
-                            {errors.smtpPassword && (
-                                <p className="text-sm text-red-500 mt-1">{errors.smtpPassword.message}</p>
-                            )}
-                        </div>
-                    </div>
+                        {/* Authentication */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">{t('settings.email.authentication')}</h3>
 
-                    {/* Email Defaults */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">{t('settings.email.defaults')}</h3>
-
-                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="fromEmail">{t('settings.email.fromEmail')} *</Label>
+                                <Label htmlFor="smtpUser">{t('settings.email.username')} *</Label>
                                 <Input
-                                    id="fromEmail"
+                                    id="smtpUser"
                                     type="email"
-                                    {...register('fromEmail')}
-                                    placeholder="noreply@repairflow.com"
+                                    {...register('smtpUser')}
+                                    placeholder="your-email@gmail.com"
                                 />
-                                {errors.fromEmail && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.fromEmail.message}</p>
+                                {errors.smtpUser && (
+                                    <p className="text-sm text-red-500 mt-1">{errors.smtpUser.message}</p>
                                 )}
                             </div>
 
                             <div>
-                                <Label htmlFor="fromName">{t('settings.email.fromName')} *</Label>
+                                <Label htmlFor="smtpPassword">{t('settings.email.password')} *</Label>
                                 <Input
-                                    id="fromName"
-                                    {...register('fromName')}
-                                    placeholder="RepairFlow"
+                                    id="smtpPassword"
+                                    type="password"
+                                    {...register('smtpPassword')}
+                                    placeholder={configured ? '••••••••' : 'Enter password'}
                                 />
-                                {errors.fromName && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.fromName.message}</p>
+                                {errors.smtpPassword && (
+                                    <p className="text-sm text-red-500 mt-1">{errors.smtpPassword.message}</p>
                                 )}
                             </div>
                         </div>
 
-                        <div>
-                            <Label htmlFor="replyToEmail">{t('settings.email.replyTo')}</Label>
-                            <Input
-                                id="replyToEmail"
-                                type="email"
-                                {...register('replyToEmail')}
-                                placeholder="support@repairflow.com"
-                            />
+                        {/* Email Defaults */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">{t('settings.email.defaults')}</h3>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="fromEmail">{t('settings.email.fromEmail')} *</Label>
+                                    <Input
+                                        id="fromEmail"
+                                        type="email"
+                                        {...register('fromEmail')}
+                                        placeholder="noreply@repairflow.com"
+                                    />
+                                    {errors.fromEmail && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.fromEmail.message}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="fromName">{t('settings.email.fromName')} *</Label>
+                                    <Input
+                                        id="fromName"
+                                        {...register('fromName')}
+                                        placeholder="RepairFlow"
+                                    />
+                                    {errors.fromName && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.fromName.message}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label htmlFor="replyToEmail">{t('settings.email.replyTo')}</Label>
+                                <Input
+                                    id="replyToEmail"
+                                    type="email"
+                                    {...register('replyToEmail')}
+                                    placeholder="support@repairflow.com"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4">
-                        <Button type="submit" disabled={loading}>
-                            {loading && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
-                            {configured ? t('settings.email.update') : t('settings.email.save')}
-                        </Button>
-
-                        {configured && (
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={sendTestEmail}
-                                disabled={testing}
-                            >
-                                {testing ? (
-                                    <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <PaperAirplaneIcon className="mr-2 h-4 w-4" />
-                                )}
-                                {t('settings.email.sendTest')}
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 pt-4">
+                            <Button type="submit" disabled={loading}>
+                                {loading && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
+                                {configured ? t('settings.email.update') : t('settings.email.save')}
                             </Button>
-                        )}
-                    </div>
-                </form>
 
-                {/* Common SMTP Providers Help */}
-                <div className="mt-8 p-4 bg-muted rounded-lg">
-                    <h4 className="font-semibold mb-2">{t('settings.email.providers.title')}</h4>
-                    <ul className="text-sm space-y-1 text-muted-foreground">
-                        <li><strong>{t('settings.email.providers.gmail')}</strong></li>
-                        <li><strong>{t('settings.email.providers.outlook')}</strong></li>
-                        <li><strong>{t('settings.email.providers.sendgrid')}</strong></li>
-                        <li><strong>{t('settings.email.providers.mailgun')}</strong></li>
-                    </ul>
-                </div>
-            </CardContent>
-        </Card>
+                            {configured && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={sendTestEmail}
+                                    disabled={testing}
+                                >
+                                    {testing ? (
+                                        <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <PaperAirplaneIcon className="mr-2 h-4 w-4" />
+                                    )}
+                                    {t('settings.email.sendTest')}
+                                </Button>
+                            )}
+                        </div>
+                    </form>
+
+                    {/* Common SMTP Providers Help */}
+                    <div className="mt-8 p-4 bg-muted rounded-lg">
+                        <h4 className="font-semibold mb-2">{t('settings.email.providers.title')}</h4>
+                        <ul className="text-sm space-y-1 text-muted-foreground">
+                            <li><strong>{t('settings.email.providers.gmail')}</strong></li>
+                            <li><strong>{t('settings.email.providers.outlook')}</strong></li>
+                            <li><strong>{t('settings.email.providers.sendgrid')}</strong></li>
+                            <li><strong>{t('settings.email.providers.mailgun')}</strong></li>
+                        </ul>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     );
 }

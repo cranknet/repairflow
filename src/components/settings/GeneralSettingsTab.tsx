@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
 import { CURRENCIES } from '@/lib/currencies';
 import { COUNTRIES } from '@/lib/countries';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 
 interface GeneralSettingsTabProps {
@@ -26,6 +27,23 @@ export function GeneralSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-violet-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25">
+                            <Cog6ToothIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.general.title') || 'General Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.general.description') || 'Configure company information and regional preferences'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Company Information */}
             <Card>
                 <CardHeader>

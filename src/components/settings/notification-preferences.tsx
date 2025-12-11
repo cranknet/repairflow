@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import { useSession } from 'next-auth/react';
+import { BellIcon } from '@heroicons/react/24/outline';
 
 interface NotificationPreference {
   id?: string;
@@ -52,7 +53,7 @@ export function NotificationPreferences() {
 
   const fetchPreferences = async () => {
     if (!session?.user?.id) return;
-    
+
     setIsLoading(true);
     try {
       const response = await fetch(`/api/notifications/preferences`);
@@ -72,7 +73,7 @@ export function NotificationPreferences() {
       const existing = prev.find(
         (p) => p.entityType === entityType && p.action === action
       );
-      
+
       if (existing) {
         return prev.map((p) =>
           p.entityType === entityType && p.action === action
@@ -94,7 +95,7 @@ export function NotificationPreferences() {
 
   const savePreferences = async () => {
     if (!session?.user?.id) return;
-    
+
     setIsSaving(true);
     try {
       const response = await fetch('/api/notifications/preferences', {
@@ -128,64 +129,83 @@ export function NotificationPreferences() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('notificationPreferences')}</CardTitle>
-        <CardDescription>
-          {t('notificationPreferencesDescription')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {ENTITY_TYPES.map((entity) => (
-          <div key={entity.value} className="space-y-3">
-            <h3 className="font-semibold text-lg">{t(entity.labelKey)}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {ACTIONS.filter((action) => {
-                // Filter actions based on entity type
-                if (entity.value === 'customer' || entity.value === 'supplier') {
-                  return ['created', 'updated', 'deleted'].includes(action.value);
-                }
-                if (entity.value === 'ticket') {
-                  return ['created', 'updated', 'status_changed', 'deleted'].includes(action.value);
-                }
-                if (entity.value === 'payment') {
-                  return ['created'].includes(action.value);
-                }
-                if (entity.value === 'charge') {
-                  return ['added', 'removed'].includes(action.value);
-                }
-                if (entity.value === 'repairjob') {
-                  return ['assigned', 'completed', 'updated'].includes(action.value);
-                }
-                if (entity.value === 'part') {
-                  return ['used', 'removed'].includes(action.value);
-                }
-                return false;
-              }).map((action) => (
-                <label
-                  key={`${entity.value}-${action.value}`}
-                  className="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  <input
-                    type="checkbox"
-                    checked={getPreference(entity.value, action.value)}
-                    onChange={() => togglePreference(entity.value, action.value)}
-                    className="rounded"
-                  />
-                  <span className="text-sm">{t(action.labelKey)}</span>
-                </label>
-              ))}
+    <div className="space-y-6">
+      {/* Header Card */}
+      <Card className="overflow-hidden border-0 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-yellow-500/10">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/25">
+              <BellIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">{t('settings.notifications.title') || 'Notification Preferences'}</CardTitle>
+              <CardDescription>
+                {t('settings.notifications.description') || 'Choose which notifications you want to receive'}
+              </CardDescription>
             </div>
           </div>
-        ))}
-        
-        <div className="pt-4 border-t">
-          <Button onClick={savePreferences} disabled={isSaving}>
-            {isSaving ? t('saving') : t('savePreferences')}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('notificationPreferences')}</CardTitle>
+          <CardDescription>
+            {t('notificationPreferencesDescription')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {ENTITY_TYPES.map((entity) => (
+            <div key={entity.value} className="space-y-3">
+              <h3 className="font-semibold text-lg">{t(entity.labelKey)}</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {ACTIONS.filter((action) => {
+                  // Filter actions based on entity type
+                  if (entity.value === 'customer' || entity.value === 'supplier') {
+                    return ['created', 'updated', 'deleted'].includes(action.value);
+                  }
+                  if (entity.value === 'ticket') {
+                    return ['created', 'updated', 'status_changed', 'deleted'].includes(action.value);
+                  }
+                  if (entity.value === 'payment') {
+                    return ['created'].includes(action.value);
+                  }
+                  if (entity.value === 'charge') {
+                    return ['added', 'removed'].includes(action.value);
+                  }
+                  if (entity.value === 'repairjob') {
+                    return ['assigned', 'completed', 'updated'].includes(action.value);
+                  }
+                  if (entity.value === 'part') {
+                    return ['used', 'removed'].includes(action.value);
+                  }
+                  return false;
+                }).map((action) => (
+                  <label
+                    key={`${entity.value}-${action.value}`}
+                    className="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={getPreference(entity.value, action.value)}
+                      onChange={() => togglePreference(entity.value, action.value)}
+                      className="rounded"
+                    />
+                    <span className="text-sm">{t(action.labelKey)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="pt-4 border-t">
+            <Button onClick={savePreferences} disabled={isSaving}>
+              {isSaving ? t('saving') : t('savePreferences')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

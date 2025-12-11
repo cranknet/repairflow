@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
 import { CURRENCIES } from '@/lib/currencies';
+import { BanknotesIcon } from '@heroicons/react/24/outline';
 
 interface FinanceSettingsTabProps {
     settings: Record<string, string>;
@@ -66,6 +67,23 @@ export function FinanceSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-lime-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25">
+                            <BanknotesIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.finance.title') || 'Finance Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.finance.description') || 'Configure currency, taxes, and payment methods'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Currency Settings */}
             <Card>
                 <CardHeader>
@@ -182,8 +200,8 @@ export function FinanceSettingsTab({
                                             onSettingChange('payment_methods', newMethods.filter(Boolean).join(','));
                                         }}
                                         className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isSelected
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                                            ? 'bg-primary-500 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
                                             }`}
                                     >
                                         {labels[method]}

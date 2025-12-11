@@ -5,6 +5,7 @@ import { useTheme } from '@/components/theme-provider';
 import { useLanguage } from '@/contexts/language-context';
 import { getAllThemes, ThemeId, ThemeDefinition } from '@/lib/themes';
 import { CheckCircleIcon, ComputerDesktopIcon } from '@heroicons/react/24/solid';
+import { SwatchIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 /**
@@ -147,6 +148,23 @@ export function ThemeCustomizer() {
 
   return (
     <div className="space-y-6">
+      {/* Header Card */}
+      <Card className="overflow-hidden border-0 bg-gradient-to-r from-fuchsia-500/10 via-pink-500/10 to-rose-500/10">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-fuchsia-500 to-pink-600 text-white shadow-lg shadow-fuchsia-500/25">
+              <SwatchIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl">{t('settings.themes.title') || 'Theme Settings'}</CardTitle>
+              <CardDescription>
+                {t('settings.themes.description') || 'Customize the look and feel of your application'}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>{t('theme.selectTheme')}</CardTitle>

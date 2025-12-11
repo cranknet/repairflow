@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
+import { TicketIcon } from '@heroicons/react/24/outline';
 
 interface TicketSettingsTabProps {
     settings: Record<string, string>;
@@ -65,6 +66,23 @@ export function TicketSettingsTab({
 
     return (
         <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-sky-500/10 via-blue-500/10 to-cyan-500/10">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25">
+                            <TicketIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl">{t('settings.tickets.title') || 'Ticket Settings'}</CardTitle>
+                            <CardDescription>
+                                {t('settings.tickets.description') || 'Configure ticket creation and workflow behavior'}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Ticket Workflow */}
             <Card>
                 <CardHeader>

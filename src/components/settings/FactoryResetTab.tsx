@@ -51,6 +51,23 @@ export function FactoryResetTab() {
     return (
         <>
             <div className="space-y-6">
+                {/* Header Card */}
+                <Card className="overflow-hidden border-0 bg-gradient-to-r from-red-500/10 via-rose-500/10 to-pink-500/10">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/25">
+                                <ExclamationTriangleIcon className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-xl text-red-600 dark:text-red-400">{t('settings.factoryReset.title') || 'Factory Reset'}</CardTitle>
+                                <CardDescription>
+                                    {t('settings.factoryReset.description') || 'Reset all system settings and data to their initial state'}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                </Card>
+
                 <Card className="border-red-200 dark:border-red-800">
                     <CardHeader>
                         <div className="flex items-center gap-3">
