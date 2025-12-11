@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -137,8 +137,36 @@ export function TrackContent() {
       .catch(console.error);
   }, []);
 
+  // Polling for real-time updates - defined before handleTrack which uses it
+  const startPolling = useCallback((ticketNum: string, code: string) => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+
+    pollingIntervalRef.current = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetch(`/api/track?ticket=${encodeURIComponent(ticketNum)}&code=${encodeURIComponent(code)}`)
+          .then(async (res) => {
+            if (res.ok) {
+              const data = await res.json();
+              if (data) {
+                setTicket(data);
+                if (['COMPLETED', 'CANCELLED', 'RETURNED'].includes(data.status)) {
+                  if (pollingIntervalRef.current) {
+                    clearInterval(pollingIntervalRef.current);
+                    pollingIntervalRef.current = null;
+                  }
+                }
+              }
+            }
+          })
+          .catch(console.error);
+      }
+    }, 30000);
+  }, []);
+
   // Handle tracking
-  const handleTrack = async (ticketNumber: string, trackingCode: string) => {
+  const handleTrack = useCallback(async (ticketNumber: string, trackingCode: string) => {
     if (!ticketNumber || !trackingCode) {
       setError(t('unableToLocateTicket'));
       return;
@@ -181,35 +209,7 @@ export function TrackContent() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Polling for real-time updates
-  const startPolling = (ticketNum: string, code: string) => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-    }
-
-    pollingIntervalRef.current = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        fetch(`/api/track?ticket=${encodeURIComponent(ticketNum)}&code=${encodeURIComponent(code)}`)
-          .then(async (res) => {
-            if (res.ok) {
-              const data = await res.json();
-              if (data) {
-                setTicket(data);
-                if (['COMPLETED', 'CANCELLED', 'RETURNED'].includes(data.status)) {
-                  if (pollingIntervalRef.current) {
-                    clearInterval(pollingIntervalRef.current);
-                    pollingIntervalRef.current = null;
-                  }
-                }
-              }
-            }
-          })
-          .catch(console.error);
-      }
-    }, 30000);
-  };
+  }, [t, router, startPolling]);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -227,7 +227,7 @@ export function TrackContent() {
     if (ticketFromUrl && codeFromUrl) {
       handleTrack(ticketFromUrl.toUpperCase(), codeFromUrl.toUpperCase());
     }
-  }, []);
+  }, [handleTrack, searchParams]);
 
   return (
     <div

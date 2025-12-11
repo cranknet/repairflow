@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -82,7 +82,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
     mode: 'onChange',
   });
 
-  const fetchCustomers = () => {
+  const fetchCustomers = useCallback(() => {
     fetch('/api/customers')
       .then((res) => res.json())
       .then((data) => {
@@ -102,7 +102,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
         }
       })
       .catch((err) => console.error('Error fetching customers:', err));
-  };
+  }, [watch, setValue, trigger]);
 
   useEffect(() => {
     if (isOpen) {
@@ -110,7 +110,7 @@ export function NewTicketModal({ isOpen, onClose, onSuccess }: NewTicketModalPro
       fetchStaffUsers();
       fetchCurrency();
     }
-  }, [isOpen]);
+  }, [isOpen, fetchCustomers]);
 
   const fetchCurrency = () => {
     fetch('/api/settings/public')

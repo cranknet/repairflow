@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -112,14 +113,7 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Trigger AI detection when back image is available
-  useEffect(() => {
-    if (data.backImage && isOnline && aiConfigured && detectionStatus === 'idle') {
-      runAIDetection();
-    }
-  }, [data.backImage, isOnline, aiConfigured]);
-
-  const runAIDetection = async () => {
+  const runAIDetection = useCallback(async () => {
     if (!data.backImage) return;
 
     setDetectionStatus('detecting');
@@ -192,7 +186,14 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
         variant: 'destructive',
       });
     }
-  };
+  }, [data, onChange, toast, t]);
+
+  // Trigger AI detection when back image is available
+  useEffect(() => {
+    if (data.backImage && isOnline && aiConfigured && detectionStatus === 'idle') {
+      runAIDetection();
+    }
+  }, [data.backImage, isOnline, aiConfigured, detectionStatus, runAIDetection]);
 
   // File/Camera handlers
   const handleFileSelect = (type: 'front' | 'back') => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -470,18 +471,20 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
         <Card className="overflow-hidden border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
           <CardContent className="p-3 sm:p-4">
             {data.backImage ? (
-              <div className="relative">
-                <img
+              <div className="relative h-40 sm:h-52">
+                <Image
                   src={data.backImage}
                   alt={t('deviceBack')}
-                  className="w-full h-40 sm:h-52 object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                  fill
+                  className="object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                  unoptimized
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => removeImage('back')}
-                  className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0"
+                  className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0 z-10"
                 >
                   <XMarkIcon className="h-4 w-4" />
                 </Button>
@@ -612,18 +615,20 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
               </p>
 
               {data.frontImage ? (
-                <div className="relative">
-                  <img
+                <div className="relative h-32 sm:h-40">
+                  <Image
                     src={data.frontImage}
                     alt={t('deviceFront')}
-                    className="w-full h-32 sm:h-40 object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                    fill
+                    className="object-contain rounded border bg-gray-50 dark:bg-gray-800"
+                    unoptimized
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => removeImage('front')}
-                    className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0"
+                    className="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 h-8 w-8 p-0 z-10"
                   >
                     <XMarkIcon className="h-4 w-4" />
                   </Button>
@@ -714,7 +719,7 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                   className="w-full text-left px-3 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  {t('add') || 'Add'} "{data.brand}"
+                  {t('add') || 'Add'} &quot;{data.brand}&quot;
                 </button>
               )}
             </div>
@@ -757,7 +762,7 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                   className="w-full text-left px-3 py-2 hover:bg-primary-100 dark:hover:bg-primary-900 text-sm text-primary-600 dark:text-primary-400 font-medium border-t border-gray-300 dark:border-gray-700 flex items-center gap-2"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  {t('add') || 'Add'} "{data.model}"
+                  {t('add') || 'Add'} &quot;{data.model}&quot;
                 </button>
               )}
             </div>

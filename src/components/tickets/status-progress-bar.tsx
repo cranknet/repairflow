@@ -259,6 +259,48 @@ export function StatusProgressBar({
         return null;
     }, [isPaymentDue]);
 
+    // Execute status transition - defined before functions that use it
+    const executeTransition = useCallback(async (targetStatus: string, notes?: string) => {
+        setIsUpdating(true);
+
+        try {
+            const response = await fetch(`/api/tickets/${ticket.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    status: targetStatus,
+                    statusNotes: notes || undefined,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update status');
+            }
+
+            toast({
+                title: t('success'),
+                description: t('ticketStatusUpdated'),
+            });
+
+            setShowCancelModal(false);
+            setCancelReason('');
+            setJustUpdated(true);
+
+            onStatusChange?.();
+            router.refresh();
+        } catch (error) {
+            toast({
+                title: t('error'),
+                description: error instanceof Error ? error.message : t('failedToUpdateTicketStatus'),
+                variant: 'destructive',
+            });
+        } finally {
+            setIsUpdating(false);
+        }
+    }, [ticket.id, toast, t, onStatusChange, router]);
+
     // Handle step click/re-click
     const handleStepClick = useCallback(async (stepStatus: string) => {
         if (isUpdating || isTerminal) return;
@@ -309,49 +351,7 @@ export function StatusProgressBar({
 
         // Direct transition without modal
         await executeTransition(stepStatus);
-    }, [ticket.status, isUpdating, isTerminal, getModalForStatus, checkTransition, onOpenPartsModal, onOpenPaymentModal, onOpenReturnModal, toast, t]);
-
-    // Execute status transition
-    const executeTransition = async (targetStatus: string, notes?: string) => {
-        setIsUpdating(true);
-
-        try {
-            const response = await fetch(`/api/tickets/${ticket.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    status: targetStatus,
-                    statusNotes: notes || undefined,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to update status');
-            }
-
-            toast({
-                title: t('success'),
-                description: t('ticketStatusUpdated'),
-            });
-
-            setShowCancelModal(false);
-            setCancelReason('');
-            setJustUpdated(true);
-
-            onStatusChange?.();
-            router.refresh();
-        } catch (error) {
-            toast({
-                title: t('error'),
-                description: error instanceof Error ? error.message : t('failedToUpdateTicketStatus'),
-                variant: 'destructive',
-            });
-        } finally {
-            setIsUpdating(false);
-        }
-    };
+    }, [ticket.status, isUpdating, isTerminal, getModalForStatus, checkTransition, onOpenPartsModal, onOpenPaymentModal, onOpenReturnModal, toast, t, executeTransition]);
 
     // Handle "No Parts Required" skip
     const handleSkipParts = useCallback(async () => {
@@ -366,7 +366,7 @@ export function StatusProgressBar({
                 variant: 'destructive',
             });
         }
-    }, [checkTransition, toast, t]);
+    }, [checkTransition, toast, t, executeTransition]);
 
     // Handle cancel confirmation
     const handleCancelConfirm = () => {
