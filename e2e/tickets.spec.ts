@@ -23,13 +23,25 @@ test.describe('Ticket Creation Flow', () => {
         // Fill in pricing
         await page.fill('[name="estimatedPrice"]', '299');
 
+        // Upload device photo (Back)
+        // Note: Using the ID pattern found in code: file-device-back-photo
+        await page.setInputFiles('input[id^="file-device-back-photo"]', {
+            name: 'test-device.png',
+            mimeType: 'image/png',
+            buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64')
+        });
+
         // Submit the form
         await page.click('button[type="submit"]');
 
-        // Verify success
-        await expect(page.locator('text=Ticket created successfully')).toBeVisible({
-            timeout: 5000
+        // Verify success toast
+        await expect(page.locator('text=Ticket Created')).toBeVisible({
+            timeout: 10000
         });
+
+        // Verify redirection to details page and Print button existence
+        await expect(page).toHaveURL(/\/tickets\/.+/);
+        await expect(page.locator('button', { hasText: /print/i })).toBeVisible();
     });
 
     test('should show validation errors for empty required fields', async ({ page }) => {

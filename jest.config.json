@@ -4,8 +4,7 @@
         "<rootDir>/jest.setup.js"
     ],
     "testMatch": [
-        "**/__tests__/**/*.test.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[jt]s?(x)"
+        "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}"
     ],
     "moduleNameMapper": {
         "^@/(.*)$": "<rootDir>/src/$1",
@@ -33,7 +32,9 @@
         "src/**/*.{js,jsx,ts,tsx}",
         "!src/**/*.d.ts",
         "!src/**/*.stories.{js,jsx,ts,tsx}",
-        "!src/**/__tests__/**"
+        "!src/**/*.stories.{js,jsx,ts,tsx}",
+        "!src/**/__tests__/**",
+        "!<rootDir>/e2e/**"
     ],
     "coverageThreshold": {
         "global": {

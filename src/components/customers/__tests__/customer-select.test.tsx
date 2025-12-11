@@ -1,7 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import { CustomerSelect } from '../customer-select';
 
+// Mock useLanguage hook with relative path to avoid alias issues
+jest.mock('../../../contexts/language-context', () => ({
+    useLanguage: () => ({
+        t: (key: string) => {
+            if (key === 'searchByNamePhoneOrEmail') return 'Search by name, phone, or email...';
+            return key;
+        },
+        language: 'en',
+        dir: 'ltr',
+    }),
+}));
+
 describe('CustomerSelect', () => {
+
     const mockCustomers = [
         { id: '1', name: 'John Doe', phone: '123-456-7890', email: 'john@example.com' },
         { id: '2', name: 'Jane Smith', phone: '987-654-3210', email: 'jane@example.com' },
@@ -15,7 +28,7 @@ describe('CustomerSelect', () => {
                 onChange={() => { }}
             />
         );
-        expect(screen.getByLabelText(/customer/i)).toBeInTheDocument();
+        expect(screen.getByPlaceholderText(/search by name/i)).toBeInTheDocument();
     });
 
     it('filters customers by name', () => {
