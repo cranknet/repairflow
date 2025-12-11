@@ -12,12 +12,12 @@ async function createPrismaClient(): Promise<PrismaClient> {
   }
 
   if (provider === 'mysql') {
-    // MySQL adapter using mysql2
-    const mysql = await import('mysql2/promise');
-    const { PrismaMySql } = await import('@prisma/adapter-mysql');
+    // MySQL/MariaDB adapter using mariadb driver
+    const mariadb = await import('mariadb');
+    const { PrismaMariaDb } = await import('@prisma/adapter-mariadb');
 
-    const pool = mysql.createPool(databaseUrl || '');
-    const adapter = new PrismaMySql(pool);
+    const pool = mariadb.createPool(databaseUrl || '');
+    const adapter = new PrismaMariaDb(pool);
 
     return new PrismaClient({
       adapter,

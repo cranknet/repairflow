@@ -72,12 +72,14 @@ export async function testDbConnection(config: DbConfig): Promise<DbConnectionRe
                 version: result.rows[0]?.version || 'PostgreSQL',
             };
         } else {
-            // Use mysql2 module
-            const mysql = await import('mysql2/promise');
-            const connection = await mysql.createConnection(url);
+            // Use mariadb module for MySQL/MariaDB
+            const mariadb = await import('mariadb');
+            const pool = mariadb.createPool(url);
+            const connection = await pool.getConnection();
 
-            const [rows] = await connection.query('SELECT VERSION() as version');
-            await connection.end();
+            const rows = await connection.query('SELECT VERSION() as version');
+            connection.release();
+            await pool.end();
 
             const version = Array.isArray(rows) && rows[0]
                 ? (rows[0] as { version: string }).version
