@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/language-context';
@@ -123,9 +123,13 @@ export function PermissionsSettingsTab({
     );
 
     // Update settings when permissions change
-    useEffect(() => {
+    const updatePermissions = useCallback(() => {
         onSettingChange('permissions_staff', JSON.stringify(staffPermissions));
-    }, [staffPermissions]);
+    }, [onSettingChange, staffPermissions]);
+
+    useEffect(() => {
+        updatePermissions();
+    }, [updatePermissions]);
 
     const togglePermission = (featureId: string, permission: string) => {
         setStaffPermissions(prev => {

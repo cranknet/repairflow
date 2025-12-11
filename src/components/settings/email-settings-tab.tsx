@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -49,11 +49,7 @@ export function EmailSettingsTab() {
         }
     });
 
-    useEffect(() => {
-        loadSettings();
-    }, []);
-
-    const loadSettings = async () => {
+    const loadSettings = useCallback(async () => {
         try {
             const res = await fetch('/api/settings/email');
             const data = await res.json();
@@ -74,7 +70,11 @@ export function EmailSettingsTab() {
         } catch (error) {
             toast({ title: t('error'), description: t('settings.email.loadError'), variant: 'destructive' });
         }
-    };
+    }, [reset, toast, t]);
+
+    useEffect(() => {
+        loadSettings();
+    }, [loadSettings]);
 
     const onSubmit = async (data: EmailSettingsFormData) => {
         setLoading(true);

@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,6 @@ import { FinanceSettingsTab } from './FinanceSettingsTab';
 import { PrintSettingsTab } from './PrintSettingsTab';
 import { TrackingSettingsTab } from './TrackingSettingsTab';
 import { SecuritySettingsTab } from './SecuritySettingsTab';
-import { DatabaseSettingsTab } from './DatabaseSettingsTab';
 import { PermissionsSettingsTab } from './PermissionsSettingsTab';
 import { SMSTemplatesManager } from './sms-templates-manager';
 import { ThemeCustomizer } from './theme-customizer';
@@ -55,8 +54,8 @@ export function SettingsClient({
   const { refreshSettings } = useSettings();
   const { data: session } = useSession();
 
-  // Define all tabs with Heroicons
-  const TABS: SettingsTab[] = [
+  // Define all tabs with Heroicons - memoized to prevent recreating on every render
+  const TABS: SettingsTab[] = useMemo(() => [
     { id: 'general', label: t('generalSettings'), icon: SETTINGS_ICONS.general },
     { id: 'branding', label: t('branding'), icon: SETTINGS_ICONS.branding },
     { id: 'tickets', label: t('tickets') || 'Tickets', icon: SETTINGS_ICONS.tickets },
@@ -72,10 +71,9 @@ export function SettingsClient({
     { id: 'ai_vision', label: t('settings.aiVision') || 'AI Vision', icon: SETTINGS_ICONS.ai_vision },
     { id: 'appearance', label: t('appearance'), icon: SETTINGS_ICONS.appearance },
     { id: 'permissions', label: t('settings.permissions') || 'Permissions', icon: SETTINGS_ICONS.permissions, adminOnly: true },
-    { id: 'database', label: t('settings.database') || 'Database', icon: SETTINGS_ICONS.database, adminOnly: true },
     { id: 'users', label: t('userManagement'), icon: SETTINGS_ICONS.users, adminOnly: true },
     { id: 'factory_reset', label: t('settings.tab.factoryReset') || 'Factory Reset', icon: SETTINGS_ICONS.factory_reset, adminOnly: true },
-  ];
+  ], [t]);
 
   // State
   const [activeTab, setActiveTab] = useState('general');
@@ -141,7 +139,7 @@ export function SettingsClient({
         }
       }
     }
-  }, [users.length]);
+  }, [TABS, editingUser, users]);
 
   // Setting change handler
   const handleSettingChange = (key: string, value: string) => {
@@ -520,14 +518,6 @@ export function SettingsClient({
             onSettingChange={handleSettingChange}
             onSave={handleSaveSettings}
             isSaving={isSaving}
-          />
-        )}
-
-        {/* Database */}
-        {activeTab === 'database' && (
-          <DatabaseSettingsTab
-            settings={settings}
-            onSettingChange={handleSettingChange}
           />
         )}
 
