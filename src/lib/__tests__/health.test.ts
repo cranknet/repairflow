@@ -1,5 +1,6 @@
 /**
  * Health Endpoint Unit Tests
+ * @jest-environment node
  */
 import { GET } from '@/app/api/health/route';
 import { prisma } from '@/lib/prisma';

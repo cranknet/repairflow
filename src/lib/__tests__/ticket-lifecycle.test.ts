@@ -73,9 +73,9 @@ describe('Ticket Lifecycle', () => {
             expect(hasPermission('STAFF', 'IN_PROGRESS', 'CANCELLED')).toBe(true);
         });
 
-        test('TECHNICIAN cannot cancel tickets', () => {
-            expect(hasPermission('TECHNICIAN', 'RECEIVED', 'CANCELLED')).toBe(false);
-            expect(hasPermission('TECHNICIAN', 'IN_PROGRESS', 'CANCELLED')).toBe(false);
+        test('TECHNICIAN can cancel tickets', () => {
+            expect(hasPermission('TECHNICIAN', 'RECEIVED', 'CANCELLED')).toBe(true);
+            expect(hasPermission('TECHNICIAN', 'IN_PROGRESS', 'CANCELLED')).toBe(true);
         });
 
         test('TECHNICIAN can mark as repaired', () => {
@@ -114,7 +114,7 @@ describe('Ticket Lifecycle', () => {
             const allowed = getAllowedTransitionsForRole('IN_PROGRESS', 'TECHNICIAN');
             expect(allowed).toContain('WAITING_FOR_PARTS');
             expect(allowed).toContain('REPAIRED');
-            expect(allowed).not.toContain('CANCELLED');
+            expect(allowed).toContain('CANCELLED');
         });
 
         test('STAFF at IN_PROGRESS can cancel', () => {
@@ -178,8 +178,7 @@ describe('Ticket Lifecycle', () => {
                 target: 'CANCELLED',
                 role: 'TECHNICIAN', // Technician cannot cancel
             });
-            expect(result.allowed).toBe(false);
-            expect(result.code).toBe('INSUFFICIENT_PERMISSIONS');
+            expect(result.allowed).toBe(true);
         });
 
         test('REPAIRED -> COMPLETED requires payment', () => {

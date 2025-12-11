@@ -66,6 +66,13 @@ npm run analyze
 ### Database Queries
 Use Prisma Studio or connect directly to check slow queries.
 
+### Dashboard & Alerting
+- **Uptime Monitoring**: Use a service like UptimeRobot or Pingdom to monitor `/api/health`.
+- **Alerting**: Configure alerts for:
+  - Non-200 responses from `/api/health`
+  - High memory usage (via Docker stats)
+  - Repeated 500 errors in logs
+
 ## Troubleshooting
 
 See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for common issues.

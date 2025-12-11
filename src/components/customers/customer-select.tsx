@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useLanguage } from '@/contexts/language-context';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -27,6 +28,7 @@ export function CustomerSelect({
   error,
   disabled,
 }: CustomerSelectProps) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -89,7 +91,7 @@ export function CustomerSelect({
                 setShowDropdown(true);
               }
             }}
-            placeholder="Search by name, phone, or email..."
+            placeholder={t('searchByNamePhoneOrEmail') || "Search by name, phone, or email..."}
             disabled={disabled}
             autoComplete="off"
             className="pl-10 pr-10"

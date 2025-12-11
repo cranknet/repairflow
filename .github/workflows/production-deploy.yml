@@ -181,8 +181,8 @@ jobs:
         run: npm ci
 
       - name: Run i18n check
-        run: npm run i18n:check
-        continue-on-error: true
+        run: npm run i18n:check:strict
+        continue-on-error: false
 
   # ========================================
   # Stage 6: Build Docker Image
@@ -269,12 +269,27 @@ jobs:
         run: docker rm -f repairflow-test || true
 
   # ========================================
-  # Stage 8: Deploy Summary
+  # Stage 9: Promote to Production (Manual Gate)
+  # ========================================
+  promote-production:
+    name: Promote to Production
+    runs-on: ubuntu-latest
+    needs: [smoke-test]
+    environment: production
+    steps:
+      - name: Promote Docker Image
+        run: |
+          echo "Promoting image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }} to production"
+          # In a real scenario, this might tag the image as 'production' or trigger a webhook
+          echo "✅ Promotion complete"
+
+  # ========================================
+  # Stage 10: Deploy Summary
   # ========================================
   deploy-summary:
     name: Deploy Summary
     runs-on: ubuntu-latest
-    needs: [smoke-test, e2e-tests, i18n-check]
+    needs: [unit-tests, smoke-test, promote-production, e2e-tests, i18n-check]
     if: always()
     steps:
       - name: Generate deployment summary
@@ -290,5 +305,6 @@ jobs:
           echo "| i18n Check | ${{ needs.i18n-check.result == 'success' && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker Build | ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "| Smoke Test | ${{ needs.smoke-test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Promotion | ${{ needs.promote-production.result == 'success' && '✅' || '⏸️' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** \`${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
