@@ -2115,6 +2115,8 @@
   "settings.twoFactorAuthDescription": "Renforcer la sécurité du compte avec 2FA",
   "settings.twoFactorEnabled": "Double authentification activée",
   "settings.twoFactorEnabledDescription": "Exiger l'authentification à deux facteurs pour la connexion",
+  "settings.users.description": "Gérer les comptes du personnel et des administrateurs",
+  "settings.users.title": "Gestion des utilisateurs",
   "settings.vatEnabled": "Activer TVA/Taxe",
   "settings.vatEnabledDescription": "Appliquer la TVA/Taxe aux factures et à la tarification",
   "settings.vatNumber": "Numéro de TVA",

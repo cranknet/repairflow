@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { PencilIcon, TrashIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ClockIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
@@ -546,75 +546,94 @@ export function SettingsClient({
 
         {/* User Management */}
         {activeTab === 'users' && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{t('userManagement')}</CardTitle>
-                  <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
-                </div>
-                <Button onClick={() => setShowNewUser(true)} variant="outline">
-                  {t('addUser')}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-soft transition-all gap-3"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{user.name || user.username}</p>
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${user.role === 'ADMIN'
-                          ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 dark:from-blue-900 dark:to-purple-900 dark:text-blue-300'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                          }`}>
-                          {user.role}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
-                        {user.username} • {user.email || t('noEmail')}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewLoginLogs(user)}
-                        className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
-                      >
-                        <ClockIcon className="h-4 w-4" />
-                        <span className="hidden sm:inline">{t('loginLogs')}</span>
-                        <span className="sm:hidden">Logs</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditUser(user)}
-                        className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                        {t('edit')}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
-                        disabled={isDeleting === user.id || user.id === session?.user?.id}
-                        className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 flex-1 sm:flex-none justify-center"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                        {isDeleting === user.id ? t('deleting') : t('delete')}
-                      </Button>
-                    </div>
+          <div className="space-y-6">
+            {/* Header Card */}
+            <Card className="overflow-hidden border-0 bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-cyan-500/10">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/25">
+                    <UsersIcon className="w-6 h-6" />
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div>
+                    <CardTitle className="text-xl">{t('settings.users.title') || 'User Management'}</CardTitle>
+                    <CardDescription>
+                      {t('settings.users.description') || 'Manage staff and administrator accounts'}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{t('userManagement')}</CardTitle>
+                    <CardDescription>{t('manageStaffAndAdmin')}</CardDescription>
+                  </div>
+                  <Button onClick={() => setShowNewUser(true)} variant="outline">
+                    {t('addUser')}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  {users.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-soft transition-all gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{user.name || user.username}</p>
+                          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${user.role === 'ADMIN'
+                            ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 dark:from-blue-900 dark:to-purple-900 dark:text-blue-300'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                            }`}>
+                            {user.role}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
+                          {user.username} • {user.email || t('noEmail')}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewLoginLogs(user)}
+                          className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
+                        >
+                          <ClockIcon className="h-4 w-4" />
+                          <span className="hidden sm:inline">{t('loginLogs')}</span>
+                          <span className="sm:hidden">Logs</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          className="flex items-center gap-1.5 flex-1 sm:flex-none justify-center"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          {t('edit')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={isDeleting === user.id || user.id === session?.user?.id}
+                          className="flex items-center gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 flex-1 sm:flex-none justify-center"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                          {isDeleting === user.id ? t('deleting') : t('delete')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
 

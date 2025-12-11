@@ -2115,6 +2115,8 @@
   "settings.twoFactorAuthDescription": "تعزيز أمان الحساب باستخدام المصادقة الثنائية (2FA)",
   "settings.twoFactorEnabled": "تم تمكين المصادقة الثنائية",
   "settings.twoFactorEnabledDescription": "طلب المصادقة الثنائية لتسجيل الدخول",
+  "settings.users.description": "إدارة حسابات الموظفين والمسؤولين",
+  "settings.users.title": "إدارة المستخدمين",
   "settings.vatEnabled": "تمكين ضريبة القيمة المضافة (VAT)/الضريبة",
   "settings.vatEnabledDescription": "تطبيق ضريبة القيمة المضافة/الضريبة على الفواتير والتسعير",
   "settings.vatNumber": "رقم ضريبة القيمة المضافة (VAT)",

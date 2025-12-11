@@ -2129,6 +2129,8 @@
   "settings.twoFactorAuthDescription": "Enhance account security with 2FA",
   "settings.twoFactorEnabled": "Two-Factor Enabled",
   "settings.twoFactorEnabledDescription": "Require two-factor authentication for login",
+  "settings.users.description": "Manage staff and administrator accounts",
+  "settings.users.title": "User Management",
   "settings.vatEnabled": "Enable VAT/Tax",
   "settings.vatEnabledDescription": "Apply VAT/tax to invoices and pricing",
   "settings.vatNumber": "VAT Number",
