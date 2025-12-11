@@ -13,10 +13,12 @@ async function createPrismaClient(): Promise<PrismaClient> {
 
   if (provider === 'mysql') {
     // MySQL/MariaDB adapter using mariadb driver
+    // Convert mysql:// to mariadb:// for the driver (Prisma CLI uses mysql://)
     const mariadb = await import('mariadb');
     const { PrismaMariaDb } = await import('@prisma/adapter-mariadb');
 
-    const pool = mariadb.createPool(databaseUrl || '');
+    const mariaDbUrl = (databaseUrl || '').replace(/^mysql:\/\//, 'mariadb://');
+    const pool = mariadb.createPool(mariaDbUrl);
     const adapter = new PrismaMariaDb(pool);
 
     return new PrismaClient({

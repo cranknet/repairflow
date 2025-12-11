@@ -25,6 +25,7 @@ export interface DbConnectionResult {
 
 /**
  * Build a database URL from config
+ * Uses mysql:// for Prisma CLI compatibility
  */
 export function buildDatabaseUrl(config: DbConfig): string {
     const { provider, host, port, database, username, password } = config;
@@ -33,9 +34,16 @@ export function buildDatabaseUrl(config: DbConfig): string {
     if (provider === 'postgresql') {
         return `postgresql://${username}:${encodedPassword}@${host}:${port}/${database}?schema=public`;
     } else {
-        // MariaDB driver requires mariadb:// protocol (works with MySQL too)
-        return `mariadb://${username}:${encodedPassword}@${host}:${port}/${database}`;
+        // Use mysql:// for Prisma CLI compatibility
+        return `mysql://${username}:${encodedPassword}@${host}:${port}/${database}`;
     }
+}
+
+/**
+ * Convert a mysql:// URL to mariadb:// for the mariadb driver
+ */
+export function toMariaDbUrl(url: string): string {
+    return url.replace(/^mysql:\/\//, 'mariadb://');
 }
 
 /**
@@ -74,8 +82,10 @@ export async function testDbConnection(config: DbConfig): Promise<DbConnectionRe
             };
         } else {
             // Use mariadb module for MySQL/MariaDB
+            // Convert mysql:// to mariadb:// for the driver
             const mariadb = await import('mariadb');
-            const pool = mariadb.createPool(url);
+            const mariaDbUrl = toMariaDbUrl(url);
+            const pool = mariadb.createPool(mariaDbUrl);
             const connection = await pool.getConnection();
 
             const rows = await connection.query('SELECT VERSION() as version');
