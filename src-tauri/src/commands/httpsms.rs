@@ -17,6 +17,7 @@ struct HttpSmsRequest {
 
 /// Response from httpSMS API
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct HttpSmsResponse {
     status: String,
     message: Option<String>,
@@ -24,6 +25,7 @@ struct HttpSmsResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct HttpSmsData {
     id: Option<String>,
 }

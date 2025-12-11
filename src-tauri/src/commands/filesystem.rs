@@ -49,18 +49,11 @@ pub async fn validate_database_path(path: String) -> Result<bool, String> {
 }
 
 /// Open a file dialog to select database location
+/// Note: Requires tauri-plugin-dialog, currently returns None
 #[tauri::command]
-pub async fn select_database_path(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    use tauri_plugin_dialog::DialogExt;
-    
-    let file_path = app.dialog()
-        .file()
-        .add_filter("SQLite Database", &["db", "sqlite", "sqlite3"])
-        .set_file_name("repairflow.db")
-        .save_file();
-
-    // Note: This is a simplified version. In production, you'd use async dialog
-    // For now, return None to indicate dialog wasn't used
+pub async fn select_database_path(_app: tauri::AppHandle) -> Result<Option<String>, String> {
+    // Dialog plugin not installed yet - return None
+    // TODO: Install tauri-plugin-dialog for file picker
     Ok(None)
 }
 
