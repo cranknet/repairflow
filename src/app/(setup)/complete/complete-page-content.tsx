@@ -27,7 +27,7 @@ export function CompletePageContent({ dashboardUrl }: { dashboardUrl: string }) 
             <Card className="border-0 shadow-none">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
-                        <Image src="/default-logo.png" alt="RepairFlow Logo" width={128} height={128} unoptimized />
+                        <Image src="/default-logo.png" alt="RepairFlow Logo" width={128} height={128} unoptimized loading="eager" />
                     </div>
                     <div className="flex justify-center mb-4">
                         <CheckCircleIcon className="h-16 w-16 text-green-500" />
