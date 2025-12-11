@@ -24,6 +24,25 @@ export function isDatabaseConfigured(): boolean {
 }
 
 /**
+ * Check if a Prisma error is a connection-related error
+ */
+function isConnectionError(error: unknown): boolean {
+    if (error && typeof error === 'object') {
+        const e = error as { code?: string; message?: string };
+        return (
+            e.code === 'ECONNREFUSED' ||
+            e.code === 'ENOTFOUND' ||
+            e.code === 'P1001' || // Can't reach database server
+            e.code === 'P1002' || // Database server timeout
+            e.message?.includes('ECONNREFUSED') ||
+            e.message?.includes('connect ETIMEDOUT') ||
+            e.message?.includes('Connection refused')
+        );
+    }
+    return false;
+}
+
+/**
  * Check if the app is installed by querying the database
  * Returns false if database is not configured or query fails
  */
@@ -43,7 +62,10 @@ export async function isAppInstalled(): Promise<boolean> {
 
         return isInstalledSetting?.value === 'true';
     } catch (error) {
-        console.error('Failed to check installation status:', error);
+        // Only log non-connection errors (connection errors are expected during install)
+        if (!isConnectionError(error)) {
+            console.error('Failed to check installation status:', error);
+        }
         return false;
     }
 }
