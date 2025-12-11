@@ -72,3 +72,7 @@ logs
 public/sw.js
 public/sw.js.map
 public/swe-worker*.js
+
+# Reports & Scripts
+/report/
+/scripts/
