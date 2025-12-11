@@ -33,7 +33,8 @@ export function buildDatabaseUrl(config: DbConfig): string {
     if (provider === 'postgresql') {
         return `postgresql://${username}:${encodedPassword}@${host}:${port}/${database}?schema=public`;
     } else {
-        return `mysql://${username}:${encodedPassword}@${host}:${port}/${database}`;
+        // MariaDB driver requires mariadb:// protocol (works with MySQL too)
+        return `mariadb://${username}:${encodedPassword}@${host}:${port}/${database}`;
     }
 }
 
