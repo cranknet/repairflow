@@ -3,6 +3,7 @@ name: Production Deploy Pipeline
 on:
   push:
     branches:
+      - main
       - release/production-ready
   workflow_dispatch:
     inputs:
