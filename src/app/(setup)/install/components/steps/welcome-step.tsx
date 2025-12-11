@@ -68,6 +68,7 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
                                 width={48}
                                 height={48}
                                 unoptimized
+                                loading="eager"
                             />
                         </div>
                         <div>
