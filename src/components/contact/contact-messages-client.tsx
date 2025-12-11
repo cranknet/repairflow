@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/language-context';
@@ -99,15 +99,7 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    fetchMessages();
-  }, [statusFilter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch('/api/users/staff');
       if (response.ok) {
@@ -117,9 +109,9 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
     } catch (error) {
       console.error('Error fetching users:', error);
     }
-  };
+  }, []);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -142,7 +134,15 @@ export function ContactMessagesClient({ initialMessages, canDelete }: ContactMes
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, toast, t]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
   // Calculate stats
   const stats = useMemo(() => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, KeyboardEvent, ChangeEvent } from 'react';
+import Image from 'next/image';
 import { PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -109,38 +110,6 @@ export function MentionInput({ onSend, disabled, placeholder = 'Type a message..
         }, 0);
     }, [value, mentionStart, mentionQuery]);
 
-    // Handle keyboard navigation in suggestions
-    const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (showSuggestions && suggestions.length > 0) {
-            switch (e.key) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    setSelectedIndex((prev) => (prev + 1) % suggestions.length);
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    setSelectedIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
-                    break;
-                case 'Enter':
-                case 'Tab':
-                    e.preventDefault();
-                    insertMention(suggestions[selectedIndex]);
-                    break;
-                case 'Escape':
-                    e.preventDefault();
-                    setShowSuggestions(false);
-                    break;
-            }
-            return;
-        }
-
-        // Send on Enter (without Shift)
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    }, [showSuggestions, suggestions, selectedIndex, insertMention]);
-
     // Handle file selection
     const handleFileSelect = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -181,7 +150,7 @@ export function MentionInput({ onSend, disabled, placeholder = 'Type a message..
         setAttachments((prev) => prev.filter((_, i) => i !== index));
     }, []);
 
-    // Send message
+    // Send message - defined before handleKeyDown to avoid "used before declaration" error
     const handleSend = useCallback(async () => {
         const content = value.trim();
         const attachmentUrls = attachments.map((a) => a.url);
@@ -198,6 +167,38 @@ export function MentionInput({ onSend, disabled, placeholder = 'Type a message..
             setIsSending(false);
         }
     }, [value, attachments, isSending, onSend]);
+
+    // Handle keyboard navigation in suggestions
+    const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (showSuggestions && suggestions.length > 0) {
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    setSelectedIndex((prev) => (prev + 1) % suggestions.length);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    setSelectedIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+                    break;
+                case 'Enter':
+                case 'Tab':
+                    e.preventDefault();
+                    insertMention(suggestions[selectedIndex]);
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    setShowSuggestions(false);
+                    break;
+            }
+            return;
+        }
+
+        // Send on Enter (without Shift)
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    }, [showSuggestions, suggestions, selectedIndex, insertMention, handleSend]);
 
     return (
         <div className="relative">
@@ -284,7 +285,9 @@ export function MentionInput({ onSend, disabled, placeholder = 'Type a message..
                     {attachments.map((att, idx) => (
                         <div key={idx} className="relative group">
                             {att.type.startsWith('image/') ? (
-                                <img src={att.url} alt={att.filename} className="h-16 w-16 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+                                <div className="relative h-16 w-16">
+                                    <Image src={att.url} alt={att.filename} fill className="object-cover rounded-lg border border-gray-200 dark:border-gray-700" unoptimized />
+                                </div>
                             ) : (
                                 <div className="h-16 px-3 flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                                     <span className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[100px]">{att.filename}</span>

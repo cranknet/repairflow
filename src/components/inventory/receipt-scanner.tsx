@@ -117,7 +117,7 @@ export function ReceiptScanner({ onComplete }: ReceiptScannerProps) {
                 })
                 .catch(() => { });
         }
-    }, [scanResult]);
+    }, [scanResult, suppliers.length]);
 
     // Check online status with state to track changes
     const [isOnline, setIsOnline] = useState(true);
