@@ -36,7 +36,7 @@ function getDateRanges() {
 // Data Fetchers
 async function getHeroData() {
   const { previousWeekStart, previousWeekEnd, lastWeekStart } = getDateRanges();
-  
+
   const [
     activeTickets,
     previousWeekActiveTickets,
@@ -60,8 +60,8 @@ async function getHeroData() {
       where: { createdAt: { lte: previousWeekEnd } },
     }),
     prisma.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*) as count FROM Part WHERE quantity <= reorderLevel
-    `.then((result) => Number(result[0]?.count || 0)),
+      SELECT COUNT(*) as count FROM "Part" WHERE quantity <= "reorderLevel"
+    `.then((result) => Number(result[0]?.count || 0)).catch(() => 0),
     prisma.ticket.aggregate({
       where: { status: 'COMPLETED', completedAt: { gte: lastWeekStart } },
       _sum: { finalPrice: true },
@@ -124,7 +124,7 @@ async function getMetricsData() {
 
 async function getSalesData() {
   const { lastWeekStart } = getDateRanges();
-  
+
   const weeklyTickets = await prisma.ticket.findMany({
     where: {
       status: 'COMPLETED',
