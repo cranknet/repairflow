@@ -32,28 +32,26 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 
 // Role-based permissions for transitions
 // Format: 'FROM→TO' or '*' for all transitions
+
+const BASE_TECHNICAL_PERMISSIONS = [
+    `${TicketStatus.RECEIVED}→${TicketStatus.IN_PROGRESS}`,
+    `${TicketStatus.RECEIVED}→${TicketStatus.CANCELLED}`,
+    `${TicketStatus.IN_PROGRESS}→${TicketStatus.WAITING_FOR_PARTS}`,
+    `${TicketStatus.IN_PROGRESS}→${TicketStatus.REPAIRED}`,
+    `${TicketStatus.IN_PROGRESS}→${TicketStatus.CANCELLED}`,
+    `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.IN_PROGRESS}`,
+    `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.REPAIRED}`,
+    `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.CANCELLED}`,
+];
+
 const ROLE_PERMISSIONS: Record<string, string[]> = {
     ADMIN: ['*'], // Admin can do all transitions
     STAFF: [
-        `${TicketStatus.RECEIVED}→${TicketStatus.IN_PROGRESS}`,
-        `${TicketStatus.RECEIVED}→${TicketStatus.CANCELLED}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.WAITING_FOR_PARTS}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.REPAIRED}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.CANCELLED}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.IN_PROGRESS}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.REPAIRED}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.CANCELLED}`,
+        ...BASE_TECHNICAL_PERMISSIONS,
         `${TicketStatus.REPAIRED}→${TicketStatus.COMPLETED}`,
     ],
     TECHNICIAN: [
-        `${TicketStatus.RECEIVED}→${TicketStatus.IN_PROGRESS}`,
-        `${TicketStatus.RECEIVED}→${TicketStatus.CANCELLED}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.WAITING_FOR_PARTS}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.REPAIRED}`,
-        `${TicketStatus.IN_PROGRESS}→${TicketStatus.CANCELLED}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.IN_PROGRESS}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.REPAIRED}`,
-        `${TicketStatus.WAITING_FOR_PARTS}→${TicketStatus.CANCELLED}`,
+        ...BASE_TECHNICAL_PERMISSIONS,
     ],
 };
 

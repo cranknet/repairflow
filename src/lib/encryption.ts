@@ -10,6 +10,13 @@ function getEncryptionKey(): Buffer {
     const keyHex = process.env.EMAIL_ENCRYPTION_KEY;
 
     if (!keyHex) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error(
+                'EMAIL_ENCRYPTION_KEY must be set in production environment. ' +
+                'Generate one with: npm run generate-email-key'
+            );
+        }
+
         console.warn(
             'EMAIL_ENCRYPTION_KEY not set. Using insecure default key for development. ' +
             'Generate a secure key with: npm run generate-email-key'

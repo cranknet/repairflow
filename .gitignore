@@ -86,3 +86,6 @@ public/swe-worker*.js
 /src-tauri/standalone/
 /src-tauri/binaries/
 !/src-tauri/binaries/.gitkeep
+
+.gemini/
+gha-creds-*.json
