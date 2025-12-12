@@ -61,7 +61,8 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "tauri:build:debug": "tauri build --debug"
+    "tauri:build:debug": "tauri build --debug",
+    "tauri:bundle": "node scripts/tauri-build-interactive.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
