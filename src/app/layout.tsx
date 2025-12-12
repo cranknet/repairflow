@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
+import { OfflineIndicator } from "@/components/pwa/offline-indicator";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 // PWA App Constants
 const APP_NAME = "RepairFlow";
@@ -81,6 +83,8 @@ export default async function RootLayout({
         <Providers>
           {children}
           <Toaster />
+          <OfflineIndicator />
+          <InstallPrompt />
         </Providers>
       </body>
     </html>
