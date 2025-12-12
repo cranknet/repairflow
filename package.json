@@ -24,8 +24,10 @@
   "scripts": {
     "postinstall": "node scripts/select-prisma-schema.js && prisma generate",
     "dev": "node scripts/select-prisma-schema.js && next dev",
-    "build": "node scripts/select-prisma-schema.js && prisma generate && prisma db push --skip-generate && next build --webpack",
-    "build:turbo": "node scripts/select-prisma-schema.js && prisma generate && prisma db push --skip-generate && next build",
+    "build": "node scripts/select-prisma-schema.js && prisma generate && node scripts/safe-db-push.js && next build --webpack",
+    "build:no-db": "node scripts/select-prisma-schema.js && prisma generate && next build --webpack",
+    "build:init-db": "node scripts/select-prisma-schema.js && prisma generate && prisma db push --skip-generate && next build --webpack",
+    "build:turbo": "node scripts/select-prisma-schema.js && prisma generate && next build",
     "build:with-db": "node scripts/select-prisma-schema.js && prisma generate && npm run db:push && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
