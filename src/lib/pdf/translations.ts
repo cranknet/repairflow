@@ -1,0 +1,83 @@
+export const translations = {
+    en: {
+        invoice: 'INVOICE',
+        date: 'Date',
+        ticketNo: 'Ticket #',
+        billTo: 'Bill To',
+        device: 'Device',
+        issue: 'Issue',
+        description: 'Description',
+        qty: 'Qty',
+        price: 'Price',
+        total: 'Total',
+        subtotal: 'Subtotal',
+        paid: 'Paid',
+        balance: 'Balance Due',
+        paymentHistory: 'Payment History',
+        paymentDate: 'Date',
+        method: 'Method',
+        reference: 'Ref',
+        amount: 'Amount',
+        thankYou: 'Thank you for your business!',
+        noPayments: 'No payments recorded.',
+        paymentStatus: {
+            PAID: 'PAID',
+            UNPAID: 'UNPAID',
+            PARTIAL: 'PARTIAL'
+        }
+    },
+    fr: {
+        invoice: 'FACTURE',
+        date: 'Date',
+        ticketNo: 'Ticket N°',
+        billTo: 'Facturé à',
+        device: 'Appareil',
+        issue: 'Problème',
+        description: 'Description',
+        qty: 'Qté',
+        price: 'Prix',
+        total: 'Total',
+        subtotal: 'Sous-total',
+        paid: 'Payé',
+        balance: 'Reste à payer',
+        paymentHistory: 'Historique des paiements',
+        paymentDate: 'Date',
+        method: 'Méthode',
+        reference: 'Réf',
+        amount: 'Montant',
+        thankYou: 'Merci de votre confiance !',
+        noPayments: 'Aucun paiement enregistré.',
+        paymentStatus: {
+            PAID: 'PAYÉ',
+            UNPAID: 'IMPAYÉ',
+            PARTIAL: 'PARTIEL'
+        }
+    },
+    ar: {
+        invoice: 'فاتورة',
+        date: 'التاريخ',
+        ticketNo: 'رقم التذكرة',
+        billTo: 'فاتورة إلى',
+        device: 'الجهاز',
+        issue: 'المشكلة',
+        description: 'الوصف',
+        qty: 'الكمية',
+        price: 'السعر',
+        total: 'المجموع',
+        subtotal: 'المجموع الفرعي',
+        paid: 'المدفوع',
+        balance: 'المتبقي',
+        paymentHistory: 'سجل الدفعات',
+        paymentDate: 'التاريخ',
+        method: 'الطريقة',
+        reference: 'مرجع',
+        amount: 'المبلغ',
+        thankYou: 'شكراً لتعاملكم معنا!',
+        noPayments: 'لا توجد دفعات مسجلة.',
+        paymentStatus: {
+            PAID: 'مدفوع',
+            UNPAID: 'غير مدفوع',
+            PARTIAL: 'دفعة جزئية'
+        }
+    }
+};
