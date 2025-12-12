@@ -29,7 +29,12 @@ export async function GET(request: NextRequest) {
       ],
     });
 
-    return NextResponse.json(users);
+    // Add caching headers - staff list changes rarely
+    return NextResponse.json(users, {
+      headers: {
+        'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=300',
+      },
+    });
   } catch (error) {
     console.error('Error fetching staff users:', error);
     return NextResponse.json(

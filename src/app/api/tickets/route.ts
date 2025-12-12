@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
@@ -45,22 +46,38 @@ export async function GET(request: NextRequest) {
       where.customerId = customerId;
     }
 
-    const tickets = await prisma.ticket.findMany({
-      where,
-      include: {
-        customer: true,
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
+    // Pagination support
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const skip = (page - 1) * limit;
+
+    const [tickets, total] = await Promise.all([
+      prisma.ticket.findMany({
+        where,
+        include: {
+          customer: true,
+          assignedTo: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.ticket.count({ where }),
+    ]);
 
-    return NextResponse.json(tickets);
+    return NextResponse.json({
+      data: tickets,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     console.error('Error fetching tickets:', error);
     return NextResponse.json(
@@ -170,6 +187,10 @@ export async function POST(request: NextRequest) {
         issue: ticket.deviceIssue,
       },
     });
+
+    // Invalidate cache for tickets and dashboard
+    revalidatePath('/tickets');
+    revalidatePath('/dashboard');
 
     return NextResponse.json(ticket, { status: 201 });
   } catch (error) {

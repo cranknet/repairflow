@@ -71,7 +71,12 @@ export async function GET() {
       return acc;
     }, {} as Record<string, string>);
 
-    return NextResponse.json(settingsMap);
+    // Add caching headers - public settings change rarely
+    return NextResponse.json(settingsMap, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     console.error('Error fetching public settings:', error);
     // Return empty object on error (graceful degradation)
