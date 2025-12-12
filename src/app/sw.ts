@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { Serwist, CacheFirst, NetworkFirst, ExpirationPlugin } from "serwist";
 
 // TypeScript declarations for service worker global scope
 declare global {
@@ -11,13 +11,41 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+const customRuntimeCaching = [
+    {
+        matcher: ({ url }: { url: URL }) => url.pathname.startsWith("/api/"),
+        handler: new NetworkFirst({
+            cacheName: "api-cache",
+            plugins: [
+                new ExpirationPlugin({
+                    maxEntries: 50,
+                    maxAgeSeconds: 5 * 60, // 5 minutes
+                }),
+            ],
+        }),
+    },
+    {
+        matcher: ({ request }: { request: Request }) => request.destination === "image",
+        handler: new CacheFirst({
+            cacheName: "image-cache",
+            plugins: [
+                new ExpirationPlugin({
+                    maxEntries: 100,
+                    maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                }),
+            ],
+        }),
+    },
+    ...defaultCache,
+];
+
 const serwist = new Serwist({
     precacheEntries: self.__SW_MANIFEST,
     skipWaiting: true,
     clientsClaim: true,
     navigationPreload: true,
-    // Use default caching but handle external resources at fetch level
-    runtimeCaching: defaultCache,
+    // Use custom caching strategies
+    runtimeCaching: customRuntimeCaching,
     fallbacks: {
         entries: [
             {
