@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
@@ -136,10 +137,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         where: { id: data.assignedToId },
       });
       if (!assignedUser) {
-      return NextResponse.json(
-        { error: t('errors.userNotFound') },
-        { status: 400 }
-      );
+        return NextResponse.json(
+          { error: t('errors.userNotFound') },
+          { status: 400 }
+        );
       }
     }
 
@@ -506,6 +507,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       });
     }
 
+    // Invalidate cache after update
+    revalidatePath('/tickets');
+    revalidatePath('/dashboard');
+    revalidatePath(`/tickets/${id}`);
+
     return NextResponse.json(updatedTicket);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -645,6 +651,10 @@ export async function DELETE(
         ticketId: id,
       });
 
+      // Invalidate cache after soft delete
+      revalidatePath('/tickets');
+      revalidatePath('/dashboard');
+
       return NextResponse.json({
         success: true,
         message: t('ticketArchivedSuccessfullyPreservedFor'),
@@ -691,6 +701,10 @@ export async function DELETE(
       customerId: ticketData.customerId,
       ticketId: id,
     });
+
+    // Invalidate cache after hard delete
+    revalidatePath('/tickets');
+    revalidatePath('/dashboard');
 
     return NextResponse.json({
       success: true,

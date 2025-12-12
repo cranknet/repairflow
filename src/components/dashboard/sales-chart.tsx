@@ -1,11 +1,38 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/language-context';
 import { DateRangePicker, DateRangeType } from './date-range-picker';
 import { format, eachDayOfInterval, differenceInDays } from 'date-fns';
+
+// Dynamic import Recharts to reduce initial bundle size (~200KB savings)
+const RechartsChart = dynamic(
+  () => import('recharts').then((mod) => {
+    const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = mod;
+    return function ChartComponent({ data, salesLabel, cogsLabel }: { data: any[], salesLabel: string, cogsLabel: string }) {
+      return (
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name={salesLabel} />
+            <Line type="monotone" dataKey="cogs" stroke="#EF4444" strokeWidth={2} name={cogsLabel} />
+          </LineChart>
+        </ResponsiveContainer>
+      );
+    };
+  }),
+  {
+    ssr: false,
+    loading: () => <div className="h-[300px] animate-pulse bg-gray-100 dark:bg-gray-800 rounded" />
+  }
+);
+
 
 interface SalesChartProps {
   initialData?: Array<{
@@ -80,17 +107,7 @@ export function SalesChart({
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name={t('sales')} />
-                <Line type="monotone" dataKey="cogs" stroke="#EF4444" strokeWidth={2} name={t('cogs')} />
-              </LineChart>
-            </ResponsiveContainer>
+            <RechartsChart data={data} salesLabel={t('sales')} cogsLabel={t('cogs')} />
             <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium uppercase tracking-wide">{t('numberOfInvoices')}</p>
