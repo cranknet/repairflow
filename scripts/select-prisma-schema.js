@@ -9,7 +9,15 @@ const postgresPath = path.join(__dirname, '../prisma/schema.postgres.prisma');
 const isVercel = process.env.VERCEL === '1';
 const isProduction = process.env.NODE_ENV === 'production';
 const forcedProvider = process.env.DATABASE_PROVIDER; // 'sqlite' or 'postgresql'
-const databaseUrl = process.env.DATABASE_URL || '';
+
+// Get DATABASE_URL and strip common mistakes
+let databaseUrl = process.env.DATABASE_URL || '';
+
+// Fix common mistake: someone set "DATABASE_URL=postgresql://..." in Vercel UI
+if (databaseUrl.startsWith('DATABASE_URL=')) {
+  console.log('[Database Setup] WARNING: DATABASE_URL contains the variable name prefix. Stripping it...');
+  databaseUrl = databaseUrl.replace(/^DATABASE_URL=/, '');
+}
 
 let usePostgres = false;
 
