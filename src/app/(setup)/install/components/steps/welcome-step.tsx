@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { Button } from '@/components/ui/button';
-import { CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, ArrowRightIcon, SparklesIcon, ServerIcon, ArrowPathIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import type { InstallState, EnvCheckResult } from '../../lib/validation';
 import { SetupLanguageSwitcher } from '@/components/setup/setup-language-switcher';
@@ -17,12 +17,28 @@ interface WelcomeStepProps {
     setIsLoading: (loading: boolean) => void;
 }
 
+interface EnvironmentCheckResponse {
+    checks: EnvCheckResult[];
+    hasErrors: boolean;
+    hasWarnings: boolean;
+    canProceed: boolean;
+    databaseType: 'sqlite' | 'postgresql' | 'unknown';
+    databaseTypeName: string;
+    databaseConnected: boolean;
+    databaseError?: string;
+    databaseTroubleshooting?: string[];
+}
+
 export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProps) {
     const { t } = useLanguage();
     const [checks, setChecks] = useState<EnvCheckResult[]>([]);
     const [hasErrors, setHasErrors] = useState(false);
     const [hasWarnings, setHasWarnings] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
+    const [databaseType, setDatabaseType] = useState<string>('');
+    const [databaseTypeName, setDatabaseTypeName] = useState<string>('');
+    const [databaseConnected, setDatabaseConnected] = useState(false);
+    const [expandedTroubleshooting, setExpandedTroubleshooting] = useState<string | null>(null);
 
     useEffect(() => {
         checkEnvironment();
@@ -32,10 +48,13 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
         setIsChecking(true);
         try {
             const response = await fetch('/api/install/environment');
-            const data = await response.json();
+            const data: EnvironmentCheckResponse = await response.json();
             setChecks(data.checks || []);
             setHasErrors(data.hasErrors);
             setHasWarnings(data.hasWarnings);
+            setDatabaseType(data.databaseType || 'unknown');
+            setDatabaseTypeName(data.databaseTypeName || 'Unknown');
+            setDatabaseConnected(data.databaseConnected || false);
         } catch (error) {
             console.error('Failed to check environment:', error);
             setHasErrors(true);
@@ -53,6 +72,17 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
             case 'error':
                 return <XCircleIcon className="h-5 w-5 text-red-500" />;
         }
+    };
+
+    const getDatabaseTypeColor = () => {
+        if (!databaseConnected) return 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300';
+        if (databaseType === 'postgresql') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
+        if (databaseType === 'sqlite') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300';
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/50 dark:text-gray-300';
+    };
+
+    const toggleTroubleshooting = (key: string) => {
+        setExpandedTroubleshooting(prev => prev === key ? null : key);
     };
 
     return (
@@ -86,6 +116,63 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
 
             {/* Content */}
             <div className="p-6 sm:p-8 space-y-6">
+                {/* Database Status Banner */}
+                {!isChecking && (
+                    <div className={`p-4 rounded-xl border ${databaseConnected
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                        }`}>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${databaseConnected
+                                    ? 'bg-green-100 dark:bg-green-900/30'
+                                    : 'bg-red-100 dark:bg-red-900/30'
+                                    }`}>
+                                    <ServerIcon className={`h-5 w-5 ${databaseConnected
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : 'text-red-600 dark:text-red-400'
+                                        }`} />
+                                </div>
+                                <div>
+                                    <p className={`text-sm font-medium ${databaseConnected
+                                        ? 'text-green-800 dark:text-green-200'
+                                        : 'text-red-800 dark:text-red-200'
+                                        }`}>
+                                        {databaseConnected
+                                            ? (t('install.welcome.dbConnected') || 'Database Connected')
+                                            : (t('install.welcome.dbNotConnected') || 'Database Connection Failed')
+                                        }
+                                    </p>
+                                    <p className={`text-xs ${databaseConnected
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : 'text-red-600 dark:text-red-400'
+                                        }`}>
+                                        {databaseConnected
+                                            ? (t('install.welcome.dbReadyToInstall') || 'Ready to install')
+                                            : (t('install.welcome.dbFixRequired') || 'Fix required before continuing')
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs font-medium px-3 py-1.5 rounded-full ${getDatabaseTypeColor()}`}>
+                                    {databaseTypeName}
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={checkEnvironment}
+                                    disabled={isChecking}
+                                    className="gap-1"
+                                >
+                                    <ArrowPathIcon className={`h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
+                                    {t('install.welcome.recheck') || 'Recheck'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Environment Checks */}
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -105,32 +192,64 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
                             {checks.map((check, index) => (
                                 <div
                                     key={check.key}
-                                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl border border-gray-100 dark:border-slate-600 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                                    className="space-y-2"
                                     style={{ animationDelay: `${index * 100}ms` }}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-1.5 rounded-lg ${check.status === 'ok' ? 'bg-green-100 dark:bg-green-900/30' :
+                                    <div
+                                        className={`flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl border border-gray-100 dark:border-slate-600 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-slate-700 ${check.troubleshooting && check.troubleshooting.length > 0 ? 'cursor-pointer' : ''
+                                            }`}
+                                        onClick={() => check.troubleshooting && check.troubleshooting.length > 0 && toggleTroubleshooting(check.key)}
+                                    >
+                                        <div className="flex items-center gap-3 flex-1">
+                                            <div className={`p-1.5 rounded-lg ${check.status === 'ok' ? 'bg-green-100 dark:bg-green-900/30' :
                                                 check.status === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
                                                     'bg-red-100 dark:bg-red-900/30'
-                                            }`}>
-                                            {getStatusIcon(check.status)}
+                                                }`}>
+                                                {getStatusIcon(check.status)}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{check.label}</p>
+                                                {check.message && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{check.message}</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{check.label}</p>
-                                            {check.message && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{check.message}</p>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${check.required
+                                                ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
+                                                : 'bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-gray-300'
+                                                }`}>
+                                                {check.required
+                                                    ? (t('install.welcome.required') || 'Required')
+                                                    : (t('install.welcome.optional') || 'Optional')
+                                                }
+                                            </span>
+                                            {check.troubleshooting && check.troubleshooting.length > 0 && (
+                                                expandedTroubleshooting === check.key
+                                                    ? <ChevronUpIcon className="h-4 w-4 text-gray-400" />
+                                                    : <ChevronDownIcon className="h-4 w-4 text-gray-400" />
                                             )}
                                         </div>
                                     </div>
-                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${check.required
-                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
-                                        : 'bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-gray-300'
-                                        }`}>
-                                        {check.required
-                                            ? (t('install.welcome.required') || 'Required')
-                                            : (t('install.welcome.optional') || 'Optional')
-                                        }
-                                    </span>
+
+                                    {/* Troubleshooting Hints (Expandable) */}
+                                    {check.troubleshooting && check.troubleshooting.length > 0 && expandedTroubleshooting === check.key && (
+                                        <div className="ml-10 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl animate-fadeIn">
+                                            <p className="text-xs font-semibold text-amber-800 dark:text-amber-200 mb-2">
+                                                💡 {t('install.welcome.troubleshootingHints') || 'Troubleshooting Hints'}:
+                                            </p>
+                                            <ul className="space-y-1.5">
+                                                {check.troubleshooting.map((hint, i) => (
+                                                    <li key={i} className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-2">
+                                                        <span className="text-amber-500 mt-0.5">•</span>
+                                                        <span className="font-mono bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
+                                                            {hint}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -154,7 +273,7 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
                             }
                             <span className="text-sm font-medium">
                                 {hasErrors
-                                    ? (t('install.welcome.envError') || 'Critical configuration missing. Please check your .env file.')
+                                    ? (t('install.welcome.envError') || 'Critical configuration missing. Please check your environment and database connection.')
                                     : hasWarnings
                                         ? (t('install.welcome.envWarning') || 'Some optional features may be limited.')
                                         : (t('install.welcome.envReady') || 'Environment is ready!')
@@ -179,4 +298,5 @@ export function WelcomeStep({ onNext, isLoading, setIsLoading }: WelcomeStepProp
         </div>
     );
 }
+
 

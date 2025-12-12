@@ -57,6 +57,7 @@ export interface EnvCheckResult {
   status: 'ok' | 'warning' | 'error';
   required: boolean;
   message?: string;
+  troubleshooting?: string[]; // Troubleshooting hints for errors
 }
 
 // Installation state stored in session
