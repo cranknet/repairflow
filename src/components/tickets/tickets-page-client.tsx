@@ -1,10 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, use, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { NewTicketWizard } from '@/components/tickets/new-ticket-wizard';
+import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/language-context';
+
+const NewTicketWizard = dynamic(
+  () => import('@/components/tickets/new-ticket-wizard').then((mod) => mod.NewTicketWizard),
+  { ssr: false }
+);
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -27,7 +32,7 @@ import type { ComponentType, SVGProps } from 'react';
 
 type HeroIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
-interface Ticket {
+export interface Ticket {
   id: string;
   ticketNumber: string;
   status: string;
@@ -52,10 +57,9 @@ interface Ticket {
 }
 
 interface TicketsPageClientProps {
-  tickets: Ticket[];
-  totalCount: number;
+  ticketsPromise: Promise<Ticket[]>;
+  totalCountPromise: Promise<number>;
   currentPage: number;
-  totalPages: number;
   status?: string;
   search?: string;
   userRole: string;
@@ -120,11 +124,366 @@ const priorityConfig: Record<string, { color: string; bg: string }> = {
   URGENT: { color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-900/30' },
 };
 
+function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: Promise<Ticket[]>, totalCountPromise: Promise<number> }) {
+  const tickets = use(ticketsPromise);
+  const totalCount = use(totalCountPromise);
+  const { t } = useLanguage();
+
+  const stats = useMemo(() => {
+    const pending = tickets.filter((t) => t.status === 'PENDING').length;
+    const inProgress = tickets.filter((t) => t.status === 'IN_PROGRESS').length;
+    const urgent = tickets.filter((t) => t.priority === 'URGENT' || t.priority === 'HIGH').length;
+    return { pending, inProgress, urgent };
+  }, [tickets]);
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+            <TicketIcon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('totalTickets') || 'Total Tickets'}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <ClockIcon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('pending') || 'Pending'}</p>
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.pending}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+            <WrenchScrewdriverIcon className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('inProgress') || 'In Progress'}</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.inProgress}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center relative">
+            <ExclamationTriangleIcon className="h-6 w-6 text-white" />
+            {stats.urgent > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                {stats.urgent}
+              </span>
+            )}
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('urgent') || 'High Priority'}</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.urgent}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { ticketsPromise: Promise<Ticket[]>, viewMode: 'cards' | 'table', onOpenModal: () => void }) {
+  const tickets = use(ticketsPromise);
+  const router = useRouter();
+  const { t } = useLanguage();
+
+  if (tickets.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
+          <TicketIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          {t('noTicketsFound') || 'No Tickets Found'}
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
+          {t('noTicketsDescription') || 'No tickets match your current filters. Try adjusting your search or create a new ticket.'}
+        </p>
+        <button
+          onClick={onOpenModal}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
+        >
+          <PlusIcon className="h-5 w-5" />
+          {t('createNewTicket') || 'Create New Ticket'}
+        </button>
+      </div>
+    );
+  }
+
+  if (viewMode === 'cards') {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {tickets.map((ticket) => {
+          const config = statusConfig[ticket.status] || statusConfig.PENDING;
+          const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
+
+          return (
+            <Link
+              key={ticket.id}
+              href={`/tickets/${ticket.id}`}
+              className="group bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-theme-lg hover:border-primary/20 transition-all duration-300"
+            >
+              <div className={`h-2 bg-gradient-to-r ${config.gradient}`} />
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
+                      <config.Icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        {ticket.ticketNumber}
+                      </p>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${config.bgLight} ${config.text}`}>
+                        {t(ticket.status.toLowerCase()) || config.label}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      ${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}
+                    </p>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
+                      {ticket.priority}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      <UserIcon className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {ticket.customer.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{ticket.customer.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <DevicePhoneMobileIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {ticket.deviceBrand} {ticket.deviceModel}
+                    </p>
+                  </div>
+                  {ticket.assignedTo && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <WrenchScrewdriverIcon className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {ticket.assignedTo.name || ticket.assignedTo.username}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-2">
+                    <ClockIcon className="h-4 w-4" />
+                    {new Date(ticket.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('ticketNumber') || 'Ticket #'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('customer') || 'Customer'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('device') || 'Device'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('status') || 'Status'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('priority') || 'Priority'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('price') || 'Price'}
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('date') || 'Date'}
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            {tickets.map((ticket) => {
+              const config = statusConfig[ticket.status] || statusConfig.PENDING;
+              const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
+
+              return (
+                <tr
+                  key={ticket.id}
+                  onClick={() => router.push(`/tickets/${ticket.id}`)}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="font-semibold text-primary">{ticket.ticketNumber}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{ticket.customer.name}</p>
+                    <p className="text-xs text-gray-500">{ticket.customer.phone}</p>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    {ticket.deviceBrand} {ticket.deviceModel}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${config.gradient} text-white`}>
+                      <config.Icon className="h-3.5 w-3.5" />
+                      {t(ticket.status.toLowerCase()) || config.label}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
+                      {ticket.priority}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-base font-semibold text-gray-900 dark:text-white">
+                      ${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    {new Date(ticket.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function PaginationSection({ totalCountPromise, currentPage, status, search }: { totalCountPromise: Promise<number>, currentPage: number, status?: string, search?: string }) {
+  const totalCount = use(totalCountPromise);
+  const { t } = useLanguage();
+  const totalPages = Math.ceil(totalCount / 10);
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalCount)} of {totalCount}
+      </p>
+      <div className="flex items-center gap-2">
+        <Link
+          href={{
+            pathname: '/tickets',
+            query: {
+              ...(status && { status }),
+              ...(search && { search }),
+              page: currentPage > 1 ? currentPage - 1 : 1,
+            },
+          }}
+        >
+          <button
+            disabled={currentPage === 1}
+            className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+            {t('previous') || 'Previous'}
+          </button>
+        </Link>
+        <span className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Link
+          href={{
+            pathname: '/tickets',
+            query: {
+              ...(status && { status }),
+              ...(search && { search }),
+              page: currentPage < totalPages ? currentPage + 1 : totalPages,
+            },
+          }}
+        >
+          <button
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+          >
+            {t('next') || 'Next'}
+            <ChevronRightIcon className="h-5 w-5" />
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 h-24 animate-pulse flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          <div className="space-y-2 flex-1">
+            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="h-6 w-10 bg-gray-200 dark:bg-gray-700 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 h-64 animate-pulse">
+          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full w-full mb-4" />
+          <div className="flex justify-between mb-4">
+            <div className="flex gap-3">
+              <div className="w-11 h-11 rounded-xl bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function TicketsPageClient({
-  tickets,
-  totalCount,
+  ticketsPromise,
+  totalCountPromise,
   currentPage,
-  totalPages,
   status,
   search,
   userRole,
@@ -147,16 +506,6 @@ export function TicketsPageClient({
     if (status) params.set('status', status);
     router.push(`/tickets?${params.toString()}`);
   };
-
-  // Calculate stats from tickets
-  const stats = useMemo(() => {
-    const pending = tickets.filter((t) => t.status === 'PENDING').length;
-    const inProgress = tickets.filter((t) => t.status === 'IN_PROGRESS').length;
-    const repaired = tickets.filter((t) => t.status === 'REPAIRED').length;
-    const urgent = tickets.filter((t) => t.priority === 'URGENT' || t.priority === 'HIGH').length;
-
-    return { pending, inProgress, repaired, urgent };
-  }, [tickets]);
 
   const filterStatuses = [
     { key: '', label: t('all') || 'All' },
@@ -220,61 +569,9 @@ export function TicketsPageClient({
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-                  <TicketIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('totalTickets') || 'Total Tickets'}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCount}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                  <ClockIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('pending') || 'Pending'}</p>
-                  <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.pending}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-                  <WrenchScrewdriverIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('inProgress') || 'In Progress'}</p>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.inProgress}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center relative">
-                  <ExclamationTriangleIcon className="h-6 w-6 text-white" />
-                  {stats.urgent > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
-                      {stats.urgent}
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('urgent') || 'High Priority'}</p>
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.urgent}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Suspense fallback={<StatsSkeleton />}>
+            <StatsSection ticketsPromise={ticketsPromise} totalCountPromise={totalCountPromise} />
+          </Suspense>
 
           {/* Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 mb-6">
@@ -314,245 +611,13 @@ export function TicketsPageClient({
             </div>
           </div>
 
-          {/* Content */}
-          {tickets.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mb-6">
-                <TicketIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                {t('noTicketsFound') || 'No Tickets Found'}
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
-                {t('noTicketsDescription') || 'No tickets match your current filters. Try adjusting your search or create a new ticket.'}
-              </p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all font-medium"
-              >
-                <PlusIcon className="h-5 w-5" />
-                {t('createNewTicket') || 'Create New Ticket'}
-              </button>
-            </div>
-          ) : viewMode === 'cards' ? (
-            /* Cards View */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {tickets.map((ticket) => {
-                const config = statusConfig[ticket.status] || statusConfig.PENDING;
-                const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
+          <Suspense fallback={<ListSkeleton />}>
+            <TicketsListContent ticketsPromise={ticketsPromise} viewMode={viewMode} onOpenModal={() => setIsModalOpen(true)} />
+          </Suspense>
 
-                return (
-                  <Link
-                    key={ticket.id}
-                    href={`/tickets/${ticket.id}`}
-                    className="group bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-theme-lg hover:border-primary/20 transition-all duration-300"
-                  >
-                    {/* Status Bar */}
-                    <div className={`h-2 bg-gradient-to-r ${config.gradient}`} />
-
-                    <div className="p-5">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
-                            <config.Icon className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">
-                              {ticket.ticketNumber}
-                            </p>
-                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${config.bgLight} ${config.text}`}>
-                              {t(ticket.status.toLowerCase()) || config.label}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">
-                            ${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}
-                          </p>
-                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
-                            {ticket.priority}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Details */}
-                      <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                        {/* Customer */}
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                            <UserIcon className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                              {ticket.customer.name}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{ticket.customer.phone}</p>
-                          </div>
-                        </div>
-
-                        {/* Device */}
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <DevicePhoneMobileIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
-                            {ticket.deviceBrand} {ticket.deviceModel}
-                          </p>
-                        </div>
-
-                        {/* Assigned To */}
-                        {ticket.assignedTo && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                              <WrenchScrewdriverIcon className="h-5 w-5 text-gray-500" />
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              {ticket.assignedTo.name || ticket.assignedTo.username}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Date */}
-                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-2">
-                          <ClockIcon className="h-4 w-4" />
-                          {new Date(ticket.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            /* Table View */
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('ticketNumber') || 'Ticket #'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('customer') || 'Customer'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('device') || 'Device'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('status') || 'Status'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('priority') || 'Priority'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('price') || 'Price'}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('date') || 'Date'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {tickets.map((ticket) => {
-                      const config = statusConfig[ticket.status] || statusConfig.PENDING;
-                      const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
-
-                      return (
-                        <tr
-                          key={ticket.id}
-                          onClick={() => router.push(`/tickets/${ticket.id}`)}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="font-semibold text-primary">{ticket.ticketNumber}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{ticket.customer.name}</p>
-                            <p className="text-xs text-gray-500">{ticket.customer.phone}</p>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                            {ticket.deviceBrand} {ticket.deviceModel}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${config.gradient} text-white`}>
-                              <config.Icon className="h-3.5 w-3.5" />
-                              {t(ticket.status.toLowerCase()) || config.label}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
-                              {ticket.priority}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-base font-semibold text-gray-900 dark:text-white">
-                              ${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                            {new Date(ticket.createdAt).toLocaleDateString()}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalCount)} of {totalCount}
-              </p>
-              <div className="flex items-center gap-2">
-                <Link
-                  href={{
-                    pathname: '/tickets',
-                    query: {
-                      ...(status && { status }),
-                      ...(search && { search }),
-                      page: currentPage > 1 ? currentPage - 1 : 1,
-                    },
-                  }}
-                >
-                  <button
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                  >
-                    <ChevronLeftIcon className="h-5 w-5" />
-                    {t('previous') || 'Previous'}
-                  </button>
-                </Link>
-                <span className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <Link
-                  href={{
-                    pathname: '/tickets',
-                    query: {
-                      ...(status && { status }),
-                      ...(search && { search }),
-                      page: currentPage < totalPages ? currentPage + 1 : totalPages,
-                    },
-                  }}
-                >
-                  <button
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                  >
-                    {t('next') || 'Next'}
-                    <ChevronRightIcon className="h-5 w-5" />
-                  </button>
-                </Link>
-              </div>
-            </div>
-          )}
+          <Suspense fallback={<div className="h-12 bg-gray-100 rounded-2xl animate-pulse mt-6" />}>
+            <PaginationSection totalCountPromise={totalCountPromise} currentPage={currentPage} status={status} search={search} />
+          </Suspense>
         </div>
       </div>
 

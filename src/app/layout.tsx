@@ -5,10 +5,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Outfit } from "next/font/google";
 
 // PWA App Constants
 const APP_NAME = "RepairFlow";
 const APP_DESCRIPTION = "Complete management system for phone repair shops";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
@@ -77,7 +85,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={outfit.variable}>
       <head />
 
       <body className="font-sans">

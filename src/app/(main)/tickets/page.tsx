@@ -6,89 +6,52 @@ import { TicketsPageClient } from '@/components/tickets/tickets-page-client';
 
 const TICKETS_PER_PAGE = 10;
 
-export default async function TicketsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string; search?: string; page?: string }>;
-}) {
-  const session = await auth();
-  if (!session) {
-    redirect('/login');
-  }
-
-  const params = await searchParams;
-  const currentPage = parseInt(params.page || '1', 10);
-  const skip = (currentPage - 1) * TICKETS_PER_PAGE;
-
-  const where: any = {
-    deletedAt: null, // Exclude soft-deleted tickets
-  };
-  if (params.status === 'active') {
-    where.status = { notIn: ['CANCELLED', 'RETURNED'] };
-  } else if (params.status) {
-    where.status = params.status;
-  }
-  if (params.search) {
-    where.OR = [
-      { ticketNumber: { contains: params.search } },
-      { customer: { name: { contains: params.search } } },
-      { deviceBrand: { contains: params.search } },
-      { deviceModel: { contains: params.search } },
-    ];
-  }
-
-  // Get total count and paginated tickets
-  const [totalCount, tickets] = await Promise.all([
-    prisma.ticket.count({ where }),
-    prisma.ticket.findMany({
-      where,
-      include: {
-        customer: true,
-        assignedTo: {
-          select: {
-            name: true,
-            username: true,
-          },
-        },
-        returns: {
-          where: {
-            status: 'PENDING',
-          },
-          select: {
-            id: true,
-            status: true,
-          },
-        },
-        payments: {
-          select: {
-            amount: true,
-          },
-        },
-        satisfactionRatings: {
-          select: {
-            id: true,
-            rating: true,
-            comment: true,
-            phoneNumber: true,
-            verifiedBy: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 1,
+async function getTickets(where: any, skip: number) {
+  const tickets = await prisma.ticket.findMany({
+    where,
+    include: {
+      customer: true,
+      assignedTo: {
+        select: {
+          name: true,
+          username: true,
         },
       },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: TICKETS_PER_PAGE,
-    }),
-  ]);
+      returns: {
+        where: {
+          status: 'PENDING',
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+      payments: {
+        select: {
+          amount: true,
+        },
+      },
+      satisfactionRatings: {
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          phoneNumber: true,
+          verifiedBy: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 1,
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: TICKETS_PER_PAGE,
+  });
 
-  const totalPages = Math.ceil(totalCount / TICKETS_PER_PAGE);
-
-  // Serialize tickets data for client component (convert Date objects to strings)
-  const serializedTickets = tickets.map((ticket) => {
+  return tickets.map((ticket) => {
     // Calculate total paid and outstanding amount
     const totalPaid = ticket.payments.reduce((sum, p) => sum + p.amount, 0);
     const finalPrice = ticket.finalPrice ?? ticket.estimatedPrice;
@@ -125,19 +88,51 @@ export default async function TicketsPage({
         : null,
     };
   });
-
-  return (
-    <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />}>
-      <TicketsPageClient
-        tickets={serializedTickets}
-        totalCount={totalCount}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        status={params.status}
-        search={params.search}
-        userRole={session.user.role}
-      />
-    </Suspense>
-  );
 }
 
+export default async function TicketsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; search?: string; page?: string }>;
+}) {
+  const session = await auth();
+  if (!session) {
+    redirect('/login');
+  }
+
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || '1', 10);
+  const skip = (currentPage - 1) * TICKETS_PER_PAGE;
+
+  const where: any = {
+    deletedAt: null, // Exclude soft-deleted tickets
+  };
+  if (params.status === 'active') {
+    where.status = { notIn: ['CANCELLED', 'RETURNED'] };
+  } else if (params.status) {
+    where.status = params.status;
+  }
+  if (params.search) {
+    where.OR = [
+      { ticketNumber: { contains: params.search } },
+      { customer: { name: { contains: params.search } } },
+      { deviceBrand: { contains: params.search } },
+      { deviceModel: { contains: params.search } },
+    ];
+  }
+
+  // Initiate promises WITHOUT awaiting them
+  const ticketsPromise = getTickets(where, skip);
+  const totalCountPromise = prisma.ticket.count({ where });
+
+  return (
+    <TicketsPageClient
+      ticketsPromise={ticketsPromise}
+      totalCountPromise={totalCountPromise}
+      currentPage={currentPage}
+      status={params.status}
+      search={params.search}
+      userRole={session.user.role}
+    />
+  );
+}
