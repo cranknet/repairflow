@@ -1,0 +1,538 @@
+// RepairFlow Database Schema (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String                  @id @default(cuid())
+  username              String                  @unique
+  email                 String                  @unique
+  password              String
+  role                  String                  @default("STAFF") // ADMIN, STAFF
+  name                  String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  tickets               Ticket[]
+  loginLogs             LoginLog[]
+  priceAdjustments      TicketPriceAdjustment[]
+  notifications         Notification[]
+  returnsCreated        Return[]                @relation("ReturnCreatedBy")
+  returnsHandled        Return[]                @relation("ReturnHandledBy")
+  paymentsCreated       Payment[]               @relation("PaymentCreatedBy")
+  notificationPreferences NotificationPreference[]
+  contactMessagesAssigned ContactMessage[]
+  satisfactionRatingsOverridden SatisfactionRating[]
+  
+  // Finance module relations
+  expensesCreated       Expense[]               @relation("ExpenseCreatedBy")
+  inventoryAdjustmentsCreated InventoryAdjustment[] @relation("InventoryAdjustmentCreatedBy")
+  journalEntriesCreated JournalEntry[]          @relation("JournalEntryCreatedBy")
+  statusChanges         TicketStatusHistory[]   @relation("StatusChangedBy")
+  
+  // Chat module relations
+  chatParticipations    ChatParticipant[]
+  chatMessages          ChatMessage[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tickets   Ticket[]
+  satisfactionRatings SatisfactionRating[]
+}
+
+model Ticket {
+  id                   String                  @id @default(cuid())
+  ticketNumber         String                  @unique
+  customerId           String
+  customer             Customer                @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assignedToId         String?
+  assignedTo           User?                   @relation(fields: [assignedToId], references: [id])
+  deviceBrand          String
+  deviceModel          String
+  deviceIssue          String
+  deviceConditionFront String? // Base64 image
+  deviceConditionBack  String? // Base64 image
+  deviceColor          String? // Device color detected by AI or entered manually
+  priority             String                  @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  estimatedPrice       Float
+  finalPrice           Float?
+  status               String                  @default("RECEIVED") // RECEIVED, IN_PROGRESS, WAITING_FOR_PARTS, REPAIRED, COMPLETED, CANCELLED
+  paid                 Boolean                 @default(false)
+  trackingCode         String                  @unique
+  warrantyDays         Int?                    // Warranty period in days
+  warrantyText         String? // Custom warranty text
+  notes                String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  completedAt          DateTime?
+  deletedAt            DateTime?               // Soft delete for financial audit trail
+  statusHistory        TicketStatusHistory[]
+  parts                TicketPart[]
+  priceAdjustments     TicketPriceAdjustment[]
+  notifications        Notification[]
+  returns              Return[]
+  payments             Payment[]
+  contactMessages      ContactMessage[]
+  satisfactionRatings  SatisfactionRating[]
+  inventoryAdjustments InventoryAdjustment[]
+  chat                 Chat?                   // Optional linked chat for ticket collaboration
+}
+
+model TicketStatusHistory {
+  id          String   @id @default(cuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  status      String
+  notes       String?
+  changedById String?
+  changedBy   User?    @relation("StatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+}
+
+model TicketPart {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model TicketPriceAdjustment {
+  id                 String    @id @default(cuid())
+  ticketId           String
+  ticket             Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  oldPrice           Float
+  newPrice           Float
+  reason             String
+  createdAt          DateTime  @default(now())
+  
+  // Link to the automatically created adjustment payment
+  adjustmentPayments Payment[]
+}
+
+model Part {
+  id                    String                 @id @default(cuid())
+  name                  String
+  sku                   String                 @unique
+  description           String?
+  quantity              Int                    @default(0)
+  reorderLevel          Int                    @default(5)
+  unitPrice             Float                  @default(0)
+  supplierId            String?
+  supplier              Supplier?              @relation(fields: [supplierId], references: [id])
+  supplierName          String?                @map("supplier") // Backwards-compatible supplier name field
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  ticketParts           TicketPart[]
+  inventoryTransactions InventoryTransaction[]
+  
+  // Finance module relations
+  expenses              Expense[]
+  inventoryAdjustments  InventoryAdjustment[]
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  contactPerson String?
+  email       String?
+  phone       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  parts       Part[]
+  receiptScans ReceiptScan[]
+}
+
+// Track scanned receipts for duplicate detection
+model ReceiptScan {
+  id            String    @id @default(cuid())
+  invoiceNumber String?
+  supplierId    String?
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+  contentHash   String    // Hash of parts for fingerprinting
+  partsCount    Int
+  total         Float?
+  date          String?
+  scannedAt     DateTime  @default(now())
+  scannedById   String
+  
+  @@index([invoiceNumber])
+  @@index([contentHash])
+  @@index([supplierId])
+}
+
+model NotificationPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType String  // customer, ticket, payment, charge, repairjob, part, supplier
+  action    String   // created, updated, deleted, status_changed, assigned, completed, used, removed, added
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, entityType, action])
+  @@index([userId])
+}
+
+model InventoryTransaction {
+  id        String   @id @default(cuid())
+  partId    String
+  part      Part     @relation(fields: [partId], references: [id], onDelete: Cascade)
+  type      String // IN, OUT, RETURN
+  quantity  Int
+  reason    String?
+  ticketId  String?
+  createdAt DateTime @default(now())
+  createdBy String?
+}
+
+model Return {
+  id                    String              @id @default(cuid())
+  ticketId              String
+  ticket                Ticket              @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reason                String
+  refundAmount          Float
+  status                String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  originalTicketStatus  String?             // Store original ticket status for restoration on delete
+  returnedTo            String?             // Optional field for return recipient
+  notes                 String? // Additional notes, separate from reason
+  createdBy             String              // userId who created the return
+  createdByUser         User                @relation("ReturnCreatedBy", fields: [createdBy], references: [id])
+  handledAt             DateTime?           // When admin approved/rejected
+  handledBy             String?             // userId who handled the return (already exists)
+  handledByUser         User?               @relation("ReturnHandledBy", fields: [handledBy], references: [id])
+  
+  // New finance-related fields (nullable for backward compatibility)
+  refundPaymentId   String?             // FK -> Payment (refund payment record)
+  refundPayment     Payment?            @relation("ReturnRefundPayment", fields: [refundPaymentId], references: [id])
+  inventoryAdjId    String?             // FK -> InventoryAdjustment
+  inventoryAdj      InventoryAdjustment? @relation(fields: [inventoryAdjId], references: [id])
+  expenseEntryId    String?             // FK -> Expense (if return created expense)
+  expenseEntry      Expense?            @relation(fields: [expenseEntryId], references: [id])
+  isRefunded        Boolean             @default(false) // Idempotency flag
+  refundedAt        DateTime?           // When refund was processed
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  type      String // STATUS_CHANGE, PRICE_ADJUSTMENT, ASSIGNMENT, etc.
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model LoginLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?
+  success   Boolean
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SMSTemplate {
+  id         String   @id @default(cuid())
+  name       String
+  templateId String // e.g., 'ticket_created', 'ticket_completed'
+  language   String   @default("en") // en, ar, fr
+  message    String
+  variables  String // JSON array of variable names
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([templateId, language])
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  paymentNumber   String   @unique // Human-readable payment ID (e.g., PAY-20240101-0001)
+  ticketId        String?  // Nullable for refund-only payments
+  ticket          Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  amount          Float
+  method          String   @default("CASH") // cash, card, mobile, other
+  currency        String?  // Currency code (from settings), nullable for backward compatibility
+  reference       String?  // Optional transaction ID
+  reason          String? // Required when amount differs from outstanding or for adjustments
+  metadata        String? // JSON metadata (receipt number, gateway response, etc.)
+  performedBy     String
+  performedByUser User     @relation("PaymentCreatedBy", fields: [performedBy], references: [id])
+  createdAt       DateTime @default(now())
+  
+  // Price adjustment tracking
+  isAdjustment      Boolean @default(false) // True if this is a price adjustment payment
+  adjustmentType    String? // "PRICE_INCREASE", "PRICE_DECREASE", "CORRECTION"
+  originalPaymentId String? // Link to the original payment being adjusted
+  priceAdjustmentId String? // Link to the TicketPriceAdjustment record
+  priceAdjustment   TicketPriceAdjustment? @relation(fields: [priceAdjustmentId], references: [id], onDelete: SetNull)
+  
+  // Relation for refund payments
+  refundReturns   Return[] @relation("ReturnRefundPayment")
+
+  @@index([ticketId])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@index([paymentNumber])
+  @@index([isAdjustment])
+  @@index([originalPaymentId])
+}
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  ticketId    String?
+  ticket      Ticket?  @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  name        String
+  email       String
+  phone       String?
+  message     String
+  status      String   @default("NEW") // NEW, READ, ARCHIVED
+  assignedToId String?
+  assignedTo  User?    @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@index([status])
+  @@index([assignedToId])
+  @@index([ticketId])
+}
+
+model SatisfactionRating {
+  id            String   @id @default(cuid())
+  ticketId      String
+  ticket        Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerEmail String
+  rating        Int      // 1-5
+  comment       String?
+  phoneNumber   String?  // Phone number for follow-up on low ratings
+  verifiedBy    String   // TOKEN, EMAIL, AUTH
+  overriddenBy  String?
+  overriddenByUser User? @relation(fields: [overriddenBy], references: [id], onDelete: SetNull)
+  overrideReason String?
+  createdAt     DateTime @default(now())
+
+  @@unique([ticketId, customerEmail])
+  @@index([ticketId])
+  @@index([verifiedBy])
+}
+
+model EmailSettings {
+  id                String   @id @default(cuid())
+
+  // SMTP Configuration
+  smtpHost          String
+  smtpPort          Int      @default(587)
+  smtpSecure        Boolean  @default(true)  // Use TLS
+  smtpUser          String
+  smtpPassword      String // Encrypted in application layer
+
+  // Email Defaults
+  fromEmail         String
+  fromName          String
+  replyToEmail      String?
+
+  // Settings
+  isActive          Boolean  @default(true)
+  isVerified        Boolean  @default(false)
+
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastTestedAt      DateTime?
+
+  @@map("email_settings")
+}
+
+// ============================================
+// FINANCE MODULE MODELS
+// ============================================
+
+model Expense {
+  id          String    @id @default(cuid())
+  name        String
+  amount      Float
+  type        String    // PURCHASE, SHOP, PART_LOSS, MISC
+  category    String?   // Additional categorization
+  partId      String?
+  part        Part?     @relation(fields: [partId], references: [id], onDelete: SetNull)
+  deviceId    String?   // Could reference a specific device/ticket
+  notes       String?
+  receiptUrl  String?   // Optional receipt image URL
+  createdById String
+  createdByUser User    @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete support
+  
+  // Relation to returns
+  returnExpenses Return[]
+  
+  @@index([type])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([partId])
+}
+
+model InventoryAdjustment {
+  id               String    @id @default(cuid())
+  partId           String
+  part             Part      @relation(fields: [partId], references: [id], onDelete: Cascade)
+  qtyChange        Int       // Positive for additions, negative for removals
+  cost             Float     // Cost of the adjustment
+  costPerUnit      Float?    // Cost per unit (calculated or manual)
+  reason           String
+  relatedReturnId  String?   // Link to return if applicable
+  ticketId         String?   // Link to ticket if part is added to a ticket
+  ticket           Ticket?   @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  createdById      String
+  createdByUser    User      @relation("InventoryAdjustmentCreatedBy", fields: [createdById], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  // Relation to returns
+  returnAdjustments Return[]
+  
+  @@index([partId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([relatedReturnId])
+  @@index([ticketId])
+}
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  type          String   // PAYMENT, REFUND, EXPENSE, INVENTORY_ADJUSTMENT, REVENUE
+  amount        Float
+  description   String?
+  referenceType String   // TICKET, RETURN, PAYMENT, EXPENSE, INVENTORY_ADJUSTMENT
+  referenceId   String   // ID of the referenced entity
+  ticketId      String?  // Optional direct link to ticket
+  notes         String?
+  metadata      String? // JSON for additional data
+  createdById   String
+  createdByUser User     @relation("JournalEntryCreatedBy", fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+  
+  @@index([type])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@index([createdById])
+  @@index([ticketId])
+}
+
+// ============================================
+// CHAT MODULE MODELS
+// ============================================
+
+model Chat {
+  id            String            @id @default(cuid())
+  name          String?           // Name for group chats, null for ticket chats
+  ticketId      String?           @unique // If linked to a ticket
+  ticket        Ticket?           @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  isTicketChat  Boolean           @default(false)
+  status        String            @default("OPEN") // OPEN, CLOSED
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  lastMessageAt DateTime?         // For sorting chats by recent activity
+  participants  ChatParticipant[]
+  messages      ChatMessage[]
+  
+  @@index([ticketId])
+  @@index([lastMessageAt])
+  @@index([status])
+}
+
+model ChatParticipant {
+  id         String   @id @default(cuid())
+  chatId     String
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime @default(now()) // For tracking unread messages
+  
+  @@unique([chatId, userId])
+  @@index([userId])
+  @@index([chatId])
+}
+
+model ChatMessage {
+  id           String         @id @default(cuid())
+  chatId       String
+  chat         Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content      String
+  replyToId    String?        // For reply threads
+  replyTo      ChatMessage?   @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      ChatMessage[]  @relation("MessageReplies")
+  isEdited     Boolean        @default(false)
+  attachments  String? // JSON array of attachment URLs
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?      // Soft delete support
+  reactions    ChatReaction[]
+  
+  @@index([chatId, createdAt])
+  @@index([senderId])
+  @@index([replyToId])
+}
+
+model ChatReaction {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String      // e.g., "👍", "❤️", "😂"
+  createdAt DateTime    @default(now())
+  
+  @@unique([messageId, userId, emoji]) // One reaction per emoji per user
+  @@index([messageId])
+  @@index([userId])
+}
