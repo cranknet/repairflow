@@ -80,3 +80,9 @@ public/swe-worker*.js
 /eslint-report.json
 /scripts/remaining-translations.json
 /scripts/translations-needed.json
+
+# Tauri
+/src-tauri/target/
+/src-tauri/standalone/
+/src-tauri/binaries/
+!/src-tauri/binaries/.gitkeep

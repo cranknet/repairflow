@@ -29,6 +29,7 @@ fn main() {
             // Filesystem commands
             filesystem::get_default_database_path,
             filesystem::validate_database_path,
+            filesystem::select_database_path,
             filesystem::get_log_directory,
             filesystem::read_config_file,
             filesystem::write_config_file,
