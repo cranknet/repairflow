@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // PWA App Constants
 const APP_NAME = "RepairFlow";
@@ -85,6 +86,7 @@ export default async function RootLayout({
           <Toaster />
           <OfflineIndicator />
           <InstallPrompt />
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
