@@ -56,7 +56,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           style={{ scrollbarGutter: 'stable' }}
           role="main"
         >
-          <div className="p-4 sm:p-6">
+          <div className="container-padding py-4 sm:py-6">
             {children}
           </div>
         </main>

@@ -17,13 +17,13 @@ export function PageHeader({ titleKey, descriptionKey, actionButton }: PageHeade
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex-between flex-wrap gap-4">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t(titleKey)}</h1>
-        <p className="text-gray-600 dark:text-gray-400">{t(descriptionKey)}</p>
+        <h1 className="text-fluid-4xl font-bold text-gray-900 dark:text-white">{t(titleKey)}</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">{t(descriptionKey)}</p>
       </div>
       {actionButton && (
-        <Link href={actionButton.href} className="mr-4">
+        <Link href={actionButton.href}>
           <Button>{t(actionButton.labelKey)}</Button>
         </Link>
       )}
