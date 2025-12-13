@@ -99,7 +99,7 @@ Built with the latest web technologies including Next.js 16 App Router, Server A
 |----------|-----------|
 | **Framework** | [Next.js 16](https://nextjs.org/) (App Router, Server Actions) |
 | **Language** | [TypeScript](https://www.typescriptlang.org/) 5.3 |
-| **Database** | [SQLite](https://sqlite.org/) via [Prisma ORM](https://www.prisma.io/) 6.8 |
+| **Database** | [SQLite](https://sqlite.org/) (Desktop) / [PostgreSQL](https://www.postgresql.org/) (Web) via [Prisma ORM](https://www.prisma.io/) 6.8 |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) & [Radix UI](https://www.radix-ui.com/) |
 | **Authentication** | [NextAuth.js v5](https://authjs.dev/) (Auth.js) |
 | **PDF Generation** | [@react-pdf/renderer](https://react-pdf.org/) |
@@ -176,11 +176,12 @@ After seeding, login with:
 │   │   ├── settings/        # Configuration panels
 │   │   ├── tickets/         # Ticket management
 │   │   └── ui/              # Shared UI primitives
-│   ├── lib/                 # Core business logic
-│   │   ├── ai-vision.ts     # AI Receipt scanning
-│   │   ├── com-port-sms.ts  # Serial port SMS
-│   │   ├── prisma.ts        # Database client
-│   │   └── actions/         # Server actions
+│   ├── lib/                 # Core business logic (The "Brain")
+│   │   ├── finance/         # Double-entry bookkeeping logic
+│   │   ├── ai-vision.ts     # AI Receipt scanning integration
+│   │   ├── com-port-sms.ts  # Serial port SMS handling
+│   │   ├── prisma.ts        # Database client instantiation
+│   │   └── ...              # Shared logic for auth, formatting, etc.
 │   └── types/               # TypeScript definitions
 ├── prisma/
 │   ├── schema.prisma        # Database schema
