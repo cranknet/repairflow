@@ -70,9 +70,32 @@ function needsTranslation(value: string | undefined): boolean {
 }
 
 async function translateText(text: string, targetLang: string): Promise<string | null> {
+    // Try multiple free translation APIs in sequence
+    const translators = [
+        () => translateWithLibreTranslate(text, targetLang),
+        () => translateWithMyMemory(text, targetLang),
+        () => translateWithLingva(text, targetLang),
+    ];
+
+    for (const translator of translators) {
+        try {
+            const result = await translator();
+            if (result && result !== text) {
+                return result;
+            }
+        } catch {
+            // Try next translator
+        }
+    }
+    return null;
+}
+
+// LibreTranslate - Multiple public instances
+async function translateWithLibreTranslate(text: string, targetLang: string): Promise<string | null> {
     const endpoints = [
         'https://libretranslate.com/translate',
         'https://libretranslate.de/translate',
+        'https://translate.argosopentech.com/translate',
     ];
 
     for (const url of endpoints) {
@@ -92,12 +115,59 @@ async function translateText(text: string, targetLang: string): Promise<string |
             const contentType = response.headers.get('content-type') || '';
             if (contentType.includes('application/json')) {
                 const data = await response.json();
-                if (data.translatedText && data.translatedText !== text) {
+                if (data.translatedText) {
                     return data.translatedText;
                 }
             }
         } catch {
             // Try next endpoint
+        }
+    }
+    return null;
+}
+
+// MyMemory - Free tier (1000 words/day without API key)
+async function translateWithMyMemory(text: string, targetLang: string): Promise<string | null> {
+    try {
+        const langPair = `en|${targetLang}`;
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+
+        const response = await fetch(url);
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        if (data.responseStatus === 200 && data.responseData?.translatedText) {
+            const translated = data.responseData.translatedText;
+            // MyMemory sometimes returns uppercase or unchanged text on failure
+            if (translated.toUpperCase() !== text.toUpperCase()) {
+                return translated;
+            }
+        }
+    } catch {
+        // Fall through
+    }
+    return null;
+}
+
+// Lingva Translate - Open source alternative frontend
+async function translateWithLingva(text: string, targetLang: string): Promise<string | null> {
+    const instances = [
+        'https://lingva.ml',
+        'https://translate.plausibility.cloud',
+    ];
+
+    for (const baseUrl of instances) {
+        try {
+            const url = `${baseUrl}/api/v1/en/${targetLang}/${encodeURIComponent(text)}`;
+            const response = await fetch(url);
+            if (!response.ok) continue;
+
+            const data = await response.json();
+            if (data.translation) {
+                return data.translation;
+            }
+        } catch {
+            // Try next instance
         }
     }
     return null;
@@ -170,59 +240,82 @@ async function translateCommand(): Promise<number> {
     const fr = loadLocale('fr');
     const ar = loadLocale('ar');
 
-    // Collect keys needing translation
-    const keysToTranslate = new Set<string>();
-
-    Object.keys(fr).forEach((k) => {
-        if (needsTranslation(fr[k])) keysToTranslate.add(k);
-    });
-    Object.keys(ar).forEach((k) => {
-        if (needsTranslation(ar[k])) keysToTranslate.add(k);
-    });
-
-    if (keysToTranslate.size === 0) {
-        console.log('   ✅ All translations are complete!\n');
-        return 0;
+    // Collect translation tasks
+    interface TranslationTask {
+        key: string;
+        lang: 'fr' | 'ar';
+        sourceText: string;
     }
 
-    console.log(`   Found ${keysToTranslate.size} keys needing translation.\n`);
+    const tasks: TranslationTask[] = [];
 
-    let translatedCount = 0;
-    const langMap: Record<string, string> = { fr: 'French', ar: 'Arabic' };
-
-    for (const key of keysToTranslate) {
+    for (const key of Object.keys(en)) {
         const sourceText = (en[key] || key)
             .replace(/^\[TODO_TRANSLATE\]\s*/, '')
             .replace(/^\[TRANSLATE\]\s*/, '')
             .trim();
 
-        // Translate French if needed
         if (needsTranslation(fr[key])) {
-            const tr = await translateText(sourceText, 'fr');
-            if (tr) {
-                fr[key] = tr;
-                console.log(`   ✔ [FR] ${key.substring(0, 50)}`);
+            tasks.push({ key, lang: 'fr', sourceText });
+        }
+        if (needsTranslation(ar[key])) {
+            tasks.push({ key, lang: 'ar', sourceText });
+        }
+    }
+
+    if (tasks.length === 0) {
+        console.log('   ✅ All translations are complete!\n');
+        return 0;
+    }
+
+    console.log(`   Found ${tasks.length} translations needed.`);
+    console.log(`   Processing in parallel batches...\n`);
+
+    // Process in concurrent batches
+    const BATCH_SIZE = 5; // Number of concurrent translations
+    let translatedCount = 0;
+    let processedCount = 0;
+
+    for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+        const batch = tasks.slice(i, i + BATCH_SIZE);
+
+        const results = await Promise.allSettled(
+            batch.map(async (task) => {
+                const tr = await translateText(task.sourceText, task.lang);
+                return { ...task, result: tr };
+            })
+        );
+
+        for (const result of results) {
+            processedCount++;
+            if (result.status === 'fulfilled' && result.value.result) {
+                const { key, lang, result: translation } = result.value;
+                if (lang === 'fr') {
+                    fr[key] = translation;
+                } else {
+                    ar[key] = translation;
+                }
+                const langLabel = lang.toUpperCase();
+                console.log(`   ✔ [${langLabel}] ${key.substring(0, 50)}`);
                 translatedCount++;
             }
-            await new Promise((r) => setTimeout(r, 250));
         }
 
-        // Translate Arabic if needed
-        if (needsTranslation(ar[key])) {
-            const tr = await translateText(sourceText, 'ar');
-            if (tr) {
-                ar[key] = tr;
-                console.log(`   ✔ [AR] ${key.substring(0, 50)}`);
-                translatedCount++;
-            }
-            await new Promise((r) => setTimeout(r, 250));
+        // Small delay between batches to be nice to APIs
+        if (i + BATCH_SIZE < tasks.length) {
+            await new Promise((r) => setTimeout(r, 200));
+        }
+
+        // Progress indicator every 20 items
+        if (processedCount % 20 === 0) {
+            console.log(`   ... ${processedCount}/${tasks.length} processed`);
         }
     }
 
     saveLocale('fr', fr);
     saveLocale('ar', ar);
 
-    console.log(`\n   ✅ Translated ${translatedCount} entries.\n`);
+    console.log(`\n   ✅ Translated ${translatedCount}/${tasks.length} entries.\n`);
     return translatedCount;
 }
 
