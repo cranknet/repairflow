@@ -167,7 +167,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid-stats mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
@@ -244,7 +244,7 @@ export function CustomersPageClient({ customers, search, userRole }: CustomersPa
             </div>
           ) : viewMode === 'cards' ? (
             /* Cards View */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid-cards">
               {customers.map((customer) => (
                 <div
                   key={customer.id}
