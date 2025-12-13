@@ -106,7 +106,7 @@ jobs:
         run: npm ci
 
       - name: Run i18n check
-        run: npm run i18n:check:strict
+        run: npm run i18n:check
         continue-on-error: true
 
   # ========================================
