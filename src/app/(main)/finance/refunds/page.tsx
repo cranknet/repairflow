@@ -177,9 +177,9 @@ export default function RefundsPage() {
                         <span className="text-sm font-medium">{t('finance.backToFinance')}</span>
                     </Link>
 
-                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                    <div className="flex-stack lg:items-end lg:justify-between">
                         <div>
-                            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                            <h1 className="text-fluid-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                                 {t('finance.refunds') || 'Returns & Refunds'}
                             </h1>
                             <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -198,7 +198,7 @@ export default function RefundsPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="grid-stats mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative">
@@ -310,7 +310,7 @@ export default function RefundsPage() {
                     </div>
                 ) : (
                     /* Returns Cards */
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid-cards">
                         {returns.map((returnItem) => {
                             const displayStatus = getDisplayStatus(returnItem);
                             const config = statusConfig[displayStatus];
