@@ -159,9 +159,9 @@ export default function ExpensesPage() {
                         <span className="text-sm font-medium">{t('finance.backToFinance')}</span>
                     </Link>
 
-                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                    <div className="flex-stack lg:items-end lg:justify-between">
                         <div>
-                            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                            <h1 className="text-fluid-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                                 {t('finance.expenses') || 'Business Expenses'}
                             </h1>
                             <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -205,7 +205,7 @@ export default function ExpensesPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <div className="grid-stats mb-8">
                     <div className="col-span-2 lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
@@ -238,7 +238,7 @@ export default function ExpensesPage() {
 
                 {/* Filters */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 mb-6">
-                    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                    <div className="flex-stack items-start lg:items-center">
                         {/* Search */}
                         <div className="flex-1 w-full lg:w-auto">
                             <div className="relative">
@@ -328,7 +328,7 @@ export default function ExpensesPage() {
                                 </div>
 
                                 {/* Expense Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 ml-5 pl-8 border-l-2 border-gray-200 dark:border-gray-700">
+                                <div className="grid-cards ml-5 pl-8 border-l-2 border-gray-200 dark:border-gray-700">
                                     {dateExpenses.map((expense) => {
                                         const config = typeConfig[expense.type] || typeConfig.MISC;
                                         return (
@@ -459,7 +459,7 @@ export default function ExpensesPage() {
 
                 {/* Pagination */}
                 {total > 0 && (
-                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
+                    <div className="mt-6 flex-stack bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             {t('finance.expenses.showing', { from: (page - 1) * limit + 1, to: Math.min(page * limit, total), total })}
                         </p>
