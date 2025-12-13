@@ -114,7 +114,7 @@ export function DashboardHero({
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-fade-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
+        <div className="grid-form gap-6 mb-8 animate-fade-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
             {/* Revenue Hero Card */}
             <div className={cn(
                 'relative overflow-hidden rounded-2xl p-6 sm:p-8 shadow-theme-md',
