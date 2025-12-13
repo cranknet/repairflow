@@ -206,9 +206,9 @@ export function PartsStockPageClient({
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div className="flex-stack lg:items-end lg:justify-between">
               <div>
-                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                <h1 className="text-fluid-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                   {t('inventory.stock') || 'Parts in Stock'}
                 </h1>
                 <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -348,7 +348,7 @@ export function PartsStockPageClient({
 
           {/* Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 mb-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            <div className="flex-stack items-start lg:items-center">
               {/* Search */}
               <div className="flex-1 w-full lg:w-auto">
                 <PartsStockSearch suppliers={suppliers} />
@@ -421,7 +421,7 @@ export function PartsStockPageClient({
             </div>
           ) : viewMode === 'cards' ? (
             /* Cards View */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid-cards">
               {filteredParts.map((part) => {
                 const status = getStockStatus(part.quantity, part.reorderLevel);
                 const config = stockStatusConfig[status];
