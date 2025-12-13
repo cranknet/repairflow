@@ -15,20 +15,20 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'elevated', interactive = false, ...props }, ref) => {
-    const baseClasses = "rounded-xl transition-all"
+    const baseClasses = "rounded-xl transition-all duration-200"
 
     const variantClasses = {
       default: cn(
         "bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white",
-        interactive && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+        interactive && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer hover:-translate-y-0.5"
       ),
       elevated: cn(
         "bg-white text-gray-900 dark:bg-gray-900 dark:text-white shadow-theme-sm border border-gray-100 dark:border-gray-800",
-        interactive && "hover:shadow-theme-md cursor-pointer"
+        interactive && "hover:shadow-theme-lg hover:-translate-y-1 cursor-pointer"
       ),
       outline: cn(
         "bg-white text-gray-900 dark:bg-gray-900 dark:text-white border border-gray-200 dark:border-gray-700",
-        interactive && "hover:shadow-theme-sm hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer"
+        interactive && "hover:shadow-theme-sm hover:border-gray-300 dark:hover:border-gray-600 hover:-translate-y-0.5 cursor-pointer"
       ),
     }
 

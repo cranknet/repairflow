@@ -126,22 +126,83 @@ const config: Config = {
       },
       // Custom Animations
       animation: {
-        'fadeIn': 'fadeIn 0.3s ease-out',
-        'scaleIn': 'scaleIn 0.2s ease-out',
+        // Fade Animations
+        'fadeIn': 'fadeIn 0.3s ease-out forwards',
+        'fadeOut': 'fadeOut 0.2s ease-out forwards',
+        'fadeInUp': 'fadeInUp 0.35s ease-out forwards',
+        'fadeInDown': 'fadeInDown 0.35s ease-out forwards',
+        'fadeInLeft': 'fadeInLeft 0.35s ease-out forwards',
+        'fadeInRight': 'fadeInRight 0.35s ease-out forwards',
+
+        // Scale Animations
+        'scaleIn': 'scaleIn 0.25s ease-out forwards',
+        'scaleOut': 'scaleOut 0.2s ease-out forwards',
+
+        // Slide Animations
         'slideInLeft': 'slideInLeft 0.3s ease-out',
         'slideInRight': 'slideInRight 0.3s ease-out',
         'slideOutLeft': 'slideOutLeft 0.2s ease-out',
         'slideOutRight': 'slideOutRight 0.2s ease-out',
+        'slideInFromBottom': 'slideInFromBottom 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slideInFromTop': 'slideInFromTop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+
+        // Micro-interactions
+        'bounce-subtle': 'bounceSubtle 0.4s ease-in-out',
+        'shake': 'shake 0.4s ease-in-out',
+        'wiggle': 'wiggle 0.3s ease-in-out',
+        'heartbeat': 'heartbeat 0.3s ease-in-out',
+
+        // Loading Animations
+        'spinner': 'spin 0.8s linear infinite',
+        'pulse-soft': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'ping-slow': 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+        'shimmer': 'shimmer 1.5s ease-in-out infinite',
+
+        // Component Animations
+        'modal-enter': 'fadeIn 0.2s ease-out, scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        'modal-exit': 'fadeOut 0.15s ease-out, scaleOut 0.2s ease-out',
+        'dropdown-enter': 'fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'toast-enter': 'slideInFromRight 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+        'page-enter': 'fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
+        // Fade Keyframes
         fadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        fadeInDown: {
+          '0%': { opacity: '0', transform: 'translateY(-16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-16px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        fadeInRight: {
+          '0%': { opacity: '0', transform: 'translateX(16px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+
+        // Scale Keyframes
         scaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.8)' },
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
+        scaleOut: {
+          '0%': { opacity: '1', transform: 'scale(1)' },
+          '100%': { opacity: '0', transform: 'scale(0.95)' },
+        },
+
+        // Slide Keyframes
         slideInLeft: {
           '0%': { opacity: '0', transform: 'translateX(-20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
@@ -158,6 +219,59 @@ const config: Config = {
           '0%': { opacity: '1', transform: 'translateX(0)' },
           '100%': { opacity: '0', transform: 'translateX(20px)' },
         },
+        slideInFromBottom: {
+          '0%': { opacity: '0', transform: 'translateY(100%)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInFromTop: {
+          '0%': { opacity: '0', transform: 'translateY(-100%)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInFromRight: {
+          '0%': { opacity: '0', transform: 'translateX(100%)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+
+        // Micro-interaction Keyframes
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-4px)' },
+          '20%, 40%, 60%, 80%': { transform: 'translateX(4px)' },
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(-3deg)' },
+          '75%': { transform: 'rotate(3deg)' },
+        },
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        },
+
+        // Loading Keyframes
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+
+      // Custom Transition Timing Functions
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+
+      // Custom Transition Durations
+      transitionDuration: {
+        'instant': '0ms',
+        'fast': '150ms',
+        'normal': '300ms',
+        'slow': '500ms',
       },
     },
   },

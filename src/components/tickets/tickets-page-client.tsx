@@ -138,7 +138,7 @@ function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: P
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 animate-fade-in-up opacity-0" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
             <TicketIcon className="h-6 w-6 text-white" />
@@ -150,7 +150,7 @@ function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: P
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 animate-fade-in-up opacity-0" style={{ animationDelay: '50ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
             <ClockIcon className="h-6 w-6 text-white" />
@@ -162,7 +162,7 @@ function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: P
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 animate-fade-in-up opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
             <WrenchScrewdriverIcon className="h-6 w-6 text-white" />
@@ -174,7 +174,7 @@ function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: P
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 animate-fade-in-up opacity-0" style={{ animationDelay: '150ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center relative">
             <ExclamationTriangleIcon className="h-6 w-6 text-white" />
@@ -233,7 +233,7 @@ function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { tickets
             <Link
               key={ticket.id}
               href={`/tickets/${ticket.id}`}
-              className="group bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-theme-lg hover:border-primary/20 transition-all duration-300"
+              className="group bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-theme-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-200"
             >
               <div className={`h-2 bg-gradient-to-r ${config.gradient}`} />
               <div className="p-5">
@@ -443,11 +443,11 @@ function StatsSkeleton() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 h-24 animate-pulse flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-700" />
+        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 h-24 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl skeleton" />
           <div className="space-y-2 flex-1">
-            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div className="h-6 w-10 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="h-4 w-20 skeleton rounded" />
+            <div className="h-6 w-10 skeleton rounded" />
           </div>
         </div>
       ))}
@@ -459,20 +459,20 @@ function ListSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 h-64 animate-pulse">
-          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full w-full mb-4" />
+        <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 h-64">
+          <div className="h-2 skeleton rounded-full w-full mb-4" />
           <div className="flex justify-between mb-4">
             <div className="flex gap-3">
-              <div className="w-11 h-11 rounded-xl bg-gray-200 dark:bg-gray-700" />
+              <div className="w-11 h-11 rounded-xl skeleton" />
               <div className="space-y-2">
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-4 w-24 skeleton rounded" />
+                <div className="h-3 w-16 skeleton rounded" />
               </div>
             </div>
           </div>
           <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-full" />
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+            <div className="h-8 skeleton rounded w-full" />
+            <div className="h-8 skeleton rounded w-3/4" />
           </div>
         </div>
       ))}
@@ -538,8 +538,8 @@ export function TicketsPageClient({
                   <button
                     onClick={() => setViewMode('cards')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'cards'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
                     <Squares2X2Icon className="h-5 w-5" />
@@ -548,8 +548,8 @@ export function TicketsPageClient({
                   <button
                     onClick={() => setViewMode('table')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'table'
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
                     <TableCellsIcon className="h-5 w-5" />
@@ -599,8 +599,8 @@ export function TicketsPageClient({
                   >
                     <button
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${status === filterStatus.key || (!status && filterStatus.key === '')
-                          ? 'bg-primary text-white shadow-md shadow-primary/25'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-primary text-white shadow-md shadow-primary/25'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                     >
                       {filterStatus.label}
