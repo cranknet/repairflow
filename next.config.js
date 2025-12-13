@@ -6,8 +6,8 @@ const withSerwistInit = require("@serwist/next").default;
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  // Disable PWA in development for faster builds
-  disable: process.env.NODE_ENV === "development",
+  // Only enable in production (Serwist doesn't support Turbopack in dev/test)
+  disable: process.env.NODE_ENV !== "production",
 });
 
 const nextConfig = {
