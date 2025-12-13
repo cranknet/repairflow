@@ -13,6 +13,7 @@ import {
   ClockIcon,
   CalendarDaysIcon,
   BanknotesIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import { ComponentType, SVGProps } from 'react';
 
@@ -98,7 +99,7 @@ async function getMetricsData() {
   const { lastWeekStart } = getDateRanges();
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
 
-  const [todayCompletedCount, pendingTickets, completedTickets, weeklyRevenue] = await Promise.all([
+  const [todayCompletedCount, pendingTickets, completedTickets, weeklyRevenue, serviceOnlyCount] = await Promise.all([
     prisma.ticket.count({
       where: { status: 'COMPLETED', completedAt: { gte: todayStart } },
     }),
@@ -112,6 +113,14 @@ async function getMetricsData() {
       where: { status: 'COMPLETED', completedAt: { gte: lastWeekStart } },
       _sum: { finalPrice: true },
     }),
+    // Count service-only repairs completed this week
+    prisma.ticket.count({
+      where: {
+        serviceOnly: true,
+        status: 'COMPLETED',
+        completedAt: { gte: lastWeekStart }
+      },
+    }),
   ]);
 
   return {
@@ -119,6 +128,7 @@ async function getMetricsData() {
     pendingTickets,
     completedTickets,
     totalSales: weeklyRevenue._sum.finalPrice || 0,
+    serviceOnlyCount,
   };
 }
 
@@ -250,10 +260,10 @@ async function MetricsLoader() {
         iconColor="text-warning-500"
       />
       <MetricCard
-        label="This Week"
-        value={data.completedTickets}
-        Icon={CalendarDaysIcon}
-        iconColor="text-brand-500"
+        label="Service Only"
+        value={data.serviceOnlyCount}
+        Icon={WrenchScrewdriverIcon}
+        iconColor="text-purple-500"
       />
       <MetricCard
         label="Weekly Sales"

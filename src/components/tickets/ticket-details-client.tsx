@@ -7,9 +7,11 @@ import { CreateReturnModal } from '@/components/returns/create-return-modal';
 import { AddPartsModal } from './add-parts-modal';
 import { TicketPaymentModal } from './ticket-payment-modal';
 import { StatusProgressBar } from './status-progress-bar';
+import { ServiceOnlyChoiceModal } from './service-only-choice-modal';
 import { useLanguage } from '@/contexts/language-context';
 import { TicketPrintProvider } from './ticket-print-context';
 import { TicketPrintButtons } from './ticket-print-buttons';
+import { useToast } from '@/components/ui/use-toast';
 
 interface TicketPart {
   id: string;
@@ -33,6 +35,7 @@ interface TicketDetailsClientProps {
     estimatedPrice: number;
     outstandingAmount?: number;
     totalPaid?: number;
+    serviceOnly?: boolean;
     customer: {
       name: string;
       phone: string;
@@ -49,12 +52,15 @@ interface TicketDetailsClientProps {
 export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientProps) {
   const router = useRouter();
   const { t } = useLanguage();
+  const { toast } = useToast();
 
   // Modal states
   const [showPartsModal, setShowPartsModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSMSPrompt, setShowSMSPrompt] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
+  const [showServiceOnlyChoice, setShowServiceOnlyChoice] = useState(false);
+  const [isMarkingServiceOnly, setIsMarkingServiceOnly] = useState(false);
 
   // Handle status change completion
   const handleStatusChange = () => {
@@ -67,8 +73,15 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
   };
 
   // Handle parts modal open (from progress bar)
+  // If ticket is in WAITING_FOR_PARTS, show choice modal first
   const handleOpenPartsModal = () => {
-    setShowPartsModal(true);
+    if (ticket.status === 'WAITING_FOR_PARTS' && !ticket.serviceOnly && (ticket.parts?.length ?? 0) === 0) {
+      // Show choice modal for tickets waiting for parts with no parts added
+      setShowServiceOnlyChoice(true);
+    } else {
+      // Directly open parts modal for other cases
+      setShowPartsModal(true);
+    }
   };
 
   // Handle parts modal close
@@ -99,6 +112,42 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
     router.refresh();
   };
 
+  // Handle service-only selection - mark ticket as service only and transition to REPAIRED
+  const handleSelectServiceOnly = async () => {
+    setIsMarkingServiceOnly(true);
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceOnly: true,
+          status: 'REPAIRED',
+          statusNotes: t('ticket.serviceOnly.markedAsServiceOnly'),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update ticket');
+      }
+
+      toast({
+        title: t('success'),
+        description: t('ticket.serviceOnly.markedAsServiceOnly'),
+      });
+
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: error instanceof Error ? error.message : t('failedToUpdateTicket'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsMarkingServiceOnly(false);
+    }
+  };
+
   return (
     <TicketPrintProvider ticket={ticket}>
       {/* Status Progress Bar - Main status management component */}
@@ -110,6 +159,15 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
         onOpenPaymentModal={handleOpenPaymentModal}
         onOpenReturnModal={handleOpenReturnModal}
         onOpenSMSPrompt={handleOpenSMSPrompt}
+      />
+
+      {/* Service Only Choice Modal */}
+      <ServiceOnlyChoiceModal
+        isOpen={showServiceOnlyChoice}
+        onClose={() => setShowServiceOnlyChoice(false)}
+        onSelectAddParts={() => setShowPartsModal(true)}
+        onSelectServiceOnly={handleSelectServiceOnly}
+        isLoading={isMarkingServiceOnly}
       />
 
       {/* Add Parts Modal */}
@@ -168,3 +226,4 @@ export function TicketDetailsClient({ ticket, userRole }: TicketDetailsClientPro
     </TicketPrintProvider>
   );
 }
+

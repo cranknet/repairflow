@@ -55,6 +55,7 @@ interface StatusProgressBarProps {
         estimatedPrice: number;
         outstandingAmount?: number;
         totalPaid?: number;
+        serviceOnly?: boolean;
         customer: {
             name: string;
             phone: string;
@@ -156,8 +157,10 @@ export function StatusProgressBar({
     // Check if payment is due
     const isPaymentDue = outstandingAmount > 0;
 
-    // Check if parts are linked
+    // Check if parts are linked or if it's a service-only repair
     const hasParts = (ticket.parts?.length ?? 0) > 0;
+    const isServiceOnly = ticket.serviceOnly === true;
+    const skippedParts = !hasParts || isServiceOnly;
 
     // Check if in terminal state
     const isTerminal = TERMINAL_STATES.includes(ticket.status as any);
@@ -174,15 +177,15 @@ export function StatusProgressBar({
 
     // Get progress percentage for the connecting line
     const progressPercentage = useMemo(() => {
-        // Skip WAITING_FOR_PARTS in calculation if we went directly to REPAIRED
+        // Skip WAITING_FOR_PARTS in calculation if we went directly to REPAIRED or it's service-only
         if (ticket.status === TicketStatus.REPAIRED || ticket.status === TicketStatus.COMPLETED) {
-            // If no parts, we skipped WAITING_FOR_PARTS
-            const actualSteps = hasParts ? currentStepIndex : currentStepIndex - 1;
-            const totalSteps = hasParts ? PROGRESS_STEPS.length - 1 : PROGRESS_STEPS.length - 2;
+            // If no parts or service-only, we skipped WAITING_FOR_PARTS
+            const actualSteps = skippedParts ? currentStepIndex - 1 : currentStepIndex;
+            const totalSteps = skippedParts ? PROGRESS_STEPS.length - 2 : PROGRESS_STEPS.length - 1;
             return (actualSteps / totalSteps) * 100;
         }
         return (currentStepIndex / (PROGRESS_STEPS.length - 1)) * 100;
-    }, [currentStepIndex, ticket.status, hasParts]);
+    }, [currentStepIndex, ticket.status, skippedParts]);
 
     // Get allowed transitions for current user
     const allowedTransitions = useMemo(() => {
@@ -208,8 +211,8 @@ export function StatusProgressBar({
 
         // Special case: When COMPLETED, all steps show as completed
         if (ticket.status === TicketStatus.COMPLETED) {
-            // WAITING_FOR_PARTS might have been skipped
-            if (stepStatus === TicketStatus.WAITING_FOR_PARTS && !hasParts) {
+            // WAITING_FOR_PARTS might have been skipped (no parts or service-only)
+            if (stepStatus === TicketStatus.WAITING_FOR_PARTS && skippedParts) {
                 return 'skipped';
             }
             return 'completed';
@@ -217,8 +220,8 @@ export function StatusProgressBar({
 
         // Check if this step was completed
         if (stepIndex < currentStepIndex) {
-            // Special case: WAITING_FOR_PARTS was skipped
-            if (stepStatus === TicketStatus.WAITING_FOR_PARTS && !hasParts &&
+            // Special case: WAITING_FOR_PARTS was skipped (no parts or service-only)
+            if (stepStatus === TicketStatus.WAITING_FOR_PARTS && skippedParts &&
                 (ticket.status === TicketStatus.REPAIRED || ticket.status === TicketStatus.COMPLETED)) {
                 return 'skipped';
             }
@@ -239,7 +242,7 @@ export function StatusProgressBar({
         if (result.allowed) return 'available';
 
         return 'locked';
-    }, [currentStepIndex, ticket.status, isTerminal, hasParts, isPaymentDue, checkTransition]);
+    }, [currentStepIndex, ticket.status, isTerminal, skippedParts, isPaymentDue, checkTransition]);
 
     // Determine which modal to open for a status click/re-click
     const getModalForStatus = useCallback((status: string, isReClick: boolean): ModalType => {
@@ -384,7 +387,7 @@ export function StatusProgressBar({
     // Get tooltip for step
     const getStepTooltip = (step: typeof PROGRESS_STEPS[0], stepState: string) => {
         if (stepState === 'completed') return `✓ ${t(step.label) || step.description}`;
-        if (stepState === 'skipped') return t('ticket.skippedNoParts');
+        if (stepState === 'skipped') return isServiceOnly ? t('ticket.serviceOnly.badge') : t('ticket.skippedNoParts');
         if (stepState === 'current') return t('currentStatus');
         if (stepState === 'current-warning') return t('paymentRequiredToComplete');
         if (stepState === 'available') return t('clickToAdvance');

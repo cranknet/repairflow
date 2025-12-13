@@ -109,6 +109,9 @@ export default async function TicketsPage({
   };
   if (params.status === 'active') {
     where.status = { notIn: ['CANCELLED', 'RETURNED'] };
+  } else if (params.status === 'service-only') {
+    // Filter for service-only repairs
+    where.serviceOnly = true;
   } else if (params.status) {
     where.status = params.status;
   }

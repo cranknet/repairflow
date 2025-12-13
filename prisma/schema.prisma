@@ -74,6 +74,8 @@ model Ticket {
   trackingCode         String                  @unique
   warrantyDays         Int?                    // Warranty period in days
   warrantyText         String? // Custom warranty text
+  serviceOnly          Boolean                 @default(false) // True if repair is service-only (no parts required)
+  serviceType          String? // Type of service: UNLOCK, FLASH, CONFIG, DIAGNOSTICS, DATA_RECOVERY, OTHER
   notes                String?
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt

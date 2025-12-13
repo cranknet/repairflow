@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/language-context';
+import { ServiceOnlyBadge } from './service-only-badge';
 
 const NewTicketWizard = dynamic(
   () => import('@/components/tickets/new-ticket-wizard').then((mod) => mod.NewTicketWizard),
@@ -54,6 +55,8 @@ export interface Ticket {
   hasPendingReturn?: boolean;
   totalPaid?: number;
   outstandingAmount?: number;
+  serviceOnly?: boolean;
+  serviceType?: string | null;
 }
 
 interface TicketsPageClientProps {
@@ -256,9 +259,14 @@ function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { tickets
                     <p className="text-lg font-bold text-gray-900 dark:text-white">
                       ${(ticket.finalPrice ?? ticket.estimatedPrice).toFixed(2)}
                     </p>
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
-                      {ticket.priority}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${priority.bg} ${priority.color}`}>
+                        {ticket.priority}
+                      </span>
+                      {ticket.serviceOnly && (
+                        <ServiceOnlyBadge serviceType={ticket.serviceType} size="sm" />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -514,6 +522,7 @@ export function TicketsPageClient({
     { key: 'active', label: t('active') || 'Active' },
     { key: 'IN_PROGRESS', label: t('inProgress') || 'In Progress' },
     { key: 'REPAIRED', label: t('repaired') || 'Repaired' },
+    { key: 'service-only', label: t('ticket.serviceOnly.badge') || 'Service Only' },
     { key: 'RETURNED', label: t('returned') || 'Returned' },
     { key: 'CANCELLED', label: t('cancelled') || 'Cancelled' },
   ];

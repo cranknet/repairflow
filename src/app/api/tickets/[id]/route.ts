@@ -31,6 +31,8 @@ const updateTicketSchema = z.object({
   notes: z.string().optional(),
   statusNotes: z.string().optional(),
   priceAdjustmentReason: z.string().optional(),
+  serviceOnly: z.boolean().optional(), // True if this is a service-only repair (no parts required)
+  serviceType: z.enum(['UNLOCK', 'FLASH', 'CONFIG', 'DIAGNOSTICS', 'DATA_RECOVERY', 'OTHER']).nullable().optional(),
 });
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

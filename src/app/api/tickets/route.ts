@@ -21,6 +21,8 @@ const createTicketSchema = z.object({
   warrantyDays: z.number().int().min(0).optional(),
   warrantyText: z.string().optional(),
   notes: z.string().optional(),
+  serviceOnly: z.boolean().optional(),
+  serviceType: z.enum(['UNLOCK', 'FLASH', 'CONFIG', 'DIAGNOSTICS', 'DATA_RECOVERY', 'OTHER']).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -39,6 +41,9 @@ export async function GET(request: NextRequest) {
     };
     if (status === 'active') {
       where.status = { notIn: ['COMPLETED', 'CANCELLED'] };
+    } else if (status === 'service-only') {
+      // Filter for service-only tickets
+      where.serviceOnly = true;
     } else if (status) {
       where.status = status;
     }
