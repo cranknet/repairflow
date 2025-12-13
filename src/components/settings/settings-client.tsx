@@ -567,7 +567,7 @@ export function SettingsClient({
                   {users.map((user) => (
                     <div
                       key={user.id}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-soft transition-all gap-3"
+                      className="flex-stack justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-soft transition-all"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">

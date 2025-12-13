@@ -26,7 +26,7 @@ function ToggleSetting({
     onChange: (checked: boolean) => void;
 }) {
     return (
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="flex-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="flex-1 pr-4">
                 <p className="font-medium">{label}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
@@ -134,7 +134,7 @@ export function TicketSettingsTab({
                     <CardDescription>{t('settings.ticketDefaultsDescription') || 'Default values for new tickets'}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid-form">
                         <div className="space-y-2">
                             <Label htmlFor="default_priority">{t('settings.defaultPriority') || 'Default Priority'}</Label>
                             <select
@@ -171,7 +171,7 @@ export function TicketSettingsTab({
                     <CardDescription>{t('settings.autoCloseRulesDescription') || 'Automatically close completed tickets after a period'}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid-form">
                         <div className="space-y-2">
                             <Label htmlFor="auto_close_after_days">{t('settings.autoCloseAfterDays') || 'Auto-Close After (Days)'}</Label>
                             <Input

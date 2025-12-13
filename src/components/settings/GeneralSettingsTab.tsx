@@ -51,7 +51,7 @@ export function GeneralSettingsTab({
                     <CardDescription>{t('companyInformation')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid-form">
                         <div className="space-y-2">
                             <Label htmlFor="company_name">{t('companyName')}</Label>
                             <Input
@@ -94,7 +94,7 @@ export function GeneralSettingsTab({
                     {/* Regional Settings */}
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <h3 className="text-lg font-semibold mb-4">{t('install.company.localeSettings') || 'Regional Settings'}</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid-form">
                             <div className="space-y-2">
                                 <Label htmlFor="currency">{t('currency')}</Label>
                                 <select
@@ -155,7 +155,7 @@ export function GeneralSettingsTab({
                     {/* Business Hours */}
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                         <h3 className="text-lg font-semibold mb-4">{t('settings.businessHours') || 'Business Hours'}</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid-form">
                             <div className="space-y-2">
                                 <Label htmlFor="business_hours_start">{t('settings.openingTime') || 'Opening Time'}</Label>
                                 <Input
