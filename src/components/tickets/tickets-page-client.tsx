@@ -137,7 +137,7 @@ function StatsSection({ ticketsPromise, totalCountPromise }: { ticketsPromise: P
   }, [tickets]);
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid-stats mb-8">
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 animate-fade-in-up opacity-0" style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
@@ -224,7 +224,7 @@ function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { tickets
 
   if (viewMode === 'cards') {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid-cards">
         {tickets.map((ticket) => {
           const config = statusConfig[ticket.status] || statusConfig.PENDING;
           const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
@@ -392,7 +392,7 @@ function PaginationSection({ totalCountPromise, currentPage, status, search }: {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
+    <div className="mt-6 flex-stack bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-4">
       <p className="text-sm text-gray-500 dark:text-gray-400">
         Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalCount)} of {totalCount}
       </p>
@@ -443,7 +443,7 @@ function PaginationSection({ totalCountPromise, currentPage, status, search }: {
 
 function StatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid-stats mb-8">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700 h-24 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl skeleton" />
@@ -459,7 +459,7 @@ function StatsSkeleton() {
 
 function ListSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid-cards">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 h-64">
           <div className="h-2 skeleton rounded-full w-full mb-4" />
@@ -524,9 +524,9 @@ export function TicketsPageClient({
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div className="flex-stack lg:items-end lg:justify-between">
               <div>
-                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                <h1 className="text-fluid-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                   {t('tickets') || 'Repair Tickets'}
                 </h1>
                 <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -577,7 +577,7 @@ export function TicketsPageClient({
 
           {/* Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 p-5 mb-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            <div className="flex-stack items-start lg:items-center">
               {/* Search */}
               <form onSubmit={handleSearch} className="flex-1 w-full lg:w-auto">
                 <div className="relative">
