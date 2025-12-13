@@ -181,7 +181,7 @@ export function InventoryAdjustmentFormModal({ isOpen = true, onClose, onSuccess
 
                         {/* Part Selection */}
                         <div className="space-y-2">
-                            <div className="flex items-center justify-between">
+                            <div className="flex-between">
                                 <Label htmlFor="adj-part">
                                     {t('finance.inventoryAdjustmentForm.part')} <span className="text-error-500">*</span>
                                 </Label>
@@ -222,7 +222,7 @@ export function InventoryAdjustmentFormModal({ isOpen = true, onClose, onSuccess
                         </div>
 
                         {/* Qty Change & Total Cost - 2 column */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid-form">
                             <div className="space-y-2">
                                 <Label htmlFor="adj-qty">
                                     {t('finance.qtyChange')} <span className="text-error-500">*</span>
