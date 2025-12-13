@@ -19,16 +19,62 @@ function generateTicketNumber(): string {
 async function main() {
   console.log('🌱 Seeding database...');
 
+  // Check if FORCE_SEED is set (for CI/E2E testing)
+  const forceSeeding = process.env.FORCE_SEED === 'true';
+
   // Check if already installed - skip seeding sample data if not installed yet
   // The installer wizard will handle initial setup
   const isInstalled = await prisma.settings.findUnique({
     where: { key: 'is_installed' },
   });
 
-  if (!isInstalled || isInstalled.value !== 'true') {
+  if (!forceSeeding && (!isInstalled || isInstalled.value !== 'true')) {
     console.log('⚠️  Application not installed yet. Run the installer wizard first.');
     console.log('   Skipping sample data seeding...');
+    console.log('   (Use FORCE_SEED=true to bypass this check)');
     return;
+  }
+
+  // If force seeding, create required admin user first
+  if (forceSeeding && !isInstalled) {
+    console.log('🔧 Force seeding enabled, creating required setup...');
+
+    // Create is_installed setting
+    await prisma.settings.upsert({
+      where: { key: 'is_installed' },
+      update: { value: 'true' },
+      create: { key: 'is_installed', value: 'true', description: 'Application installation status' },
+    });
+
+    // Create default admin user for testing
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await prisma.user.upsert({
+      where: { username: 'admin' },
+      update: {},
+      create: {
+        username: 'admin',
+        name: 'Admin User',
+        email: 'admin@test.local',
+        password: hashedPassword,
+        role: 'ADMIN',
+      },
+    });
+
+    // Create staff user for testing
+    const staffPassword = await bcrypt.hash('staff123', 10);
+    await prisma.user.upsert({
+      where: { username: 'staff' },
+      update: {},
+      create: {
+        username: 'staff',
+        name: 'Staff User',
+        email: 'staff@test.local',
+        password: staffPassword,
+        role: 'STAFF',
+      },
+    });
+
+    console.log('✅ Created test admin (admin/admin123) and staff (staff/staff123) users');
   }
 
   // Get admin and staff users (created by installer)

@@ -233,6 +233,7 @@ function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { tickets
             <Link
               key={ticket.id}
               href={`/tickets/${ticket.id}`}
+              data-testid="ticket-row"
               className="group bg-white dark:bg-gray-800 rounded-2xl shadow-theme-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-theme-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-200"
             >
               <div className={`h-2 bg-gradient-to-r ${config.gradient}`} />
@@ -340,6 +341,7 @@ function TicketsListContent({ ticketsPromise, viewMode, onOpenModal }: { tickets
               return (
                 <tr
                   key={ticket.id}
+                  data-testid="ticket-row"
                   onClick={() => router.push(`/tickets/${ticket.id}`)}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                 >
