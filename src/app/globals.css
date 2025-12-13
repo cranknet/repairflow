@@ -293,6 +293,348 @@
   }
 }
 
+/* ==========================================================================
+   MODERN CSS FEATURES
+   ========================================================================== */
+
+/* 
+ * Container Queries Support
+ * Enable container query context on specific elements
+ */
+@layer base {
+  .container-query {
+    container-type: inline-size;
+  }
+
+  .container-query-size {
+    container-type: size;
+  }
+}
+
+/* 
+ * Fluid Typography Scale
+ * Using clamp() for responsive font sizes without media queries
+ */
+@layer utilities {
+
+  /* Fluid text sizes - scales smoothly between breakpoints */
+  .text-fluid-xs {
+    font-size: clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem);
+  }
+
+  .text-fluid-sm {
+    font-size: clamp(0.75rem, 0.625rem + 0.5vw, 0.875rem);
+  }
+
+  .text-fluid-base {
+    font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1rem);
+  }
+
+  .text-fluid-lg {
+    font-size: clamp(1rem, 0.875rem + 0.625vw, 1.125rem);
+  }
+
+  .text-fluid-xl {
+    font-size: clamp(1.125rem, 0.875rem + 1vw, 1.25rem);
+  }
+
+  .text-fluid-2xl {
+    font-size: clamp(1.25rem, 1rem + 1.25vw, 1.5rem);
+  }
+
+  .text-fluid-3xl {
+    font-size: clamp(1.5rem, 1.125rem + 1.875vw, 1.875rem);
+  }
+
+  .text-fluid-4xl {
+    font-size: clamp(1.875rem, 1.25rem + 3.125vw, 2.25rem);
+  }
+
+  .text-fluid-5xl {
+    font-size: clamp(2.25rem, 1.5rem + 3.75vw, 3rem);
+  }
+
+  /* Fluid spacing using clamp() */
+  .gap-fluid {
+    gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  }
+
+  .p-fluid {
+    padding: clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  .px-fluid {
+    padding-inline: clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  .py-fluid {
+    padding-block: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  }
+
+  .m-fluid {
+    margin: clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  .mx-fluid {
+    margin-inline: clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  .my-fluid {
+    margin-block: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  }
+}
+
+/* 
+ * Logical Properties for RTL Support
+ * Use these for proper bidirectional layout support
+ */
+@layer utilities {
+
+  /* Margin logical properties */
+  .mis-auto {
+    margin-inline-start: auto;
+  }
+
+  .mie-auto {
+    margin-inline-end: auto;
+  }
+
+  .mbs-auto {
+    margin-block-start: auto;
+  }
+
+  .mbe-auto {
+    margin-block-end: auto;
+  }
+
+  /* Padding logical properties */
+  .pis-0 {
+    padding-inline-start: 0;
+  }
+
+  .pie-0 {
+    padding-inline-end: 0;
+  }
+
+  .pbs-0 {
+    padding-block-start: 0;
+  }
+
+  .pbe-0 {
+    padding-block-end: 0;
+  }
+
+  /* Border logical properties */
+  .border-is {
+    border-inline-start-width: 1px;
+  }
+
+  .border-ie {
+    border-inline-end-width: 1px;
+  }
+
+  .border-bs {
+    border-block-start-width: 1px;
+  }
+
+  .border-be {
+    border-block-end-width: 1px;
+  }
+
+  /* Inset logical properties */
+  .inset-is-0 {
+    inset-inline-start: 0;
+  }
+
+  .inset-ie-0 {
+    inset-inline-end: 0;
+  }
+
+  .inset-bs-0 {
+    inset-block-start: 0;
+  }
+
+  .inset-be-0 {
+    inset-block-end: 0;
+  }
+
+  /* Text alignment */
+  .text-start {
+    text-align: start;
+  }
+
+  .text-end {
+    text-align: end;
+  }
+}
+
+/* 
+ * Aspect Ratio Utilities
+ * Maintain proportions for media elements
+ */
+@layer utilities {
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  .aspect-portrait {
+    aspect-ratio: 3 / 4;
+  }
+
+  .aspect-wide {
+    aspect-ratio: 21 / 9;
+  }
+
+  .aspect-golden {
+    aspect-ratio: 1.618 / 1;
+  }
+}
+
+/* 
+ * CSS Containment for Performance
+ * Isolate layout/paint calculations
+ */
+@layer utilities {
+  .contain-none {
+    contain: none;
+  }
+
+  .contain-strict {
+    contain: strict;
+  }
+
+  .contain-content {
+    contain: content;
+  }
+
+  .contain-size {
+    contain: size;
+  }
+
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-style {
+    contain: style;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+}
+
+/* 
+ * Modern Selector Utilities
+ * Using :is() and :where() for efficient selectors
+ */
+@layer utilities {
+
+  /* Interactive states for form elements */
+  :is(input, textarea, select):is(:focus-visible) {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Hover effect for interactive cards */
+  :where(.card-hover):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* 
+ * Container Query Utilities
+ * Responsive styles based on container size, not viewport
+ */
+@container (min-width: 320px) {
+  .cq-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 480px) {
+  .cq-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 640px) {
+  .cq-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .cq-flex-row {
+    flex-direction: row;
+  }
+
+  .cq-text-lg {
+    font-size: 1.125rem;
+  }
+}
+
+/* 
+ * Min/Max Width Utilities with Modern CSS
+ */
+@layer utilities {
+  .w-min-content {
+    width: min-content;
+  }
+
+  .w-max-content {
+    width: max-content;
+  }
+
+  .w-fit-content {
+    width: fit-content;
+  }
+
+  .min-w-min {
+    min-width: min-content;
+  }
+
+  .min-w-max {
+    min-width: max-content;
+  }
+
+  .min-w-fit {
+    min-width: fit-content;
+  }
+
+  .max-w-min {
+    max-width: min-content;
+  }
+
+  .max-w-max {
+    max-width: max-content;
+  }
+
+  .max-w-fit {
+    max-width: fit-content;
+  }
+
+  /* Responsive clamped widths */
+  .w-clamp-sm {
+    width: clamp(280px, 90vw, 340px);
+  }
+
+  .w-clamp-md {
+    width: clamp(340px, 90vw, 480px);
+  }
+
+  .w-clamp-lg {
+    width: clamp(480px, 90vw, 640px);
+  }
+
+  .w-clamp-xl {
+    width: clamp(640px, 90vw, 800px);
+  }
+}
+
 /* TailAdmin Menu Item Utilities */
 @layer components {
   .menu-item {
@@ -1083,4 +1425,347 @@
 
 .page-exit {
   animation: fadeOut 0.2s ease-out;
+}
+
+/* ==========================================================================
+   ENHANCED ACCESSIBILITY
+   ========================================================================== */
+
+/* 
+ * High Contrast Mode Support
+ * Ensure visibility in Windows High Contrast Mode
+ */
+@media (forced-colors: active) {
+
+  /* Ensure borders are visible */
+  .border,
+  [class*="border-"] {
+    border-color: CanvasText;
+  }
+
+  /* Ensure focus rings are visible */
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+
+  /* Buttons maintain visibility */
+  button,
+  [role="button"] {
+    border: 1px solid ButtonText;
+  }
+
+  /* Form inputs visible */
+  input,
+  textarea,
+  select {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+
+  /* Links are marked */
+  a {
+    text-decoration: underline;
+  }
+
+  /* Badge/tag visibility */
+  .badge,
+  [class*="badge-"] {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* 
+ * Enhanced Focus States
+ * Better focus visibility for keyboard navigation
+ */
+@layer utilities {
+
+  /* Focus ring utilities with better visibility */
+  .focus-ring-default {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .focus-ring-inset {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-inset;
+  }
+
+  .focus-ring-error {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error-500 focus-visible:ring-offset-2;
+  }
+
+  /* Skip link for keyboard users */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-brand-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg;
+  }
+}
+
+/* 
+ * Visible Focus for all interactive elements
+ */
+@layer base {
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT UTILITIES
+   ========================================================================== */
+
+/* 
+ * CSS Grid Layout Utilities
+ * Common grid patterns for responsive layouts
+ */
+@layer utilities {
+
+  /* Auto-fit grid - grows to fill space */
+  .grid-auto-fit-xs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .grid-auto-fit-sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .grid-auto-fit-md {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .grid-auto-fit-lg {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Auto-fill grid - maintains column size */
+  .grid-auto-fill-xs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .grid-auto-fill-sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .grid-auto-fill-md {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Dashboard/Stats grid patterns */
+  .grid-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .grid-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Card grid patterns */
+  .grid-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid-cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .grid-cards {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Form layout grid */
+  .grid-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid-form {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .grid-form-3 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .grid-form-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+/* 
+ * Flexbox Layout Utilities
+ * Common flexbox patterns
+ */
+@layer utilities {
+
+  /* Stack to row responsive pattern */
+  .flex-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .flex-stack {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  /* Responsive flex wrapping */
+  .flex-responsive {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* Center content utility */
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Space between pattern */
+  .flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Baseline alignment for text */
+  .flex-baseline {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+}
+
+/* 
+ * Responsive Spacing Scale
+ * Consistent spacing that adapts to screen size
+ */
+@layer utilities {
+
+  /* Responsive section spacing */
+  .section-space {
+    padding-block: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .section-space {
+      padding-block: 3rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-space {
+      padding-block: 4rem;
+    }
+  }
+
+  /* Responsive container padding */
+  .container-padding {
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-padding {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-padding {
+      padding-inline: 2rem;
+    }
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+@media print {
+
+  /* Hide non-essential elements */
+  .no-print,
+  nav,
+  aside,
+  .sidebar,
+  button:not([type="submit"]),
+  .toast,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  /* Ensure content uses full width */
+  body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  /* Links show URL */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Avoid page breaks inside elements */
+  .avoid-break {
+    break-inside: avoid;
+  }
+
+  /* Force page breaks */
+  .page-break-before {
+    break-before: page;
+  }
+
+  .page-break-after {
+    break-after: page;
+  }
 }

@@ -8,6 +8,30 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    // Modern responsive breakpoints with container queries support
+    screens: {
+      'xs': '475px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+      // Tall viewport
+      'tall': { 'raw': '(min-height: 800px)' },
+      // Touch devices
+      'touch': { 'raw': '(hover: none)' },
+      // Pointer precision
+      'pointer-coarse': { 'raw': '(pointer: coarse)' },
+    },
+    // Container breakpoints for @container queries
+    containers: {
+      'xs': '320px',
+      'sm': '384px',
+      'md': '448px',
+      'lg': '512px',
+      'xl': '576px',
+      '2xl': '672px',
+    },
     extend: {
       // TailAdmin uses Outfit font
       fontFamily: {
@@ -273,9 +297,82 @@ const config: Config = {
         'normal': '300ms',
         'slow': '500ms',
       },
+
+      // Extended Spacing Scale
+      spacing: {
+        '4.5': '1.125rem',
+        '5.5': '1.375rem',
+        '13': '3.25rem',
+        '15': '3.75rem',
+        '18': '4.5rem',
+        '22': '5.5rem',
+        '26': '6.5rem',
+        '30': '7.5rem',
+        '34': '8.5rem',
+        '38': '9.5rem',
+        '42': '10.5rem',
+        '46': '11.5rem',
+        '50': '12.5rem',
+        '54': '13.5rem',
+        '58': '14.5rem',
+        '62': '15.5rem',
+        '66': '16.5rem',
+        '70': '17.5rem',
+        '74': '18.5rem',
+        '78': '19.5rem',
+        '82': '20.5rem',
+        '86': '21.5rem',
+        '90': '22.5rem',
+        '94': '23.5rem',
+      },
+
+      // Min/Max Width Tokens
+      minWidth: {
+        'xs': '320px',
+        'sm': '384px',
+        'md': '448px',
+        'lg': '512px',
+        'xl': '576px',
+        '2xl': '672px',
+        '3xl': '768px',
+        '4xl': '896px',
+        '5xl': '1024px',
+      },
+
+      maxWidth: {
+        'xs': '320px',
+        'sm': '384px',
+        'md': '448px',
+        'lg': '512px',
+        'xl': '576px',
+        '2xl': '672px',
+        '3xl': '768px',
+        '4xl': '896px',
+        '5xl': '1024px',
+        '6xl': '1152px',
+        '7xl': '1280px',
+        'prose': '65ch',
+        'readable': '75ch',
+      },
+
+      // Z-Index Scale
+      zIndex: {
+        '1': '1',
+        '2': '2',
+        '3': '3',
+        '4': '4',
+        '5': '5',
+        '60': '60',
+        '70': '70',
+        '80': '80',
+        '90': '90',
+        '100': '100',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    // Container Queries Plugin (native CSS container queries)
+    require('@tailwindcss/container-queries'),
+  ],
 };
 export default config;
-
