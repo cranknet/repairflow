@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/language-context';
 import { DeviceData } from '../new-ticket-wizard';
 import { DEVICE_BRANDS, DEVICE_MODELS } from '@/lib/device-brands';
 import { getAllBrands, getAllModels, addCustomBrand, addCustomModel } from '@/lib/device-storage';
+import { useCamera } from '@/lib/hooks/use-camera';
 import ImageCrop from '../image-crop';
 import {
   CameraIcon,
@@ -25,6 +26,7 @@ import {
   DevicePhoneMobileIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  VideoCameraSlashIcon,
 } from '@heroicons/react/24/outline';
 
 interface StepDeviceDetectionProps {
@@ -238,29 +240,34 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
     }
   };
 
-  // Camera handling
-  const startCamera = async (type: 'front' | 'back') => {
-    // Check if camera API is available (requires HTTPS or localhost)
-    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-      console.warn('Camera API not available - falling back to file input');
+  // Camera hook for platform detection and availability checking
+  const { state: cameraState, isMobileDevice, requestAccess, stopStream: stopCameraStream } = useCamera();
+
+  /**
+   * Handle "Take Photo" button click based on platform:
+   * - Mobile: Use native camera app via file input with capture attribute
+   * - Desktop with camera: Show embedded camera modal
+   * - Desktop without camera: Button is disabled (handled in UI)
+   */
+  const handleTakePhoto = (type: 'front' | 'back') => {
+    if (isMobileDevice) {
+      // On mobile, trigger native camera app
       if (type === 'front') {
         frontCameraRef.current?.click();
       } else {
         backCameraRef.current?.click();
       }
-      return;
+    } else {
+      // On desktop, show embedded camera modal
+      startCamera(type);
     }
+  };
 
-    try {
-      let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
-        });
-      } catch {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      }
+  // Camera handling for desktop embedded modal
+  const startCamera = async (type: 'front' | 'back') => {
+    const stream = await requestAccess('environment');
 
+    if (stream) {
       streamRef.current = stream;
       setShowCamera(type);
       setTimeout(() => {
@@ -269,23 +276,30 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
           videoRef.current.play().catch(console.error);
         }
       }, 100);
-    } catch (error) {
-      console.error('Camera error:', error);
-      if (type === 'front') {
-        frontCameraRef.current?.click();
-      } else {
-        backCameraRef.current?.click();
-      }
+    } else if (cameraState.error) {
+      // Show error toast on camera failure
+      toast({
+        title: t('camera.error') || 'Camera Error',
+        description: cameraState.errorMessage || t('camera.accessFailed') || 'Failed to access camera',
+        variant: 'destructive',
+      });
     }
   };
 
   const stopCamera = () => {
+    stopCameraStream();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setShowCamera(null);
   };
+
+  // Determine if camera button should be disabled on desktop
+  const isCameraDisabled = !isMobileDevice && cameraState.isAvailable === false;
+  const cameraDisabledReason = isCameraDisabled
+    ? (cameraState.errorMessage || t('camera.notAvailable') || 'No camera detected')
+    : undefined;
 
   const capturePhoto = () => {
     if (videoRef.current && showCamera) {
@@ -500,15 +514,23 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     type="button"
-                    onClick={() => startCamera('back')}
+                    onClick={() => handleTakePhoto('back')}
+                    disabled={isCameraDisabled}
+                    title={cameraDisabledReason}
                     className="text-sm"
                   >
-                    <CameraIcon className="h-4 w-4 mr-2" />
-                    {t('takePhoto')}
+                    {isCameraDisabled ? (
+                      <VideoCameraSlashIcon className="h-4 w-4 mr-2" />
+                    ) : (
+                      <CameraIcon className="h-4 w-4 mr-2" />
+                    )}
+                    {isCameraDisabled
+                      ? (t('camera.notAvailable') || 'No camera')
+                      : t('takePhoto')}
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant={isCameraDisabled ? 'default' : 'outline'}
                     onClick={() => backInputRef.current?.click()}
                     className="text-sm"
                   >
@@ -640,11 +662,19 @@ export function StepDeviceDetection({ data, onChange }: StepDeviceDetectionProps
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => startCamera('front')}
+                      onClick={() => handleTakePhoto('front')}
+                      disabled={isCameraDisabled}
+                      title={cameraDisabledReason}
                       className="text-xs"
                     >
-                      <CameraIcon className="h-4 w-4 mr-1" />
-                      {t('takePhoto')}
+                      {isCameraDisabled ? (
+                        <VideoCameraSlashIcon className="h-4 w-4 mr-1" />
+                      ) : (
+                        <CameraIcon className="h-4 w-4 mr-1" />
+                      )}
+                      {isCameraDisabled
+                        ? (t('camera.notAvailable') || 'No camera')
+                        : t('takePhoto')}
                     </Button>
                     <Button
                       type="button"
