@@ -45,11 +45,17 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma (track migrations, ignore dev/test databases)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 /prisma/dev.db
 /prisma/test.db
+/prisma/**/dev.db
+/prisma/**/test.db
+/prisma/**/*.db
 /dev.db
 /test.db
-*.db-journal
 
 # IDE
 .vscode/
