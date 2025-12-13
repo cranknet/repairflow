@@ -128,9 +128,9 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div className="flex-stack lg:items-end lg:justify-between">
               <div>
-                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                <h1 className="text-fluid-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
                   {t('relations.suppliers') || 'Suppliers'}
                 </h1>
                 <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -175,7 +175,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid-stats mb-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-theme-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
@@ -252,7 +252,7 @@ export function SuppliersPageClient({ suppliers, search, userRole }: SuppliersPa
             </div>
           ) : viewMode === 'cards' ? (
             /* Cards View */
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid-cards">
               {suppliers.map((supplier) => (
                 <div
                   key={supplier.id}
