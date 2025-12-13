@@ -42,7 +42,7 @@ jobs:
         continue-on-error: true
 
       - name: TypeScript Type Check
-        run: npx tsc --noEmit
+        run: npm run typecheck
         continue-on-error: true
 
   # ========================================
